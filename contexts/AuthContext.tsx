@@ -68,19 +68,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Initialize auth state
+    // Initialize auth state - run once on mount
+    let isMounted = true;
+    
     const initAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!isMounted) return;
+        
         setSession(session);
         setUser(session?.user ?? null);
+        
         if (session?.user) {
-          await fetchProfile(session.user.id);
+          // Fetch profile but don't block loading
+          fetchProfile(session.user.id);
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
@@ -88,18 +95,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
+        if (!isMounted) return;
+        
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          await fetchProfile(session.user.id);
+          fetchProfile(session.user.id); // Don't await - let it run in background
         } else {
           setProfile(null);
         }
-        // Note: don't set loading to false here, only on initial load
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {

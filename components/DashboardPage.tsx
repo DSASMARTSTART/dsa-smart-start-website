@@ -104,7 +104,8 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
     return Math.min(100, Math.round((completedCount / totalItems) * 100));
   };
 
-  if (loading || authLoading) {
+  if (loading && authLoading) {
+    // Only show loading spinner if both are loading (initial load)
     return (
       <div className="bg-[#f8f9fb] min-h-screen pt-32 pb-20 flex items-center justify-center">
         <div className="text-center">
