@@ -23,6 +23,7 @@ import CourseViewer from './components/CourseViewer';
 import PolicyPage from './components/PolicyPage';
 import ResetPasswordPage from './components/ResetPasswordPage';
 import { useAuth } from './contexts/AuthContext';
+import { clearCoursesCache } from './data/supabaseStore';
 
 // Admin Dashboard Components
 import { 
@@ -113,7 +114,9 @@ const App: React.FC = () => {
 
   const handleLogout = async () => {
     await signOut();
+    clearCoursesCache(); // Clear cached data
     navigateTo('home');
+    window.location.reload(); // Force full refresh to clear all state
   };
 
   // Check for admin access

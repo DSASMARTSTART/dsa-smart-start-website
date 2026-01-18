@@ -341,14 +341,16 @@ export const coursesApi = {
       query = query.eq('level', filters.level);
     }
     
-    // For public pages, we rely on RLS policy to filter published courses
-    // Only add explicit filter for admin pages that might want unpublished courses
+    // Always explicitly filter for published courses on public pages
+    // This ensures logged-in users can still see published courses
     const publishedFilter = filters?.published ?? filters?.isPublished;
     if (publishedFilter === false) {
-      // Only filter for unpublished if explicitly requested
+      // Only filter for unpublished if explicitly requested (admin pages)
       query = query.eq('is_published', false);
+    } else {
+      // For public pages (including logged-in users), always filter for published
+      query = query.eq('is_published', true);
     }
-    // If publishedFilter is true or undefined, let RLS handle it (returns only published for anon users)
 
     const { data, error } = await query.order('created_at', { ascending: false });
     
