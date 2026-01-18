@@ -26,10 +26,11 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
     const loadCourseAndCheckAccess = async () => {
       setLoading(true);
       
-      // Admins and editors can always access - just load course
+      // Admins and editors can always access - use admin API to see unpublished/draft courses
       if (isAdmin() || isEditor()) {
         try {
-          const data = await coursesApi.getById(courseId);
+          // Use getByIdForAdmin to bypass is_published filter
+          const data = await coursesApi.getByIdForAdmin(courseId);
           if (data) {
             setCourse(data);
             if (data.modules.length > 0) {

@@ -1,8 +1,9 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, CheckCircle2, Star, Clock, Sparkles, BookOpen, Target, GraduationCap, ChevronRight, ChevronDown, Zap, Lock, ShoppingCart, Check, Rocket, Shield, FileText, Play, Users, Layers, Award, TrendingUp, Crown, Diamond, Video, Brain, Headphones, FileCheck, MessageCircle, Flame, BadgeCheck, Heart, RefreshCcw, UserCheck } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Star, Clock, Sparkles, BookOpen, Target, GraduationCap, ChevronRight, ChevronDown, Zap, Lock, ShoppingCart, Check, Rocket, Shield, FileText, Play, Users, Layers, Award, TrendingUp, Crown, Diamond, Video, Brain, Headphones, FileCheck, MessageCircle, Flame, BadgeCheck, Heart, RefreshCcw, UserCheck, Eye } from 'lucide-react';
 import { coursesApi } from '../data/supabaseStore';
 import { Course, Module } from '../types';
+import { useAuth } from '../contexts/AuthContext';
 
 // Level colors and configs
 const LEVEL_CONFIG: Record<string, { color: string; bgColor: string; label: string; icon: React.ReactNode }> = {
@@ -306,6 +307,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
+  const { isAdmin, isEditor } = useAuth();
 
   const toggleModule = (moduleId: string) => {
     setExpandedModules(prev => {
@@ -322,7 +324,10 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
   useEffect(() => {
     const loadCourse = async () => {
       try {
-        const data = await coursesApi.getById(courseId);
+        // Admins/editors can see unpublished courses via getByIdForAdmin
+        const data = isAdmin() || isEditor() 
+          ? await coursesApi.getByIdForAdmin(courseId)
+          : await coursesApi.getById(courseId);
         setCourse(data);
       } catch (error) {
         console.error('Error loading course:', error);
@@ -331,7 +336,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
       }
     };
     loadCourse();
-  }, [courseId]);
+  }, [courseId, isAdmin, isEditor]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -427,43 +432,54 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
     ? `${Math.floor(totalDuration / 60)}h ${totalDuration % 60}m`
     : `${totalDuration}m`;
 
-  // Get course content from our comprehensive data
+  // Get course content from our comprehensive data (fallback for predefined levels)
   const courseContent = COURSE_CONTENT[course.level];
   
-  // Use COURSE_CONTENT data for outcomes, fallback to lesson extraction
-  const outcomes = courseContent?.learningOutcomes || 
-    (course.learningOutcomes && course.learningOutcomes.length > 0 
-      ? course.learningOutcomes 
-      : modules.slice(0, 4).map(m => m.lessons?.[0]?.title || m.title).filter(Boolean));
+  // PRIORITY: Use course's own data first, then fallback to COURSE_CONTENT, then generic defaults
+  // Learning outcomes: course data > COURSE_CONTENT > extracted from modules > generic
+  let outcomes: string[] = [];
+  if (course.learningOutcomes && course.learningOutcomes.length > 0) {
+    outcomes = course.learningOutcomes;
+  } else if (courseContent?.learningOutcomes) {
+    outcomes = courseContent.learningOutcomes;
+  } else if (modules.length > 0) {
+    outcomes = modules.slice(0, 4).map(m => m.lessons?.[0]?.title || m.title).filter(Boolean);
+  }
   if (outcomes.length === 0) {
-    outcomes.push(
+    outcomes = [
       'Master essential vocabulary through visual memory techniques',
       'Build confidence speaking in real-life situations', 
       'Develop reading comprehension with dyslexia-friendly methods',
       'Track your progress with personalized milestones'
-    );
+    ];
   }
 
-  // Use COURSE_CONTENT for target audience
-  const targetAudience = courseContent ? {
-    description: `Perfect for ${config.label.toLowerCase()} learners who want to build a strong foundation`,
-    points: courseContent.targetAudience
-  } : (course.targetAudience || {
-    description: `Perfect for ${config.label.toLowerCase()} learners who want to build a strong foundation`,
-    points: ['Complete beginners starting their English journey', 'Visual learners who struggle with traditional textbooks', 'Students with dyslexia or learning differences', 'Anyone who wants a supportive, judgment-free environment']
-  });
+  // Target audience: course data > COURSE_CONTENT > generic
+  const targetAudience = course.targetAudience && course.targetAudience.points.length > 0
+    ? course.targetAudience 
+    : courseContent 
+      ? {
+          description: `Perfect for ${config.label.toLowerCase()} learners who want to build a strong foundation`,
+          points: courseContent.targetAudience
+        }
+      : {
+          description: `Perfect for ${config.label.toLowerCase()} learners who want to build a strong foundation`,
+          points: ['Complete beginners starting their English journey', 'Visual learners who struggle with traditional textbooks', 'Students with dyslexia or learning differences', 'Anyone who wants a supportive, judgment-free environment']
+        };
 
-  // What you'll find inside - from COURSE_CONTENT
-  const whatYoullFind = courseContent?.whatYoullFind || [];
+  // What you'll find: course prerequisites as alternate, or COURSE_CONTENT, or empty
+  const whatYoullFind = courseContent?.whatYoullFind || 
+    (course.prerequisites && course.prerequisites.length > 0 ? course.prerequisites : []);
   
-  // Grammar units from COURSE_CONTENT
+  // Grammar units from COURSE_CONTENT only (for predefined levels)
+  // For custom courses, modules themselves serve as the curriculum display
   const grammarUnits = courseContent?.units || [];
   
   // Exam prep info
   const examPrep = courseContent?.examPrep;
   
-  // Course description from COURSE_CONTENT or fallback
-  const courseDescription = courseContent?.description || course.description;
+  // Course description: course data > COURSE_CONTENT > empty
+  const courseDescription = course.description || courseContent?.description || '';
 
   // Check for original price vs discount
   const hasDiscount = course.pricing.discountPrice !== undefined && course.pricing.discountPrice < course.pricing.price;
@@ -474,11 +490,31 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
   const hasActiveDiscount = hasDiscount && 
     (!course.pricing.discountStartDate || new Date(course.pricing.discountStartDate) <= now) &&
     (!course.pricing.discountEndDate || new Date(course.pricing.discountEndDate) >= now);
+  
+  // Check if viewing as admin (for draft indicator)
+  const isAdminViewing = isAdmin() || isEditor();
+  const isDraft = !course.isPublished;
 
   return (
     <div className="bg-white min-h-screen">
+      {/* Draft Warning Banner for Admins */}
+      {isAdminViewing && isDraft && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-amber-500 text-white py-2 px-4 text-center">
+          <div className="flex items-center justify-center gap-2 text-sm font-bold">
+            <Eye size={16} />
+            <span>ADMIN PREVIEW - This course is not published yet</span>
+            <button 
+              onClick={() => window.location.hash = `#admin-course-edit-${course.id}`}
+              className="ml-4 px-3 py-1 bg-white/20 rounded-full text-xs font-black uppercase hover:bg-white/30 transition-colors"
+            >
+              Edit Course
+            </button>
+          </div>
+        </div>
+      )}
+      
       {/* Light Syllabus Hero - matching Home Page style */}
-      <div className="relative w-full min-h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-[#fff5fd] via-[#fffbfd] to-white">
+      <div className={`relative w-full min-h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-[#fff5fd] via-[#fffbfd] to-white ${isAdminViewing && isDraft ? 'pt-12' : ''}`}>
         {/* Background Elements */}
         <div className="absolute inset-0 z-0 pointer-events-none">
            {/* Soft gradient blobs using the new colors */}

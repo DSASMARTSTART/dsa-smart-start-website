@@ -2,18 +2,20 @@
 // Admin Course Editor - Full Real-time Editing
 // ============================================
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   ArrowLeft, Save, Eye, Upload, Plus, Trash2, GripVertical,
   ChevronDown, ChevronUp, Play, FileText, Link, ExternalLink,
-  AlertCircle, CheckCircle, DollarSign, Calendar, Percent, Loader2
+  AlertCircle, CheckCircle, DollarSign, Calendar, Percent, Loader2,
+  Image, X, Users
 } from 'lucide-react';
 import { 
   Button, Input, Textarea, Select, Modal, ConfirmModal, 
   UnsavedChangesBar, StatusBadge 
 } from './AdminUIComponents';
 import { coursesApi, videoHelpers } from '../../data/supabaseStore';
-import { Course, Module, Lesson, Homework, VideoLink, CoursePricing, QuizQuestion, QuizOption, QuizQuestionType } from '../../types';
+import { storageHelpers } from '../../lib/supabase';
+import { Course, Module, Lesson, Homework, VideoLink, CoursePricing, QuizQuestion, QuizOption, QuizQuestionType, CourseInstructor, CourseTargetAudience } from '../../types';
 
 interface CourseEditorProps {
   courseId: string;
@@ -78,7 +80,7 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ courseId, onNavigate }) => 
         return;
       }
 
-      const data = await coursesApi.getById(courseId);
+      const data = await coursesApi.getByIdForAdmin(courseId);
       if (data) {
         setCourse(data);
         // Expand first module by default
@@ -314,12 +316,23 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ courseId, onNavigate }) => 
         </div>
 
         <div className="flex gap-3">
+          {/* Preview as Student - opens syllabus page */}
           <Button
             variant="secondary"
             icon={Eye}
             onClick={() => window.location.hash = `#syllabus-${course.id}`}
+            title="Preview how students will see the syllabus page"
           >
-            Preview
+            Preview Syllabus
+          </Button>
+          {/* Preview Course Content - opens course viewer */}
+          <Button
+            variant="secondary"
+            icon={Play}
+            onClick={() => window.location.hash = `#course-${course.id}`}
+            title="Preview course content as a student would see it"
+          >
+            Preview as Student
           </Button>
           <Button
             variant="primary"
@@ -463,7 +476,7 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ courseId, onNavigate }) => 
 };
 
 // ============================================
-// Metadata Editor
+// Metadata Editor - Enhanced with Image Upload & Marketing Fields
 // ============================================
 const MetadataEditor: React.FC<{
   course: Course;
@@ -474,9 +487,119 @@ const MetadataEditor: React.FC<{
   const [level, setLevel] = useState(course.draftData?.level || course.level);
   const [thumbnailUrl, setThumbnailUrl] = useState(course.draftData?.thumbnailUrl || course.thumbnailUrl);
   const [adminNotes, setAdminNotes] = useState(course.adminNotes || '');
+  
+  // Extended marketing fields
+  const [previewVideoUrl, setPreviewVideoUrl] = useState(course.previewVideoUrl || '');
+  const [learningOutcomes, setLearningOutcomes] = useState<string[]>(course.learningOutcomes || []);
+  const [prerequisites, setPrerequisites] = useState<string[]>(course.prerequisites || []);
+  const [targetAudience, setTargetAudience] = useState<CourseTargetAudience>(course.targetAudience || { description: '', points: [] });
+  const [instructor, setInstructor] = useState<CourseInstructor>(course.instructor || { name: '', title: '', bio: '' });
+  const [estimatedWeeklyHours, setEstimatedWeeklyHours] = useState(course.estimatedWeeklyHours || 0);
+  
+  // Image upload state
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // New outcome/prerequisite input
+  const [newOutcome, setNewOutcome] = useState('');
+  const [newPrerequisite, setNewPrerequisite] = useState('');
+  const [newAudiencePoint, setNewAudiencePoint] = useState('');
+  
+  // Expanded sections
+  const [showMarketingFields, setShowMarketingFields] = useState(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setUploadError('Please select an image file');
+      return;
+    }
+    
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError('Image must be smaller than 5MB');
+      return;
+    }
+    
+    setUploading(true);
+    setUploadError('');
+    
+    const { url, error } = await storageHelpers.uploadImage(file, 'thumbnails');
+    
+    setUploading(false);
+    
+    if (error) {
+      setUploadError(error);
+      return;
+    }
+    
+    setThumbnailUrl(url);
+  };
+  
+  const handleRemoveImage = async () => {
+    if (thumbnailUrl && storageHelpers.isSupabaseStorageUrl(thumbnailUrl)) {
+      await storageHelpers.deleteImage(thumbnailUrl);
+    }
+    setThumbnailUrl('');
+  };
+  
+  const addOutcome = () => {
+    if (newOutcome.trim()) {
+      setLearningOutcomes([...learningOutcomes, newOutcome.trim()]);
+      setNewOutcome('');
+    }
+  };
+  
+  const removeOutcome = (index: number) => {
+    setLearningOutcomes(learningOutcomes.filter((_, i) => i !== index));
+  };
+  
+  const addPrerequisite = () => {
+    if (newPrerequisite.trim()) {
+      setPrerequisites([...prerequisites, newPrerequisite.trim()]);
+      setNewPrerequisite('');
+    }
+  };
+  
+  const removePrerequisite = (index: number) => {
+    setPrerequisites(prerequisites.filter((_, i) => i !== index));
+  };
+  
+  const addAudiencePoint = () => {
+    if (newAudiencePoint.trim()) {
+      setTargetAudience({
+        ...targetAudience,
+        points: [...targetAudience.points, newAudiencePoint.trim()]
+      });
+      setNewAudiencePoint('');
+    }
+  };
+  
+  const removeAudiencePoint = (index: number) => {
+    setTargetAudience({
+      ...targetAudience,
+      points: targetAudience.points.filter((_, i) => i !== index)
+    });
+  };
 
   const handleSave = () => {
-    onSave({ title, description, level, thumbnailUrl, adminNotes });
+    onSave({ 
+      title, 
+      description, 
+      level, 
+      thumbnailUrl, 
+      adminNotes,
+      previewVideoUrl: previewVideoUrl || undefined,
+      learningOutcomes: learningOutcomes.length > 0 ? learningOutcomes : undefined,
+      prerequisites: prerequisites.length > 0 ? prerequisites : undefined,
+      targetAudience: targetAudience.points.length > 0 ? targetAudience : undefined,
+      instructor: instructor.name ? instructor : undefined,
+      estimatedWeeklyHours: estimatedWeeklyHours || undefined
+    });
   };
 
   return (
@@ -497,6 +620,8 @@ const MetadataEditor: React.FC<{
             { value: 'A2', label: 'A2 - Elementary' },
             { value: 'B1', label: 'B1 - Intermediate' },
             { value: 'Kids', label: 'Kids' },
+            { value: 'Premium', label: 'Premium - Pathway' },
+            { value: 'Gold', label: 'Gold - Pathway' },
           ]}
         />
       </div>
@@ -508,19 +633,108 @@ const MetadataEditor: React.FC<{
         placeholder="Describe what students will learn..."
       />
 
-      <Input
-        label="Thumbnail URL"
-        value={thumbnailUrl}
-        onChange={(e) => setThumbnailUrl(e.target.value)}
-        placeholder="https://..."
-        hint="Use a high-quality image (recommended: 800x450)"
-      />
-
-      {thumbnailUrl && (
-        <div className="w-48 h-28 rounded-xl overflow-hidden bg-gray-100">
-          <img src={thumbnailUrl} alt="Thumbnail preview" className="w-full h-full object-cover" />
+      {/* Cover Photo / Thumbnail Section */}
+      <div className="space-y-3">
+        <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 block">
+          Cover Photo
+        </label>
+        
+        <div className="flex flex-col md:flex-row gap-4">
+          {/* Image Preview / Upload Area */}
+          <div 
+            className={`relative w-full md:w-64 h-40 rounded-2xl overflow-hidden border-2 border-dashed transition-all ${
+              thumbnailUrl 
+                ? 'border-transparent' 
+                : 'border-gray-200 hover:border-purple-300 cursor-pointer'
+            }`}
+            onClick={() => !thumbnailUrl && fileInputRef.current?.click()}
+          >
+            {thumbnailUrl ? (
+              <>
+                <img 
+                  src={thumbnailUrl} 
+                  alt="Course thumbnail" 
+                  className="w-full h-full object-cover"
+                />
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleRemoveImage(); }}
+                  className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                >
+                  <X size={14} />
+                </button>
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full text-gray-400">
+                {uploading ? (
+                  <Loader2 size={24} className="animate-spin text-purple-600" />
+                ) : (
+                  <>
+                    <Image size={32} className="mb-2" />
+                    <span className="text-xs font-bold">Click to upload</span>
+                    <span className="text-[10px]">800x450 recommended</span>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+          
+          {/* Upload Controls */}
+          <div className="flex-1 space-y-3">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+            />
+            
+            <div className="flex gap-2">
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                icon={Upload}
+                onClick={() => fileInputRef.current?.click()}
+                loading={uploading}
+              >
+                Upload Image
+              </Button>
+              {thumbnailUrl && (
+                <Button 
+                  variant="secondary" 
+                  size="sm" 
+                  icon={Trash2}
+                  onClick={handleRemoveImage}
+                >
+                  Remove
+                </Button>
+              )}
+            </div>
+            
+            <div className="text-xs text-gray-400">Or paste an image URL:</div>
+            <Input
+              value={thumbnailUrl}
+              onChange={(e) => setThumbnailUrl(e.target.value)}
+              placeholder="https://..."
+            />
+            
+            {uploadError && (
+              <div className="flex items-center gap-2 text-red-500 text-xs">
+                <AlertCircle size={14} />
+                {uploadError}
+              </div>
+            )}
+          </div>
         </div>
-      )}
+      </div>
+      
+      {/* Preview Video URL */}
+      <Input
+        label="Preview Video URL (Optional)"
+        value={previewVideoUrl}
+        onChange={(e) => setPreviewVideoUrl(e.target.value)}
+        placeholder="https://vimeo.com/... or https://youtube.com/..."
+        hint="A short preview video shown on the syllabus page"
+      />
 
       <Textarea
         label="Admin Notes (Internal)"
@@ -528,6 +742,144 @@ const MetadataEditor: React.FC<{
         onChange={(e) => setAdminNotes(e.target.value)}
         placeholder="Internal notes not visible to students..."
       />
+      
+      {/* Marketing Fields Toggle */}
+      <div className="border-t border-gray-100 pt-6">
+        <button
+          onClick={() => setShowMarketingFields(!showMarketingFields)}
+          className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-purple-600 hover:text-purple-700"
+        >
+          {showMarketingFields ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          Marketing & Details (Optional)
+        </button>
+      </div>
+      
+      {showMarketingFields && (
+        <div className="space-y-6 animate-reveal">
+          {/* Learning Outcomes */}
+          <div className="space-y-3">
+            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 block">
+              Learning Outcomes
+            </label>
+            <div className="space-y-2">
+              {learningOutcomes.map((outcome, i) => (
+                <div key={i} className="flex items-center gap-2 bg-green-50 px-3 py-2 rounded-xl">
+                  <CheckCircle size={14} className="text-green-500 flex-shrink-0" />
+                  <span className="text-sm flex-1">{outcome}</span>
+                  <button onClick={() => removeOutcome(i)} className="text-gray-400 hover:text-red-500">
+                    <X size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <Input
+                value={newOutcome}
+                onChange={(e) => setNewOutcome(e.target.value)}
+                placeholder="Add a learning outcome..."
+                onKeyDown={(e) => e.key === 'Enter' && addOutcome()}
+              />
+              <Button variant="secondary" size="sm" onClick={addOutcome}>Add</Button>
+            </div>
+          </div>
+          
+          {/* Prerequisites */}
+          <div className="space-y-3">
+            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 block">
+              Prerequisites
+            </label>
+            <div className="space-y-2">
+              {prerequisites.map((prereq, i) => (
+                <div key={i} className="flex items-center gap-2 bg-blue-50 px-3 py-2 rounded-xl">
+                  <span className="text-sm flex-1">{prereq}</span>
+                  <button onClick={() => removePrerequisite(i)} className="text-gray-400 hover:text-red-500">
+                    <X size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <Input
+                value={newPrerequisite}
+                onChange={(e) => setNewPrerequisite(e.target.value)}
+                placeholder="Add a prerequisite..."
+                onKeyDown={(e) => e.key === 'Enter' && addPrerequisite()}
+              />
+              <Button variant="secondary" size="sm" onClick={addPrerequisite}>Add</Button>
+            </div>
+          </div>
+          
+          {/* Target Audience */}
+          <div className="space-y-3">
+            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 block">
+              Target Audience
+            </label>
+            <Input
+              value={targetAudience.description}
+              onChange={(e) => setTargetAudience({ ...targetAudience, description: e.target.value })}
+              placeholder="Brief description of who this course is for..."
+            />
+            <div className="space-y-2">
+              {targetAudience.points.map((point, i) => (
+                <div key={i} className="flex items-center gap-2 bg-purple-50 px-3 py-2 rounded-xl">
+                  <Users size={14} className="text-purple-500 flex-shrink-0" />
+                  <span className="text-sm flex-1">{point}</span>
+                  <button onClick={() => removeAudiencePoint(i)} className="text-gray-400 hover:text-red-500">
+                    <X size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <Input
+                value={newAudiencePoint}
+                onChange={(e) => setNewAudiencePoint(e.target.value)}
+                placeholder="Add a target audience point..."
+                onKeyDown={(e) => e.key === 'Enter' && addAudiencePoint()}
+              />
+              <Button variant="secondary" size="sm" onClick={addAudiencePoint}>Add</Button>
+            </div>
+          </div>
+          
+          {/* Instructor Info */}
+          <div className="space-y-3">
+            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 block">
+              Instructor (Optional)
+            </label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                label="Name"
+                value={instructor.name}
+                onChange={(e) => setInstructor({ ...instructor, name: e.target.value })}
+                placeholder="Instructor name"
+              />
+              <Input
+                label="Title"
+                value={instructor.title}
+                onChange={(e) => setInstructor({ ...instructor, title: e.target.value })}
+                placeholder="e.g., Senior English Teacher"
+              />
+            </div>
+            <Textarea
+              label="Bio"
+              value={instructor.bio || ''}
+              onChange={(e) => setInstructor({ ...instructor, bio: e.target.value })}
+              placeholder="Brief instructor bio..."
+            />
+          </div>
+          
+          {/* Estimated Weekly Hours */}
+          <div className="w-48">
+            <Input
+              label="Estimated Weekly Hours"
+              type="number"
+              value={estimatedWeeklyHours || ''}
+              onChange={(e) => setEstimatedWeeklyHours(Number(e.target.value))}
+              placeholder="e.g., 5"
+            />
+          </div>
+        </div>
+      )}
 
       <div className="flex justify-end">
         <Button variant="primary" onClick={handleSave}>

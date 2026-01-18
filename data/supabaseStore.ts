@@ -412,6 +412,58 @@ export const coursesApi = {
     return course;
   },
 
+  // Admin-specific getById that can fetch unpublished/draft courses
+  getByIdForAdmin: async (id: string): Promise<Course | null> => {
+    if (!supabase) {
+      console.warn('Supabase client not initialized');
+      return null;
+    }
+    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
+      .from('courses')
+      .select('*')
+      .eq('id', id)
+      .single(); // No is_published filter - admins can see all
+
+    if (error) {
+      console.error('Error fetching course by id for admin:', error);
+      return null;
+    }
+    if (!data) return null;
+
+    return {
+      ...toCamelCase<Course>(data),
+      modules: (data.modules as Module[]) || [],
+      pricing: data.pricing as CoursePricing
+    };
+  },
+
+  // Get all courses for admin (including unpublished)
+  listForAdmin: async (): Promise<Course[]> => {
+    if (!supabase) {
+      console.warn('Supabase client not initialized');
+      return [];
+    }
+    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
+      .from('courses')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching courses for admin:', error);
+      return [];
+    }
+
+    return (data || []).map((c: Record<string, unknown>) => ({
+      ...toCamelCase<Course>(c),
+      modules: (c.modules as Module[]) || [],
+      pricing: c.pricing as CoursePricing
+    }));
+  },
+
   create: async (courseData: Partial<Course>): Promise<Course> => {
     clearCoursesCache(); // Invalidate cache on create
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
