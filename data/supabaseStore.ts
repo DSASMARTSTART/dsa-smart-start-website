@@ -147,14 +147,37 @@ export const usersApi = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let query = (supabase as any)
       .from('users')
-      .select('*', { count: 'exact' })
-      .eq('role', 'student');
+      .select('*', { count: 'exact' });
+
+    // Filter by role (default to student, but allow 'all' to see everyone)
+    if (filters?.role && filters.role !== 'all') {
+      query = query.eq('role', filters.role);
+    }
 
     if (filters?.search) {
       query = query.or(`name.ilike.%${filters.search}%,email.ilike.%${filters.search}%`);
     }
     if (filters?.status && filters.status !== 'all') {
       query = query.eq('status', filters.status);
+    }
+    
+    // Filter by course enrollment
+    if (filters?.courseId) {
+      // Get user IDs enrolled in this course
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: enrollments } = await (supabase as any)
+        .from('enrollments')
+        .select('user_id')
+        .eq('course_id', filters.courseId)
+        .eq('status', 'active');
+      
+      const enrolledUserIds = (enrollments || []).map((e: { user_id: string }) => e.user_id);
+      
+      if (enrolledUserIds.length === 0) {
+        return { data: [], total: 0, page, pageSize, totalPages: 0 };
+      }
+      
+      query = query.in('id', enrolledUserIds);
     }
 
     const from = (page - 1) * pageSize;
@@ -240,6 +263,16 @@ export const usersApi = {
     await createAuditLog('user_deleted', 'user', id, 'User deleted');
   },
 
+  updateRole: async (id: string, role: 'student' | 'admin' | 'editor'): Promise<void> => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase as any)
+      .from('users')
+      .update({ role, updated_at: now() })
+      .eq('id', id);
+    if (error) throw error;
+    await createAuditLog('user_notes_updated', 'user', id, `User role changed to ${role}`);
+  },
+
   revokeEnrollment: async (userId: string, enrollmentId: string): Promise<void> => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase as any)
@@ -305,6 +338,7 @@ export const usersApi = {
   pause: async (id: string) => usersApi.pauseUser(id),
   unpause: async (id: string) => usersApi.unpauseUser(id),
   delete: async (id: string) => usersApi.deleteUser(id),
+  changeRole: async (id: string, role: 'student' | 'admin' | 'editor') => usersApi.updateRole(id, role),
   revokeAccess: async (userId: string, courseId: string) => usersApi.revokeEnrollment(userId, courseId),
   updateNotes: async (id: string, notes: string) => usersApi.updateAdminNotes(id, notes),
   grantAccess: async (userId: string, courseId: string, _reason?: string) => {

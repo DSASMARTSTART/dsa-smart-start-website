@@ -231,6 +231,20 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onNavigate }) => {
       )
     },
     {
+      key: 'role',
+      header: 'Role',
+      width: '100px',
+      render: (user: User) => (
+        <span className={`px-2 py-1 rounded-lg text-xs font-bold uppercase ${
+          user.role === 'admin' ? 'bg-purple-100 text-purple-700' :
+          user.role === 'editor' ? 'bg-blue-100 text-blue-700' :
+          'bg-gray-100 text-gray-700'
+        }`}>
+          {user.role}
+        </span>
+      )
+    },
+    {
       key: 'status',
       header: 'Status',
       width: '100px',
@@ -311,6 +325,16 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onNavigate }) => {
           />
         </div>
         <Select
+          value={filters.role || 'all'}
+          onChange={(e) => setFilters({ ...filters, role: e.target.value as any })}
+          options={[
+            { value: 'all', label: 'All Roles' },
+            { value: 'student', label: 'Students' },
+            { value: 'admin', label: 'Admins' },
+            { value: 'editor', label: 'Editors' },
+          ]}
+        />
+        <Select
           value={filters.status || 'all'}
           onChange={(e) => setFilters({ ...filters, status: e.target.value as any })}
           options={[
@@ -371,6 +395,19 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onNavigate }) => {
             await usersApi.updateNotes(selectedUser.id, notes);
             const updated = await usersApi.getById(selectedUser.id);
             if (updated) setSelectedUser(updated);
+          }
+        }}
+        onChangeRole={async (role) => {
+          if (selectedUser) {
+            try {
+              await usersApi.changeRole(selectedUser.id, role);
+              const updated = await usersApi.getById(selectedUser.id);
+              if (updated) setSelectedUser(updated);
+              loadUsers();
+            } catch (error) {
+              console.error('Error changing role:', error);
+              alert('Failed to change role');
+            }
           }
         }}
       />
@@ -474,10 +511,11 @@ interface UserDetailDrawerProps {
   onRevokeAccess: (userId: string, courseId: string) => void;
   onGrantAccess: () => void;
   onUpdateNotes: (notes: string) => void;
+  onChangeRole: (role: 'student' | 'admin' | 'editor') => void;
 }
 
 const UserDetailDrawer: React.FC<UserDetailDrawerProps> = ({
-  user, isOpen, onClose, onPause, onDelete, onRevokeAccess, onGrantAccess, onUpdateNotes
+  user, isOpen, onClose, onPause, onDelete, onRevokeAccess, onGrantAccess, onUpdateNotes, onChangeRole
 }) => {
   const [notes, setNotes] = useState('');
   const [editingNotes, setEditingNotes] = useState(false);
@@ -513,6 +551,25 @@ const UserDetailDrawer: React.FC<UserDetailDrawerProps> = ({
                 Joined {new Date(user.createdAt).toLocaleDateString()}
               </span>
             </div>
+          </div>
+        </div>
+
+        {/* Role Management */}
+        <div className="bg-purple-50 rounded-2xl p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="text-sm font-black text-purple-900 uppercase tracking-widest mb-1">User Role</h4>
+              <p className="text-xs text-purple-600">Change this user's access level</p>
+            </div>
+            <select
+              value={user.role}
+              onChange={(e) => onChangeRole(e.target.value as 'student' | 'admin' | 'editor')}
+              className="px-4 py-2 bg-white border border-purple-200 rounded-xl text-sm font-bold text-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            >
+              <option value="student">Student</option>
+              <option value="editor">Editor</option>
+              <option value="admin">Admin</option>
+            </select>
           </div>
         </div>
 
