@@ -18,6 +18,20 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
+      },
+      build: {
+        rollupOptions: {
+          output: {
+            manualChunks: {
+              // Split vendor chunks for better caching
+              'react-vendor': ['react', 'react-dom'],
+              'supabase': ['@supabase/supabase-js'],
+              'query': ['@tanstack/react-query'],
+              'ui-icons': ['lucide-react'],
+            }
+          }
+        },
+        chunkSizeWarningLimit: 600, // Increase limit slightly
       }
     };
 });
