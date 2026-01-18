@@ -208,6 +208,27 @@ ALTER TABLE discount_codes ENABLE ROW LEVEL SECURITY;
 -- ============================================
 -- RLS POLICIES
 -- ============================================
+-- Drop existing policies first (safe to run multiple times)
+DROP POLICY IF EXISTS "Public read access for published user info" ON users;
+DROP POLICY IF EXISTS "Users can update own profile" ON users;
+DROP POLICY IF EXISTS "Admins can manage all users" ON users;
+DROP POLICY IF EXISTS "Anyone can view published courses" ON courses;
+DROP POLICY IF EXISTS "Admins can manage courses" ON courses;
+DROP POLICY IF EXISTS "Users can view own enrollments" ON enrollments;
+DROP POLICY IF EXISTS "Admins can manage enrollments" ON enrollments;
+DROP POLICY IF EXISTS "Users can view own purchases" ON purchases;
+DROP POLICY IF EXISTS "Admins can view audit logs" ON audit_logs;
+DROP POLICY IF EXISTS "System can insert audit logs" ON audit_logs;
+DROP POLICY IF EXISTS "Admins can view all activities" ON activities;
+DROP POLICY IF EXISTS "System can insert activities" ON activities;
+DROP POLICY IF EXISTS "Users can view own progress" ON progress;
+DROP POLICY IF EXISTS "Users can update own progress" ON progress;
+DROP POLICY IF EXISTS "Users can modify own progress" ON progress;
+DROP POLICY IF EXISTS "Anyone can read active discount codes for validation" ON discount_codes;
+DROP POLICY IF EXISTS "Admins can manage discount codes" ON discount_codes;
+DROP POLICY IF EXISTS "Anyone can read active codes for validation" ON discount_codes;
+DROP POLICY IF EXISTS "System can insert contact messages" ON contact_messages;
+DROP POLICY IF EXISTS "Admins can view contact messages" ON contact_messages;
 
 -- Users policies
 CREATE POLICY "Public read access for published user info" ON users
