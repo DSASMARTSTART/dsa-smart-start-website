@@ -12,6 +12,31 @@ import type {
 } from '../types';
 
 // ============================================
+// SIMPLE IN-MEMORY CACHE
+// ============================================
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+}
+
+const cache = {
+  courses: null as CacheEntry<Course[]> | null,
+  coursesById: new Map<string, CacheEntry<Course>>(),
+};
+
+const CACHE_TTL = 60 * 1000; // 1 minute cache for courses
+
+const isCacheValid = <T>(entry: CacheEntry<T> | null): entry is CacheEntry<T> => {
+  return entry !== null && Date.now() - entry.timestamp < CACHE_TTL;
+};
+
+// Clear cache (call when courses are modified)
+export const clearCoursesCache = () => {
+  cache.courses = null;
+  cache.coursesById.clear();
+};
+
+// ============================================
 // HELPERS
 // ============================================
 const now = () => new Date().toISOString();
@@ -300,7 +325,14 @@ export const coursesApi = {
       return [];
     }
     
-    console.log('Fetching courses with filters:', filters);
+    // Use cache for public course list (no filters or just isPublished)
+    const isPublicRequest = !filters?.level || filters.level === 'all';
+    const wantsPublished = filters?.published !== false && filters?.isPublished !== false;
+    
+    if (isPublicRequest && wantsPublished && isCacheValid(cache.courses)) {
+      console.log('Returning cached courses');
+      return cache.courses.data;
+    }
     
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let query = (supabase as any).from('courses').select('*');
@@ -320,20 +352,23 @@ export const coursesApi = {
 
     const { data, error } = await query.order('created_at', { ascending: false });
     
-    console.log('Courses API response:', { data, error, count: data?.length });
-    
     if (error) {
       console.error('Error fetching courses:', error);
-      // Log more details about the error
-      console.error('Error details:', JSON.stringify(error, null, 2));
       return []; // Return empty array instead of throwing for public-facing pages
     }
 
-    return (data || []).map((c: Record<string, unknown>) => ({
+    const courses = (data || []).map((c: Record<string, unknown>) => ({
       ...toCamelCase<Course>(c),
       modules: (c.modules as Module[]) || [],
       pricing: c.pricing as CoursePricing
     }));
+    
+    // Cache the result for public requests
+    if (isPublicRequest && wantsPublished) {
+      cache.courses = { data: courses, timestamp: Date.now() };
+    }
+    
+    return courses;
   },
 
   getById: async (id: string): Promise<Course | null> => {
@@ -341,6 +376,12 @@ export const coursesApi = {
     if (!supabase) {
       console.warn('Supabase client not initialized - check environment variables');
       return null;
+    }
+    
+    // Check cache first
+    const cachedCourse = cache.coursesById.get(id);
+    if (isCacheValid(cachedCourse)) {
+      return cachedCourse.data;
     }
     
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -356,14 +397,20 @@ export const coursesApi = {
     }
     if (!data) return null;
 
-    return {
+    const course = {
       ...toCamelCase<Course>(data),
       modules: (data.modules as Module[]) || [],
       pricing: data.pricing as CoursePricing
     };
+    
+    // Cache the result
+    cache.coursesById.set(id, { data: course, timestamp: Date.now() });
+    
+    return course;
   },
 
   create: async (courseData: Partial<Course>): Promise<Course> => {
+    clearCoursesCache(); // Invalidate cache on create
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase as any)
       .from('courses')
@@ -393,6 +440,7 @@ export const coursesApi = {
   },
 
   updateMetadata: async (id: string, updates: Partial<Course>): Promise<Course> => {
+    clearCoursesCache(); // Invalidate cache on update
     const dbUpdates: Record<string, unknown> = { updated_at: now(), is_draft: true };
     if (updates.title !== undefined) dbUpdates.title = updates.title;
     if (updates.description !== undefined) dbUpdates.description = updates.description;
@@ -418,6 +466,7 @@ export const coursesApi = {
   },
 
   updatePricing: async (id: string, pricing: CoursePricing): Promise<Course> => {
+    clearCoursesCache(); // Invalidate cache on update
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase as any)
       .from('courses')
@@ -437,6 +486,7 @@ export const coursesApi = {
   },
 
   publish: async (id: string): Promise<Course> => {
+    clearCoursesCache(); // Invalidate cache on publish
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase as any)
       .from('courses')
@@ -795,6 +845,38 @@ export const enrollmentsApi = {
 
     if (error) throw error;
     return (data || []).map((e: Record<string, unknown>) => toCamelCase<Enrollment>(e));
+  },
+
+  // Optimized: Fetch enrollments with course data in a single query (avoids N+1)
+  getByUserWithCourses: async (userId: string): Promise<Array<Enrollment & { course: Course }>> => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
+      .from('enrollments')
+      .select(`
+        *,
+        courses:course_id (*)
+      `)
+      .eq('user_id', userId)
+      .neq('status', 'revoked');
+
+    if (error) {
+      console.error('Error fetching enrollments with courses:', error);
+      throw error;
+    }
+    
+    return (data || [])
+      .filter((e: Record<string, unknown>) => e.courses && (e.courses as Record<string, unknown>).is_published)
+      .map((e: Record<string, unknown>) => {
+        const courseData = e.courses as Record<string, unknown>;
+        return {
+          ...toCamelCase<Enrollment>(e),
+          course: {
+            ...toCamelCase<Course>(courseData),
+            modules: (courseData.modules as Module[]) || [],
+            pricing: courseData.pricing as CoursePricing
+          }
+        };
+      });
   },
 
   getByCourse: async (courseId: string): Promise<Enrollment[]> => {

@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Rocket, Clock, ChevronRight, Star, BookOpen, Layout, Zap, Layers, Compass, Music, CheckCircle2, LogIn } from 'lucide-react';
-import { coursesApi, enrollmentsApi } from '../data/supabaseStore';
+import { enrollmentsApi } from '../data/supabaseStore';
 import { Course, Enrollment } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -49,28 +49,24 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, progress, onOpenCourse 
       }
 
       try {
-        // Get user's enrollments using authenticated user ID
-        const enrollments = await enrollmentsApi.getByUser(userId);
+        // Optimized: Get enrollments WITH course data in a single query (no N+1!)
+        const enrollmentsWithCourses = await enrollmentsApi.getByUserWithCourses(userId);
         
-        // Get course details for each enrollment
-        const courses: EnrolledCourse[] = [];
-        for (const enrollment of enrollments) {
-          const course = await coursesApi.getById(enrollment.courseId);
-          if (course && course.isPublished) {
-            // Calculate total items (lessons + homework)
-            let totalItems = 0;
-            course.modules.forEach(m => {
-              totalItems += m.lessons.length;
-              totalItems += m.homework.length;
-            });
-            
-            courses.push({
-              ...course,
-              enrollment,
-              totalItems: Math.max(totalItems, 1) // Minimum 1 to avoid division by zero
-            });
-          }
-        }
+        // Map to EnrolledCourse format
+        const courses: EnrolledCourse[] = enrollmentsWithCourses.map(({ course, ...enrollment }) => {
+          // Calculate total items (lessons + homework)
+          let totalItems = 0;
+          (course.modules || []).forEach(m => {
+            totalItems += (m.lessons || []).length;
+            totalItems += (m.homework || []).length;
+          });
+          
+          return {
+            ...course,
+            enrollment: enrollment as Enrollment,
+            totalItems: Math.max(totalItems, 1) // Minimum 1 to avoid division by zero
+          };
+        });
 
         setEnrolledCourses(courses);
       } catch (error) {
