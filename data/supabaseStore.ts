@@ -294,6 +294,12 @@ export const usersApi = {
 // ============================================
 export const coursesApi = {
   list: async (filters?: CourseFilters): Promise<Course[]> => {
+    // Check if Supabase client is available
+    if (!supabase) {
+      console.warn('Supabase client not initialized - check environment variables');
+      return [];
+    }
+    
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let query = (supabase as any).from('courses').select('*');
 
@@ -320,6 +326,12 @@ export const coursesApi = {
   },
 
   getById: async (id: string): Promise<Course | null> => {
+    // Check if Supabase client is available
+    if (!supabase) {
+      console.warn('Supabase client not initialized - check environment variables');
+      return null;
+    }
+    
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase as any)
       .from('courses')
