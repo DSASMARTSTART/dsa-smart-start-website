@@ -864,6 +864,20 @@ export const purchasesApi = {
 
     if (error) throw error;
 
+    // Increment discount code usage if one was applied
+    if (purchaseData.discountCode) {
+      try {
+        // Extract just the code (remove percentage/amount text like "CODE10 (10% OFF)")
+        const codeOnly = purchaseData.discountCode.split(' ')[0].trim();
+        
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (supabase as any).rpc('increment_discount_usage', { code_to_update: codeOnly });
+      } catch (discountError) {
+        // Log but don't fail the purchase if discount increment fails
+        console.error('Failed to increment discount code usage:', discountError);
+      }
+    }
+
     await enrollmentsApi.create(purchaseData.userId, purchaseData.courseId);
     await createAuditLog('purchase_created', 'enrollment', data.id, `Purchase completed for course ${purchaseData.courseId}`);
 

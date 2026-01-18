@@ -1,23 +1,22 @@
 # DSA Smart Start - robots.txt
 # https://www.dsasmartstart.com
+# Note: This is a Single Page Application with hash-based routing.
+# Search engines may have limited visibility of hash-based URLs.
 
 User-agent: *
 Allow: /
 
-# Disallow admin pages from being indexed
+# Sitemap location
+Sitemap: https://www.dsasmartstart.com/sitemap.xml
+
+# Disallow admin and user-specific areas
+# Note: Hash fragments (#) are not sent to servers, but we include for documentation
 Disallow: /admin
-Disallow: /#admin
-Disallow: /#admin-*
+Disallow: /checkout
+Disallow: /dashboard
 
-# Disallow checkout and user-specific pages
-Disallow: /#checkout
-Disallow: /#dashboard
-Disallow: /#viewer-*
-Disallow: /#login
-
-# Allow search engines to index main content
-Allow: /#home
-Allow: /#courses
+# Crawl delay to be respectful
+Crawl-delay: 1
 Allow: /#who-we-are
 Allow: /#faq
 Allow: /#contact

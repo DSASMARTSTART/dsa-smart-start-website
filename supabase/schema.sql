@@ -374,6 +374,17 @@ CREATE TRIGGER update_courses_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
+-- Function to increment discount code usage (called from client after purchase)
+-- Uses SECURITY DEFINER to bypass RLS for this specific operation
+CREATE OR REPLACE FUNCTION increment_discount_usage(code_to_update TEXT)
+RETURNS void AS $$
+BEGIN
+  UPDATE discount_codes 
+  SET times_used = times_used + 1
+  WHERE code = code_to_update;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 -- ============================================
 -- SEED DATA (Optional - for initial setup)
 -- ============================================
