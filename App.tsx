@@ -69,10 +69,7 @@ const App: React.FC = () => {
         setCurrentPath('admin-course-edit');
         setSelectedCourseId(hash.replace('#admin-course-edit-', ''));
       }
-      else if (hash.startsWith('#admin-user-')) {
-        setCurrentPath('admin-user-detail');
-        setSelectedCourseId(hash.replace('#admin-user-', ''));
-      }
+      // Note: User details are handled via modal in AdminUsers, not a separate route
       else if (hash.startsWith('#syllabus-')) {
         setCurrentPath('syllabus');
         setSelectedCourseId(hash.replace('#syllabus-', ''));
@@ -96,8 +93,6 @@ const App: React.FC = () => {
       window.location.hash = `#viewer-${params}`;
     } else if (path === 'admin-course-edit' && params) {
       window.location.hash = `#admin-course-edit-${params}`;
-    } else if (path === 'admin-user-detail' && params) {
-      window.location.hash = `#admin-user-${params}`;
     } else if (path === 'home') {
       window.location.hash = '#home';
     } else {
