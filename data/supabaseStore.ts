@@ -300,12 +300,17 @@ export const coursesApi = {
     if (filters?.level && filters.level !== 'all') {
       query = query.eq('level', filters.level);
     }
-    if (filters?.published !== undefined) {
-      query = query.eq('is_published', filters.published);
+    // Support both 'published' and 'isPublished' filter keys
+    const publishedFilter = filters?.published ?? filters?.isPublished;
+    if (publishedFilter !== undefined && publishedFilter !== 'all') {
+      query = query.eq('is_published', publishedFilter);
     }
 
     const { data, error } = await query.order('created_at', { ascending: false });
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching courses:', error);
+      return []; // Return empty array instead of throwing for public-facing pages
+    }
 
     return (data || []).map((c: Record<string, unknown>) => ({
       ...toCamelCase<Course>(c),
@@ -322,7 +327,11 @@ export const coursesApi = {
       .eq('id', id)
       .single();
 
-    if (error || !data) return null;
+    if (error) {
+      console.error('Error fetching course by id:', error);
+      return null;
+    }
+    if (!data) return null;
 
     return {
       ...toCamelCase<Course>(data),

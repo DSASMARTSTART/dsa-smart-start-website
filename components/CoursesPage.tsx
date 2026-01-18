@@ -383,9 +383,11 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
     const loadCourses = async () => {
       try {
         const data = await coursesApi.list({ isPublished: true });
-        setCourses(data);
+        console.log('Loaded courses:', data?.length || 0, 'courses');
+        setCourses(data || []);
       } catch (error) {
         console.error("Failed to load courses", error);
+        setCourses([]); // Ensure we set empty array on error
       } finally {
         setLoading(false);
       }
@@ -618,9 +620,12 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
         {courses.length === 0 && !loading && (
            <div className="text-center py-20 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
-               <Search size={24} />
+               <BookOpen size={24} />
              </div>
-             <p className="text-gray-500 font-bold">No courses found matching your criteria.</p>
+             <h3 className="text-xl font-bold text-gray-700 mb-2">Courses Coming Soon!</h3>
+             <p className="text-gray-500 font-medium max-w-md mx-auto">
+               We're preparing our courses for you. Check back soon for our complete learning paths designed for all levels.
+             </p>
            </div>
         )}
       </div>
