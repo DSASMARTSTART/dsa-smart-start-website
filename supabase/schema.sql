@@ -128,6 +128,28 @@ CREATE INDEX IF NOT EXISTS idx_contact_messages_status ON contact_messages(statu
 CREATE INDEX IF NOT EXISTS idx_contact_messages_created ON contact_messages(created_at DESC);
 
 -- ============================================
+-- DISCOUNT CODES TABLE
+-- ============================================
+CREATE TABLE IF NOT EXISTS discount_codes (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  code TEXT UNIQUE NOT NULL,
+  description TEXT,
+  discount_type TEXT NOT NULL CHECK (discount_type IN ('percentage', 'fixed')),
+  discount_value DECIMAL(10, 2) NOT NULL,
+  max_discount DECIMAL(10, 2), -- Max discount cap for percentage discounts
+  min_order_amount DECIMAL(10, 2), -- Minimum order amount required
+  max_uses INTEGER, -- NULL means unlimited
+  times_used INTEGER NOT NULL DEFAULT 0,
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  expires_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Create indexes
+CREATE INDEX IF NOT EXISTS idx_discount_codes_code ON discount_codes(code);
+CREATE INDEX IF NOT EXISTS idx_discount_codes_active ON discount_codes(is_active);
+
+-- ============================================
 -- ACTIVITIES TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS activities (
@@ -181,6 +203,7 @@ ALTER TABLE purchases ENABLE ROW LEVEL SECURITY;
 ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE activities ENABLE ROW LEVEL SECURITY;
 ALTER TABLE progress ENABLE ROW LEVEL SECURITY;
+ALTER TABLE discount_codes ENABLE ROW LEVEL SECURITY;
 
 -- ============================================
 -- RLS POLICIES
@@ -273,6 +296,17 @@ CREATE POLICY "Users can update own progress" ON progress
 
 CREATE POLICY "Users can modify own progress" ON progress
   FOR UPDATE USING (user_id::text = auth.uid()::text);
+
+-- Discount codes policies
+CREATE POLICY "Anyone can read active discount codes for validation" ON discount_codes
+  FOR SELECT USING (is_active = true);
+
+CREATE POLICY "Admins can manage discount codes" ON discount_codes
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM users WHERE id::text = auth.uid()::text AND role = 'admin'
+    )
+  );
 
 -- ============================================
 -- FUNCTIONS & TRIGGERS

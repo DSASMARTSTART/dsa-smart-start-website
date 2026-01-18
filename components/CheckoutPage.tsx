@@ -4,6 +4,7 @@ import { ArrowLeft, ShieldCheck, Lock, CreditCard, CheckCircle2, ChevronRight, S
 import { coursesApi, purchasesApi } from '../data/supabaseStore';
 import { Course } from '../types';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 import { 
   getPaymentConfig, 
   isPaymentConfigured, 
@@ -230,20 +231,66 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
     return () => { window.removeEventListener('resize', resize); cancelAnimationFrame(animationFrameId); };
   }, []);
 
-  const handleApplyDiscount = (e: React.MouseEvent) => {
+  const handleApplyDiscount = async (e: React.MouseEvent) => {
     e.preventDefault();
     const code = discountInput.trim().toUpperCase();
     if (!code) return;
 
-    // These should be validated server-side in production
-    if (code === 'DSA2025') {
-      setAppliedDiscount({ code: 'DSA2025 (10% OFF)', amount: subtotal * 0.1 });
-      setDiscountError(null);
-    } else if (code === 'WELCOMEDSA') {
-      setAppliedDiscount({ code: 'WELCOMEDSA (-20€)', amount: 20 });
-      setDiscountError(null);
-    } else {
-      setDiscountError('Invalid discount code');
+    setDiscountError(null);
+    
+    // Validate discount code server-side via Supabase
+    try {
+      const { data, error } = await supabase
+        .from('discount_codes')
+        .select('*')
+        .eq('code', code)
+        .eq('is_active', true)
+        .single();
+
+      if (error || !data) {
+        setDiscountError('Invalid or expired discount code');
+        setAppliedDiscount(null);
+        return;
+      }
+
+      // Check if code has expired
+      if (data.expires_at && new Date(data.expires_at) < new Date()) {
+        setDiscountError('This discount code has expired');
+        setAppliedDiscount(null);
+        return;
+      }
+
+      // Check usage limit
+      if (data.max_uses && data.times_used >= data.max_uses) {
+        setDiscountError('This discount code has reached its usage limit');
+        setAppliedDiscount(null);
+        return;
+      }
+
+      // Check minimum order amount
+      if (data.min_order_amount && subtotal < data.min_order_amount) {
+        setDiscountError(`Minimum order of €${data.min_order_amount} required for this code`);
+        setAppliedDiscount(null);
+        return;
+      }
+
+      // Calculate discount amount
+      let discountAmount = 0;
+      if (data.discount_type === 'percentage') {
+        discountAmount = subtotal * (data.discount_value / 100);
+        // Apply max discount cap if set
+        if (data.max_discount && discountAmount > data.max_discount) {
+          discountAmount = data.max_discount;
+        }
+        setAppliedDiscount({ code: `${code} (${data.discount_value}% OFF)`, amount: discountAmount });
+      } else {
+        // Fixed amount discount
+        discountAmount = Math.min(data.discount_value, subtotal);
+        setAppliedDiscount({ code: `${code} (-€${data.discount_value})`, amount: discountAmount });
+      }
+    } catch (err) {
+      // If discount_codes table doesn't exist, show generic message
+      setDiscountError('Discount codes are not available at this time');
       setAppliedDiscount(null);
     }
   };
