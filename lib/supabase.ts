@@ -5,15 +5,18 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
+// Log warning instead of throwing to prevent blank page
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
+  console.warn('Missing Supabase environment variables. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY');
 }
 
-// Create typed client
-const typedSupabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+// Create typed client (will fail gracefully if credentials missing)
+const typedSupabase = supabaseUrl && supabaseAnonKey 
+  ? createClient<Database>(supabaseUrl, supabaseAnonKey)
+  : null;
 
 // Export with relaxed typing for flexibility during development
 // Once database is stable, can use the typed version directly
@@ -25,6 +28,7 @@ export const supabaseAny = typedSupabase as SupabaseClient<any>;
 
 // Helper to check if Supabase is connected
 export const checkSupabaseConnection = async (): Promise<boolean> => {
+  if (!typedSupabase) return false;
   try {
     const { error } = await supabase.from('users').select('count').limit(1);
     return !error;
