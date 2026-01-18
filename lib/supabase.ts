@@ -8,6 +8,10 @@ import type { Database } from './database.types';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
+// Debug logging for environment variables
+console.log('Supabase URL configured:', supabaseUrl ? 'YES' : 'NO');
+console.log('Supabase Anon Key configured:', supabaseAnonKey ? 'YES' : 'NO');
+
 // Log warning instead of throwing to prevent blank page
 if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Missing Supabase environment variables. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY');
