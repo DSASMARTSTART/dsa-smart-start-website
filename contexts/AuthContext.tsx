@@ -23,6 +23,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, name: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error: Error | null }>;
   isAdmin: () => boolean;
   isEditor: () => boolean;
   canAccessAdmin: () => boolean;
@@ -129,6 +130,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setProfile(null);
   };
 
+  const resetPassword = async (email: string) => {
+    if (!supabase) return { error: new Error('Supabase not configured') };
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    return { error };
+  };
+
   const isAdmin = () => profile?.role === 'admin';
   const isEditor = () => profile?.role === 'admin' || profile?.role === 'editor';
   const canAccessAdmin = () => profile?.role === 'admin' || profile?.role === 'editor';
@@ -142,6 +151,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signIn, 
       signUp, 
       signOut,
+      resetPassword,
       isAdmin,
       isEditor,
       canAccessAdmin

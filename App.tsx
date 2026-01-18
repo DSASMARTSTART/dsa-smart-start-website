@@ -21,6 +21,7 @@ import WhatsAppButton from './components/WhatsAppButton';
 import DashboardPage from './components/DashboardPage';
 import CourseViewer from './components/CourseViewer';
 import PolicyPage from './components/PolicyPage';
+import ResetPasswordPage from './components/ResetPasswordPage';
 import { useAuth } from './contexts/AuthContext';
 import { useUserProgress } from './hooks/useUserProgress';
 
@@ -59,6 +60,7 @@ const App: React.FC = () => {
       else if (hash === '#privacy-policy') setCurrentPath('privacy-policy');
       else if (hash === '#cookie-policy') setCurrentPath('cookie-policy');
       else if (hash === '#refund-policy') setCurrentPath('refund-policy');
+      else if (hash === '#reset-password') setCurrentPath('reset-password');
       // Admin routes
       else if (hash === '#admin') setCurrentPath('admin');
       else if (hash === '#admin-users') setCurrentPath('admin-users');
@@ -164,6 +166,7 @@ const App: React.FC = () => {
       {currentPath === 'who-we-are' && <WhoWeAre />}
       {currentPath === 'contact' && <ContactPage />}
       {currentPath === 'login' && <LoginRegisterPage onLoginSuccess={handleLoginSuccess} />}
+      {currentPath === 'reset-password' && <ResetPasswordPage onComplete={() => navigateTo('login')} />}
       
       {currentPath === 'courses' && (
         <CoursesPage 
