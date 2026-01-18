@@ -27,7 +27,7 @@ import { useUserProgress } from './src/hooks/useUserProgress';
 // Admin Dashboard Components
 import { 
   AdminLayout, AdminHome, AdminUsers, AdminCourses, 
-  CourseEditor, AdminAudit 
+  CourseEditor, AdminAudit, AdminDiscountCodes 
 } from './components/admin';
 
 const App: React.FC = () => {
@@ -63,6 +63,7 @@ const App: React.FC = () => {
       else if (hash === '#admin') setCurrentPath('admin');
       else if (hash === '#admin-users') setCurrentPath('admin-users');
       else if (hash === '#admin-courses') setCurrentPath('admin-courses');
+      else if (hash === '#admin-discounts') setCurrentPath('admin-discounts');
       else if (hash === '#admin-audit') setCurrentPath('admin-audit');
       else if (hash.startsWith('#admin-course-edit-')) {
         setCurrentPath('admin-course-edit');
@@ -233,6 +234,7 @@ const App: React.FC = () => {
           {currentPath === 'admin' && <AdminHome onNavigate={navigateTo} />}
           {currentPath === 'admin-users' && <AdminUsers onNavigate={navigateTo} />}
           {currentPath === 'admin-courses' && <AdminCourses onNavigate={navigateTo} />}
+          {currentPath === 'admin-discounts' && <AdminDiscountCodes onNavigate={navigateTo} />}
           {currentPath === 'admin-course-edit' && selectedCourseId && (
             <CourseEditor courseId={selectedCourseId} onNavigate={navigateTo} />
           )}
