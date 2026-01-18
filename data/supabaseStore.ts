@@ -391,6 +391,7 @@ export const coursesApi = {
       .from('courses')
       .select('*')
       .eq('id', id)
+      .eq('is_published', true)  // Ensure we only get published courses
       .single();
 
     if (error) {
