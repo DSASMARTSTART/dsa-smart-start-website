@@ -94,7 +94,7 @@ export function useUserProgress() {
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
-  // Sync localStorage to Supabase when user logs in
+  // Sync localStorage to Supabase when user logs in (BATCH operation - single API call)
   useEffect(() => {
     if (!user) return;
 
@@ -104,34 +104,43 @@ export function useUserProgress() {
       
       if (entries.length === 0) return;
 
-      console.log('Syncing local progress to Supabase...');
+      // Build batch records for single bulk upsert (instead of N individual calls)
+      const records = entries
+        .map(([key, isCompleted]) => {
+          const [courseId, ...itemParts] = key.split('_');
+          const itemKey = itemParts.join('_');
+          
+          if (!courseId || !itemKey) return null;
 
-      for (const [key, isCompleted] of entries) {
-        const [courseId, ...itemParts] = key.split('_');
-        const itemKey = itemParts.join('_');
-        
-        if (!courseId || !itemKey) continue;
-
-        try {
-          // Determine if it's a lesson or homework based on naming convention
           const isHomework = itemKey.includes('homework') || itemKey.startsWith('hw');
           
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          await (supabase as any)
-            .from('progress')
-            .upsert({
-              user_id: user.id,
-              course_id: courseId,
-              lesson_id: isHomework ? null : itemKey,
-              homework_id: isHomework ? itemKey : null,
-              is_completed: isCompleted,
-              completed_at: isCompleted ? new Date().toISOString() : null,
-            }, {
-              onConflict: 'user_id,course_id,lesson_id,homework_id',
-            });
-        } catch (err) {
-          console.error('Error syncing progress item:', err);
+          return {
+            user_id: user.id,
+            course_id: courseId,
+            lesson_id: isHomework ? null : itemKey,
+            homework_id: isHomework ? itemKey : null,
+            is_completed: isCompleted,
+            completed_at: isCompleted ? new Date().toISOString() : null,
+          };
+        })
+        .filter(Boolean);
+
+      if (records.length === 0) return;
+
+      try {
+        // Single batch upsert - much faster than N individual calls!
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { error } = await (supabase as any)
+          .from('progress')
+          .upsert(records, {
+            onConflict: 'user_id,course_id,lesson_id,homework_id',
+          });
+
+        if (error && error.code !== '42P01') {
+          console.error('Error batch syncing progress:', error);
         }
+      } catch (err) {
+        console.error('Error syncing progress to Supabase:', err);
       }
 
       // Refresh the query after sync

@@ -23,7 +23,6 @@ import CourseViewer from './components/CourseViewer';
 import PolicyPage from './components/PolicyPage';
 import ResetPasswordPage from './components/ResetPasswordPage';
 import { useAuth } from './contexts/AuthContext';
-import { useUserProgress } from './hooks/useUserProgress';
 
 // Admin Dashboard Components
 import { 
@@ -33,7 +32,8 @@ import {
 
 const App: React.FC = () => {
   const { user, profile, loading: authLoading, signOut, isAdmin: checkIsAdmin, canAccessAdmin } = useAuth();
-  const { progress, toggleProgress, isLoading: progressLoading } = useUserProgress();
+  // Note: useUserProgress is now called only in components that need it (DashboardPage, CourseViewer)
+  // This prevents unnecessary API calls on every page load
   const [currentPath, setCurrentPath] = useState('home');
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
   const [cart, setCart] = useState<string[]>([]);
@@ -201,7 +201,6 @@ const App: React.FC = () => {
       {currentPath === 'dashboard' && (
         <DashboardPage 
           user={currentUser} 
-          progress={progress} 
           onOpenCourse={(id) => navigateTo('viewer', id)}
         />
       )}
@@ -209,8 +208,6 @@ const App: React.FC = () => {
       {currentPath === 'viewer' && selectedCourseId && (
         <CourseViewer 
           courseId={selectedCourseId}
-          progress={progress}
-          onToggleProgress={toggleProgress}
           onBack={() => navigateTo('dashboard')}
           onNavigateToCheckout={(courseId) => {
             setCart([courseId]);

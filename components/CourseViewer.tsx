@@ -4,76 +4,75 @@ import { ArrowLeft, CheckCircle2, Circle, ChevronRight, PlayCircle, BookOpen, Cl
 import { coursesApi, enrollmentsApi, videoHelpers } from '../data/supabaseStore';
 import { Course, Module, Lesson, Homework } from '../types';
 import { useAuth } from '../contexts/AuthContext';
+import { useUserProgress } from '../hooks/useUserProgress';
 
 interface CourseViewerProps {
   courseId: string;
-  progress: Record<string, boolean>;
-  onToggleProgress: (courseId: string, itemKey: string) => void;
   onBack: () => void;
   onNavigateToCheckout?: (courseId: string) => void;
 }
 
-const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, progress, onToggleProgress, onBack, onNavigateToCheckout }) => {
+const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigateToCheckout }) => {
   const { user, isAdmin, isEditor } = useAuth();
+  const { progress, toggleProgress } = useUserProgress(); // Now using hook directly
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEnrolled, setIsEnrolled] = useState<boolean | null>(null); // null = checking
   const [activeModuleId, setActiveModuleId] = useState<string>('');
   const [selectedItemId, setSelectedItemId] = useState<string>('');
 
-  // Check enrollment status first
+  // Load course and check enrollment IN PARALLEL for faster loading
   useEffect(() => {
-    const checkAccess = async () => {
-      // Admins and editors can always access course content
-      if (isAdmin() || isEditor()) {
-        setIsEnrolled(true);
-        return;
-      }
-
-      // Not logged in = not enrolled
-      if (!user) {
-        setIsEnrolled(false);
-        return;
-      }
-
-      // Check enrollment in database
-      try {
-        const enrolled = await enrollmentsApi.checkEnrollment(user.id, courseId);
-        setIsEnrolled(enrolled);
-      } catch (error) {
-        console.error('Error checking enrollment:', error);
-        setIsEnrolled(false);
-      }
-    };
-
-    checkAccess();
-  }, [user, courseId, isAdmin, isEditor]);
-
-  // Load course data only after enrollment check passes
-  useEffect(() => {
-    const loadCourse = async () => {
-      // Wait for enrollment check to complete
-      if (isEnrolled === null) return;
+    const loadCourseAndCheckAccess = async () => {
+      setLoading(true);
       
-      // Don't load full course if not enrolled
-      if (!isEnrolled) {
-        // Still load basic course info for the access denied page
+      // Admins and editors can always access - just load course
+      if (isAdmin() || isEditor()) {
+        try {
+          const data = await coursesApi.getById(courseId);
+          if (data) {
+            setCourse(data);
+            if (data.modules.length > 0) {
+              setActiveModuleId(data.modules[0].id);
+              if (data.modules[0].lessons.length > 0) {
+                setSelectedItemId(data.modules[0].lessons[0].id);
+              }
+            }
+          }
+          setIsEnrolled(true);
+        } catch (error) {
+          console.error('Error loading course:', error);
+        } finally {
+          setLoading(false);
+        }
+        return;
+      }
+
+      // Not logged in = not enrolled, but still load course info
+      if (!user) {
         try {
           const data = await coursesApi.getById(courseId);
           setCourse(data);
         } catch (error) {
           console.error('Error loading course info:', error);
         }
+        setIsEnrolled(false);
         setLoading(false);
         return;
       }
 
+      // PARALLEL fetch: enrollment check + course data at the same time!
       try {
-        const data = await coursesApi.getById(courseId);
+        const [enrolled, data] = await Promise.all([
+          enrollmentsApi.checkEnrollment(user.id, courseId),
+          coursesApi.getById(courseId)
+        ]);
+        
+        setIsEnrolled(enrolled);
+        
         if (data) {
           setCourse(data);
-          // Set initial active module and item
-          if (data.modules.length > 0) {
+          if (enrolled && data.modules.length > 0) {
             setActiveModuleId(data.modules[0].id);
             if (data.modules[0].lessons.length > 0) {
               setSelectedItemId(data.modules[0].lessons[0].id);
@@ -82,12 +81,14 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, progress, onToggl
         }
       } catch (error) {
         console.error('Error loading course:', error);
+        setIsEnrolled(false);
       } finally {
         setLoading(false);
       }
     };
-    loadCourse();
-  }, [courseId, isEnrolled]);
+
+    loadCourseAndCheckAccess();
+  }, [user, courseId, isAdmin, isEditor]);
 
   if (loading || isEnrolled === null) {
     return (
@@ -463,7 +464,7 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, progress, onToggl
                   <p className="text-gray-500 font-medium">{selectedLesson ? `Part of ${currentModule.title}` : 'Independent Assignment'}</p>
                </div>
                <button 
-                 onClick={() => selectedItem && onToggleProgress(courseId, selectedItem.id)}
+                 onClick={() => selectedItem && toggleProgress(courseId, selectedItem.id)}
                  className={`flex items-center gap-3 px-10 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl transition-all ${selectedItem && isCompleted(selectedItem.id) ? 'bg-green-500 text-white shadow-green-100' : 'bg-gray-900 text-white hover:bg-purple-600 shadow-gray-100'}`}
                >
                  {selectedItem && isCompleted(selectedItem.id) ? (

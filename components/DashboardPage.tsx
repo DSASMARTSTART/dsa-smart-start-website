@@ -4,6 +4,7 @@ import { Rocket, Clock, ChevronRight, Star, BookOpen, Layout, Zap, Layers, Compa
 import { enrollmentsApi } from '../data/supabaseStore';
 import { Course, Enrollment } from '../types';
 import { useAuth } from '../contexts/AuthContext';
+import { useUserProgress } from '../hooks/useUserProgress';
 
 // Level-based icons and colors
 const LEVEL_CONFIG: Record<string, { icon: React.ReactNode; color: string }> = {
@@ -22,7 +23,6 @@ const LEVEL_LABELS: Record<string, string> = {
 
 interface DashboardProps {
   user: { name: string, email: string } | null;
-  progress: Record<string, boolean>;
   onOpenCourse: (id: string) => void;
 }
 
@@ -31,8 +31,9 @@ interface EnrolledCourse extends Course {
   totalItems: number;
 }
 
-const DashboardPage: React.FC<DashboardProps> = ({ user, progress, onOpenCourse }) => {
+const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
   const { user: authUser, profile, loading: authLoading } = useAuth();
+  const { progress } = useUserProgress(); // Now using hook directly - only loads when Dashboard is rendered
   const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
   const [loading, setLoading] = useState(true);
 
