@@ -42,16 +42,29 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
   const displayName = profile?.name || user?.name || 'Student';
 
   useEffect(() => {
+    // Track if component is still mounted to prevent state updates after unmount
+    let isCancelled = false;
+
     const loadEnrolledCourses = async () => {
-      // Don't load if not authenticated
-      if (!userId) {
-        setLoading(false);
+      // Still waiting for auth - keep showing loading
+      if (authLoading) {
         return;
       }
+      
+      // Not authenticated - stop loading and show login prompt
+      if (!userId) {
+        if (!isCancelled) setLoading(false);
+        return;
+      }
+
+      // Reset loading to true for fresh fetch (important for remounts!)
+      if (!isCancelled) setLoading(true);
 
       try {
         // Optimized: Get enrollments WITH course data in a single query (no N+1!)
         const enrollmentsWithCourses = await enrollmentsApi.getByUserWithCourses(userId);
+        
+        if (isCancelled) return;
         
         // Map to EnrolledCourse format
         const courses: EnrolledCourse[] = enrollmentsWithCourses.map(({ course, ...enrollment }) => {
@@ -69,18 +82,18 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
           };
         });
 
-        setEnrolledCourses(courses);
+        if (!isCancelled) setEnrolledCourses(courses);
       } catch (error) {
         console.error('Error loading enrolled courses:', error);
       } finally {
-        setLoading(false);
+        if (!isCancelled) setLoading(false);
       }
     };
 
-    // Wait for auth to be ready before loading
-    if (!authLoading) {
-      loadEnrolledCourses();
-    }
+    loadEnrolledCourses();
+    
+    // Cleanup to prevent state updates on unmounted component
+    return () => { isCancelled = true; };
   }, [userId, authLoading]);
 
   const calculateProgress = (courseId: string, totalItems: number) => {
