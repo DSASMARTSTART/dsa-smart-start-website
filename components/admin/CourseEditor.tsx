@@ -13,9 +13,9 @@ import {
   Button, Input, Textarea, Select, Modal, ConfirmModal, 
   UnsavedChangesBar, StatusBadge 
 } from './AdminUIComponents';
-import { coursesApi, videoHelpers } from '../../data/supabaseStore';
+import { coursesApi, videoHelpers, categoriesApi } from '../../data/supabaseStore';
 import { storageHelpers } from '../../lib/supabase';
-import { Course, Module, Lesson, Homework, VideoLink, CoursePricing, QuizQuestion, QuizOption, QuizQuestionType, CourseInstructor, CourseTargetAudience } from '../../types';
+import { Course, Module, Lesson, Homework, VideoLink, CoursePricing, QuizQuestion, QuizOption, QuizQuestionType, CourseInstructor, CourseTargetAudience, Category } from '../../types';
 
 interface CourseEditorProps {
   courseId: string;
@@ -97,9 +97,17 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ courseId, onNavigate }) => 
 
   const handleSaveMetadata = async (updates: Partial<Course>) => {
     if (!course) return;
-    await coursesApi.updateMetadata(course.id, updates);
-    setHasChanges(true);
-    loadCourse();
+    setSaving(true);
+    try {
+      await coursesApi.updateMetadata(course.id, updates);
+      setHasChanges(true);
+      await loadCourse();
+    } catch (error: any) {
+      console.error('Error saving metadata:', error);
+      alert(`Error saving metadata: ${error.message || 'Unknown error'}`);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleSavePricing = async (pricing: CoursePricing) => {
@@ -488,6 +496,14 @@ const MetadataEditor: React.FC<{
   const [thumbnailUrl, setThumbnailUrl] = useState(course.draftData?.thumbnailUrl || course.thumbnailUrl);
   const [adminNotes, setAdminNotes] = useState(course.adminNotes || '');
   
+  // Categories state
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+  const [showNewCategory, setShowNewCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [newCategorySlug, setNewCategorySlug] = useState('');
+  const [creatingCategory, setCreatingCategory] = useState(false);
+  
   // Extended marketing fields
   const [previewVideoUrl, setPreviewVideoUrl] = useState(course.previewVideoUrl || '');
   const [learningOutcomes, setLearningOutcomes] = useState<string[]>(course.learningOutcomes || []);
@@ -508,6 +524,46 @@ const MetadataEditor: React.FC<{
   
   // Expanded sections
   const [showMarketingFields, setShowMarketingFields] = useState(false);
+  
+  // Fetch categories on mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setLoadingCategories(true);
+      const cats = await categoriesApi.list(true); // Include inactive for admin
+      setCategories(cats);
+      setLoadingCategories(false);
+    };
+    fetchCategories();
+  }, []);
+  
+  // Generate slug from name
+  const generateSlug = (name: string) => {
+    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  };
+  
+  const handleCreateCategory = async () => {
+    if (!newCategoryName.trim()) return;
+    
+    setCreatingCategory(true);
+    try {
+      const newCat = await categoriesApi.create({
+        slug: newCategorySlug || generateSlug(newCategoryName),
+        name: newCategoryName.trim(),
+        color: '#6366f1',
+        sortOrder: categories.length + 1,
+        isActive: true
+      });
+      setCategories([...categories, newCat]);
+      setLevel(newCat.slug);
+      setShowNewCategory(false);
+      setNewCategoryName('');
+      setNewCategorySlug('');
+    } catch (error: any) {
+      alert(`Error creating category: ${error.message}`);
+    } finally {
+      setCreatingCategory(false);
+    }
+  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -611,19 +667,80 @@ const MetadataEditor: React.FC<{
           onChange={(e) => setTitle(e.target.value)}
           placeholder="e.g., DSA SMART START A1"
         />
-        <Select
-          label="Level"
-          value={level}
-          onChange={(e) => setLevel(e.target.value as any)}
-          options={[
-            { value: 'A1', label: 'A1 - Beginner' },
-            { value: 'A2', label: 'A2 - Elementary' },
-            { value: 'B1', label: 'B1 - Intermediate' },
-            { value: 'Kids', label: 'Kids' },
-            { value: 'Premium', label: 'Premium - Pathway' },
-            { value: 'Gold', label: 'Gold - Pathway' },
-          ]}
-        />
+        <div className="space-y-2">
+          <Select
+            label="Category / Level"
+            value={level}
+            onChange={(e) => {
+              if (e.target.value === '__new__') {
+                setShowNewCategory(true);
+              } else {
+                setLevel(e.target.value as any);
+              }
+            }}
+            options={[
+              ...(loadingCategories ? [
+                { value: 'A1', label: 'A1 - Beginner' },
+                { value: 'A2', label: 'A2 - Elementary' },
+                { value: 'B1', label: 'B1 - Intermediate' },
+                { value: 'Kids', label: 'Kids' },
+                { value: 'Premium', label: 'Premium - Pathway' },
+                { value: 'Gold', label: 'Gold - Pathway' },
+              ] : categories.map(cat => ({
+                value: cat.slug,
+                label: cat.name
+              }))),
+              { value: '__new__', label: '+ Create New Category' }
+            ]}
+          />
+          
+          {/* New Category Modal */}
+          {showNewCategory && (
+            <div className="mt-3 p-4 bg-purple-50 rounded-xl border border-purple-200 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-bold text-purple-700">Create New Category</span>
+                <button 
+                  onClick={() => setShowNewCategory(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+              <Input
+                label="Category Name"
+                value={newCategoryName}
+                onChange={(e) => {
+                  setNewCategoryName(e.target.value);
+                  setNewCategorySlug(generateSlug(e.target.value));
+                }}
+                placeholder="e.g., Business English"
+              />
+              <Input
+                label="Slug (URL-friendly)"
+                value={newCategorySlug}
+                onChange={(e) => setNewCategorySlug(e.target.value)}
+                placeholder="e.g., business-english"
+              />
+              <div className="flex gap-2">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setShowNewCategory(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleCreateCategory}
+                  disabled={!newCategoryName.trim() || creatingCategory}
+                >
+                  {creatingCategory ? <Loader2 size={14} className="animate-spin mr-2" /> : null}
+                  Create Category
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       <Textarea

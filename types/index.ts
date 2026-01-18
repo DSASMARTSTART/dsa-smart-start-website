@@ -20,7 +20,8 @@ export interface User {
 }
 
 // ---------- Course & Content Types ----------
-export type CourseLevel = 'A1' | 'A2' | 'B1' | 'Kids' | 'Premium' | 'Gold';
+// CourseLevel allows predefined levels or custom category names
+export type CourseLevel = 'A1' | 'A2' | 'B1' | 'Kids' | 'Premium' | 'Gold' | string;
 export type VideoProvider = 'youtube' | 'vimeo' | 'cloudflare' | 'custom';
 export type LessonType = 'video' | 'reading' | 'quiz';
 
@@ -285,4 +286,18 @@ export interface UserDetail extends User {
   purchases: Purchase[];
   progress: { courseId: string; percentage: number }[];
   totalSpent: number;
+}
+
+// ---------- Category Types ----------
+export interface Category {
+  id: string;
+  slug: string;
+  name: string;
+  description?: string;
+  color: string;
+  icon?: string;
+  sortOrder: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }

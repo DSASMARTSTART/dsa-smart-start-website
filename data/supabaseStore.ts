@@ -8,7 +8,7 @@ import type {
   User, Course, Enrollment, Purchase, AuditLog, Activity,
   KPIMetrics, AnalyticsTrends, UserFilters, CourseFilters,
   PaginatedResponse, UserDetail, AuditAction, Module, Lesson, Homework,
-  CoursePricing
+  CoursePricing, Category
 } from '../types';
 
 // ============================================
@@ -1248,5 +1248,107 @@ export const videoHelpers = {
     } catch {
       return { success: false, error: 'Invalid URL format' };
     }
+  }
+};
+
+// ============================================
+// CATEGORIES API
+// ============================================
+export const categoriesApi = {
+  list: async (includeInactive = false): Promise<Category[]> => {
+    if (!supabase) {
+      console.warn('Supabase client not initialized');
+      return [];
+    }
+    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let query = (supabase as any).from('categories').select('*');
+    
+    if (!includeInactive) {
+      query = query.eq('is_active', true);
+    }
+    
+    query = query.order('sort_order', { ascending: true });
+    
+    const { data, error } = await query;
+    
+    if (error) {
+      console.error('Error fetching categories:', error);
+      return [];
+    }
+    
+    return (data || []).map((row: Record<string, unknown>) => toCamelCase<Category>(row));
+  },
+  
+  getBySlug: async (slug: string): Promise<Category | null> => {
+    if (!supabase) return null;
+    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
+      .from('categories')
+      .select('*')
+      .eq('slug', slug)
+      .single();
+    
+    if (error || !data) return null;
+    return toCamelCase<Category>(data as Record<string, unknown>);
+  },
+  
+  create: async (category: Omit<Category, 'id' | 'createdAt' | 'updatedAt'>): Promise<Category> => {
+    if (!supabase) throw new Error('Supabase not initialized');
+    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
+      .from('categories')
+      .insert({
+        slug: category.slug,
+        name: category.name,
+        description: category.description || null,
+        color: category.color || '#6366f1',
+        icon: category.icon || null,
+        sort_order: category.sortOrder || 0,
+        is_active: category.isActive ?? true
+      })
+      .select()
+      .single();
+    
+    if (error) throw new Error(error.message);
+    return toCamelCase<Category>(data as Record<string, unknown>);
+  },
+  
+  update: async (id: string, updates: Partial<Category>): Promise<Category> => {
+    if (!supabase) throw new Error('Supabase not initialized');
+    
+    const dbUpdates: Record<string, unknown> = { updated_at: now() };
+    if (updates.slug !== undefined) dbUpdates.slug = updates.slug;
+    if (updates.name !== undefined) dbUpdates.name = updates.name;
+    if (updates.description !== undefined) dbUpdates.description = updates.description;
+    if (updates.color !== undefined) dbUpdates.color = updates.color;
+    if (updates.icon !== undefined) dbUpdates.icon = updates.icon;
+    if (updates.sortOrder !== undefined) dbUpdates.sort_order = updates.sortOrder;
+    if (updates.isActive !== undefined) dbUpdates.is_active = updates.isActive;
+    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
+      .from('categories')
+      .update(dbUpdates)
+      .eq('id', id)
+      .select()
+      .single();
+    
+    if (error) throw new Error(error.message);
+    return toCamelCase<Category>(data as Record<string, unknown>);
+  },
+  
+  delete: async (id: string): Promise<void> => {
+    if (!supabase) throw new Error('Supabase not initialized');
+    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase as any)
+      .from('categories')
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw new Error(error.message);
   }
 };
