@@ -300,6 +300,8 @@ export const coursesApi = {
       return [];
     }
     
+    console.log('Fetching courses with filters:', filters);
+    
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let query = (supabase as any).from('courses').select('*');
 
@@ -313,6 +315,9 @@ export const coursesApi = {
     }
 
     const { data, error } = await query.order('created_at', { ascending: false });
+    
+    console.log('Courses API response:', { data, error, count: data?.length });
+    
     if (error) {
       console.error('Error fetching courses:', error);
       return []; // Return empty array instead of throwing for public-facing pages
