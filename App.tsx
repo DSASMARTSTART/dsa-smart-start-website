@@ -113,10 +113,20 @@ const App: React.FC = () => {
   };
 
   const handleLogout = async () => {
-    await signOut();
-    clearCoursesCache(); // Clear cached data
-    navigateTo('home');
-    window.location.reload(); // Force full refresh to clear all state
+    try {
+      await signOut();
+      clearCoursesCache(); // Clear cached data
+      // Small delay to ensure signOut completes before reload
+      setTimeout(() => {
+        window.location.hash = '#home';
+        window.location.reload(); // Force full refresh to clear all state
+      }, 100);
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Force reload anyway
+      window.location.hash = '#home';
+      window.location.reload();
+    }
   };
 
   // Check for admin access
