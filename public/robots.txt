@@ -1,0 +1,32 @@
+# DSA Smart Start - robots.txt
+# https://www.dsasmartstart.com
+
+User-agent: *
+Allow: /
+
+# Disallow admin pages from being indexed
+Disallow: /admin
+Disallow: /#admin
+Disallow: /#admin-*
+
+# Disallow checkout and user-specific pages
+Disallow: /#checkout
+Disallow: /#dashboard
+Disallow: /#viewer-*
+Disallow: /#login
+
+# Allow search engines to index main content
+Allow: /#home
+Allow: /#courses
+Allow: /#who-we-are
+Allow: /#faq
+Allow: /#contact
+Allow: /#privacy-policy
+Allow: /#cookie-policy
+Allow: /#refund-policy
+
+# Sitemap location
+Sitemap: https://www.dsasmartstart.com/sitemap.xml
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1
