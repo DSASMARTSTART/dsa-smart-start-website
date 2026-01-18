@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, CheckCircle2, Star, Clock, Sparkles, BookOpen, Target, GraduationCap, ChevronRight, Zap, Lock, ShoppingCart, Check, Rocket, Shield, FileText, Play, Users, Layers, Award, TrendingUp, Crown, Diamond, Video, Brain, Headphones, FileCheck, MessageCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Star, Clock, Sparkles, BookOpen, Target, GraduationCap, ChevronRight, ChevronDown, Zap, Lock, ShoppingCart, Check, Rocket, Shield, FileText, Play, Users, Layers, Award, TrendingUp, Crown, Diamond, Video, Brain, Headphones, FileCheck, MessageCircle, Flame, BadgeCheck, Heart, RefreshCcw, UserCheck } from 'lucide-react';
 import { coursesApi } from '../data/supabaseStore';
 import { Course, Module } from '../types';
 
@@ -65,6 +65,19 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
+  const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
+
+  const toggleModule = (moduleId: string) => {
+    setExpandedModules(prev => {
+      const next = new Set(prev);
+      if (next.has(moduleId)) {
+        next.delete(moduleId);
+      } else {
+        next.add(moduleId);
+      }
+      return next;
+    });
+  };
 
   useEffect(() => {
     const loadCourse = async () => {
@@ -175,16 +188,38 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
     : `${totalDuration}m`;
 
   // Extract outcomes from first few lessons - with null checks
-  const outcomes = modules.slice(0, 4).map(m => 
-    m.lessons?.[0]?.title || m.title
-  ).filter(Boolean);
+  // Use explicit learningOutcomes if available, otherwise extract from lessons
+  const outcomes = course.learningOutcomes && course.learningOutcomes.length > 0 
+    ? course.learningOutcomes 
+    : modules.slice(0, 4).map(m => m.lessons?.[0]?.title || m.title).filter(Boolean);
   if (outcomes.length === 0) {
-    outcomes.push('Master core language skills', 'Build confidence in communication', 'Develop visual learning strategies', 'Track your progress effectively');
+    outcomes.push(
+      'Master essential vocabulary through visual memory techniques',
+      'Build confidence speaking in real-life situations', 
+      'Develop reading comprehension with dyslexia-friendly methods',
+      'Track your progress with personalized milestones'
+    );
   }
+
+  // Default target audience based on level
+  const targetAudience = course.targetAudience || {
+    description: `Perfect for ${config.label.toLowerCase()} learners who want to build a strong foundation`,
+    points: course.level === 'Kids' 
+      ? ['Young learners aged 6-12 who benefit from visual learning', 'Students who find traditional methods challenging', 'Parents seeking engaging, dyslexia-friendly content', 'Children who thrive with interactive exercises']
+      : course.level === 'Premium' || course.level === 'Gold'
+      ? ['Students seeking intensive, personalized support', 'Learners who benefit from 1-on-1 attention', 'Those who want structured progress tracking', 'Anyone ready to commit to transformation']
+      : ['Complete beginners starting their English journey', 'Visual learners who struggle with traditional textbooks', 'Students with dyslexia or learning differences', 'Anyone who wants a supportive, judgment-free environment']
+  };
 
   // Check for original price vs discount
   const hasDiscount = course.pricing.discountPrice !== undefined && course.pricing.discountPrice < course.pricing.price;
   const originalPrice = hasDiscount ? `${course.pricing.price.toFixed(2)}€` : null;
+  
+  // Check if discount is currently active (for urgency badge)
+  const now = new Date();
+  const hasActiveDiscount = hasDiscount && 
+    (!course.pricing.discountStartDate || new Date(course.pricing.discountStartDate) <= now) &&
+    (!course.pricing.discountEndDate || new Date(course.pricing.discountEndDate) >= now);
 
   return (
     <div className="bg-white min-h-screen">
@@ -245,8 +280,8 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
               </h1>
 
               {/* Description */}
-              <p className="text-lg sm:text-x font-medium text-gray-600 leading-relaxed max-w-xl">
-                {course.description || 'A comprehensive course designed for the dyslexic mind. Visual, multisensory, and inclusive learning approach.'}
+              <p className="text-lg sm:text-xl font-medium text-gray-600 leading-relaxed max-w-xl">
+                {course.description || `Transform your English skills with our ${config.label.toLowerCase()} course. Designed specifically for visual learners and students with dyslexia — learn at your own pace with proven, brain-friendly methods.`}
               </p>
 
               {/* Stats Row - Updated to match light theme */}
@@ -282,13 +317,22 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
 
               {/* Price & CTA */}
               <div className="flex flex-wrap items-center gap-6 pt-4">
-                <div className="flex items-baseline gap-3">
-                  <span className={`text-4xl sm:text-5xl font-black text-[#1a1c2d]`}>
-                    {price}
-                  </span>
-                  {originalPrice && (
-                    <span className="text-xl font-bold text-gray-400 line-through Decoration-pink-500">{originalPrice}</span>
+                <div className="flex flex-col gap-2">
+                  {/* Discount Urgency Badge */}
+                  {hasActiveDiscount && (
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-pink-500 rounded-full w-fit animate-pulse">
+                      <Flame size={14} className="text-white" />
+                      <span className="text-[10px] font-black uppercase tracking-widest text-white">Limited Time Offer</span>
+                    </div>
                   )}
+                  <div className="flex items-baseline gap-3">
+                    <span className={`text-4xl sm:text-5xl font-black text-[#1a1c2d]`}>
+                      {price}
+                    </span>
+                    {originalPrice && (
+                      <span className="text-xl font-bold text-gray-400 line-through decoration-pink-500">{originalPrice}</span>
+                    )}
+                  </div>
                 </div>
                 
                 <div className="flex flex-wrap gap-3">
@@ -393,17 +437,19 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
             <div>
               <div className="flex items-center gap-3 mb-6">
                 <div className="p-3 bg-purple-50 rounded-2xl text-purple-600 border border-purple-100">
-                  <GraduationCap size={28} />
+                  <Target size={28} />
                 </div>
-                <h3 className="text-3xl font-black text-gray-900 tracking-tight uppercase">What You'll Learn</h3>
+                <h3 className="text-3xl font-black text-gray-900 tracking-tight uppercase">What You'll Achieve</h3>
               </div>
               <p className="text-gray-500 text-lg mb-8 font-medium">
-                Our curriculum is built to ensure tangible progress. Key topics covered:
+                By the end of this course, you'll be able to confidently:
               </p>
               <div className="space-y-4">
                 {outcomes.slice(0, 4).map((item, i) => (
-                  <div key={i} className="flex items-center gap-4 p-5 bg-gray-50 rounded-[2rem] border border-gray-100 group hover:bg-white hover:border-purple-200 transition-all">
-                    <CheckCircle2 className="text-green-500 shrink-0" size={20} />
+                  <div key={i} className="flex items-center gap-4 p-5 bg-gray-50 rounded-[2rem] border border-gray-100 group hover:bg-white hover:border-purple-200 hover:shadow-lg hover:shadow-purple-500/5 transition-all">
+                    <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                      <CheckCircle2 className="text-green-600" size={18} />
+                    </div>
                     <span className="text-sm font-bold text-gray-700">{item}</span>
                   </div>
                 ))}
@@ -422,6 +468,63 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
                    {["Visual Mind Mapping", "Audio Memory Pegs", "Kinesthetic Learning Blocks"].map((tag, i) => (
                      <div key={i} className="inline-block px-4 py-2 bg-white/5 rounded-full border border-white/10 text-[10px] font-black uppercase tracking-widest mr-2 mb-2">{tag}</div>
                    ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Who Is This For? Section */}
+            <div className="p-8 bg-gradient-to-br from-purple-50 to-pink-50 rounded-[3rem] border border-purple-100 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-[#FFC1F2] rounded-full blur-[40px] translate-x-1/2 -translate-y-1/2 opacity-50"></div>
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-2 bg-white rounded-xl text-[#AB8FFF] shadow-sm">
+                    <UserCheck size={24} />
+                  </div>
+                  <h4 className="text-xl font-black text-gray-900 uppercase tracking-tight">Who Is This For?</h4>
+                </div>
+                <p className="text-gray-600 text-sm mb-6 font-medium">{targetAudience.description}</p>
+                <div className="space-y-3">
+                  {targetAudience.points.map((point, i) => (
+                    <div key={i} className="flex items-start gap-3">
+                      <div className="mt-0.5 w-5 h-5 rounded-full bg-[#AB8FFF] flex items-center justify-center flex-shrink-0">
+                        <Check size={12} className="text-white" />
+                      </div>
+                      <span className="text-sm font-medium text-gray-700">{point}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Trust & Guarantee Section */}
+            <div className="p-8 bg-white rounded-[3rem] border border-gray-100 shadow-lg shadow-purple-500/5">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-green-50 rounded-xl text-green-600">
+                  <Shield size={24} />
+                </div>
+                <h4 className="text-xl font-black text-gray-900 uppercase tracking-tight">Our Promise</h4>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-gray-50">
+                  <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-3">
+                    <RefreshCcw size={20} className="text-green-600" />
+                  </div>
+                  <span className="text-xs font-black uppercase tracking-wider text-gray-900">14-Day</span>
+                  <span className="text-[10px] text-gray-500 font-medium">Money Back Guarantee</span>
+                </div>
+                <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-gray-50">
+                  <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mb-3">
+                    <Heart size={20} className="text-purple-600" />
+                  </div>
+                  <span className="text-xs font-black uppercase tracking-wider text-gray-900">Dyslexia</span>
+                  <span className="text-[10px] text-gray-500 font-medium">Friendly Design</span>
+                </div>
+                <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-gray-50">
+                  <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center mb-3">
+                    <BadgeCheck size={20} className="text-amber-600" />
+                  </div>
+                  <span className="text-xs font-black uppercase tracking-wider text-gray-900">Certificate</span>
+                  <span className="text-[10px] text-gray-500 font-medium">Upon Completion</span>
                 </div>
               </div>
             </div>
@@ -517,77 +620,147 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
                 <p className="text-gray-500">This course is being developed. Check back soon for the full curriculum!</p>
               </div>
             ) : (
-              <div className="relative pl-8 md:pl-12 border-l-2 border-dashed border-gray-100 space-y-12">
-                {modules.map((module, i) => (
-                  <div key={module.id} className="relative group">
-                    {/* Timeline Dot */}
-                    <div className={`absolute -left-[41px] md:-left-[49px] top-0 w-4 h-4 rounded-full border-4 border-white bg-gradient-to-r ${config.color} ring-4 ring-gray-50 group-hover:scale-150 transition-transform duration-500 shadow-sm z-10`}></div>
-                    
-                    <div className="bg-white p-8 md:p-10 rounded-[3rem] border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-purple-500/5 transition-all duration-500 overflow-hidden relative">
-                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                        <h5 className="text-2xl font-black text-gray-900 tracking-tight uppercase">Module {i+1}: {module.title}</h5>
-                        <div className="px-4 py-1.5 bg-gray-50 rounded-full border border-gray-100 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                          {(module.lessons?.length || 0)} Lessons
-                        </div>
-                      </div>
-                      
-                      {module.description && (
-                        <p className="text-gray-500 text-sm mb-6">{module.description}</p>
-                      )}
-                      
-                      <div className="relative min-h-[80px]">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {(module.lessons || []).map((lesson, j) => (
-                            <div key={lesson.id} className="flex items-start gap-3">
-                              <div className="mt-1">
-                                {lesson.type === 'video' && <Play size={14} className="text-purple-500" />}
-                                {lesson.type === 'reading' && <FileText size={14} className="text-blue-500" />}
-                                {lesson.type === 'quiz' && <Target size={14} className="text-green-500" />}
-                              </div>
-                              <div>
-                                <span className="text-xs font-bold text-gray-600 leading-tight block">{lesson.title}</span>
-                                <span className="text-[10px] text-gray-400">{lesson.duration}</span>
-                              </div>
+              <div className="space-y-4">
+                {/* Expand/Collapse All */}
+                <div className="flex justify-end mb-2">
+                  <button 
+                    onClick={() => {
+                      if (expandedModules.size === modules.length) {
+                        setExpandedModules(new Set());
+                      } else {
+                        setExpandedModules(new Set(modules.map(m => m.id)));
+                      }
+                    }}
+                    className="text-[10px] font-black uppercase tracking-widest text-[#AB8FFF] hover:text-purple-700 transition-colors"
+                  >
+                    {expandedModules.size === modules.length ? 'Collapse All' : 'Expand All'}
+                  </button>
+                </div>
+                
+                {modules.map((module, i) => {
+                  const isExpanded = expandedModules.has(module.id);
+                  const lessonCount = module.lessons?.length || 0;
+                  const totalModuleDuration = (module.lessons || []).reduce((sum, l) => sum + (parseInt(l.duration) || 0), 0);
+                  
+                  return (
+                    <div key={module.id} className="bg-white rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-lg hover:shadow-purple-500/5 transition-all duration-300 overflow-hidden">
+                      {/* Module Header - Clickable */}
+                      <button 
+                        onClick={() => toggleModule(module.id)}
+                        className="w-full p-6 md:p-8 flex items-center justify-between gap-4 text-left hover:bg-gray-50/50 transition-colors"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${config.color} flex items-center justify-center text-white font-black text-lg shadow-lg`}>
+                            {i + 1}
+                          </div>
+                          <div>
+                            <h5 className="text-lg md:text-xl font-black text-gray-900 tracking-tight">{module.title}</h5>
+                            <div className="flex items-center gap-4 mt-1">
+                              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{lessonCount} Lessons</span>
+                              {totalModuleDuration > 0 && (
+                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{totalModuleDuration} min</span>
+                              )}
                             </div>
-                          ))}
+                          </div>
                         </div>
-                        
-                        {(module.homework?.length || 0) > 0 && (
-                          <div className="mt-4 pt-4 border-t border-gray-100">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-2">Homework</span>
-                            {(module.homework || []).map((hw) => (
-                              <div key={hw.id} className="flex items-center gap-2 text-xs text-gray-600">
-                                <CheckCircle2 size={12} className="text-purple-500" />
-                                {hw.title}
+                        <div className={`w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
+                          <ChevronDown size={20} className="text-gray-500" />
+                        </div>
+                      </button>
+                      
+                      {/* Module Content - Expandable */}
+                      <div className={`transition-all duration-300 ease-in-out ${isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
+                        <div className="px-6 md:px-8 pb-6 md:pb-8 pt-0">
+                          {module.description && (
+                            <p className="text-gray-500 text-sm mb-6 pl-16">{module.description}</p>
+                          )}
+                          
+                          <div className="pl-16 space-y-3">
+                            {(module.lessons || []).map((lesson, j) => (
+                              <div key={lesson.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl group hover:bg-purple-50 transition-colors">
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                                  lesson.type === 'video' ? 'bg-purple-100 text-purple-600' :
+                                  lesson.type === 'reading' ? 'bg-blue-100 text-blue-600' :
+                                  'bg-green-100 text-green-600'
+                                }`}>
+                                  {lesson.type === 'video' && <Play size={18} />}
+                                  {lesson.type === 'reading' && <FileText size={18} />}
+                                  {lesson.type === 'quiz' && <Target size={18} />}
+                                </div>
+                                <div className="flex-1">
+                                  <span className="text-sm font-bold text-gray-700 block">{lesson.title}</span>
+                                  <span className="text-xs text-gray-400">{lesson.type.charAt(0).toUpperCase() + lesson.type.slice(1)} • {lesson.duration}</span>
+                                </div>
+                                <Lock size={14} className="text-gray-300 group-hover:text-purple-300" />
                               </div>
                             ))}
+                            
+                            {(module.homework?.length || 0) > 0 && (
+                              <div className="mt-4 pt-4 border-t border-gray-100">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-3">Practice & Homework</span>
+                                {(module.homework || []).map((hw) => (
+                                  <div key={hw.id} className="flex items-center gap-3 p-3 bg-amber-50 rounded-xl mb-2">
+                                    <FileText size={16} className="text-amber-600" />
+                                    <span className="text-sm font-medium text-gray-700">{hw.title}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
-                        )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
             {/* BOTTOM CTAs FOR THE SYLLABUS PAGE */}
-            <div className="mt-20 p-12 bg-gray-50 rounded-[4rem] border border-gray-100 text-center animate-reveal">
-               <h4 className="text-2xl font-black text-gray-900 mb-4 uppercase tracking-tight">Ready to start this course?</h4>
-               <p className="text-gray-500 mb-10 font-medium">Join our community and transform your learning journey today.</p>
-               <div className="flex flex-col sm:flex-row justify-center gap-4">
-                  <button 
-                    onClick={() => onEnroll(courseId)}
-                    className={`flex items-center justify-center gap-3 px-10 py-5 rounded-full text-xs font-black uppercase tracking-widest text-white shadow-xl hover:scale-105 transition-all bg-gradient-to-r ${config.color}`}
-                  >
-                    {price === 'FREE' ? 'ENROLL FREE' : `ENROLL FOR ${price}`}
-                    <ChevronRight size={18} />
-                  </button>
-                  <button 
-                    onClick={() => onAddToCart(courseId)}
-                    className={`flex items-center justify-center gap-3 px-8 py-5 rounded-full text-[10px] font-black uppercase tracking-widest border-2 transition-all ${isInCart ? 'bg-green-50 border-green-500 text-green-600' : 'bg-white border-gray-100 text-gray-400 hover:border-purple-200 hover:text-purple-600'}`}
-                  >
-                    {isInCart ? <><Check size={18} /> Added to Cart</> : <><ShoppingCart size={18} /> Add to Cart</>}
-                  </button>
+            <div className="mt-20 p-12 bg-gradient-to-br from-purple-50 via-white to-pink-50 rounded-[4rem] border border-purple-100 text-center animate-reveal relative overflow-hidden">
+               {/* Decorative elements */}
+               <div className="absolute top-0 right-0 w-32 h-32 bg-[#FFC1F2] rounded-full blur-[60px] opacity-40"></div>
+               <div className="absolute bottom-0 left-0 w-24 h-24 bg-[#AB8FFF] rounded-full blur-[50px] opacity-30"></div>
+               
+               <div className="relative z-10">
+                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-purple-100 mb-6">
+                   <Rocket size={16} className="text-[#AB8FFF]" />
+                   <span className="text-[10px] font-black uppercase tracking-widest text-gray-600">Start Your Transformation</span>
+                 </div>
+                 <h4 className="text-3xl font-black text-gray-900 mb-4 tracking-tight">Ready to unlock your potential?</h4>
+                 <p className="text-gray-500 mb-10 font-medium max-w-lg mx-auto">
+                   Join hundreds of students who've discovered a better way to learn. Your journey to confidence starts with a single step.
+                 </p>
+                 <div className="flex flex-col sm:flex-row justify-center gap-4">
+                    <button 
+                      onClick={() => onEnroll(courseId)}
+                      className={`group flex items-center justify-center gap-3 px-10 py-5 rounded-full text-xs font-black uppercase tracking-widest text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all bg-gradient-to-r ${config.color}`}
+                    >
+                      {price === 'FREE' ? 'Start Learning Free' : `Enroll Now — ${price}`}
+                      <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                    </button>
+                    <button 
+                      onClick={() => onAddToCart(courseId)}
+                      className={`flex items-center justify-center gap-3 px-8 py-5 rounded-full text-[10px] font-black uppercase tracking-widest border-2 transition-all ${isInCart ? 'bg-green-50 border-green-500 text-green-600' : 'bg-white border-gray-200 text-gray-500 hover:border-purple-300 hover:text-purple-600'}`}
+                    >
+                      {isInCart ? <><Check size={18} /> Added to Cart</> : <><ShoppingCart size={18} /> Save for Later</>}
+                    </button>
+                 </div>
+                 
+                 {/* Trust row */}
+                 <div className="flex flex-wrap items-center justify-center gap-6 mt-10 pt-8 border-t border-gray-100">
+                   <div className="flex items-center gap-2 text-gray-400 text-[10px] font-bold">
+                     <Shield size={14} />
+                     <span>14-Day Money Back</span>
+                   </div>
+                   <div className="flex items-center gap-2 text-gray-400 text-[10px] font-bold">
+                     <Lock size={14} />
+                     <span>Secure Checkout</span>
+                   </div>
+                   <div className="flex items-center gap-2 text-gray-400 text-[10px] font-bold">
+                     <Award size={14} />
+                     <span>Certificate Included</span>
+                   </div>
+                 </div>
                </div>
             </div>
           </div>

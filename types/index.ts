@@ -92,6 +92,19 @@ export interface CoursePricing {
   discountEndDate?: string;
 }
 
+// ---------- Course Metadata for Marketing ----------
+export interface CourseInstructor {
+  name: string;
+  title: string;
+  avatarUrl?: string;
+  bio?: string;
+}
+
+export interface CourseTargetAudience {
+  description: string;
+  points: string[];
+}
+
 export interface Course {
   id: string;
   title: string;
@@ -107,6 +120,14 @@ export interface Course {
   createdAt: string;
   updatedAt: string;
   adminNotes?: string;
+  // Extended marketing fields
+  learningOutcomes?: string[];
+  prerequisites?: string[];
+  targetAudience?: CourseTargetAudience;
+  instructor?: CourseInstructor;
+  estimatedWeeklyHours?: number;
+  totalStudentsEnrolled?: number;
+  previewVideoUrl?: string;
 }
 
 // ---------- Enrollment & Progress Types ----------
