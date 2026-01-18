@@ -160,11 +160,12 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
   const config = LEVEL_CONFIG[course.level] || LEVEL_CONFIG['A1'];
   const price = formatPrice(course);
 
-  // Calculate course stats
-  const totalModules = course.modules.length;
-  const totalLessons = course.modules.reduce((sum, m) => sum + m.lessons.length, 0);
-  const totalDuration = course.modules.reduce((sum, m) => {
-    return sum + m.lessons.reduce((lessonSum, l) => {
+  // Calculate course stats - with null checks
+  const modules = course.modules || [];
+  const totalModules = modules.length;
+  const totalLessons = modules.reduce((sum, m) => sum + (m.lessons?.length || 0), 0);
+  const totalDuration = modules.reduce((sum, m) => {
+    return sum + (m.lessons || []).reduce((lessonSum, l) => {
       const mins = parseInt(l.duration) || 0;
       return lessonSum + mins;
     }, 0);
@@ -173,9 +174,9 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
     ? `${Math.floor(totalDuration / 60)}h ${totalDuration % 60}m`
     : `${totalDuration}m`;
 
-  // Extract outcomes from first few lessons
-  const outcomes = course.modules.slice(0, 4).map(m => 
-    m.lessons[0]?.title || m.title
+  // Extract outcomes from first few lessons - with null checks
+  const outcomes = modules.slice(0, 4).map(m => 
+    m.lessons?.[0]?.title || m.title
   ).filter(Boolean);
   if (outcomes.length === 0) {
     outcomes.push('Master core language skills', 'Build confidence in communication', 'Develop visual learning strategies', 'Track your progress effectively');
@@ -509,7 +510,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
                   </p>
                 </div>
               </div>
-            ) : course.modules.length === 0 ? (
+            ) : modules.length === 0 ? (
               <div className="bg-gray-50 rounded-[3rem] p-12 text-center">
                 <BookOpen size={48} className="text-gray-300 mx-auto mb-4" />
                 <h4 className="text-xl font-black text-gray-900 mb-2">Content Coming Soon</h4>
@@ -517,7 +518,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
               </div>
             ) : (
               <div className="relative pl-8 md:pl-12 border-l-2 border-dashed border-gray-100 space-y-12">
-                {course.modules.map((module, i) => (
+                {modules.map((module, i) => (
                   <div key={module.id} className="relative group">
                     {/* Timeline Dot */}
                     <div className={`absolute -left-[41px] md:-left-[49px] top-0 w-4 h-4 rounded-full border-4 border-white bg-gradient-to-r ${config.color} ring-4 ring-gray-50 group-hover:scale-150 transition-transform duration-500 shadow-sm z-10`}></div>
@@ -526,7 +527,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                         <h5 className="text-2xl font-black text-gray-900 tracking-tight uppercase">Module {i+1}: {module.title}</h5>
                         <div className="px-4 py-1.5 bg-gray-50 rounded-full border border-gray-100 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                          {module.lessons.length} Lessons
+                          {(module.lessons?.length || 0)} Lessons
                         </div>
                       </div>
                       
@@ -536,7 +537,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
                       
                       <div className="relative min-h-[80px]">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {module.lessons.map((lesson, j) => (
+                          {(module.lessons || []).map((lesson, j) => (
                             <div key={lesson.id} className="flex items-start gap-3">
                               <div className="mt-1">
                                 {lesson.type === 'video' && <Play size={14} className="text-purple-500" />}
@@ -551,10 +552,10 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
                           ))}
                         </div>
                         
-                        {module.homework.length > 0 && (
+                        {(module.homework?.length || 0) > 0 && (
                           <div className="mt-4 pt-4 border-t border-gray-100">
                             <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-2">Homework</span>
-                            {module.homework.map((hw) => (
+                            {(module.homework || []).map((hw) => (
                               <div key={hw.id} className="flex items-center gap-2 text-xs text-gray-600">
                                 <CheckCircle2 size={12} className="text-purple-500" />
                                 {hw.title}
