@@ -26,8 +26,8 @@ const cache = {
 
 const CACHE_TTL = 60 * 1000; // 1 minute cache for courses
 
-const isCacheValid = <T>(entry: CacheEntry<T> | null): entry is CacheEntry<T> => {
-  return entry !== null && Date.now() - entry.timestamp < CACHE_TTL;
+const isCacheValid = <T>(entry: CacheEntry<T> | null | undefined): entry is CacheEntry<T> => {
+  return entry != null && Date.now() - entry.timestamp < CACHE_TTL;
 };
 
 // Clear cache (call when courses are modified)
