@@ -20,32 +20,26 @@ import CheckoutPage from './components/CheckoutPage';
 import WhatsAppButton from './components/WhatsAppButton';
 import DashboardPage from './components/DashboardPage';
 import CourseViewer from './components/CourseViewer';
+import PolicyPage from './components/PolicyPage';
+import { useAuth } from './contexts/AuthContext';
+import { useUserProgress } from './src/hooks/useUserProgress';
 
 // Admin Dashboard Components
 import { 
   AdminLayout, AdminHome, AdminUsers, AdminCourses, 
   CourseEditor, AdminAudit 
 } from './components/admin';
-import { authApi } from './data/adminStore';
-import { User as AdminUser } from './types';
 
 const App: React.FC = () => {
+  const { user, profile, loading: authLoading, signOut, isAdmin: checkIsAdmin, canAccessAdmin } = useAuth();
+  const { progress, toggleProgress, isLoading: progressLoading } = useUserProgress();
   const [currentPath, setCurrentPath] = useState('home');
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
   const [cart, setCart] = useState<string[]>([]);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<{name: string, email: string, role?: string} | null>(null);
-  const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
 
-  // Simple progress storage: courseId_itemKey -> boolean
-  const [progress, setProgress] = useState<Record<string, boolean>>(() => {
-    const saved = localStorage.getItem('dsa_progress');
-    return saved ? JSON.parse(saved) : {};
-  });
-
-  useEffect(() => {
-    localStorage.setItem('dsa_progress', JSON.stringify(progress));
-  }, [progress]);
+  // Derived auth state from context
+  const isLoggedIn = !!user;
+  const currentUser = profile ? { name: profile.name, email: profile.email, role: profile.role } : null;
 
   // Robust hash routing logic
   useEffect(() => {
@@ -61,6 +55,10 @@ const App: React.FC = () => {
       else if (hash === '#courses') setCurrentPath('courses');
       else if (hash === '#checkout') setCurrentPath('checkout');
       else if (hash === '#dashboard') setCurrentPath('dashboard');
+      // Policy pages
+      else if (hash === '#privacy-policy') setCurrentPath('privacy-policy');
+      else if (hash === '#cookie-policy') setCurrentPath('cookie-policy');
+      else if (hash === '#refund-policy') setCurrentPath('refund-policy');
       // Admin routes
       else if (hash === '#admin') setCurrentPath('admin');
       else if (hash === '#admin-users') setCurrentPath('admin-users');
@@ -106,42 +104,23 @@ const App: React.FC = () => {
     }
   };
 
-  const handleLogin = (userData: {name: string, email: string}) => {
-    setUser(userData);
-    setIsLoggedIn(true);
-    
-    // Check if admin login via adminStore
-    const result = authApi.login(userData.email, 'password');
-    if (result.success && result.user) {
-      setAdminUser(result.user);
-      if (result.user.role === 'admin') {
-        navigateTo('admin');
-        return;
-      }
+  const handleLoginSuccess = () => {
+    // Check if user has admin access and redirect accordingly
+    if (canAccessAdmin()) {
+      navigateTo('admin');
+    } else {
+      navigateTo('dashboard');
     }
-    
-    navigateTo('dashboard');
   };
 
-  const handleLogout = () => {
-    setUser(null);
-    setIsLoggedIn(false);
-    setAdminUser(null);
-    authApi.logout();
+  const handleLogout = async () => {
+    await signOut();
     navigateTo('home');
   };
 
   // Check for admin access
-  const isAdmin = adminUser?.role === 'admin' || adminUser?.role === 'editor';
+  const isAdmin = canAccessAdmin();
   const isAdminPath = currentPath.startsWith('admin');
-
-  const toggleProgress = (courseId: string, itemKey: string) => {
-    const key = `${courseId}_${itemKey}`;
-    setProgress(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
-  };
 
   const addToCart = (id: string) => {
     if (!cart.includes(id)) {
@@ -166,7 +145,7 @@ const App: React.FC = () => {
           currentPath={currentPath} 
           cartCount={cart.length}
           isLoggedIn={isLoggedIn}
-          user={user}
+          user={currentUser}
           onLogout={handleLogout}
           isAdmin={isAdmin}
         />
@@ -188,7 +167,7 @@ const App: React.FC = () => {
       {currentPath === 'faq' && <FaqPage />}
       {currentPath === 'who-we-are' && <WhoWeAre />}
       {currentPath === 'contact' && <ContactPage />}
-      {currentPath === 'login' && <LoginRegisterPage onLogin={handleLogin} />}
+      {currentPath === 'login' && <LoginRegisterPage onLoginSuccess={handleLoginSuccess} />}
       
       {currentPath === 'courses' && (
         <CoursesPage 
@@ -216,13 +195,13 @@ const App: React.FC = () => {
           onRemoveItem={removeFromCart}
           onClearCart={() => setCart([])}
           onBrowse={() => navigateTo('courses')}
-          user={user}
+          user={currentUser}
         />
       )}
 
       {currentPath === 'dashboard' && (
         <DashboardPage 
-          user={user} 
+          user={currentUser} 
           progress={progress} 
           onOpenCourse={(id) => navigateTo('viewer', id)}
         />
@@ -235,6 +214,17 @@ const App: React.FC = () => {
           onToggleProgress={toggleProgress}
           onBack={() => navigateTo('dashboard')}
         />
+      )}
+
+      {/* Policy Pages */}
+      {currentPath === 'privacy-policy' && (
+        <PolicyPage type="privacy" onBack={() => navigateTo('home')} />
+      )}
+      {currentPath === 'cookie-policy' && (
+        <PolicyPage type="cookie" onBack={() => navigateTo('home')} />
+      )}
+      {currentPath === 'refund-policy' && (
+        <PolicyPage type="refund" onBack={() => navigateTo('home')} />
       )}
 
       {/* Admin Routes */}

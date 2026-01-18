@@ -1,24 +1,79 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Mail, Lock, User, ChevronRight, LogIn, UserPlus, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, ChevronRight, Eye, EyeOff, AlertCircle, Loader2 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 interface LoginProps {
-  onLogin: (user: {name: string, email: string}) => void;
+  onLoginSuccess?: () => void;
 }
 
-const LoginRegisterPage: React.FC<LoginProps> = ({ onLogin }) => {
+const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
+  const { signIn, signUp, user, loading: authLoading } = useAuth();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user && !authLoading) {
+      onLoginSuccess?.();
+    }
+  }, [user, authLoading, onLoginSuccess]);
+
+  const validateForm = (): string | null => {
+    if (!formData.email.trim()) return 'Email is required';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) return 'Invalid email format';
+    if (!formData.password) return 'Password is required';
+    if (formData.password.length < 6) return 'Password must be at least 6 characters';
+    if (!isLogin && !formData.name.trim()) return 'Name is required';
+    return null;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate auth
-    onLogin({
-      name: formData.name || 'Student',
-      email: formData.email
-    });
+    setError(null);
+    setSuccessMessage(null);
+
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      if (isLogin) {
+        const { error } = await signIn(formData.email, formData.password);
+        if (error) {
+          setError(error.message === 'Invalid login credentials' 
+            ? 'Invalid email or password. Please try again.'
+            : error.message);
+        } else {
+          onLoginSuccess?.();
+        }
+      } else {
+        const { error } = await signUp(formData.email, formData.password, formData.name);
+        if (error) {
+          if (error.message.includes('already registered')) {
+            setError('An account with this email already exists. Please log in instead.');
+          } else {
+            setError(error.message);
+          }
+        } else {
+          setSuccessMessage('Account created! Please check your email to verify your account.');
+          setFormData({ name: '', email: '', password: '' });
+        }
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -77,9 +132,22 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLogin }) => {
           </div>
 
           <div className="flex p-2 bg-gray-50 rounded-3xl mb-10">
-            <button onClick={() => setIsLogin(true)} className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-2xl transition-all ${isLogin ? 'bg-white shadow-sm text-purple-600' : 'text-gray-400'}`}>Login</button>
-            <button onClick={() => setIsLogin(false)} className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-2xl transition-all ${!isLogin ? 'bg-white shadow-sm text-purple-600' : 'text-gray-400'}`}>Register</button>
+            <button onClick={() => { setIsLogin(true); setError(null); setSuccessMessage(null); }} className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-2xl transition-all ${isLogin ? 'bg-white shadow-sm text-purple-600' : 'text-gray-400'}`}>Login</button>
+            <button onClick={() => { setIsLogin(false); setError(null); setSuccessMessage(null); }} className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-2xl transition-all ${!isLogin ? 'bg-white shadow-sm text-purple-600' : 'text-gray-400'}`}>Register</button>
           </div>
+
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3">
+              <AlertCircle className="text-red-500 flex-shrink-0 mt-0.5" size={20} />
+              <p className="text-red-700 text-sm font-medium">{error}</p>
+            </div>
+          )}
+
+          {successMessage && (
+            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-2xl">
+              <p className="text-green-700 text-sm font-medium">{successMessage}</p>
+            </div>
+          )}
 
           <form className="space-y-6" onSubmit={handleSubmit}>
             {!isLogin && (
@@ -106,9 +174,22 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLogin }) => {
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400">{showPassword ? <EyeOff size={20} /> : <Eye size={20} />}</button>
               </div>
             </div>
-            <button type="submit" className="w-full flex items-center justify-center gap-4 bg-[#8a3ffc] text-white py-6 rounded-[2.5rem] font-black uppercase tracking-[0.2em] shadow-2xl shadow-purple-500/20 hover:bg-[#7a2fec] active:scale-95 transition-all text-xs">
-              {isLogin ? 'LOG IN' : 'CREATE ACCOUNT'}
-              <ChevronRight size={20} />
+            <button 
+              type="submit" 
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-4 bg-[#8a3ffc] text-white py-6 rounded-[2.5rem] font-black uppercase tracking-[0.2em] shadow-2xl shadow-purple-500/20 hover:bg-[#7a2fec] active:scale-95 transition-all text-xs disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="animate-spin" size={20} />
+                  {isLogin ? 'LOGGING IN...' : 'CREATING ACCOUNT...'}
+                </>
+              ) : (
+                <>
+                  {isLogin ? 'LOG IN' : 'CREATE ACCOUNT'}
+                  <ChevronRight size={20} />
+                </>
+              )}
             </button>
           </form>
         </div>

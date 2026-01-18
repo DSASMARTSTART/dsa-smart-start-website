@@ -825,6 +825,7 @@ export const purchasesApi = {
     amount: number;
     currency: string;
     paymentMethod: string;
+    transactionId?: string;
     discountCode?: string;
   }): Promise<Purchase> => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -836,7 +837,8 @@ export const purchasesApi = {
         amount: purchaseData.amount,
         currency: purchaseData.currency,
         payment_method: purchaseData.paymentMethod,
-        transaction_id: crypto.randomUUID()
+        transaction_id: purchaseData.transactionId || crypto.randomUUID(),
+        discount_code: purchaseData.discountCode
       })
       .select()
       .single();

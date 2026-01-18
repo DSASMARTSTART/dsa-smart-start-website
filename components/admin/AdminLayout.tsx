@@ -2,13 +2,12 @@
 // Admin Layout - Reuses Student Dashboard patterns
 // ============================================
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   LayoutDashboard, Users, BookOpen, History, Settings, LogOut, 
-  ChevronRight, Menu, X, Bell, Search, Shield
+  ChevronRight, Menu, X, Bell, Search, Shield, AlertTriangle
 } from 'lucide-react';
-import { User } from '../../types';
-import { authApi } from '../../data/supabaseStore';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -18,16 +17,54 @@ interface AdminLayoutProps {
 }
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPath, onNavigate, onLogout }) => {
+  const { profile, loading, canAccessAdmin } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
 
-  useEffect(() => {
-    const loadUser = async () => {
-      const currentUser = await authApi.getCurrentUser();
-      setUser(currentUser);
-    };
-    loadUser();
-  }, []);
+  // Show loading state while auth is being checked
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#f8f9fb] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-500 font-medium">Verifying access...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Deny access if user doesn't have admin/editor role
+  if (!canAccessAdmin()) {
+    return (
+      <div className="min-h-screen bg-[#f8f9fb] flex items-center justify-center px-6">
+        <div className="max-w-lg text-center">
+          <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-8">
+            <AlertTriangle size={40} className="text-red-500" />
+          </div>
+          <h1 className="text-3xl font-black text-gray-900 mb-4 uppercase tracking-tight">
+            Access Denied
+          </h1>
+          <p className="text-gray-500 text-lg mb-8">
+            You don't have permission to access the admin panel. 
+            This area is restricted to administrators and editors only.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button 
+              onClick={() => onNavigate('home')}
+              className="px-8 py-4 bg-gray-900 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-gray-800 transition-colors"
+            >
+              Go to Home
+            </button>
+            <button 
+              onClick={() => onNavigate('dashboard')}
+              className="px-8 py-4 bg-purple-600 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-colors"
+            >
+              My Dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const navItems = [
     { id: 'admin', label: 'Dashboard', icon: LayoutDashboard, path: 'admin' },
@@ -97,11 +134,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPath, onNavi
             {/* User Menu */}
             <div className="flex items-center gap-3">
               <div className="hidden md:block text-right">
-                <p className="text-sm font-bold text-gray-900">{user?.name || 'Admin'}</p>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{user?.role}</p>
+                <p className="text-sm font-bold text-gray-900">{profile?.name || 'Admin'}</p>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{profile?.role}</p>
               </div>
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-purple-200">
-                {user?.name?.charAt(0) || 'A'}
+                {profile?.name?.charAt(0) || 'A'}
               </div>
             </div>
           </div>

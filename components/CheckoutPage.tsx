@@ -1,8 +1,19 @@
 
-import React, { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ShieldCheck, Lock, CreditCard, CheckCircle2, Star, Sparkles, ChevronRight, ShoppingCart, User, X, Tag, Ticket } from 'lucide-react';
-import { coursesApi, purchasesApi, authApi } from '../data/supabaseStore';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { ArrowLeft, ShieldCheck, Lock, CreditCard, CheckCircle2, ChevronRight, ShoppingCart, User, X, Tag, Ticket, AlertCircle, Loader2, Building2, Wallet } from 'lucide-react';
+import { coursesApi, purchasesApi } from '../data/supabaseStore';
 import { Course } from '../types';
+import { useAuth } from '../contexts/AuthContext';
+import { 
+  getPaymentConfig, 
+  isPaymentConfigured, 
+  getAvailablePaymentMethods,
+  paypalPayment,
+  raiffeisenPayment,
+  generateOrderId,
+  PaymentMethod,
+  PaymentRequest
+} from '../lib/paymentService';
 
 // Level-based color gradients
 const LEVEL_COLORS: Record<string, string> = {
@@ -30,15 +41,124 @@ interface CheckoutProps {
 }
 
 const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onClearCart, onBrowse, user }) => {
+  const { user: authUser, profile } = useAuth();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const paypalContainerRef = useRef<HTMLDivElement>(null);
+  
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Payment method selection
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod | null>(null);
+  const [availableMethods, setAvailableMethods] = useState<PaymentMethod[]>([]);
+  const [paymentConfig] = useState(() => getPaymentConfig());
+  const [paypalLoaded, setPaypalLoaded] = useState(false);
+  
+  // Form state
+  const [customerName, setCustomerName] = useState(user?.name || profile?.name || '');
+  const [customerEmail, setCustomerEmail] = useState(user?.email || profile?.email || '');
   
   // Discount state
   const [discountInput, setDiscountInput] = useState('');
   const [appliedDiscount, setAppliedDiscount] = useState<{ code: string; amount: number } | null>(null);
   const [discountError, setDiscountError] = useState<string | null>(null);
+
+  // Check available payment methods
+  useEffect(() => {
+    const methods = getAvailablePaymentMethods();
+    setAvailableMethods(methods);
+    
+    // Auto-select if only one method available
+    if (methods.length === 1) {
+      setSelectedPaymentMethod(methods[0]);
+    }
+  }, []);
+
+  // Load PayPal SDK when PayPal is selected
+  useEffect(() => {
+    if (selectedPaymentMethod === 'paypal' && paymentConfig.paypal.isConfigured) {
+      paypalPayment.loadSDK().then(loaded => {
+        setPaypalLoaded(loaded);
+      });
+    }
+  }, [selectedPaymentMethod, paymentConfig.paypal.isConfigured]);
+
+  // Calculate totals
+  const subtotal = cartItems.reduce((acc, item) => acc + item.price, 0);
+  const total = Math.max(0, subtotal - (appliedDiscount?.amount || 0));
+
+  // Handle successful payment
+  const handlePaymentSuccess = useCallback(async (transactionId: string, method: PaymentMethod) => {
+    try {
+      // Get user ID from auth context
+      const userId = authUser?.id || profile?.id;
+      
+      if (!userId) {
+        throw new Error('User not authenticated. Please log in to complete purchase.');
+      }
+
+      // Create purchase records for each item
+      for (const item of cartItems) {
+        await purchasesApi.create({
+          userId,
+          courseId: item.id,
+          amount: item.price,
+          currency: 'EUR',
+          paymentMethod: method,
+          transactionId,
+          discountCode: appliedDiscount?.code,
+        });
+      }
+
+      setPaymentSuccess(true);
+      onClearCart();
+    } catch (err) {
+      console.error('Error recording purchase:', err);
+      setError(err instanceof Error ? err.message : 'Failed to complete purchase');
+    }
+  }, [authUser, profile, cartItems, appliedDiscount, onClearCart]);
+
+  // Render PayPal buttons when ready
+  useEffect(() => {
+    if (paypalLoaded && selectedPaymentMethod === 'paypal' && paypalContainerRef.current && cartItems.length > 0) {
+      const container = paypalContainerRef.current;
+      container.innerHTML = ''; // Clear previous buttons
+      
+      const orderId = generateOrderId();
+      const request: PaymentRequest = {
+        orderId,
+        amount: total,
+        currency: 'EUR',
+        description: `DSA Smart Start - ${cartItems.length} course(s)`,
+        customerEmail,
+        customerName,
+        items: cartItems.map(item => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: 1,
+        })),
+        returnUrl: `${window.location.origin}/#checkout-success`,
+        cancelUrl: `${window.location.origin}/#checkout`,
+      };
+
+      if (window.paypal) {
+        window.paypal.Buttons(paypalPayment.getButtonOptions(request, {
+          onApprove: async (transactionId) => {
+            await handlePaymentSuccess(transactionId, 'paypal');
+          },
+          onError: (err) => {
+            setError(`PayPal error: ${err.message}`);
+          },
+          onCancel: () => {
+            setError('Payment was cancelled. Please try again.');
+          },
+        })).render(container);
+      }
+    }
+  }, [paypalLoaded, selectedPaymentMethod, cartItems, total, customerEmail, customerName, handlePaymentSuccess]);
 
   // Load cart items from store
   useEffect(() => {
@@ -71,6 +191,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
     loadCartItems();
   }, [cart]);
 
+  // Canvas animation
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -109,14 +230,12 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
     return () => { window.removeEventListener('resize', resize); cancelAnimationFrame(animationFrameId); };
   }, []);
 
-  const subtotal = cartItems.reduce((acc, item) => acc + item.price, 0);
-  const total = Math.max(0, subtotal - (appliedDiscount?.amount || 0));
-
   const handleApplyDiscount = (e: React.MouseEvent) => {
-    e.preventDefault(); // Extra safety
+    e.preventDefault();
     const code = discountInput.trim().toUpperCase();
     if (!code) return;
 
+    // These should be validated server-side in production
     if (code === 'DSA2025') {
       setAppliedDiscount({ code: 'DSA2025 (10% OFF)', amount: subtotal * 0.1 });
       setDiscountError(null);
@@ -124,42 +243,76 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
       setAppliedDiscount({ code: 'WELCOMEDSA (-20€)', amount: 20 });
       setDiscountError(null);
     } else {
-      setDiscountError('Invalid code. Try DSA2025');
+      setDiscountError('Invalid discount code');
       setAppliedDiscount(null);
     }
   };
 
-  const handleCheckout = async (e: React.FormEvent) => {
+  // Handle Raiffeisen card payment
+  const handleRaiffeisenPayment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (cart.length === 0) return;
+    setError(null);
+
+    if (!customerName.trim() || !customerEmail.trim()) {
+      setError('Please fill in your name and email');
+      return;
+    }
+
     setLoading(true);
-    
+
     try {
-      // Get current user or create a mock user ID
-      const currentUser = await authApi.getCurrentUser();
-      const userId = currentUser?.id || 'user-1';
-      
-      // Create purchases for each cart item (this also auto-enrolls)
-      for (const item of cartItems) {
-        await purchasesApi.create({
-          userId,
-          courseId: item.id,
-          amount: item.price,
-          currency: 'EUR',
-          paymentMethod: 'card',
-          discountCode: appliedDiscount?.code
-        });
-      }
-      
-      setPaymentSuccess(true);
-      onClearCart();
-    } catch (error) {
-      console.error('Checkout error:', error);
-    } finally {
+      const orderId = generateOrderId();
+      const request: PaymentRequest = {
+        orderId,
+        amount: total,
+        currency: 'EUR',
+        description: `DSA Smart Start - ${cartItems.length} course(s)`,
+        customerEmail,
+        customerName,
+        items: cartItems.map(item => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: 1,
+        })),
+        returnUrl: `${window.location.origin}/#checkout-success?orderId=${orderId}`,
+        cancelUrl: `${window.location.origin}/#checkout`,
+      };
+
+      // Store order info for callback verification
+      sessionStorage.setItem('pending_order', JSON.stringify({
+        orderId,
+        items: cartItems,
+        total,
+        discountCode: appliedDiscount?.code,
+      }));
+
+      // Get payment form data and redirect
+      const { formData, actionUrl } = await raiffeisenPayment.createPaymentRequest(request);
+
+      // Create and submit form to Raiffeisen payment gateway
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = actionUrl;
+
+      Object.entries(formData).forEach(([key, value]) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = value;
+        form.appendChild(input);
+      });
+
+      document.body.appendChild(form);
+      form.submit();
+    } catch (err) {
+      console.error('Payment error:', err);
+      setError(err instanceof Error ? err.message : 'Payment failed. Please try again.');
       setLoading(false);
     }
   };
 
+  // Success state
   if (paymentSuccess) {
     return (
       <div className="min-h-screen bg-[#f8f5ff] flex items-center justify-center px-6 py-20 relative z-[101]">
@@ -167,19 +320,25 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
           <div className="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center text-white mx-auto mb-10 shadow-xl animate-bounce">
             <CheckCircle2 size={48} />
           </div>
-          <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 tracking-tight">Success!</h2>
-          <p className="text-gray-500 text-xl mb-12 font-medium">Your courses are now unlocked. Welcome to the DSA Smart Start family! A confirmation email has been sent to your inbox.</p>
+          <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 tracking-tight">Payment Successful!</h2>
+          <p className="text-gray-500 text-xl mb-12 font-medium">
+            Your courses are now unlocked. Welcome to the DSA Smart Start family! 
+            A confirmation email has been sent to {customerEmail}.
+          </p>
           <button 
-            onClick={() => window.location.hash = '#courses'}
+            onClick={() => window.location.hash = '#dashboard'}
             className="group flex items-center gap-3 bg-gray-900 text-white px-10 py-5 rounded-full font-black text-xs tracking-widest transition-all mx-auto uppercase shadow-xl hover:bg-purple-600"
           >
-            Start Learning
+            Go to My Courses
             <ChevronRight size={18} />
           </button>
         </div>
       </div>
     );
   }
+
+  // Check if payment is not configured
+  const paymentNotConfigured = !isPaymentConfigured();
 
   return (
     <div className="bg-white min-h-screen pt-32 pb-20 relative">
@@ -213,6 +372,32 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
                   Browse Courses
                 </button>
               </div>
+            ) : paymentNotConfigured ? (
+              // Payment not configured notice
+              <div className="bg-white p-12 md:p-16 rounded-[4rem] border border-amber-200 text-center">
+                <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 mx-auto mb-8">
+                  <AlertCircle size={40} />
+                </div>
+                <h2 className="text-3xl font-black text-gray-900 mb-4 uppercase tracking-tight">Payment Setup Required</h2>
+                <p className="text-gray-500 mb-6 font-medium">
+                  Payment processing is not yet configured. Please contact us to complete your enrollment.
+                </p>
+                <div className="bg-gray-50 rounded-3xl p-6 text-left mb-8">
+                  <p className="text-sm text-gray-600 mb-2"><strong>Your courses:</strong></p>
+                  <ul className="text-sm text-gray-500 list-disc list-inside">
+                    {cartItems.map(item => (
+                      <li key={item.id}>{item.name} - €{item.price.toFixed(2)}</li>
+                    ))}
+                  </ul>
+                  <p className="text-sm font-bold text-gray-800 mt-4">Total: €{total.toFixed(2)}</p>
+                </div>
+                <button 
+                  onClick={() => window.location.hash = '#contact'}
+                  className="bg-purple-600 text-white px-12 py-5 rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-all shadow-xl"
+                >
+                  Contact Us to Enroll
+                </button>
+              </div>
             ) : (
               <div className="space-y-8">
                 <div className="flex items-center gap-4 mb-2">
@@ -222,64 +407,160 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
                   <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter uppercase">Checkout</h1>
                 </div>
 
-                <form className="space-y-8" onSubmit={handleCheckout}>
-                  {/* Student Info */}
-                  <div className="bg-white p-10 md:p-14 rounded-[3.5rem] border border-gray-100 shadow-xl">
-                    <h3 className="text-xl font-black text-gray-900 mb-8 uppercase tracking-tight flex items-center gap-3">
-                      <User size={20} className="text-purple-500" />
-                      Student Information
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="flex flex-col gap-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Full Name</label>
-                        <input required type="text" placeholder="Your Name" className="w-full px-8 py-5 rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-purple-600 outline-none transition-all font-bold" />
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Email Address</label>
-                        <input required type="email" placeholder="email@example.com" className="w-full px-8 py-5 rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-purple-600 outline-none transition-all font-bold" />
-                      </div>
+                {/* Error message */}
+                {error && (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3">
+                    <AlertCircle className="text-red-500 flex-shrink-0 mt-0.5" size={20} />
+                    <p className="text-red-700 text-sm font-medium">{error}</p>
+                  </div>
+                )}
+
+                {/* Student Info */}
+                <div className="bg-white p-10 md:p-14 rounded-[3.5rem] border border-gray-100 shadow-xl">
+                  <h3 className="text-xl font-black text-gray-900 mb-8 uppercase tracking-tight flex items-center gap-3">
+                    <User size={20} className="text-purple-500" />
+                    Student Information
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Full Name</label>
+                      <input 
+                        required 
+                        type="text" 
+                        placeholder="Your Name" 
+                        value={customerName}
+                        onChange={(e) => setCustomerName(e.target.value)}
+                        className="w-full px-8 py-5 rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-purple-600 outline-none transition-all font-bold" 
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Email Address</label>
+                      <input 
+                        required 
+                        type="email" 
+                        placeholder="email@example.com" 
+                        value={customerEmail}
+                        onChange={(e) => setCustomerEmail(e.target.value)}
+                        className="w-full px-8 py-5 rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-purple-600 outline-none transition-all font-bold" 
+                      />
                     </div>
                   </div>
+                </div>
 
-                  {/* Payment Info */}
-                  <div className="bg-white p-10 md:p-14 rounded-[3.5rem] border border-gray-100 shadow-xl relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-8">
-                      <ShieldCheck size={40} className="text-green-500/20" />
-                    </div>
-                    <h3 className="text-xl font-black text-gray-900 mb-8 uppercase tracking-tight flex items-center gap-3">
-                      <Lock size={20} className="text-purple-500" />
-                      Payment Details
-                    </h3>
-                    <div className="space-y-6">
-                      <div className="flex flex-col gap-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Card Number</label>
-                        <div className="relative">
-                          <CreditCard className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300" size={20} />
-                          <input required type="text" placeholder="•••• •••• •••• ••••" className="w-full pl-16 pr-8 py-5 rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-purple-600 outline-none transition-all font-bold" />
+                {/* Payment Method Selection */}
+                <div className="bg-white p-10 md:p-14 rounded-[3.5rem] border border-gray-100 shadow-xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-8">
+                    <ShieldCheck size={40} className="text-green-500/20" />
+                  </div>
+                  <h3 className="text-xl font-black text-gray-900 mb-8 uppercase tracking-tight flex items-center gap-3">
+                    <Lock size={20} className="text-purple-500" />
+                    Payment Method
+                  </h3>
+
+                  <div className="space-y-4">
+                    {/* Card Payment Option (Raiffeisen) */}
+                    {paymentConfig.raiffeisen.isConfigured && (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedPaymentMethod('card')}
+                        className={`w-full p-6 rounded-3xl border-2 transition-all flex items-center gap-4 ${
+                          selectedPaymentMethod === 'card' 
+                            ? 'border-purple-600 bg-purple-50' 
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
+                          selectedPaymentMethod === 'card' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-500'
+                        }`}>
+                          <CreditCard size={24} />
                         </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-6">
-                        <div className="flex flex-col gap-2">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Expiry</label>
-                          <input required type="text" placeholder="MM/YY" className="w-full px-8 py-5 rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-purple-600 outline-none transition-all font-bold" />
+                        <div className="text-left flex-grow">
+                          <p className="font-black text-gray-900 uppercase tracking-wide text-sm">Credit / Debit Card</p>
+                          <p className="text-xs text-gray-500 mt-1">Secure payment via Raiffeisen Bank</p>
                         </div>
-                        <div className="flex flex-col gap-2">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">CVC</label>
-                          <input required type="text" placeholder="•••" className="w-full px-8 py-5 rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-purple-600 outline-none transition-all font-bold" />
+                        <div className="flex items-center gap-2">
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/200px-Visa_Inc._logo.svg.png" alt="Visa" className="h-6 object-contain" />
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/200px-Mastercard-logo.svg.png" alt="Mastercard" className="h-6 object-contain" />
                         </div>
-                      </div>
-                    </div>
+                      </button>
+                    )}
+
+                    {/* PayPal Option */}
+                    {paymentConfig.paypal.isConfigured && (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedPaymentMethod('paypal')}
+                        className={`w-full p-6 rounded-3xl border-2 transition-all flex items-center gap-4 ${
+                          selectedPaymentMethod === 'paypal' 
+                            ? 'border-purple-600 bg-purple-50' 
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
+                          selectedPaymentMethod === 'paypal' ? 'bg-[#003087] text-white' : 'bg-gray-100 text-gray-500'
+                        }`}>
+                          <Wallet size={24} />
+                        </div>
+                        <div className="text-left flex-grow">
+                          <p className="font-black text-gray-900 uppercase tracking-wide text-sm">PayPal</p>
+                          <p className="text-xs text-gray-500 mt-1">Pay securely with your PayPal account</p>
+                        </div>
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/200px-PayPal.svg.png" alt="PayPal" className="h-6 object-contain" />
+                      </button>
+                    )}
                   </div>
 
-                  <button 
-                    type="submit"
-                    disabled={loading}
-                    className={`group w-full flex items-center justify-center gap-4 bg-[#8a3ffc] text-white py-6 rounded-[2.5rem] font-black uppercase tracking-[0.2em] shadow-2xl shadow-purple-500/20 hover:bg-[#7a2fec] hover:scale-[1.02] active:scale-[0.98] transition-all ${loading ? 'opacity-50 pointer-events-none' : ''}`}
-                  >
-                    {loading ? 'PROCESSING...' : `COMPLETE ENROLLMENT (${total.toFixed(2)}€)`}
-                    {!loading && <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />}
-                  </button>
-                </form>
+                  {/* PayPal Button Container */}
+                  {selectedPaymentMethod === 'paypal' && (
+                    <div className="mt-8">
+                      {paypalLoaded ? (
+                        <div ref={paypalContainerRef} className="paypal-button-container" />
+                      ) : (
+                        <div className="flex items-center justify-center p-8">
+                          <Loader2 className="animate-spin text-purple-600" size={32} />
+                          <span className="ml-3 text-gray-500">Loading PayPal...</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Card Payment Form - Redirects to Raiffeisen */}
+                  {selectedPaymentMethod === 'card' && (
+                    <div className="mt-8">
+                      <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6">
+                        <p className="text-sm text-blue-800">
+                          <Building2 className="inline mr-2" size={16} />
+                          You will be redirected to Raiffeisen Bank's secure payment page to enter your card details.
+                        </p>
+                      </div>
+                      <button 
+                        type="button"
+                        onClick={handleRaiffeisenPayment}
+                        disabled={loading || !customerName || !customerEmail}
+                        className="group w-full flex items-center justify-center gap-4 bg-[#8a3ffc] text-white py-6 rounded-[2.5rem] font-black uppercase tracking-[0.2em] shadow-2xl shadow-purple-500/20 hover:bg-[#7a2fec] hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                      >
+                        {loading ? (
+                          <>
+                            <Loader2 className="animate-spin" size={20} />
+                            REDIRECTING TO PAYMENT...
+                          </>
+                        ) : (
+                          <>
+                            PROCEED TO PAYMENT ({total.toFixed(2)}€)
+                            <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* No payment method selected */}
+                  {!selectedPaymentMethod && availableMethods.length > 0 && (
+                    <div className="mt-8 text-center text-gray-400 text-sm">
+                      Please select a payment method above
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
@@ -395,6 +676,18 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
                   ))}
                 </div>
               </div>
+
+              {/* Security badges */}
+              <div className="flex items-center justify-center gap-6 text-gray-400">
+                <div className="flex items-center gap-2">
+                  <Lock size={14} />
+                  <span className="text-[10px] font-bold uppercase tracking-widest">SSL Secured</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <ShieldCheck size={14} />
+                  <span className="text-[10px] font-bold uppercase tracking-widest">3D Secure</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -406,6 +699,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
         @keyframes reveal { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-reveal { animation: reveal 0.5s ease-out forwards; }
+        .paypal-button-container { min-height: 150px; }
       `}} />
     </div>
   );

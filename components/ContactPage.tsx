@@ -1,10 +1,70 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Mail, Phone, MapPin, Send, MessageCircle, Sparkles } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, MessageCircle, Sparkles, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import WaveSeparator from './WaveSeparator';
+import { submitContactForm, getContactConfig } from '../lib/contactService';
 
 const ContactPage: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  
+  // Form state
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    message: '',
+  });
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    // Clear error when user starts typing
+    if (error) setError(null);
+  };
+
+  const validateForm = (): string | null => {
+    if (!formData.firstName.trim()) return 'First name is required';
+    if (!formData.email.trim()) return 'Email is required';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) return 'Please enter a valid email';
+    if (!formData.message.trim()) return 'Message is required';
+    return null;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const result = await submitContactForm({
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        email: formData.email.trim(),
+        message: formData.message.trim(),
+      });
+
+      if (result.success) {
+        setSuccess(true);
+        setFormData({ firstName: '', lastName: '', email: '', message: '' });
+      } else {
+        setError(result.error || 'Failed to send message. Please try again.');
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -178,47 +238,102 @@ const ContactPage: React.FC = () => {
                   <h4 className="text-3xl font-black text-[#1a1c2d] tracking-tight uppercase">Get In Touch!</h4>
                 </div>
 
-                <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={(e) => e.preventDefault()}>
-                  <div className="flex flex-col gap-2">
-                    <label className="text-[11px] font-black uppercase tracking-widest text-gray-400 ml-4">First Name</label>
-                    <input 
-                      type="text" 
-                      placeholder="First Name"
-                      className="w-full px-8 py-5 rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-[#AB8FFF] focus:outline-none transition-all font-bold text-[#1a1c2d] placeholder-gray-300"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <label className="text-[11px] font-black uppercase tracking-widest text-gray-400 ml-4">Last Name</label>
-                    <input 
-                      type="text" 
-                      placeholder="Last Name"
-                      className="w-full px-8 py-5 rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-[#AB8FFF] focus:outline-none transition-all font-bold text-[#1a1c2d] placeholder-gray-300"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-2 md:col-span-2">
-                    <label className="text-[11px] font-black uppercase tracking-widest text-gray-400 ml-4">Email *</label>
-                    <input 
-                      type="email" 
-                      placeholder="hello@example.com"
-                      className="w-full px-8 py-5 rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-[#AB8FFF] focus:outline-none transition-all font-bold text-[#1a1c2d] placeholder-gray-300"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-2 md:col-span-2">
-                    <label className="text-[11px] font-black uppercase tracking-widest text-gray-400 ml-4">Message</label>
-                    <textarea 
-                      rows={4}
-                      placeholder="How can we help you?"
-                      className="w-full px-8 py-5 rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-[#AB8FFF] focus:outline-none transition-all font-bold text-[#1a1c2d] placeholder-gray-300 resize-none"
-                    />
-                  </div>
-
-                  <div className="md:col-span-2 mt-4">
-                    <button className="w-full p-5 rounded-[2rem] bg-[#1a1c2d] text-white font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-[#AB8FFF] hover:shadow-lg hover:shadow-[#AB8FFF]/30 hover:-translate-y-1 transition-all duration-300 group">
-                      <span>Send Message</span>
-                      <Send size={18} className="group-hover:translate-x-1 transition-transform" />
+                {/* Success Message */}
+                {success ? (
+                  <div className="text-center py-12">
+                    <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <CheckCircle2 size={40} className="text-green-500" />
+                    </div>
+                    <h4 className="text-2xl font-black text-[#1a1c2d] mb-4">Message Sent!</h4>
+                    <p className="text-gray-500 mb-8">
+                      Thank you for reaching out. We'll get back to you as soon as possible.
+                    </p>
+                    <button
+                      onClick={() => setSuccess(false)}
+                      className="px-8 py-4 rounded-full bg-gray-100 text-gray-700 font-bold hover:bg-gray-200 transition-colors"
+                    >
+                      Send Another Message
                     </button>
                   </div>
-                </form>
+                ) : (
+                  <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={handleSubmit}>
+                    {/* Error Message */}
+                    {error && (
+                      <div className="md:col-span-2 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3">
+                        <AlertCircle className="text-red-500 flex-shrink-0 mt-0.5" size={20} />
+                        <p className="text-red-700 text-sm font-medium">{error}</p>
+                      </div>
+                    )}
+
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[11px] font-black uppercase tracking-widest text-gray-400 ml-4">First Name *</label>
+                      <input 
+                        type="text"
+                        name="firstName"
+                        value={formData.firstName}
+                        onChange={handleInputChange}
+                        placeholder="First Name"
+                        required
+                        className="w-full px-8 py-5 rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-[#AB8FFF] focus:outline-none transition-all font-bold text-[#1a1c2d] placeholder-gray-300"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[11px] font-black uppercase tracking-widest text-gray-400 ml-4">Last Name</label>
+                      <input 
+                        type="text"
+                        name="lastName"
+                        value={formData.lastName}
+                        onChange={handleInputChange}
+                        placeholder="Last Name"
+                        className="w-full px-8 py-5 rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-[#AB8FFF] focus:outline-none transition-all font-bold text-[#1a1c2d] placeholder-gray-300"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2 md:col-span-2">
+                      <label className="text-[11px] font-black uppercase tracking-widest text-gray-400 ml-4">Email *</label>
+                      <input 
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        placeholder="hello@example.com"
+                        required
+                        className="w-full px-8 py-5 rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-[#AB8FFF] focus:outline-none transition-all font-bold text-[#1a1c2d] placeholder-gray-300"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2 md:col-span-2">
+                      <label className="text-[11px] font-black uppercase tracking-widest text-gray-400 ml-4">Message *</label>
+                      <textarea 
+                        name="message"
+                        value={formData.message}
+                        onChange={handleInputChange}
+                        rows={4}
+                        placeholder="How can we help you?"
+                        required
+                        className="w-full px-8 py-5 rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-[#AB8FFF] focus:outline-none transition-all font-bold text-[#1a1c2d] placeholder-gray-300 resize-none"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2 mt-4">
+                      <button 
+                        type="submit"
+                        disabled={loading}
+                        className="w-full p-5 rounded-[2rem] bg-[#1a1c2d] text-white font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-[#AB8FFF] hover:shadow-lg hover:shadow-[#AB8FFF]/30 hover:-translate-y-1 transition-all duration-300 group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:bg-[#1a1c2d]"
+                      >
+                        {loading ? (
+                          <>
+                            <Loader2 size={18} className="animate-spin" />
+                            <span>Sending...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>Send Message</span>
+                            <Send size={18} className="group-hover:translate-x-1 transition-transform" />
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </form>
+                )}
               </div>
             </div>
           </div>

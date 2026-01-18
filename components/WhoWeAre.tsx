@@ -254,10 +254,6 @@ const WhoWeAre: React.FC = () => {
               With the Innovative DSA SMART START Method, we will transform your challenges into extraordinary growth opportunities. We're ready to give you the tools you need to approach the English language with confidence, determination, and passion.
             </p>
             <div className="flex flex-col gap-6">
-              <button className="flex items-center justify-between bg-gray-900 text-white px-8 sm:px-10 py-6 sm:py-7 rounded-[2.5rem] font-black uppercase tracking-widest group hover:bg-[#8a3ffc] transition-all hover:scale-105 active:scale-95 shadow-xl shadow-gray-200 text-xs sm:text-sm">
-                JOIN OUR COMMUNITY
-                <ChevronRight className="group-hover:translate-x-3 transition-transform" />
-              </button>
               <button className="flex items-center justify-between bg-purple-50 text-[#8a3ffc] px-8 sm:px-10 py-6 sm:py-7 rounded-[2.5rem] font-black uppercase tracking-widest group border border-purple-100 hover:bg-white transition-all hover:scale-105 active:scale-95 shadow-lg shadow-purple-100 text-[10px] sm:text-sm">
                 FIND OUT MORE ABOUT METHOD
                 <ChevronRight className="group-hover:translate-x-3 transition-transform" />

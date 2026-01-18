@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Mail, Phone, MapPin, Instagram, Facebook, Linkedin } from 'lucide-react';
+import { Mail, Phone, MapPin, Instagram } from 'lucide-react';
 
 interface FooterProps {
   onNavigate?: (path: string) => void;
@@ -24,9 +24,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             The first program in the world specifically designed for those living with dyslexia, helping them achieve amazing results and make learning fun.
           </p>
           <div className="flex gap-4">
-            <a href="#" className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-purple-600 transition-colors"><Instagram size={18} /></a>
-            <a href="#" className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-purple-600 transition-colors"><Facebook size={18} /></a>
-            <a href="#" className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-purple-600 transition-colors"><Linkedin size={18} /></a>
+            <a href="https://www.instagram.com/dsasmartstart/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-purple-600 transition-colors" aria-label="Follow us on Instagram"><Instagram size={18} /></a>
           </div>
         </div>
 
@@ -36,9 +34,9 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           <ul className="space-y-4 text-sm">
             <li><button onClick={() => handleLinkClick('home')} className="hover:text-purple-400 transition-colors">Home</button></li>
             <li><button onClick={() => handleLinkClick('who-we-are')} className="hover:text-purple-400 transition-colors">Who We Are</button></li>
-            <li><a href="#roots" className="hover:text-purple-400 transition-colors">Courses</a></li>
-            <li><a href="#" className="hover:text-purple-400 transition-colors">Products</a></li>
-            <li><a href="#contacts" className="hover:text-purple-400 transition-colors">Contact</a></li>
+            <li><button onClick={() => handleLinkClick('courses')} className="hover:text-purple-400 transition-colors">Courses</button></li>
+            <li><button onClick={() => handleLinkClick('contact')} className="hover:text-purple-400 transition-colors">Contact</button></li>
+            <li><button onClick={() => handleLinkClick('faq')} className="hover:text-purple-400 transition-colors">FAQ</button></li>
           </ul>
         </div>
 
@@ -46,12 +44,12 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         <div>
           <h4 className="text-white font-bold mb-6">Courses</h4>
           <ul className="space-y-4 text-sm">
-            <li><a href="#" className="hover:text-purple-400 transition-colors">DSA SMART START - A1 LEVEL</a></li>
-            <li><a href="#" className="hover:text-purple-400 transition-colors">DSA SMART START - A2 LEVEL</a></li>
-            <li><a href="#" className="hover:text-purple-400 transition-colors">DSA SMART START - B1 LEVEL</a></li>
-            <li><a href="#" className="hover:text-purple-400 transition-colors">DSA SMART START KIDS - BASIC</a></li>
-            <li><a href="#" className="hover:text-purple-400 transition-colors">DSA SMART START KIDS - MEDIUM</a></li>
-            <li><a href="#" className="hover:text-purple-400 transition-colors">DSA SMART START KIDS - ADVANCED</a></li>
+            <li><button onClick={() => handleLinkClick('courses')} className="hover:text-purple-400 transition-colors text-left">DSA SMART START - A1 LEVEL</button></li>
+            <li><button onClick={() => handleLinkClick('courses')} className="hover:text-purple-400 transition-colors text-left">DSA SMART START - A2 LEVEL</button></li>
+            <li><button onClick={() => handleLinkClick('courses')} className="hover:text-purple-400 transition-colors text-left">DSA SMART START - B1 LEVEL</button></li>
+            <li><button onClick={() => handleLinkClick('courses')} className="hover:text-purple-400 transition-colors text-left">DSA SMART START KIDS - BASIC</button></li>
+            <li><button onClick={() => handleLinkClick('courses')} className="hover:text-purple-400 transition-colors text-left">DSA SMART START KIDS - MEDIUM</button></li>
+            <li><button onClick={() => handleLinkClick('courses')} className="hover:text-purple-400 transition-colors text-left">DSA SMART START KIDS - ADVANCED</button></li>
           </ul>
         </div>
 
@@ -77,11 +75,11 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
       </div>
 
       <div className="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-medium text-gray-500">
-        <p>Copyright © 2025 DSA SMARTSTART | All rights reserved</p>
+        <p>Copyright © 2026 DSA SMARTSTART | All rights reserved</p>
         <div className="flex gap-6 flex-wrap justify-center">
-          <a href="#" className="hover:text-white">Cookie Policy</a>
-          <a href="#" className="hover:text-white">Privacy Policy</a>
-          <a href="#" className="hover:text-white">Refund and Return Policy</a>
+          <button onClick={() => handleLinkClick('cookie-policy')} className="hover:text-white">Cookie Policy</button>
+          <button onClick={() => handleLinkClick('privacy-policy')} className="hover:text-white">Privacy Policy</button>
+          <button onClick={() => handleLinkClick('refund-policy')} className="hover:text-white">Refund and Return Policy</button>
         </div>
       </div>
     </footer>

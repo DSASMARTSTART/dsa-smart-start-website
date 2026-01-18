@@ -1,8 +1,9 @@
 
 import React, { useEffect, useState } from 'react';
-import { Rocket, Clock, ChevronRight, Star, BookOpen, Layout, Zap, Layers, Compass, Music, CheckCircle2 } from 'lucide-react';
-import { coursesApi, enrollmentsApi, authApi } from '../data/supabaseStore';
+import { Rocket, Clock, ChevronRight, Star, BookOpen, Layout, Zap, Layers, Compass, Music, CheckCircle2, LogIn } from 'lucide-react';
+import { coursesApi, enrollmentsApi } from '../data/supabaseStore';
 import { Course, Enrollment } from '../types';
+import { useAuth } from '../contexts/AuthContext';
 
 // Level-based icons and colors
 const LEVEL_CONFIG: Record<string, { icon: React.ReactNode; color: string }> = {
@@ -31,17 +32,24 @@ interface EnrolledCourse extends Course {
 }
 
 const DashboardPage: React.FC<DashboardProps> = ({ user, progress, onOpenCourse }) => {
+  const { user: authUser, profile, loading: authLoading } = useAuth();
   const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Get the authenticated user ID
+  const userId = authUser?.id || profile?.id;
+  const displayName = profile?.name || user?.name || 'Student';
+
   useEffect(() => {
     const loadEnrolledCourses = async () => {
-      try {
-        // Get current user from admin store or use a mock user ID
-        const currentUser = await authApi.getCurrentUser();
-        const userId = currentUser?.id || 'user-1'; // Fallback for demo
+      // Don't load if not authenticated
+      if (!userId) {
+        setLoading(false);
+        return;
+      }
 
-        // Get user's enrollments
+      try {
+        // Get user's enrollments using authenticated user ID
         const enrollments = await enrollmentsApi.getByUser(userId);
         
         // Get course details for each enrollment
@@ -72,8 +80,11 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, progress, onOpenCourse 
       }
     };
 
-    loadEnrolledCourses();
-  }, []);
+    // Wait for auth to be ready before loading
+    if (!authLoading) {
+      loadEnrolledCourses();
+    }
+  }, [userId, authLoading]);
 
   const calculateProgress = (courseId: string, totalItems: number) => {
     const completedCount = Object.keys(progress).filter(key => 
@@ -83,12 +94,37 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, progress, onOpenCourse 
     return Math.min(100, Math.round((completedCount / totalItems) * 100));
   };
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="bg-[#f8f9fb] min-h-screen pt-32 pb-20 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-500 font-medium">Loading your courses...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Not authenticated - show login prompt
+  if (!userId) {
+    return (
+      <div className="bg-[#f8f9fb] min-h-screen pt-32 pb-20 flex items-center justify-center">
+        <div className="max-w-lg mx-auto text-center px-6">
+          <div className="w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-8">
+            <LogIn size={40} className="text-purple-600" />
+          </div>
+          <h1 className="text-3xl md:text-4xl font-black text-gray-900 mb-4 uppercase tracking-tight">
+            Sign In Required
+          </h1>
+          <p className="text-gray-500 text-lg mb-8">
+            Please log in to access your dashboard and enrolled courses.
+          </p>
+          <button 
+            onClick={() => window.location.hash = '#login'}
+            className="px-12 py-5 bg-purple-600 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-colors shadow-xl shadow-purple-200"
+          >
+            Log In / Register
+          </button>
         </div>
       </div>
     );
@@ -104,7 +140,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, progress, onOpenCourse 
             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-500 px-3 py-1 bg-purple-50 rounded-full border border-purple-100">Student Dashboard</span>
           </div>
           <h1 className="text-4xl md:text-6xl font-black text-gray-900 tracking-tighter uppercase leading-tight mb-2">
-            Welcome back, <span className="text-purple-600">{user?.name || 'Student'}</span>!
+            Welcome back, <span className="text-purple-600">{displayName}</span>!
           </h1>
           <p className="text-gray-500 text-lg font-medium italic">Keep pushing forward. Your neurodiversity is your superpower.</p>
         </div>
@@ -244,14 +280,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, progress, onOpenCourse 
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-[#1a1c2d] to-black rounded-[3rem] p-10 text-white relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-purple-600/20 rounded-full blur-[60px] translate-x-1/2 -translate-y-1/2"></div>
-              <h3 className="text-lg font-black uppercase tracking-widest mb-6 relative z-10">Study Group</h3>
-              <p className="text-gray-400 text-sm leading-relaxed mb-8 relative z-10">Connect with other DSA students in our private community.</p>
-              <button className="relative z-10 w-full py-4 rounded-2xl bg-white/10 border border-white/20 text-white font-black text-[10px] uppercase tracking-widest hover:bg-white/20 transition-all">
-                JOIN COMMUNITY
-              </button>
-            </div>
+
           </div>
 
         </div>
