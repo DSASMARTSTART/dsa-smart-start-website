@@ -18,6 +18,7 @@ import CoursesPage from './components/CoursesPage';
 import CourseSyllabusPage from './components/CourseSyllabusPage';
 import CheckoutPage from './components/CheckoutPage';
 import WhatsAppButton from './components/WhatsAppButton';
+import CartBubble from './components/CartBubble';
 import DashboardPage from './components/DashboardPage';
 import CourseViewer from './components/CourseViewer';
 import PolicyPage from './components/PolicyPage';
@@ -31,13 +32,34 @@ import {
   CourseEditor, AdminAudit, AdminDiscountCodes 
 } from './components/admin';
 
+// LocalStorage key for cart persistence
+const CART_STORAGE_KEY = 'dsa_cart';
+
 const App: React.FC = () => {
   const { user, profile, loading: authLoading, signOut, isAdmin: checkIsAdmin, canAccessAdmin } = useAuth();
   // Note: useUserProgress is now called only in components that need it (DashboardPage, CourseViewer)
   // This prevents unnecessary API calls on every page load
   const [currentPath, setCurrentPath] = useState('home');
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
-  const [cart, setCart] = useState<string[]>([]);
+  
+  // Initialize cart from localStorage
+  const [cart, setCart] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem(CART_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Persist cart to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+    } catch (error) {
+      console.error('Failed to save cart to localStorage:', error);
+    }
+  }, [cart]);
 
   // Derived auth state from context
   const isLoggedIn = !!user;
@@ -272,6 +294,12 @@ const App: React.FC = () => {
       
       {!isAdminPath && <Footer onNavigate={navigateTo} />}
       {!isAdminPath && <WhatsAppButton />}
+      {!isAdminPath && (
+        <CartBubble 
+          cart={cart} 
+          onNavigateToCheckout={() => navigateTo('checkout')} 
+        />
+      )}
     </main>
   );
 };
