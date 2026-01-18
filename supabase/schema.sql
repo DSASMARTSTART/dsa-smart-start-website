@@ -329,6 +329,26 @@ CREATE POLICY "Admins can manage discount codes" ON discount_codes
     )
   );
 
+-- Contact messages policies
+ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Anyone can insert contact messages" ON contact_messages
+  FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Admins can view contact messages" ON contact_messages
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM users WHERE id::text = auth.uid()::text AND role IN ('admin', 'editor')
+    )
+  );
+
+CREATE POLICY "Admins can manage contact messages" ON contact_messages
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM users WHERE id::text = auth.uid()::text AND role = 'admin'
+    )
+  );
+
 -- ============================================
 -- FUNCTIONS & TRIGGERS
 -- ============================================

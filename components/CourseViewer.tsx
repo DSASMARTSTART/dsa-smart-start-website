@@ -1,24 +1,73 @@
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, CheckCircle2, Circle, ChevronRight, PlayCircle, BookOpen, Clock, FileText, ChevronDown, ChevronUp, ClipboardCheck, Download, ExternalLink } from 'lucide-react';
-import { coursesApi, videoHelpers } from '../data/supabaseStore';
+import { ArrowLeft, CheckCircle2, Circle, ChevronRight, PlayCircle, BookOpen, Clock, FileText, ChevronDown, ChevronUp, ClipboardCheck, Download, ExternalLink, Lock } from 'lucide-react';
+import { coursesApi, enrollmentsApi, videoHelpers } from '../data/supabaseStore';
 import { Course, Module, Lesson, Homework } from '../types';
+import { useAuth } from '../contexts/AuthContext';
 
 interface CourseViewerProps {
   courseId: string;
   progress: Record<string, boolean>;
   onToggleProgress: (courseId: string, itemKey: string) => void;
   onBack: () => void;
+  onNavigateToCheckout?: (courseId: string) => void;
 }
 
-const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, progress, onToggleProgress, onBack }) => {
+const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, progress, onToggleProgress, onBack, onNavigateToCheckout }) => {
+  const { user, isAdmin, isEditor } = useAuth();
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isEnrolled, setIsEnrolled] = useState<boolean | null>(null); // null = checking
   const [activeModuleId, setActiveModuleId] = useState<string>('');
   const [selectedItemId, setSelectedItemId] = useState<string>('');
 
+  // Check enrollment status first
+  useEffect(() => {
+    const checkAccess = async () => {
+      // Admins and editors can always access course content
+      if (isAdmin() || isEditor()) {
+        setIsEnrolled(true);
+        return;
+      }
+
+      // Not logged in = not enrolled
+      if (!user) {
+        setIsEnrolled(false);
+        return;
+      }
+
+      // Check enrollment in database
+      try {
+        const enrolled = await enrollmentsApi.checkEnrollment(user.id, courseId);
+        setIsEnrolled(enrolled);
+      } catch (error) {
+        console.error('Error checking enrollment:', error);
+        setIsEnrolled(false);
+      }
+    };
+
+    checkAccess();
+  }, [user, courseId, isAdmin, isEditor]);
+
+  // Load course data only after enrollment check passes
   useEffect(() => {
     const loadCourse = async () => {
+      // Wait for enrollment check to complete
+      if (isEnrolled === null) return;
+      
+      // Don't load full course if not enrolled
+      if (!isEnrolled) {
+        // Still load basic course info for the access denied page
+        try {
+          const data = await coursesApi.getById(courseId);
+          setCourse(data);
+        } catch (error) {
+          console.error('Error loading course info:', error);
+        }
+        setLoading(false);
+        return;
+      }
+
       try {
         const data = await coursesApi.getById(courseId);
         if (data) {
@@ -38,14 +87,61 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, progress, onToggl
       }
     };
     loadCourse();
-  }, [courseId]);
+  }, [courseId, isEnrolled]);
 
-  if (loading) {
+  if (loading || isEnrolled === null) {
     return (
       <div className="min-h-screen bg-[#f8f9fb] flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-500 font-medium">Loading course...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ACCESS DENIED - Not enrolled
+  if (!isEnrolled) {
+    return (
+      <div className="min-h-screen bg-[#f8f9fb] flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto px-4">
+          <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Lock size={32} className="text-red-500" />
+          </div>
+          <h3 className="text-2xl font-black text-gray-900 mb-4">Access Denied</h3>
+          <p className="text-gray-500 mb-2">
+            {course?.title && <span className="font-semibold text-gray-700">"{course.title}"</span>}
+          </p>
+          <p className="text-gray-500 mb-8">
+            {user 
+              ? "You don't have access to this course. Please purchase it to continue learning."
+              : "Please log in and purchase this course to access its content."
+            }
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button 
+              onClick={onBack} 
+              className="px-6 py-3 bg-gray-100 text-gray-700 rounded-full font-bold text-sm hover:bg-gray-200 transition-colors"
+            >
+              Go Back
+            </button>
+            {onNavigateToCheckout && course && (
+              <button 
+                onClick={() => onNavigateToCheckout(courseId)} 
+                className="px-6 py-3 bg-purple-600 text-white rounded-full font-bold text-sm hover:bg-purple-700 transition-colors"
+              >
+                Purchase Course
+              </button>
+            )}
+            {!user && (
+              <button 
+                onClick={() => window.location.hash = '#login'} 
+                className="px-6 py-3 bg-purple-600 text-white rounded-full font-bold text-sm hover:bg-purple-700 transition-colors"
+              >
+                Log In
+              </button>
+            )}
+          </div>
         </div>
       </div>
     );

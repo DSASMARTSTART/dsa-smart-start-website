@@ -21,7 +21,6 @@ export interface PaymentConfig {
   raiffeisen: {
     merchantId: string;
     terminalId: string;
-    storeKey: string;
     apiUrl: string;
     isConfigured: boolean;
   };
@@ -60,10 +59,10 @@ export interface PaymentResult {
 }
 
 // Get payment configuration from environment
+// NOTE: Store key is NOT included here - it's only on server-side Edge Function
 export function getPaymentConfig(): PaymentConfig {
   const raiffeisenMerchantId = import.meta.env.VITE_RAIFFEISEN_MERCHANT_ID || '';
   const raiffeisenTerminalId = import.meta.env.VITE_RAIFFEISEN_TERMINAL_ID || '';
-  const raiffeisenStoreKey = import.meta.env.VITE_RAIFFEISEN_STORE_KEY || '';
   const raiffeisenApiUrl = import.meta.env.VITE_RAIFFEISEN_API_URL || 'https://entegrasyon.asseco-see.com.tr/fim/est3Dgate'; // Nestpay test URL
   
   const paypalClientId = import.meta.env.VITE_PAYPAL_CLIENT_ID || '';
@@ -73,9 +72,8 @@ export function getPaymentConfig(): PaymentConfig {
     raiffeisen: {
       merchantId: raiffeisenMerchantId,
       terminalId: raiffeisenTerminalId,
-      storeKey: raiffeisenStoreKey,
       apiUrl: raiffeisenApiUrl,
-      isConfigured: !!(raiffeisenMerchantId && raiffeisenTerminalId && raiffeisenStoreKey),
+      isConfigured: !!(raiffeisenMerchantId && raiffeisenTerminalId),
     },
     paypal: {
       clientId: paypalClientId,
@@ -110,7 +108,7 @@ export function isPaymentConfigured(): boolean {
  * 
  * The Nestpay gateway uses 3D Secure authentication.
  * Flow:
- * 1. Generate hash from order details + store key
+ * 1. Generate hash via server-side Edge Function (store key never exposed to client)
  * 2. Redirect customer to Nestpay 3D Secure page
  * 3. Customer enters card details on bank's secure page
  * 4. Bank redirects back to our returnUrl with result
@@ -122,32 +120,46 @@ export class RaiffeisenPayment {
     this.config = getPaymentConfig().raiffeisen;
   }
 
-  // Generate hash for Nestpay request (SHA-512)
+  // Generate hash for Nestpay request via server-side Edge Function
+  // SECURITY: The store key is ONLY on the server - never exposed to client
   private async generateHash(params: Record<string, string>): Promise<string> {
-    // Hash is generated server-side for security
-    // This is a placeholder - actual implementation requires backend
-    const hashString = [
-      params.clientid,
-      params.oid,
-      params.amount,
-      params.okUrl,
-      params.failUrl,
-      params.islemtipi,
-      params.taksit,
-      params.rnd,
-      this.config.storeKey,
-    ].join('');
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-    // In production, this hash should be generated on the server
-    // For now, we'll indicate that server-side processing is needed
-    console.warn('Hash generation should be done server-side for security');
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error('Supabase configuration missing for payment processing');
+    }
+
+    const response = await fetch(`${supabaseUrl}/functions/v1/generate-payment-hash`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${supabaseKey}`,
+      },
+      body: JSON.stringify({
+        clientid: params.clientid,
+        oid: params.oid,
+        amount: params.amount,
+        okUrl: params.okUrl,
+        failUrl: params.failUrl,
+        islemtipi: params.islemtipi,
+        taksit: params.taksit || '',
+        rnd: params.rnd,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+      throw new Error(errorData.error || 'Failed to generate payment hash');
+    }
+
+    const { hash, success } = await response.json();
     
-    const encoder = new TextEncoder();
-    const data = encoder.encode(hashString);
-    const hashBuffer = await crypto.subtle.digest('SHA-512', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    return btoa(hashHex);
+    if (!success || !hash) {
+      throw new Error('Invalid response from payment hash service');
+    }
+
+    return hash;
   }
 
   // Create payment form data for Nestpay 3D redirect

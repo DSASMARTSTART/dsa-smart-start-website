@@ -132,7 +132,7 @@ export interface Purchase {
 
 export interface Progress {
   id: string;
-  odviserId: string;
+  userId: string;
   courseId: string;
   lessonId?: string;
   homeworkId?: string;

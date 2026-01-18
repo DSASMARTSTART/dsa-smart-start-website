@@ -802,6 +802,25 @@ export const enrollmentsApi = {
     return (data || []).map((e: Record<string, unknown>) => toCamelCase<Enrollment>(e));
   },
 
+  // Check if a user has active enrollment for a specific course
+  // Used by CourseViewer to verify access before showing content
+  checkEnrollment: async (userId: string, courseId: string): Promise<boolean> => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
+      .from('enrollments')
+      .select('id, status')
+      .eq('user_id', userId)
+      .eq('course_id', courseId)
+      .eq('status', 'active')
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error checking enrollment:', error);
+      return false;
+    }
+    return !!data;
+  },
+
   create: async (userId: string, courseId: string): Promise<Enrollment> => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase as any)

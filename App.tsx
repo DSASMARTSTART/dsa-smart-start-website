@@ -22,7 +22,7 @@ import DashboardPage from './components/DashboardPage';
 import CourseViewer from './components/CourseViewer';
 import PolicyPage from './components/PolicyPage';
 import { useAuth } from './contexts/AuthContext';
-import { useUserProgress } from './src/hooks/useUserProgress';
+import { useUserProgress } from './hooks/useUserProgress';
 
 // Admin Dashboard Components
 import { 
@@ -214,6 +214,10 @@ const App: React.FC = () => {
           progress={progress}
           onToggleProgress={toggleProgress}
           onBack={() => navigateTo('dashboard')}
+          onNavigateToCheckout={(courseId) => {
+            setCart([courseId]);
+            navigateTo('checkout');
+          }}
         />
       )}
 
