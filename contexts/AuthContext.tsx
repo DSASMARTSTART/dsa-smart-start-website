@@ -37,6 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
+    if (!supabase) return;
     const { data, error } = await supabase
       .from('users')
       .select('*')
@@ -60,6 +61,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
+    // Handle case where Supabase is not configured
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -86,11 +93,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signIn = async (email: string, password: string) => {
+    if (!supabase) return { error: new Error('Supabase not configured') };
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     return { error };
   };
 
   const signUp = async (email: string, password: string, name: string) => {
+    if (!supabase) return { error: new Error('Supabase not configured') };
     const { data, error } = await supabase.auth.signUp({ 
       email, 
       password,
@@ -99,7 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     });
     
-    if (!error && data.user) {
+    if (!error && data.user && supabase) {
       // Create user profile in users table
       await supabase.from('users').insert({
         id: data.user.id,
@@ -114,7 +123,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
     setProfile(null);
   };
 
