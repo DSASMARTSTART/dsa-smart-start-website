@@ -4,14 +4,13 @@
 -- Run this in Supabase SQL Editor to add courses
 -- These courses will be visible on the public courses page
 
--- First, delete existing courses (optional, remove if you want to keep existing)
+-- First, delete existing courses (optional - uncomment if you want to start fresh)
 -- DELETE FROM courses;
 
 -- Insert Premium Programs
-INSERT INTO courses (id, title, description, level, thumbnail_url, pricing, modules, is_published, is_draft, published_at, created_at, updated_at, admin_notes)
+INSERT INTO courses (title, description, level, thumbnail_url, pricing, modules, is_published, is_draft, published_at, admin_notes)
 VALUES 
   (
-    'premium-001',
     'DSA SMART START - PREMIUM PATHWAY',
     'The PREMIUM DSA Smart Start Pathway Option B is a complete and innovative program designed for students with SLD who want to learn English in a clear, stimulating, and frustration-free way. Through a multisensory method and high-readability materials, the pathway combines individual lessons, group workshops, mind maps, and video lessons to make learning easier and more effective. The DSA Smart Start Method is the only one that integrates socialization, specific support tools, and a gradual approach, to guide students step by step, with confidence and motivation.',
     'Premium',
@@ -21,12 +20,9 @@ VALUES
     true,
     false,
     NOW(),
-    NOW(),
-    NOW(),
     'Premium flagship program'
   ),
   (
-    'gold-001',
     'DSA SMART START - GOLD PATHWAY',
     'The GOLD DSA Smart Start Pathway is a structured and innovative program designed for students with SLD who want to learn English in a clear, engaging, and frustration-free way. Thanks to a multisensory and high-readability method, the pathway combines interactive group lessons, mind maps, video lessons, and dedicated materials to make learning easier and more effective. The DSA Smart Start method is the only one that combines socialization, specific support tools, and a step-by-step approach, to guide students in their learning journey with confidence and motivation.',
     'Gold',
@@ -36,24 +32,13 @@ VALUES
     true,
     false,
     NOW(),
-    NOW(),
-    NOW(),
     'Gold comprehensive program'
-  )
-ON CONFLICT (id) DO UPDATE SET
-  title = EXCLUDED.title,
-  description = EXCLUDED.description,
-  level = EXCLUDED.level,
-  pricing = EXCLUDED.pricing,
-  is_published = EXCLUDED.is_published,
-  is_draft = EXCLUDED.is_draft,
-  updated_at = NOW();
+  );
 
 -- Insert Adult Level Courses (A1, A2, B1)
-INSERT INTO courses (id, title, description, level, thumbnail_url, pricing, modules, is_published, is_draft, published_at, created_at, updated_at, admin_notes)
+INSERT INTO courses (title, description, level, thumbnail_url, pricing, modules, is_published, is_draft, published_at, admin_notes)
 VALUES 
   (
-    'a1-001',
     'DSA SMART START - A1 LEVEL',
     'The DSA Smart Start Level A1 volume is designed to guide students with Specific Learning Disabilities (SLD) in their first steps in learning English. Thanks to a visual, multisensory, and inclusive approach, each teaching unit is designed to facilitate comprehension, memorization, and active use of the language, making the learning experience accessible and motivating. This program represents the first level of the DSA Smart Start program, a method that integrates effective learning techniques, visual supports, and personalized strategies. Suitable for students aged 8 and up, parents, support teachers and learning tutors.',
     'A1',
@@ -63,12 +48,9 @@ VALUES
     true,
     false,
     NOW(),
-    NOW(),
-    NOW(),
     'Flagship beginner course - Cambridge A1 prep'
   ),
   (
-    'a2-001',
     'DSA SMART START - A2 LEVEL',
     'The DSA Smart Start Level A2 volume is designed to guide students with Specific Learning Disabilities (SLD) in consolidating acquired language skills and introducing more complex grammatical structures. Thanks to a visual, multisensory, and inclusive approach, each teaching unit is structured to facilitate comprehension, memorization, and active use of the language, making the learning experience accessible and motivating. This level follows the Cambridge English A2 Key (KET) preparation. Suitable for students aged 9 and up.',
     'A2',
@@ -78,12 +60,9 @@ VALUES
     true,
     false,
     NOW(),
-    NOW(),
-    NOW(),
     'Cambridge A2 KET prep course'
   ),
   (
-    'b1-001',
     'DSA SMART START - B1 LEVEL',
     'The DSA Smart Start Level B1 volume is designed to guide students with Specific Learning Disabilities (SLD) in an intermediate phase of English learning. This level introduces more advanced grammatical structures and promotes the development of 4 skills: listening, reading, writing, and speaking. This level follows the Cambridge English B1 Preliminary (PET) preparation. Suitable for students aged 10 and up.',
     'B1',
@@ -93,25 +72,13 @@ VALUES
     true,
     false,
     NOW(),
-    NOW(),
-    NOW(),
     'Cambridge B1 PET prep course'
-  )
-ON CONFLICT (id) DO UPDATE SET
-  title = EXCLUDED.title,
-  description = EXCLUDED.description,
-  level = EXCLUDED.level,
-  pricing = EXCLUDED.pricing,
-  modules = EXCLUDED.modules,
-  is_published = EXCLUDED.is_published,
-  is_draft = EXCLUDED.is_draft,
-  updated_at = NOW();
+  );
 
 -- Insert Kids Courses
-INSERT INTO courses (id, title, description, level, thumbnail_url, pricing, modules, is_published, is_draft, published_at, created_at, updated_at, admin_notes)
+INSERT INTO courses (title, description, level, thumbnail_url, pricing, modules, is_published, is_draft, published_at, admin_notes)
 VALUES 
   (
-    'kids-basic-001',
     'DSA SMART START KIDS - BASIC LEVEL',
     'Introduction to English through songs, visuals, and sensory exploration. Perfect for early years learners with dyslexia. A fun and engaging way to start learning English.',
     'Kids',
@@ -121,12 +88,9 @@ VALUES
     true,
     false,
     NOW(),
-    NOW(),
-    NOW(),
     'Kids basic level - early years'
   ),
   (
-    'kids-medium-001',
     'DSA SMART START KIDS - MEDIUM LEVEL',
     'Interactive storytelling and vocabulary games for active focus. Build on basic skills with engaging activities designed for young learners with learning differences.',
     'Kids',
@@ -136,12 +100,9 @@ VALUES
     true,
     false,
     NOW(),
-    NOW(),
-    NOW(),
     'Kids medium level - primary'
   ),
   (
-    'kids-advanced-001',
     'DSA SMART START KIDS - ADVANCED LEVEL',
     'Preparing for school success with advanced visual mnemonics. Perfect for pre-teens ready to take their English skills to the next level with dyslexia-friendly methods.',
     'Kids',
@@ -151,18 +112,8 @@ VALUES
     true,
     false,
     NOW(),
-    NOW(),
-    NOW(),
     'Kids advanced level - pre-teen'
-  )
-ON CONFLICT (id) DO UPDATE SET
-  title = EXCLUDED.title,
-  description = EXCLUDED.description,
-  level = EXCLUDED.level,
-  pricing = EXCLUDED.pricing,
-  is_published = EXCLUDED.is_published,
-  is_draft = EXCLUDED.is_draft,
-  updated_at = NOW();
+  );
 
 -- Verify courses were inserted
 SELECT id, title, level, is_published, 

@@ -308,11 +308,15 @@ export const coursesApi = {
     if (filters?.level && filters.level !== 'all') {
       query = query.eq('level', filters.level);
     }
-    // Support both 'published' and 'isPublished' filter keys
+    
+    // For public pages, we rely on RLS policy to filter published courses
+    // Only add explicit filter for admin pages that might want unpublished courses
     const publishedFilter = filters?.published ?? filters?.isPublished;
-    if (publishedFilter !== undefined && publishedFilter !== 'all') {
-      query = query.eq('is_published', publishedFilter);
+    if (publishedFilter === false) {
+      // Only filter for unpublished if explicitly requested
+      query = query.eq('is_published', false);
     }
+    // If publishedFilter is true or undefined, let RLS handle it (returns only published for anon users)
 
     const { data, error } = await query.order('created_at', { ascending: false });
     
@@ -320,6 +324,8 @@ export const coursesApi = {
     
     if (error) {
       console.error('Error fetching courses:', error);
+      // Log more details about the error
+      console.error('Error details:', JSON.stringify(error, null, 2));
       return []; // Return empty array instead of throwing for public-facing pages
     }
 
