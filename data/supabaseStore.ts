@@ -8,7 +8,8 @@ import type {
   User, Course, Enrollment, Purchase, AuditLog, Activity,
   KPIMetrics, AnalyticsTrends, UserFilters, CourseFilters,
   PaginatedResponse, UserDetail, AuditAction, Module, Lesson, Homework,
-  CoursePricing, Category
+  CoursePricing, Category, ProductType, TargetAudience, ContentFormat,
+  CatalogFilters
 } from '../types';
 
 // ============================================
@@ -371,8 +372,24 @@ export const coursesApi = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let query = (supabase as any).from('courses').select('*');
 
+    // Filter by level/category
     if (filters?.level && filters.level !== 'all') {
       query = query.eq('level', filters.level);
+    }
+    
+    // Filter by product type (ebook, learndash, service)
+    if (filters?.productType && filters.productType !== 'all') {
+      query = query.eq('product_type', filters.productType);
+    }
+    
+    // Filter by target audience (adults_teens, kids)
+    if (filters?.targetAudience && filters.targetAudience !== 'all') {
+      query = query.eq('target_audience', filters.targetAudience);
+    }
+    
+    // Filter by content format (pdf, interactive, live, hybrid)
+    if (filters?.contentFormat && filters.contentFormat !== 'all') {
+      query = query.eq('content_format', filters.contentFormat);
     }
     
     // Always explicitly filter for published courses on public pages
@@ -396,7 +413,14 @@ export const coursesApi = {
     const courses = (data || []).map((c: Record<string, unknown>) => ({
       ...toCamelCase<Course>(c),
       modules: (c.modules as Module[]) || [],
-      pricing: c.pricing as CoursePricing
+      pricing: c.pricing as CoursePricing,
+      // Map new catalog fields
+      productType: (c.product_type as ProductType) || 'learndash',
+      targetAudience: (c.target_audience as TargetAudience) || 'adults_teens',
+      contentFormat: (c.content_format as ContentFormat) || 'interactive',
+      teachingMaterialsPrice: c.teaching_materials_price as number | undefined,
+      teachingMaterialsIncluded: (c.teaching_materials_included as boolean) || false,
+      relatedMaterialsId: c.related_materials_id as string | undefined
     }));
     
     // Cache the result for public requests
@@ -437,7 +461,14 @@ export const coursesApi = {
     const course = {
       ...toCamelCase<Course>(data),
       modules: (data.modules as Module[]) || [],
-      pricing: data.pricing as CoursePricing
+      pricing: data.pricing as CoursePricing,
+      // Map new catalog fields
+      productType: (data.product_type as ProductType) || 'learndash',
+      targetAudience: (data.target_audience as TargetAudience) || 'adults_teens',
+      contentFormat: (data.content_format as ContentFormat) || 'interactive',
+      teachingMaterialsPrice: data.teaching_materials_price as number | undefined,
+      teachingMaterialsIncluded: (data.teaching_materials_included as boolean) || false,
+      relatedMaterialsId: data.related_materials_id as string | undefined
     };
     
     // Cache the result
@@ -469,7 +500,14 @@ export const coursesApi = {
     return {
       ...toCamelCase<Course>(data),
       modules: (data.modules as Module[]) || [],
-      pricing: data.pricing as CoursePricing
+      pricing: data.pricing as CoursePricing,
+      // Map new catalog fields
+      productType: (data.product_type as ProductType) || 'learndash',
+      targetAudience: (data.target_audience as TargetAudience) || 'adults_teens',
+      contentFormat: (data.content_format as ContentFormat) || 'interactive',
+      teachingMaterialsPrice: data.teaching_materials_price as number | undefined,
+      teachingMaterialsIncluded: (data.teaching_materials_included as boolean) || false,
+      relatedMaterialsId: data.related_materials_id as string | undefined
     };
   },
 
@@ -494,7 +532,14 @@ export const coursesApi = {
     return (data || []).map((c: Record<string, unknown>) => ({
       ...toCamelCase<Course>(c),
       modules: (c.modules as Module[]) || [],
-      pricing: c.pricing as CoursePricing
+      pricing: c.pricing as CoursePricing,
+      // Map new catalog fields
+      productType: (c.product_type as ProductType) || 'learndash',
+      targetAudience: (c.target_audience as TargetAudience) || 'adults_teens',
+      contentFormat: (c.content_format as ContentFormat) || 'interactive',
+      teachingMaterialsPrice: c.teaching_materials_price as number | undefined,
+      teachingMaterialsIncluded: (c.teaching_materials_included as boolean) || false,
+      relatedMaterialsId: c.related_materials_id as string | undefined
     }));
   },
 
@@ -511,7 +556,14 @@ export const coursesApi = {
         pricing: courseData.pricing || { price: 0, currency: 'EUR', isFree: true },
         modules: courseData.modules || [],
         is_published: false,
-        is_draft: true
+        is_draft: true,
+        // New catalog fields
+        product_type: courseData.productType || 'learndash',
+        target_audience: courseData.targetAudience || 'adults_teens',
+        content_format: courseData.contentFormat || 'interactive',
+        teaching_materials_price: courseData.teachingMaterialsPrice || null,
+        teaching_materials_included: courseData.teachingMaterialsIncluded || false,
+        related_materials_id: courseData.relatedMaterialsId || null
       })
       .select()
       .single();
@@ -524,7 +576,13 @@ export const coursesApi = {
     return {
       ...toCamelCase<Course>(data),
       modules: data.modules || [],
-      pricing: data.pricing
+      pricing: data.pricing,
+      productType: (data.product_type as ProductType) || 'learndash',
+      targetAudience: (data.target_audience as TargetAudience) || 'adults_teens',
+      contentFormat: (data.content_format as ContentFormat) || 'interactive',
+      teachingMaterialsPrice: data.teaching_materials_price as number | undefined,
+      teachingMaterialsIncluded: (data.teaching_materials_included as boolean) || false,
+      relatedMaterialsId: data.related_materials_id as string | undefined
     };
   },
 
@@ -535,6 +593,13 @@ export const coursesApi = {
     if (updates.description !== undefined) dbUpdates.description = updates.description;
     if (updates.level !== undefined) dbUpdates.level = updates.level;
     if (updates.thumbnailUrl !== undefined) dbUpdates.thumbnail_url = updates.thumbnailUrl;
+    // New catalog fields
+    if (updates.productType !== undefined) dbUpdates.product_type = updates.productType;
+    if (updates.targetAudience !== undefined) dbUpdates.target_audience = updates.targetAudience;
+    if (updates.contentFormat !== undefined) dbUpdates.content_format = updates.contentFormat;
+    if (updates.teachingMaterialsPrice !== undefined) dbUpdates.teaching_materials_price = updates.teachingMaterialsPrice;
+    if (updates.teachingMaterialsIncluded !== undefined) dbUpdates.teaching_materials_included = updates.teachingMaterialsIncluded;
+    if (updates.relatedMaterialsId !== undefined) dbUpdates.related_materials_id = updates.relatedMaterialsId;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase as any)
@@ -550,7 +615,13 @@ export const coursesApi = {
     return {
       ...toCamelCase<Course>(data),
       modules: data.modules || [],
-      pricing: data.pricing
+      pricing: data.pricing,
+      productType: (data.product_type as ProductType) || 'learndash',
+      targetAudience: (data.target_audience as TargetAudience) || 'adults_teens',
+      contentFormat: (data.content_format as ContentFormat) || 'interactive',
+      teachingMaterialsPrice: data.teaching_materials_price as number | undefined,
+      teachingMaterialsIncluded: (data.teaching_materials_included as boolean) || false,
+      relatedMaterialsId: data.related_materials_id as string | undefined
     };
   },
 
@@ -1384,5 +1455,105 @@ export const categoriesApi = {
       .eq('id', id);
     
     if (error) throw new Error(error.message);
+  }
+};
+
+// ============================================
+// CATALOG API - Products & Services
+// ============================================
+export const catalogApi = {
+  // Get all products (e-books and learndash courses)
+  getProducts: async (filters?: CatalogFilters): Promise<Course[]> => {
+    return coursesApi.list({
+      ...filters,
+      productType: filters?.productType === 'all' ? undefined : filters?.productType,
+      isPublished: true
+    } as CourseFilters).then(courses => 
+      courses.filter(c => c.productType === 'ebook' || c.productType === 'learndash')
+    );
+  },
+
+  // Get all services (Premium, Golden programs)
+  getServices: async (): Promise<Course[]> => {
+    return coursesApi.list({ isPublished: true } as CourseFilters).then(courses => 
+      courses.filter(c => c.productType === 'service')
+    );
+  },
+
+  // Get products by audience
+  getProductsByAudience: async (audience: TargetAudience): Promise<Course[]> => {
+    return coursesApi.list({ 
+      targetAudience: audience,
+      isPublished: true 
+    } as CourseFilters).then(courses => 
+      courses.filter(c => c.productType !== 'service')
+    );
+  },
+
+  // Get e-books only
+  getEbooks: async (audience?: TargetAudience): Promise<Course[]> => {
+    return coursesApi.list({ 
+      productType: 'ebook',
+      targetAudience: audience,
+      isPublished: true 
+    } as CourseFilters);
+  },
+
+  // Get LearnDash courses only
+  getLearnDashCourses: async (audience?: TargetAudience): Promise<Course[]> => {
+    return coursesApi.list({ 
+      productType: 'learndash',
+      targetAudience: audience,
+      isPublished: true 
+    } as CourseFilters);
+  },
+
+  // Get catalog summary (for admin dashboard)
+  getCatalogSummary: async (): Promise<{
+    totalProducts: number;
+    totalServices: number;
+    ebooksCount: number;
+    learndashCount: number;
+    adultsTeensCount: number;
+    kidsCount: number;
+    publishedCount: number;
+    draftCount: number;
+  }> => {
+    const allCourses = await coursesApi.listForAdmin();
+    
+    return {
+      totalProducts: allCourses.filter(c => c.productType !== 'service').length,
+      totalServices: allCourses.filter(c => c.productType === 'service').length,
+      ebooksCount: allCourses.filter(c => c.productType === 'ebook').length,
+      learndashCount: allCourses.filter(c => c.productType === 'learndash').length,
+      adultsTeensCount: allCourses.filter(c => c.targetAudience === 'adults_teens').length,
+      kidsCount: allCourses.filter(c => c.targetAudience === 'kids').length,
+      publishedCount: allCourses.filter(c => c.isPublished).length,
+      draftCount: allCourses.filter(c => c.isDraft || !c.isPublished).length
+    };
+  },
+
+  // Calculate cart total with optional teaching materials
+  calculateCartTotal: (
+    items: Array<{ course: Course; includeTeachingMaterials: boolean }>
+  ): { subtotal: number; materialsTotal: number; total: number; currency: string } => {
+    let subtotal = 0;
+    let materialsTotal = 0;
+
+    for (const item of items) {
+      const price = item.course.pricing.discountPrice ?? item.course.pricing.price;
+      subtotal += price;
+      
+      if (item.includeTeachingMaterials && item.course.teachingMaterialsPrice) {
+        materialsTotal += item.course.teachingMaterialsPrice;
+      }
+    }
+
+    return {
+      subtotal,
+      materialsTotal,
+      total: subtotal + materialsTotal,
+      currency: items[0]?.course.pricing.currency || 'EUR'
+    };
   }
 };

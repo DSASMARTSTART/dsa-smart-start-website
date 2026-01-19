@@ -1,18 +1,62 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Layers, Compass, Zap, Music, Play, Award, Star, ChevronRight, CheckCircle2, Clock, Sparkles, BookOpen, ShoppingCart, Check, Rocket, Shield, ArrowDown, Filter, Search, BarChart3, Globe, ArrowRight, Plus, Crown, Diamond, Users, Video, Brain, Headphones, FileCheck, MessageCircle, GraduationCap } from 'lucide-react';
-import { coursesApi } from '../data/supabaseStore';
-import { Course } from '../types';
+import { Layers, Compass, Zap, Music, Play, Award, Star, ChevronRight, CheckCircle2, Clock, Sparkles, BookOpen, ShoppingCart, Check, Rocket, Shield, ArrowDown, Filter, Search, BarChart3, Globe, ArrowRight, Plus, Crown, Diamond, Users, Video, Brain, Headphones, FileCheck, MessageCircle, GraduationCap, FileText, MonitorPlay, Package, Briefcase, Eye } from 'lucide-react';
+import { coursesApi, catalogApi } from '../data/supabaseStore';
+import { Course, ProductType, TargetAudience } from '../types';
 import WaveSeparator from './WaveSeparator';
+
+// Tab type for navigation
+type CatalogTab = 'services' | 'interactive' | 'ebooks';
+
+// Pill Tab Navigation Component
+const TabNavigation: React.FC<{ activeTab: CatalogTab; onTabChange: (tab: CatalogTab) => void }> = ({ activeTab, onTabChange }) => {
+  const tabs: { id: CatalogTab; label: string; icon: React.ReactNode }[] = [
+    { id: 'services', label: 'Online Courses', icon: <Users size={18} /> },
+    { id: 'interactive', label: 'Interactive Courses', icon: <MonitorPlay size={18} /> },
+    { id: 'ebooks', label: 'E-books', icon: <FileText size={18} /> },
+  ];
+
+  return (
+    <div className="flex items-center justify-center gap-2 p-2 bg-gray-100/80 backdrop-blur-sm rounded-full shadow-inner">
+      {tabs.map((tab) => (
+        <button
+          key={tab.id}
+          onClick={() => onTabChange(tab.id)}
+          className={`flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm transition-all duration-300 ${
+            activeTab === tab.id
+              ? 'bg-gradient-to-r from-[#AB8FFF] to-purple-600 text-white shadow-lg shadow-purple-200 scale-105'
+              : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+          }`}
+        >
+          {tab.icon}
+          <span className="hidden sm:inline">{tab.label}</span>
+        </button>
+      ))}
+    </div>
+  );
+};
 
 // Level-based icons and colors
 const LEVEL_CONFIG: Record<string, { icon: React.ReactNode; color: string; isPink?: boolean; isGold?: boolean; isPremium?: boolean }> = {
   'A1': { icon: <Layers size={28} />, color: 'from-blue-500 to-indigo-600' },
   'A2': { icon: <Compass size={28} />, color: 'from-indigo-500 to-purple-600' },
   'B1': { icon: <Zap size={28} />, color: 'from-purple-500 to-pink-500', isPink: true },
+  'B2': { icon: <Award size={28} />, color: 'from-blue-600 to-cyan-500' },
+  'kids-basic': { icon: <Music size={28} />, color: 'from-pink-400 to-rose-400', isPink: true },
+  'kids-medium': { icon: <Play size={28} />, color: 'from-orange-400 to-pink-400', isPink: true },
+  'kids-advanced': { icon: <Star size={28} />, color: 'from-purple-400 to-pink-500', isPink: true },
   'Kids': { icon: <Music size={28} />, color: 'from-pink-400 to-rose-400', isPink: true },
+  'premium': { icon: <Crown size={28} />, color: 'from-violet-600 to-purple-700', isPremium: true },
+  'golden': { icon: <Diamond size={28} />, color: 'from-amber-500 to-yellow-600', isGold: true },
   'Premium': { icon: <Crown size={28} />, color: 'from-violet-600 to-purple-700', isPremium: true },
   'Gold': { icon: <Diamond size={28} />, color: 'from-amber-500 to-yellow-600', isGold: true },
+};
+
+// Product type icons
+const PRODUCT_TYPE_ICONS: Record<ProductType, React.ReactNode> = {
+  'ebook': <FileText size={16} />,
+  'learndash': <MonitorPlay size={16} />,
+  'service': <Users size={16} />,
 };
 
 // Premium course features data
@@ -46,12 +90,13 @@ interface CourseCardProps {
 
 // Premium/Gold Exclusive Card Component
 const PremiumCourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, onAddToCart, onRemoveFromCart }) => {
-  const isPremium = course.level === 'Premium';
-  const isGold = course.level === 'Gold';
+  const isPremium = course.level === 'Premium' || course.level === 'premium';
+  const isGold = course.level === 'Gold' || course.level === 'golden';
   const features = isPremium ? PREMIUM_FEATURES : GOLD_FEATURES;
   
   const coursePrice = course.pricing?.price;
   const discountPrice = course.pricing?.discountPrice;
+  const teachingMaterialsPrice = course.teachingMaterialsPrice;
   
   const price = discountPrice !== undefined 
     ? `€${discountPrice.toFixed(0)}` 
@@ -285,49 +330,54 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, onAddToC
       </div>
 
       <div className="mt-auto pt-6 border-t border-gray-50 flex flex-col gap-3">
-        <div className="flex items-center justify-between gap-3">
+        {/* Three Action Buttons */}
+        <div className="grid grid-cols-3 gap-2">
+          {/* See More Button */}
           <button 
-            onClick={() => window.location.hash = `#syllabus-${course.id}`}
-            className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+            onClick={() => {
+              // Navigate to appropriate detail page based on product type
+              const detailRoute = course.productType === 'ebook' 
+                ? `#ebook-${course.id}` 
+                : `#syllabus-${course.id}`;
+              window.location.hash = detailRoute;
+            }}
+            className={`flex items-center justify-center gap-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${
               isPink 
                 ? 'bg-pink-50 text-pink-600 hover:bg-pink-100' 
                 : 'bg-[#AB8FFF]/10 text-[#AB8FFF] hover:bg-[#AB8FFF]/20'
             }`}>
-            Syllabus
+            <Eye size={12} />
+            <span className="hidden lg:inline">See More</span>
           </button>
+          
+          {/* Add to Cart Button */}
+          <button 
+            onClick={() => isInCart ? onRemoveFromCart(course.id) : onAddToCart(course)}
+            className={`flex items-center justify-center gap-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${
+              isInCart
+                ? 'bg-green-50 text-green-600 border border-green-200 hover:bg-green-100'
+                : 'bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100'
+            }`}
+          >
+            {isInCart ? <Check size={12} /> : <ShoppingCart size={12} />}
+            <span className="hidden lg:inline">{isInCart ? 'In Cart' : 'Add'}</span>
+          </button>
+          
+          {/* Enroll Now Button */}
           <button 
             onClick={() => {
               onAddToCart(course);
               window.location.hash = '#checkout';
             }}
-            className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-xl text-white text-xs font-black uppercase tracking-widest shadow-lg transition-all transform active:scale-95 ${
+            className={`flex items-center justify-center gap-1 py-3 rounded-xl text-white text-[10px] font-black uppercase tracking-wider shadow-lg transition-all transform active:scale-95 ${
               isPink
                 ? 'bg-gradient-to-r from-pink-500 to-rose-500 hover:shadow-pink-200'
                 : 'bg-[#AB8FFF] hover:bg-[#9a7eef] hover:shadow-purple-200'
             }`}>
-            Enroll <ArrowRight size={14} />
+            <span className="hidden lg:inline">Enroll</span>
+            <ArrowRight size={12} />
           </button>
         </div>
-        <button 
-          onClick={() => isInCart ? onRemoveFromCart(course.id) : onAddToCart(course)}
-          className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
-            isInCart
-              ? 'bg-green-50 text-green-600 border border-green-200 hover:bg-green-100'
-              : 'bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100'
-          }`}
-        >
-          {isInCart ? (
-            <>
-              <Check size={14} />
-              In Cart
-            </>
-          ) : (
-            <>
-              <ShoppingCart size={14} />
-              Add to Cart
-            </>
-          )}
-        </button>
       </div>
     </div>
   );
@@ -353,6 +403,7 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
   const [loading, setLoading] = useState(true);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [internalCart, setInternalCart] = useState<Course[]>([]);
+  const [activeTab, setActiveTab] = useState<CatalogTab>('interactive'); // Default to Interactive Courses
 
   // Use external cart if provided, otherwise internal
   const cartIds = externalCart.length > 0 ? externalCart : internalCart.map(c => c.id);
@@ -374,10 +425,19 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
     return sum + price;
   }, 0);
 
-  // Separate courses by category
-  const premiumCourses = courses.filter(c => c.level === 'Premium' || c.level === 'Gold');
-  const adultCourses = courses.filter(c => c.level !== 'Kids' && c.level !== 'Premium' && c.level !== 'Gold');
-  const kidsCourses = courses.filter(c => c.level === 'Kids');
+  // Separate courses by category - New catalog structure
+  const serviceCourses = courses.filter(c => c.productType === 'service');
+  const ebookCourses = courses.filter(c => c.productType === 'ebook');
+  const learndashCourses = courses.filter(c => c.productType === 'learndash');
+  
+  // Split by audience
+  const adultEbooks = ebookCourses.filter(c => c.targetAudience === 'adults_teens');
+  const kidsEbooks = ebookCourses.filter(c => c.targetAudience === 'kids');
+  const adultLearndash = learndashCourses.filter(c => c.targetAudience === 'adults_teens');
+  const kidsLearndash = learndashCourses.filter(c => c.targetAudience === 'kids');
+  
+  // Services (Premium & Golden programs)
+  const premiumCourses = serviceCourses;
 
   useEffect(() => {
     const loadCourses = async () => {
@@ -535,21 +595,30 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
       {/* Course Listing */}
       <div id="courses-grid" className="max-w-7xl mx-auto px-6 py-24">
         
-        {/* Premium Programs Section */}
-        {premiumCourses.length > 0 && (
-          <div className="mb-24">
+        {/* ============================================ */}
+        {/* PILL TAB NAVIGATION                          */}
+        {/* ============================================ */}
+        <div className="flex justify-center mb-16 sticky top-4 z-40">
+          <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+        </div>
+
+        {/* ============================================ */}
+        {/* SERVICES TAB - Premium & Golden Programs    */}
+        {/* ============================================ */}
+        {activeTab === 'services' && (
+          <div className="animate-fadeIn">
             {/* Section Header */}
             <div className="text-center mb-16">
               <div className="flex items-center justify-center gap-4 mb-6">
                 <div className="h-[1px] w-16 bg-gradient-to-r from-transparent to-violet-400"></div>
                 <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-violet-500/10 to-amber-500/10 border border-violet-500/20">
-                  <Sparkles size={14} className="text-violet-500" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-violet-600">Exclusive Programs</span>
+                  <Briefcase size={14} className="text-violet-500" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-violet-600">Live Programs</span>
                 </div>
                 <div className="h-[1px] w-16 bg-gradient-to-l from-transparent to-amber-400"></div>
               </div>
               <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">
-                Complete <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-amber-500">Learning Pathways</span>
+                Live Online <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-amber-500">Learning Programs</span>
               </h2>
               <p className="text-gray-500 text-lg max-w-2xl mx-auto">
                 Our most comprehensive programs combining individual lessons, group workshops, and full support for transformative English learning.
@@ -557,66 +626,210 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
             </div>
             
             {/* Premium Cards Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-reveal stagger-1">
-              {premiumCourses.map((course, idx) => (
-                <PremiumCourseCard 
-                  key={course.id || idx} 
-                  course={course} 
-                  idx={idx}
-                  isInCart={cartIds.includes(course.id)}
-                  onAddToCart={addToCart}
-                  onRemoveFromCart={removeFromCart}
-                />
-              ))}
-            </div>
+            {premiumCourses.length > 0 ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-reveal stagger-1">
+                {premiumCourses.map((course, idx) => (
+                  <PremiumCourseCard 
+                    key={course.id || idx} 
+                    course={course} 
+                    idx={idx}
+                    isInCart={cartIds.includes(course.id)}
+                    onAddToCart={addToCart}
+                    onRemoveFromCart={removeFromCart}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
+                <div className="w-16 h-16 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-4 text-violet-400">
+                  <Users size={24} />
+                </div>
+                <h3 className="text-xl font-bold text-gray-700 mb-2">Online Courses Coming Soon!</h3>
+                <p className="text-gray-500 font-medium max-w-md mx-auto">
+                  Our Premium and Golden programs are being prepared. Check back soon!
+                </p>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Teens & Adults Section */}
-        {adultCourses.length > 0 && (
-          <div className="mb-20">
-            <div className="flex items-center gap-6 mb-12">
-              <h2 className="text-3xl font-black text-gray-900 whitespace-nowrap">Teens & Adults</h2>
-              <div className="h-[2px] flex-grow bg-gradient-to-r from-[#AB8FFF] to-transparent rounded-full"></div>
+        {/* ============================================ */}
+        {/* INTERACTIVE COURSES TAB - LearnDash         */}
+        {/* ============================================ */}
+        {activeTab === 'interactive' && (
+          <div className="animate-fadeIn">
+            {/* Section Header */}
+            <div className="text-center mb-16">
+              <div className="flex items-center justify-center gap-4 mb-6">
+                <div className="h-[1px] w-16 bg-gradient-to-r from-transparent to-[#AB8FFF]"></div>
+                <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#AB8FFF]/10 border border-[#AB8FFF]/20">
+                  <MonitorPlay size={14} className="text-[#AB8FFF]" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-[#AB8FFF]">Interactive Learning</span>
+                </div>
+                <div className="h-[1px] w-16 bg-gradient-to-l from-transparent to-[#AB8FFF]"></div>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">
+                Interactive <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#AB8FFF] to-pink-500">Video Courses</span>
+              </h2>
+              <p className="text-gray-500 text-lg max-w-2xl mx-auto">
+                Self-paced video lessons, quizzes, and exercises designed for the dyslexic mind. Learn at your own pace with our engaging content.
+              </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-reveal stagger-1">
-              {adultCourses.map((course, idx) => (
-                <CourseCard 
-                  key={course.id || idx} 
-                  course={course} 
-                  idx={idx}
-                  isInCart={cartIds.includes(course.id)}
-                  onAddToCart={addToCart}
-                  onRemoveFromCart={removeFromCart}
-                />
-              ))}
-            </div>
+
+            {/* Adults & Teens Interactive Courses */}
+            {adultLearndash.length > 0 && (
+              <div className="mb-16">
+                <div className="flex items-center gap-6 mb-8">
+                  <div className="flex items-center gap-3">
+                    <MonitorPlay size={20} className="text-[#AB8FFF]" />
+                    <h3 className="text-2xl font-black text-gray-900 whitespace-nowrap">Adults & Teens</h3>
+                  </div>
+                  <div className="h-[2px] flex-grow bg-gradient-to-r from-[#AB8FFF] to-transparent rounded-full"></div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-reveal stagger-1">
+                  {adultLearndash.map((course, idx) => (
+                    <CourseCard 
+                      key={course.id || idx} 
+                      course={course} 
+                      idx={idx}
+                      isInCart={cartIds.includes(course.id)}
+                      onAddToCart={addToCart}
+                      onRemoveFromCart={removeFromCart}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Kids Interactive Courses */}
+            {kidsLearndash.length > 0 && (
+              <div className="mb-16">
+                <div className="flex items-center gap-6 mb-8">
+                  <div className="flex items-center gap-3">
+                    <MonitorPlay size={20} className="text-pink-500" />
+                    <h3 className="text-2xl font-black text-gray-900 whitespace-nowrap">Kids</h3>
+                  </div>
+                  <div className="h-[2px] flex-grow bg-gradient-to-r from-pink-400 to-transparent rounded-full"></div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-reveal stagger-1">
+                  {kidsLearndash.map((course, idx) => (
+                    <CourseCard 
+                      key={course.id || idx} 
+                      course={course} 
+                      idx={idx}
+                      isInCart={cartIds.includes(course.id)}
+                      onAddToCart={addToCart}
+                      onRemoveFromCart={removeFromCart}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Empty State */}
+            {adultLearndash.length === 0 && kidsLearndash.length === 0 && (
+              <div className="text-center py-20 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
+                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 text-purple-400">
+                  <MonitorPlay size={24} />
+                </div>
+                <h3 className="text-xl font-bold text-gray-700 mb-2">Interactive Courses Coming Soon!</h3>
+                <p className="text-gray-500 font-medium max-w-md mx-auto">
+                  We're preparing our interactive video courses. Check back soon!
+                </p>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Kids Section */}
-        {kidsCourses.length > 0 && (
-          <div>
-            <div className="flex items-center gap-6 mb-12">
-              <h2 className="text-3xl font-black text-gray-900 whitespace-nowrap">Kids</h2>
-              <div className="h-[2px] flex-grow bg-gradient-to-r from-pink-400 to-transparent rounded-full"></div>
+        {/* ============================================ */}
+        {/* E-BOOKS TAB                                  */}
+        {/* ============================================ */}
+        {activeTab === 'ebooks' && (
+          <div className="animate-fadeIn">
+            {/* Section Header */}
+            <div className="text-center mb-16">
+              <div className="flex items-center justify-center gap-4 mb-6">
+                <div className="h-[1px] w-16 bg-gradient-to-r from-transparent to-[#AB8FFF]"></div>
+                <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#AB8FFF]/10 border border-[#AB8FFF]/20">
+                  <FileText size={14} className="text-[#AB8FFF]" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-[#AB8FFF]">Digital Books</span>
+                </div>
+                <div className="h-[1px] w-16 bg-gradient-to-l from-transparent to-[#AB8FFF]"></div>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">
+                Comprehensive <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#AB8FFF] to-pink-500">E-books</span>
+              </h2>
+              <p className="text-gray-500 text-lg max-w-2xl mx-auto">
+                Downloadable PDF guides with vocabulary, grammar, and exercises. Perfect for offline study and reference.
+              </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-reveal stagger-1">
-              {kidsCourses.map((course, idx) => (
-                <CourseCard 
-                  key={course.id || idx} 
-                  course={course} 
-                  idx={idx}
-                  isInCart={cartIds.includes(course.id)}
-                  onAddToCart={addToCart}
-                  onRemoveFromCart={removeFromCart}
-                />
-              ))}
-            </div>
+
+            {/* Adults & Teens E-books */}
+            {adultEbooks.length > 0 && (
+              <div className="mb-16">
+                <div className="flex items-center gap-6 mb-8">
+                  <div className="flex items-center gap-3">
+                    <FileText size={20} className="text-[#AB8FFF]" />
+                    <h3 className="text-2xl font-black text-gray-900 whitespace-nowrap">Adults & Teens</h3>
+                  </div>
+                  <div className="h-[2px] flex-grow bg-gradient-to-r from-[#AB8FFF] to-transparent rounded-full"></div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-reveal stagger-1">
+                  {adultEbooks.map((course, idx) => (
+                    <CourseCard 
+                      key={course.id || idx} 
+                      course={course} 
+                      idx={idx}
+                      isInCart={cartIds.includes(course.id)}
+                      onAddToCart={addToCart}
+                      onRemoveFromCart={removeFromCart}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Kids E-books */}
+            {kidsEbooks.length > 0 && (
+              <div className="mb-16">
+                <div className="flex items-center gap-6 mb-8">
+                  <div className="flex items-center gap-3">
+                    <FileText size={20} className="text-pink-500" />
+                    <h3 className="text-2xl font-black text-gray-900 whitespace-nowrap">Kids</h3>
+                  </div>
+                  <div className="h-[2px] flex-grow bg-gradient-to-r from-pink-400 to-transparent rounded-full"></div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-reveal stagger-1">
+                  {kidsEbooks.map((course, idx) => (
+                    <CourseCard 
+                      key={course.id || idx} 
+                      course={course} 
+                      idx={idx}
+                      isInCart={cartIds.includes(course.id)}
+                      onAddToCart={addToCart}
+                      onRemoveFromCart={removeFromCart}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Empty State */}
+            {adultEbooks.length === 0 && kidsEbooks.length === 0 && (
+              <div className="text-center py-20 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
+                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 text-purple-400">
+                  <FileText size={24} />
+                </div>
+                <h3 className="text-xl font-bold text-gray-700 mb-2">E-books Coming Soon!</h3>
+                <p className="text-gray-500 font-medium max-w-md mx-auto">
+                  We're preparing our comprehensive e-books. Check back soon!
+                </p>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Empty State */}
+        {/* Global Empty State - No courses at all */}
         {courses.length === 0 && !loading && (
            <div className="text-center py-20 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">

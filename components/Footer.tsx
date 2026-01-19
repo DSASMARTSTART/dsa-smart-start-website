@@ -1,12 +1,28 @@
 
-import React from 'react';
-import { Mail, Phone, MapPin, Instagram } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Mail, Phone, MapPin, Instagram, Users, MonitorPlay, FileText, Crown, Diamond } from 'lucide-react';
+import { coursesApi } from '../data/supabaseStore';
+import { Course } from '../types';
 
 interface FooterProps {
   onNavigate?: (path: string) => void;
 }
 
 const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
+  const [courses, setCourses] = useState<Course[]>([]);
+
+  useEffect(() => {
+    const loadCourses = async () => {
+      try {
+        const data = await coursesApi.list({ isPublished: true });
+        setCourses(data || []);
+      } catch (error) {
+        console.error('Footer: Failed to load courses', error);
+      }
+    };
+    loadCourses();
+  }, []);
+
   const handleLinkClick = (path: string) => {
     if (onNavigate) {
       onNavigate(path);
@@ -14,11 +30,28 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
     }
   };
 
+  // Helper to find course by level and type
+  const findCourse = (level: string, productType: string) => {
+    return courses.find(c => c.level === level && c.productType === productType);
+  };
+
+  // Navigate to course detail page
+  const goToCourse = (level: string, productType: string) => {
+    const course = findCourse(level, productType);
+    if (course) {
+      const route = productType === 'ebook' ? `#ebook-${course.id}` : `#syllabus-${course.id}`;
+      window.location.hash = route;
+    } else {
+      // Fallback to courses page
+      window.location.hash = '#courses';
+    }
+  };
+
   return (
     <footer className="bg-gray-900 text-gray-300 pt-20 pb-10 px-6">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
         {/* About Column */}
-        <div>
+        <div className="lg:col-span-1">
           <h4 className="text-white text-xl font-bold mb-6">DSA SMART START</h4>
           <p className="text-sm leading-loose mb-8">
             The first program in the world specifically designed for those living with dyslexia, helping them achieve amazing results and make learning fun.
@@ -31,25 +64,68 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         {/* Quick Links */}
         <div>
           <h4 className="text-white font-bold mb-6">Quick Links</h4>
-          <ul className="space-y-4 text-sm">
+          <ul className="space-y-3 text-sm">
             <li><button onClick={() => handleLinkClick('home')} className="hover:text-purple-400 transition-colors">Home</button></li>
             <li><button onClick={() => handleLinkClick('who-we-are')} className="hover:text-purple-400 transition-colors">Who We Are</button></li>
-            <li><button onClick={() => handleLinkClick('courses')} className="hover:text-purple-400 transition-colors">Courses</button></li>
+            <li><button onClick={() => handleLinkClick('courses')} className="hover:text-purple-400 transition-colors">All Courses</button></li>
             <li><button onClick={() => handleLinkClick('contact')} className="hover:text-purple-400 transition-colors">Contact</button></li>
             <li><button onClick={() => handleLinkClick('faq')} className="hover:text-purple-400 transition-colors">FAQ</button></li>
+            <li><button onClick={() => handleLinkClick('login')} className="hover:text-purple-400 transition-colors">Login / Register</button></li>
           </ul>
         </div>
 
-        {/* Courses Column */}
+        {/* Online & Interactive Courses */}
         <div>
-          <h4 className="text-white font-bold mb-6">Courses</h4>
-          <ul className="space-y-4 text-sm">
-            <li><button onClick={() => handleLinkClick('courses')} className="hover:text-purple-400 transition-colors text-left">DSA SMART START - A1 LEVEL</button></li>
-            <li><button onClick={() => handleLinkClick('courses')} className="hover:text-purple-400 transition-colors text-left">DSA SMART START - A2 LEVEL</button></li>
-            <li><button onClick={() => handleLinkClick('courses')} className="hover:text-purple-400 transition-colors text-left">DSA SMART START - B1 LEVEL</button></li>
-            <li><button onClick={() => handleLinkClick('courses')} className="hover:text-purple-400 transition-colors text-left">DSA SMART START KIDS - BASIC</button></li>
-            <li><button onClick={() => handleLinkClick('courses')} className="hover:text-purple-400 transition-colors text-left">DSA SMART START KIDS - MEDIUM</button></li>
-            <li><button onClick={() => handleLinkClick('courses')} className="hover:text-purple-400 transition-colors text-left">DSA SMART START KIDS - ADVANCED</button></li>
+          <h4 className="text-white font-bold mb-4 flex items-center gap-2">
+            <Users size={16} className="text-violet-400" />
+            Online Courses
+          </h4>
+          <ul className="space-y-3 text-sm mb-6">
+            <li>
+              <button onClick={() => goToCourse('premium', 'service')} className="hover:text-purple-400 transition-colors text-left flex items-center gap-2">
+                <Crown size={12} className="text-violet-400" />
+                Premium Program
+              </button>
+            </li>
+            <li>
+              <button onClick={() => goToCourse('golden', 'service')} className="hover:text-purple-400 transition-colors text-left flex items-center gap-2">
+                <Diamond size={12} className="text-amber-400" />
+                Golden Program
+              </button>
+            </li>
+          </ul>
+          
+          <h4 className="text-white font-bold mb-4 flex items-center gap-2">
+            <MonitorPlay size={16} className="text-purple-400" />
+            Interactive Courses
+          </h4>
+          <ul className="space-y-2 text-sm">
+            <li><button onClick={() => goToCourse('A1', 'learndash')} className="hover:text-purple-400 transition-colors text-left">A1 Beginner</button></li>
+            <li><button onClick={() => goToCourse('A2', 'learndash')} className="hover:text-purple-400 transition-colors text-left">A2 Elementary</button></li>
+            <li><button onClick={() => goToCourse('B1', 'learndash')} className="hover:text-purple-400 transition-colors text-left">B1 Intermediate</button></li>
+            <li><button onClick={() => goToCourse('kids-basic', 'learndash')} className="hover:text-purple-400 transition-colors text-left">Kids Basic</button></li>
+            <li><button onClick={() => goToCourse('kids-medium', 'learndash')} className="hover:text-purple-400 transition-colors text-left">Kids Medium</button></li>
+            <li><button onClick={() => goToCourse('kids-advanced', 'learndash')} className="hover:text-purple-400 transition-colors text-left">Kids Advanced</button></li>
+          </ul>
+        </div>
+
+        {/* E-books Column */}
+        <div>
+          <h4 className="text-white font-bold mb-4 flex items-center gap-2">
+            <FileText size={16} className="text-pink-400" />
+            E-books
+          </h4>
+          <p className="text-xs text-gray-500 mb-2 uppercase tracking-wider">Adults & Teens</p>
+          <ul className="space-y-2 text-sm mb-4">
+            <li><button onClick={() => goToCourse('A1', 'ebook')} className="hover:text-purple-400 transition-colors text-left">A1 Beginner E-book</button></li>
+            <li><button onClick={() => goToCourse('A2', 'ebook')} className="hover:text-purple-400 transition-colors text-left">A2 Elementary E-book</button></li>
+            <li><button onClick={() => goToCourse('B1', 'ebook')} className="hover:text-purple-400 transition-colors text-left">B1 Intermediate E-book</button></li>
+          </ul>
+          <p className="text-xs text-gray-500 mb-2 uppercase tracking-wider">Kids</p>
+          <ul className="space-y-2 text-sm">
+            <li><button onClick={() => goToCourse('kids-basic', 'ebook')} className="hover:text-purple-400 transition-colors text-left">Kids Basic E-book</button></li>
+            <li><button onClick={() => goToCourse('kids-medium', 'ebook')} className="hover:text-purple-400 transition-colors text-left">Kids Medium E-book</button></li>
+            <li><button onClick={() => goToCourse('kids-advanced', 'ebook')} className="hover:text-purple-400 transition-colors text-left">Kids Advanced E-book</button></li>
           </ul>
         </div>
 

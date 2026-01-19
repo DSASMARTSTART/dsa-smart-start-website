@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { ArrowLeft, ShieldCheck, Lock, CreditCard, CheckCircle2, ChevronRight, ShoppingCart, User, X, Tag, Ticket, AlertCircle, Loader2, Building2, Wallet } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, Lock, CreditCard, CheckCircle2, ChevronRight, ShoppingCart, User, X, Tag, Ticket, AlertCircle, Loader2, Building2, Wallet, BookOpen, Plus, Minus } from 'lucide-react';
 import { coursesApi, purchasesApi } from '../data/supabaseStore';
 import { Course } from '../types';
 import { useAuth } from '../contexts/AuthContext';
@@ -21,7 +21,15 @@ const LEVEL_COLORS: Record<string, string> = {
   'A1': 'from-blue-500 to-indigo-600',
   'A2': 'from-indigo-500 to-purple-600',
   'B1': 'from-purple-600 to-pink-600',
+  'B2': 'from-blue-600 to-cyan-500',
   'Kids': 'from-pink-400 to-rose-500',
+  'kids-basic': 'from-pink-400 to-rose-500',
+  'kids-medium': 'from-orange-400 to-pink-400',
+  'kids-advanced': 'from-purple-400 to-pink-500',
+  'premium': 'from-violet-600 to-purple-700',
+  'golden': 'from-amber-500 to-yellow-600',
+  'Premium': 'from-violet-600 to-purple-700',
+  'Gold': 'from-amber-500 to-yellow-600',
 };
 
 interface CartItem {
@@ -30,6 +38,10 @@ interface CartItem {
   price: number;
   originalPrice?: number;
   color: string;
+  // New fields for teaching materials
+  teachingMaterialsPrice?: number;
+  includeTeachingMaterials?: boolean;
+  productType?: string;
 }
 
 interface CheckoutProps {
@@ -65,6 +77,9 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
   const [discountInput, setDiscountInput] = useState('');
   const [appliedDiscount, setAppliedDiscount] = useState<{ code: string; amount: number } | null>(null);
   const [discountError, setDiscountError] = useState<string | null>(null);
+  
+  // Teaching materials state
+  const [teachingMaterialsSelections, setTeachingMaterialsSelections] = useState<Record<string, boolean>>({});
 
   // Check available payment methods
   useEffect(() => {
@@ -86,9 +101,23 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
     }
   }, [selectedPaymentMethod, paymentConfig.paypal.isConfigured]);
 
-  // Calculate totals
+  // Calculate totals - include teaching materials
   const subtotal = cartItems.reduce((acc, item) => acc + item.price, 0);
-  const total = Math.max(0, subtotal - (appliedDiscount?.amount || 0));
+  const teachingMaterialsTotal = cartItems.reduce((acc, item) => {
+    if (item.teachingMaterialsPrice && teachingMaterialsSelections[item.id]) {
+      return acc + item.teachingMaterialsPrice;
+    }
+    return acc;
+  }, 0);
+  const total = Math.max(0, subtotal + teachingMaterialsTotal - (appliedDiscount?.amount || 0));
+
+  // Toggle teaching materials for a cart item
+  const toggleTeachingMaterials = (itemId: string) => {
+    setTeachingMaterialsSelections(prev => ({
+      ...prev,
+      [itemId]: !prev[itemId]
+    }));
+  };
 
   // Handle successful payment
   const handlePaymentSuccess = useCallback(async (transactionId: string, method: PaymentMethod) => {
@@ -180,7 +209,10 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
               name: course.title,
               price: hasActiveDiscount && pricing.discountPrice !== undefined ? pricing.discountPrice : pricing.price,
               originalPrice: hasActiveDiscount ? pricing.price : undefined,
-              color: LEVEL_COLORS[course.level] || 'from-purple-600 to-indigo-800'
+              color: LEVEL_COLORS[course.level] || 'from-purple-600 to-indigo-800',
+              // New fields for teaching materials
+              teachingMaterialsPrice: course.teachingMaterialsPrice,
+              productType: course.productType
             });
           }
         } catch (error) {
@@ -620,29 +652,73 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
                 <h3 className="text-xl font-black mb-8 uppercase tracking-widest border-b border-white/10 pb-6">Your Courses</h3>
                 
                 {cartItems.length > 0 ? (
-                  <div className="space-y-4 mb-8 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                  <div className="space-y-4 mb-8 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                     {cartItems.map((item, idx) => (
-                      <div key={item.id} className="group flex items-center justify-between gap-4 p-4 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all animate-reveal" style={{ animationDelay: `${idx * 0.1}s` }}>
-                        <div className="flex items-center gap-4">
-                          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center shrink-0`}>
-                            <ShoppingCart size={16} />
-                          </div>
-                          <div className="overflow-hidden">
-                            <p className="text-[10px] font-black uppercase tracking-tight leading-tight truncate">{item.name}</p>
-                            <div className="flex items-center gap-2 mt-1">
-                              <p className="text-[10px] font-bold text-white uppercase tracking-widest">{item.price.toFixed(2)}€</p>
-                              {item.originalPrice && (
-                                <p className="text-[9px] font-bold text-gray-500 line-through">{item.originalPrice.toFixed(2)}€</p>
-                              )}
+                      <div key={item.id} className="group p-4 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all animate-reveal" style={{ animationDelay: `${idx * 0.1}s` }}>
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-4">
+                            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center shrink-0`}>
+                              <ShoppingCart size={16} />
+                            </div>
+                            <div className="overflow-hidden">
+                              <p className="text-[10px] font-black uppercase tracking-tight leading-tight truncate">{item.name}</p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <p className="text-[10px] font-bold text-white uppercase tracking-widest">{item.price.toFixed(2)}€</p>
+                                {item.originalPrice && (
+                                  <p className="text-[9px] font-bold text-gray-500 line-through">{item.originalPrice.toFixed(2)}€</p>
+                                )}
+                              </div>
                             </div>
                           </div>
+                          <button 
+                            onClick={() => onRemoveItem(item.id)}
+                            className="p-2 text-gray-500 hover:text-pink-500 transition-colors"
+                          >
+                            <X size={16} />
+                          </button>
                         </div>
-                        <button 
-                          onClick={() => onRemoveItem(item.id)}
-                          className="p-2 text-gray-500 hover:text-pink-500 transition-colors"
-                        >
-                          <X size={16} />
-                        </button>
+                        
+                        {/* Teaching Materials Add-on for Services */}
+                        {item.teachingMaterialsPrice && item.teachingMaterialsPrice > 0 && (
+                          <div className="mt-3 pt-3 border-t border-white/10">
+                            <button
+                              onClick={() => toggleTeachingMaterials(item.id)}
+                              className={`w-full flex items-center justify-between p-3 rounded-2xl transition-all ${
+                                teachingMaterialsSelections[item.id]
+                                  ? 'bg-green-500/20 border border-green-500/30'
+                                  : 'bg-white/5 border border-white/10 hover:bg-white/10'
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                                  teachingMaterialsSelections[item.id] ? 'bg-green-500 text-white' : 'bg-white/10 text-gray-400'
+                                }`}>
+                                  <BookOpen size={14} />
+                                </div>
+                                <div className="text-left">
+                                  <p className="text-[9px] font-black uppercase tracking-wider text-white">
+                                    Teaching Materials
+                                  </p>
+                                  <p className="text-[8px] text-gray-400 mt-0.5">
+                                    Study guides & workbooks
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className={`text-[10px] font-black ${
+                                  teachingMaterialsSelections[item.id] ? 'text-green-400' : 'text-white'
+                                }`}>
+                                  +€{item.teachingMaterialsPrice.toFixed(0)}
+                                </span>
+                                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                                  teachingMaterialsSelections[item.id] ? 'bg-green-500 text-white' : 'bg-white/10 text-gray-400'
+                                }`}>
+                                  {teachingMaterialsSelections[item.id] ? <Minus size={12} /> : <Plus size={12} />}
+                                </div>
+                              </div>
+                            </button>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -693,6 +769,12 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
                     <span>Subtotal</span>
                     <span>{subtotal.toFixed(2)}€</span>
                   </div>
+                  {teachingMaterialsTotal > 0 && (
+                    <div className="flex justify-between items-center text-xs font-bold text-purple-400 uppercase tracking-widest">
+                      <span>Teaching Materials</span>
+                      <span>+{teachingMaterialsTotal.toFixed(2)}€</span>
+                    </div>
+                  )}
                   {appliedDiscount && (
                     <div className="flex justify-between items-center text-xs font-bold text-green-400 uppercase tracking-widest">
                       <span>Discount Applied</span>

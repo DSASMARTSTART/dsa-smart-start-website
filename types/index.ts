@@ -21,9 +21,23 @@ export interface User {
 
 // ---------- Course & Content Types ----------
 // CourseLevel allows predefined levels or custom category names
-export type CourseLevel = 'A1' | 'A2' | 'B1' | 'Kids' | 'Premium' | 'Gold' | string;
+export type CourseLevel = 
+  | 'A1' | 'A2' | 'B1' | 'B2'  // Adults & Teens levels
+  | 'kids-basic' | 'kids-medium' | 'kids-advanced'  // Kids levels
+  | 'premium' | 'golden'  // Service programs
+  | string;  // Allow custom categories
+
+// Product type distinguishes e-books, interactive courses, and services
+export type ProductType = 'ebook' | 'learndash' | 'service';
+
+// Target audience for the product
+export type TargetAudience = 'adults_teens' | 'kids';
+
+// Content format determines how the content is delivered
+export type ContentFormat = 'pdf' | 'interactive' | 'live' | 'hybrid';
+
 export type VideoProvider = 'youtube' | 'vimeo' | 'cloudflare' | 'custom';
-export type LessonType = 'video' | 'reading' | 'quiz';
+export type LessonType = 'video' | 'reading' | 'quiz' | 'live' | 'one-to-one';
 
 export interface VideoLink {
   primaryVideoUrl: string;
@@ -121,10 +135,17 @@ export interface Course {
   createdAt: string;
   updatedAt: string;
   adminNotes?: string;
-  // Extended marketing fields
+  // ---------- NEW: Catalog fields ----------
+  productType: ProductType;  // 'ebook' | 'learndash' | 'service'
+  targetAudience: TargetAudience;  // 'adults_teens' | 'kids'
+  contentFormat: ContentFormat;  // 'pdf' | 'interactive' | 'live' | 'hybrid'
+  teachingMaterialsPrice?: number;  // €50 for services
+  teachingMaterialsIncluded: boolean;  // User's choice at checkout
+  relatedMaterialsId?: string;  // Links service to its materials product
+  // ---------- Extended marketing fields ----------
   learningOutcomes?: string[];
   prerequisites?: string[];
-  targetAudience?: CourseTargetAudience;
+  targetAudienceInfo?: CourseTargetAudience;
   instructor?: CourseInstructor;
   estimatedWeeklyHours?: number;
   totalStudentsEnrolled?: number;
@@ -276,6 +297,9 @@ export interface UserFilters {
 export interface CourseFilters {
   search?: string;
   level?: CourseLevel | 'all';
+  productType?: ProductType | 'all';
+  targetAudience?: TargetAudience | 'all';
+  contentFormat?: ContentFormat | 'all';
   isPublished?: boolean | 'all';
   published?: boolean;
 }
@@ -289,6 +313,8 @@ export interface UserDetail extends User {
 }
 
 // ---------- Category Types ----------
+export type CatalogType = 'level' | 'program' | 'section';
+
 export interface Category {
   id: string;
   slug: string;
@@ -298,6 +324,34 @@ export interface Category {
   icon?: string;
   sortOrder: number;
   isActive: boolean;
+  catalogType: CatalogType;  // 'level' for A1/A2/etc, 'program' for Premium/Golden, 'section' for Products/Services
   createdAt: string;
   updatedAt: string;
+}
+
+// ---------- Cart & Checkout Types ----------
+export interface CartItem {
+  courseId: string;
+  course: Course;
+  includeTeachingMaterials: boolean;  // For services with optional materials
+}
+
+export interface CheckoutSummary {
+  items: CartItem[];
+  subtotal: number;
+  teachingMaterialsTotal: number;
+  discountAmount: number;
+  discountCode?: string;
+  total: number;
+  currency: 'EUR' | 'USD' | 'GBP';
+}
+
+// ---------- Catalog Filter Types ----------
+export interface CatalogFilters {
+  search?: string;
+  productType?: ProductType | 'all';
+  targetAudience?: TargetAudience | 'all';
+  level?: CourseLevel | 'all';
+  priceRange?: { min: number; max: number };
+  isPublished?: boolean;
 }

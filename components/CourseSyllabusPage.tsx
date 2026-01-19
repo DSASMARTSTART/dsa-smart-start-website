@@ -10,9 +10,15 @@ const LEVEL_CONFIG: Record<string, { color: string; bgColor: string; label: stri
   'A1': { color: 'from-blue-500 to-indigo-600', bgColor: 'bg-blue-500', label: 'Beginner', icon: <Layers size={20} /> },
   'A2': { color: 'from-indigo-500 to-purple-600', bgColor: 'bg-indigo-500', label: 'Elementary', icon: <TrendingUp size={20} /> },
   'B1': { color: 'from-purple-600 to-pink-600', bgColor: 'bg-purple-600', label: 'Intermediate', icon: <Award size={20} /> },
+  'B2': { color: 'from-blue-600 to-cyan-500', bgColor: 'bg-blue-600', label: 'Upper-Intermediate', icon: <Award size={20} /> },
   'Kids': { color: 'from-pink-400 to-rose-500', bgColor: 'bg-pink-500', label: 'Advanced Young Learners', icon: <Star size={20} /> },
+  'kids-basic': { color: 'from-pink-400 to-rose-500', bgColor: 'bg-pink-500', label: 'Kids Basic', icon: <Star size={20} /> },
+  'kids-medium': { color: 'from-orange-400 to-pink-400', bgColor: 'bg-orange-500', label: 'Kids Medium', icon: <Play size={20} /> },
+  'kids-advanced': { color: 'from-purple-400 to-pink-500', bgColor: 'bg-purple-500', label: 'Kids Advanced', icon: <Star size={20} /> },
   'Premium': { color: 'from-violet-600 to-purple-700', bgColor: 'bg-violet-600', label: 'Premium Pathway', icon: <Crown size={20} /> },
-  'Gold': { color: 'from-amber-500 to-yellow-600', bgColor: 'bg-amber-500', label: 'Gold Pathway', icon: <Diamond size={20} /> }
+  'premium': { color: 'from-violet-600 to-purple-700', bgColor: 'bg-violet-600', label: 'Premium Program', icon: <Crown size={20} /> },
+  'Gold': { color: 'from-amber-500 to-yellow-600', bgColor: 'bg-amber-500', label: 'Gold Pathway', icon: <Diamond size={20} /> },
+  'golden': { color: 'from-amber-500 to-yellow-600', bgColor: 'bg-amber-500', label: 'Golden Program', icon: <Diamond size={20} /> }
 };
 
 // ============================================
@@ -250,6 +256,223 @@ const COURSE_CONTENT: Record<string, CourseContentData> = {
       "Learners seeking consistent, structured progress",
       "Those who benefit from peer interaction and support",
       "Anyone committed to long-term English improvement"
+    ],
+    units: []
+  },
+  'B2': {
+    description: "The DSA Smart Start Level B2 volume represents the culmination of our structured learning pathway, designed for students with Specific Learning Disabilities (SLD) who are ready to achieve upper-intermediate proficiency. This advanced level focuses on nuanced language use, academic English, and sophisticated communication strategies that prepare learners for professional and educational contexts.",
+    learningOutcomes: [
+      "Master all conditional forms including mixed conditionals",
+      "Use advanced passive structures and causative forms",
+      "Express hypothetical situations with ease",
+      "Understand and produce complex relative clauses",
+      "Navigate formal and informal registers appropriately",
+      "Prepare for Cambridge B2 First (FCE) examination"
+    ],
+    whatYoullFind: [
+      "Advanced grammar explanations with visual support",
+      "Academic vocabulary building exercises",
+      "Complex text comprehension strategies",
+      "Advanced writing techniques and templates",
+      "Highly legible fonts and structured layouts",
+      "Integrated digital materials including exam practice"
+    ],
+    targetAudience: [
+      "Students aged 12 and up at upper-intermediate level",
+      "Learners preparing for Cambridge B2 First (FCE)",
+      "Those seeking academic or professional English skills",
+      "Anyone ready for near-fluency communication"
+    ],
+    examPrep: "Cambridge English B2 First (FCE)",
+    units: [
+      { title: "Mixed Conditionals", topics: ["Third + second conditional mix", "Second + third conditional mix", "Hypothetical past with present result"] },
+      { title: "Advanced Passive Voice", topics: ["Passive with modals", "Passive reporting verbs", "Have/Get something done"] },
+      { title: "Inversion", topics: ["Negative adverbials", "Only + time expressions", "Formal emphasis"] },
+      { title: "Cleft Sentences", topics: ["It clefts", "What clefts", "All clefts"] },
+      { title: "Advanced Relative Clauses", topics: ["Reduced relatives", "Preposition placement", "Relative clause position"] },
+      { title: "Subjunctive Mood", topics: ["Wish + past perfect", "If only structures", "It's time + past"] },
+      { title: "Discourse Markers", topics: ["Linking expressions", "Hedging language", "Emphasis markers"] },
+      { title: "Reported Speech Advanced", topics: ["Reporting verbs patterns", "Questions in reported speech", "Mixed tense reports"] },
+      { title: "Advanced Modal Verbs", topics: ["Modal perfects", "Degrees of certainty", "Speculating about past"] },
+      { title: "Participle Clauses", topics: ["Present participle clauses", "Past participle clauses", "Perfect participle clauses"] },
+      { title: "Noun Clauses", topics: ["Subject clauses", "Object clauses", "Complement clauses"] },
+      { title: "Advanced Comparisons", topics: ["Double comparatives", "Comparative idioms", "Superlative emphasis"] },
+      { title: "Formal vs Informal Register", topics: ["Academic vocabulary", "Colloquial expressions", "Register shifting"] },
+      { title: "Cohesion & Coherence", topics: ["Reference words", "Substitution", "Ellipsis"] },
+      { title: "Exam Preparation", topics: ["Reading strategies", "Writing formats", "Speaking frameworks"] }
+    ]
+  },
+  'kids-basic': {
+    description: "The DSA Smart Start Kids Basic program is specially crafted for young learners aged 5-8 who are just beginning their English adventure. Using a playful, multisensory approach with colorful visuals, songs, and interactive games, this course makes learning English an exciting journey. Every lesson is designed with dyslexia-friendly techniques to ensure every child can succeed.",
+    learningOutcomes: [
+      "Recognize and use basic greetings and introductions",
+      "Identify colors, numbers 1-20, and common shapes",
+      "Name family members, pets, and classroom objects",
+      "Follow simple instructions in English",
+      "Sing along to English songs and rhymes",
+      "Build confidence in speaking first English words"
+    ],
+    whatYoullFind: [
+      "Colorful picture-based lessons",
+      "Fun songs and nursery rhymes",
+      "Interactive games and activities",
+      "Sticker rewards and progress charts",
+      "Parent guidance notes for home practice",
+      "Audio materials for pronunciation practice"
+    ],
+    targetAudience: [
+      "Children aged 5-8 starting English",
+      "Young learners with learning differences",
+      "Kids who learn best through play and visuals",
+      "Parents seeking dyslexia-friendly English for children"
+    ],
+    examPrep: "Cambridge English Pre A1 Starters Preparation",
+    units: [
+      { title: "Hello & Goodbye", topics: ["Greetings", "Introductions", "Classroom phrases"] },
+      { title: "Colors Everywhere", topics: ["Primary colors", "Secondary colors", "Color games"] },
+      { title: "Numbers 1-10", topics: ["Counting", "Number songs", "Simple addition"] },
+      { title: "My Family", topics: ["Family members", "My pet", "Family activities"] },
+      { title: "Body Parts", topics: ["Head to toe", "Simon says game", "Body song"] },
+      { title: "Animals I Love", topics: ["Farm animals", "Pets", "Animal sounds"] },
+      { title: "Food & Drinks", topics: ["Fruits", "Snacks", "I like/don't like"] },
+      { title: "My Toys", topics: ["Toy names", "Big and small", "Colors of toys"] },
+      { title: "Numbers 11-20", topics: ["Counting on", "Number recognition", "How many?"] },
+      { title: "Weather & Seasons", topics: ["Sunny, rainy, cloudy", "Hot and cold", "Seasons song"] },
+      { title: "Clothes", topics: ["What I wear", "Colors of clothes", "Getting dressed"] },
+      { title: "My House", topics: ["Rooms in a house", "Furniture", "Where is it?"] }
+    ]
+  },
+  'kids-medium': {
+    description: "The DSA Smart Start Kids Medium program builds on the basics, designed for young learners aged 7-10 who are ready to expand their English skills. Through story-based learning, creative activities, and interactive exercises, children develop reading, writing, and speaking confidence. Every lesson incorporates dyslexia-friendly methods to support all learning styles.",
+    learningOutcomes: [
+      "Read and understand simple English stories",
+      "Write short sentences about familiar topics",
+      "Ask and answer simple questions",
+      "Describe people, places, and things",
+      "Use present simple for daily routines",
+      "Expand vocabulary to 500+ words"
+    ],
+    whatYoullFind: [
+      "Illustrated storybooks and readers",
+      "Creative writing prompts with templates",
+      "Vocabulary building games",
+      "Grammar introduced through stories",
+      "Interactive speaking activities",
+      "Progress tracking with fun rewards"
+    ],
+    targetAudience: [
+      "Children aged 7-10 with basic English",
+      "Young learners progressing from basic level",
+      "Kids who enjoy stories and creative activities",
+      "Students preparing for Cambridge A1 Movers"
+    ],
+    examPrep: "Cambridge English A1 Movers Preparation",
+    units: [
+      { title: "Story Time: The Magic Garden", topics: ["Reading comprehension", "Story vocabulary", "Retelling"] },
+      { title: "Present Simple - I Do", topics: ["Daily routines", "Habits", "Negatives"] },
+      { title: "Questions & Answers", topics: ["What, where, when", "Do you...?", "Yes/No answers"] },
+      { title: "Describing People", topics: ["Appearance", "Personality", "My friend is..."] },
+      { title: "Places in Town", topics: ["Shops and buildings", "Directions", "Let's go to..."] },
+      { title: "Story Time: Adventure Island", topics: ["Action vocabulary", "Sequence words", "What happens next?"] },
+      { title: "Can & Can't", topics: ["Abilities", "Animals can...", "I can/can't"] },
+      { title: "Past Simple Introduction", topics: ["Yesterday", "Regular -ed verbs", "Simple past stories"] },
+      { title: "Prepositions of Place", topics: ["In, on, under", "Next to, between", "Where is...?"] },
+      { title: "Story Time: The Friendly Monster", topics: ["Feelings vocabulary", "Dialogue reading", "Character description"] },
+      { title: "Comparatives", topics: ["Bigger, smaller", "Faster, slower", "Comparing animals"] },
+      { title: "My Hobbies", topics: ["Free time activities", "I like -ing", "Sports and games"] }
+    ]
+  },
+  'kids-advanced': {
+    description: "The DSA Smart Start Kids Advanced program is designed for confident young learners aged 9-12 who are ready to master English at a higher level. This comprehensive course prepares students for school English requirements and Cambridge A2 Flyers exam. Complex grammar is taught through engaging contexts, and creative expression is encouraged throughout.",
+    learningOutcomes: [
+      "Read and comprehend longer, more complex texts",
+      "Write paragraphs and short compositions",
+      "Use past simple and past continuous confidently",
+      "Form and use present perfect tense",
+      "Understand and create first conditional sentences",
+      "Achieve vocabulary of 1000+ words"
+    ],
+    whatYoullFind: [
+      "Chapter books and extended readings",
+      "Paragraph and essay writing guides",
+      "Advanced grammar with visual explanations",
+      "Speaking projects and presentations",
+      "Cambridge A2 Flyers exam preparation",
+      "Digital interactive exercises"
+    ],
+    targetAudience: [
+      "Children aged 9-12 at intermediate level",
+      "Students preparing for Cambridge A2 Flyers",
+      "Kids transitioning to secondary school English",
+      "Young learners ready for advanced challenges"
+    ],
+    examPrep: "Cambridge English A2 Flyers",
+    units: [
+      { title: "Past Continuous", topics: ["Was/were + -ing", "Interrupted actions", "While and when"] },
+      { title: "Past Simple vs Continuous", topics: ["Choosing the right tense", "Storytelling", "Background actions"] },
+      { title: "Present Perfect Introduction", topics: ["Have/has + past participle", "Ever and never", "Life experiences"] },
+      { title: "Present Perfect vs Past Simple", topics: ["Time expressions", "Finished vs unfinished time", "Recent events"] },
+      { title: "Comparatives & Superlatives", topics: ["More/most", "Irregular forms", "Comparing three things"] },
+      { title: "First Conditional", topics: ["If + present, will + infinitive", "Real possibilities", "Unless"] },
+      { title: "Second Conditional Introduction", topics: ["If + past, would + infinitive", "Imaginary situations", "Wishes"] },
+      { title: "Passive Voice Basics", topics: ["Is/are + past participle", "Focus on object", "By + agent"] },
+      { title: "Reported Speech Basics", topics: ["Said that...", "Tense changes", "Reporting verbs"] },
+      { title: "Relative Clauses", topics: ["Who, which, that", "Defining relatives", "Combining sentences"] },
+      { title: "Modal Verbs Review", topics: ["Must, should, might", "Advice and obligation", "Possibility"] },
+      { title: "Exam Skills & Practice", topics: ["Reading strategies", "Listening tips", "Speaking confidence"] }
+    ]
+  },
+  'premium': {
+    description: "The Premium Program is our flagship live online course, combining the power of personalized one-to-one instruction with dynamic group workshops. Designed specifically for students with learning differences, this comprehensive program includes 7 individual lessons, 32 group workshops, and unlimited access to our complete library of mind maps, video lessons, and interactive materials. With dedicated support 6 days a week, you'll never feel alone on your learning journey.",
+    learningOutcomes: [
+      "Achieve personalized progress through dedicated 1-on-1 lessons",
+      "Build confidence through interactive group workshop experiences",
+      "Master vocabulary using 525 visual mind maps",
+      "Develop listening and concentration skills with 100+ video lessons",
+      "Track your progress with regular assessments and feedback",
+      "Earn official level certification upon completion"
+    ],
+    whatYoullFind: [
+      "7 individual lessons of 50 minutes with expert instructors",
+      "32 group workshops for collaborative learning",
+      "525 mind maps covering all grammar and vocabulary",
+      "100+ interactive video lessons",
+      "Stop & Check assessments throughout the program",
+      "School tutoring support for homework and tests",
+      "6-day-a-week dedicated assistance"
+    ],
+    targetAudience: [
+      "Students seeking intensive, personalized support",
+      "Learners who benefit from both 1-on-1 and group settings",
+      "Those wanting structured progress with accountability",
+      "Anyone ready for comprehensive English transformation"
+    ],
+    units: []
+  },
+  'golden': {
+    description: "The Golden Program offers an exclusive one-to-one learning experience with 30 personalized private lessons. This is our most prestigious offering, providing undivided attention from our top instructors, a completely customized curriculum tailored to your specific goals, and VIP support throughout your journey. Flexible scheduling means you learn at your own pace, with detailed progress reports after every session.",
+    learningOutcomes: [
+      "Receive fully personalized curriculum based on your goals",
+      "Master English through 30 dedicated private lessons",
+      "Get flexible scheduling that fits your lifestyle",
+      "Enjoy VIP priority support and response times",
+      "Track detailed progress with session-by-session reports",
+      "Achieve certification with comprehensive skill assessment"
+    ],
+    whatYoullFind: [
+      "30 private one-to-one lessons of 50 minutes each",
+      "Dedicated instructor assigned to your entire journey",
+      "Customized learning path based on assessment",
+      "All premium learning materials included",
+      "VIP support with priority response times",
+      "Detailed progress reports after each session",
+      "Final certification with skill assessment"
+    ],
+    targetAudience: [
+      "Learners seeking exclusive one-to-one attention",
+      "Professionals needing flexible, personalized scheduling",
+      "Students who want the fastest path to fluency",
+      "Anyone committed to premium, VIP learning experience"
     ],
     units: []
   }

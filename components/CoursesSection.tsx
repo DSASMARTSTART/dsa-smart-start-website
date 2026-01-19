@@ -5,11 +5,17 @@ import { coursesApi } from '../data/supabaseStore';
 import { Course, CourseLevel } from '../types';
 
 // Level configuration for icons and colors
-const LEVEL_CONFIG: Record<CourseLevel, { icon: React.ReactNode; color: string; label: string; category: 'adult' | 'kids' | 'pathway' }> = {
+const LEVEL_CONFIG: Record<string, { icon: React.ReactNode; color: string; label: string; category: 'adult' | 'kids' | 'pathway' }> = {
   'A1': { icon: <Layers size={22} />, color: 'from-[#AB8FFF] to-[#d4bfff]', label: 'Beginner', category: 'adult' },
   'A2': { icon: <Compass size={22} />, color: 'from-[#9b7aff] to-[#deaaff]', label: 'Elementary', category: 'adult' },
   'B1': { icon: <Zap size={22} />, color: 'from-[#8a65ff] to-[#FFC1F2]', label: 'Intermediate', category: 'adult' },
+  'B2': { icon: <Award size={22} />, color: 'from-blue-600 to-cyan-500', label: 'Upper-Intermediate', category: 'adult' },
   'Kids': { icon: <Music size={22} />, color: 'from-[#FFC1F2] to-[#ffdaeb]', label: 'Young Learners', category: 'kids' },
+  'kids-basic': { icon: <Music size={22} />, color: 'from-[#FFC1F2] to-[#ffdaeb]', label: 'Kids Basic', category: 'kids' },
+  'kids-medium': { icon: <Play size={22} />, color: 'from-[#fface0] to-[#fbcfe8]', label: 'Kids Medium', category: 'kids' },
+  'kids-advanced': { icon: <Award size={22} />, color: 'from-[#FFC1F2] to-[#AB8FFF]', label: 'Kids Advanced', category: 'kids' },
+  'premium': { icon: <Crown size={22} />, color: 'from-violet-600 to-purple-700', label: 'Premium Program', category: 'pathway' },
+  'golden': { icon: <Diamond size={22} />, color: 'from-amber-500 to-yellow-600', label: 'Golden Program', category: 'pathway' },
   'Premium': { icon: <Crown size={22} />, color: 'from-violet-600 to-purple-700', label: 'Premium Pathway', category: 'pathway' },
   'Gold': { icon: <Diamond size={22} />, color: 'from-amber-500 to-yellow-600', label: 'Gold Pathway', category: 'pathway' },
 };
@@ -49,10 +55,20 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus })
     loadCourses();
   }, []);
 
-  // Split courses into categories
-  const adultCourses = courses.filter(c => ['A1', 'A2', 'B1'].includes(c.level));
-  const kidsCourses = courses.filter(c => c.level === 'Kids');
-  const pathwayCourses = courses.filter(c => ['Premium', 'Gold'].includes(c.level));
+  // Split courses into categories - Updated for new catalog structure
+  const adultCourses = courses.filter(c => 
+    (['A1', 'A2', 'B1', 'B2'].includes(c.level) && c.productType !== 'ebook') ||
+    (c.targetAudience === 'adults_teens' && c.productType === 'learndash')
+  );
+  const kidsCourses = courses.filter(c => 
+    c.level === 'Kids' || 
+    c.level?.startsWith('kids-') ||
+    (c.targetAudience === 'kids' && c.productType === 'learndash')
+  );
+  const pathwayCourses = courses.filter(c => 
+    ['Premium', 'Gold', 'premium', 'golden'].includes(c.level) ||
+    c.productType === 'service'
+  );
 
   // Check if we have database courses or should use fallback
   const hasDbCourses = courses.length > 0;

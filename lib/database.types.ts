@@ -56,7 +56,7 @@ export interface Database {
           id: string;
           title: string;
           description: string;
-          level: 'A1' | 'A2' | 'B1' | 'Kids' | 'Premium' | 'Gold';
+          level: string; // Now allows custom category slugs
           thumbnail_url: string;
           pricing: Json;
           modules: Json;
@@ -67,12 +67,19 @@ export interface Database {
           admin_notes: string | null;
           created_at: string;
           updated_at: string;
+          // New catalog fields
+          product_type: 'ebook' | 'learndash' | 'service';
+          target_audience: 'adults_teens' | 'kids';
+          content_format: 'pdf' | 'interactive' | 'live' | 'hybrid';
+          teaching_materials_price: number | null;
+          teaching_materials_included: boolean;
+          related_materials_id: string | null;
         };
         Insert: {
           id?: string;
           title: string;
           description: string;
-          level: 'A1' | 'A2' | 'B1' | 'Kids' | 'Premium' | 'Gold';
+          level: string;
           thumbnail_url: string;
           pricing: Json;
           modules?: Json;
@@ -83,12 +90,19 @@ export interface Database {
           admin_notes?: string | null;
           created_at?: string;
           updated_at?: string;
+          // New catalog fields
+          product_type?: 'ebook' | 'learndash' | 'service';
+          target_audience?: 'adults_teens' | 'kids';
+          content_format?: 'pdf' | 'interactive' | 'live' | 'hybrid';
+          teaching_materials_price?: number | null;
+          teaching_materials_included?: boolean;
+          related_materials_id?: string | null;
         };
         Update: {
           id?: string;
           title?: string;
           description?: string;
-          level?: 'A1' | 'A2' | 'B1' | 'Kids' | 'Premium' | 'Gold';
+          level?: string;
           thumbnail_url?: string;
           pricing?: Json;
           modules?: Json;
@@ -99,6 +113,13 @@ export interface Database {
           admin_notes?: string | null;
           created_at?: string;
           updated_at?: string;
+          // New catalog fields
+          product_type?: 'ebook' | 'learndash' | 'service';
+          target_audience?: 'adults_teens' | 'kids';
+          content_format?: 'pdf' | 'interactive' | 'live' | 'hybrid';
+          teaching_materials_price?: number | null;
+          teaching_materials_included?: boolean;
+          related_materials_id?: string | null;
         };
       };
       enrollments: {
@@ -268,6 +289,47 @@ export interface Database {
           homework_id?: string | null;
           is_completed?: boolean;
           completed_at?: string | null;
+        };
+      };
+      categories: {
+        Row: {
+          id: string;
+          slug: string;
+          name: string;
+          description: string | null;
+          color: string;
+          icon: string | null;
+          sort_order: number;
+          is_active: boolean;
+          catalog_type: 'level' | 'program' | 'section';
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          slug: string;
+          name: string;
+          description?: string | null;
+          color?: string;
+          icon?: string | null;
+          sort_order?: number;
+          is_active?: boolean;
+          catalog_type?: 'level' | 'program' | 'section';
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          slug?: string;
+          name?: string;
+          description?: string | null;
+          color?: string;
+          icon?: string | null;
+          sort_order?: number;
+          is_active?: boolean;
+          catalog_type?: 'level' | 'program' | 'section';
+          created_at?: string;
+          updated_at?: string;
         };
       };
     };

@@ -16,6 +16,7 @@ import ContactPage from './components/ContactPage';
 import LoginRegisterPage from './components/LoginRegisterPage';
 import CoursesPage from './components/CoursesPage';
 import CourseSyllabusPage from './components/CourseSyllabusPage';
+import EbookDetailPage from './components/EbookDetailPage';
 import CheckoutPage from './components/CheckoutPage';
 import WhatsAppButton from './components/WhatsAppButton';
 import CartBubble from './components/CartBubble';
@@ -99,6 +100,10 @@ const App: React.FC = () => {
         setCurrentPath('syllabus');
         setSelectedCourseId(hash.replace('#syllabus-', ''));
       }
+      else if (hash.startsWith('#ebook-')) {
+        setCurrentPath('ebook');
+        setSelectedCourseId(hash.replace('#ebook-', ''));
+      }
       else if (hash.startsWith('#viewer-')) {
         setCurrentPath('viewer');
         setSelectedCourseId(hash.replace('#viewer-', ''));
@@ -114,6 +119,8 @@ const App: React.FC = () => {
   const navigateTo = (path: string, params?: string) => {
     if (path === 'syllabus' && params) {
       window.location.hash = `#syllabus-${params}`;
+    } else if (path === 'ebook' && params) {
+      window.location.hash = `#ebook-${params}`;
     } else if (path === 'viewer' && params) {
       window.location.hash = `#viewer-${params}`;
     } else if (path === 'admin-course-edit' && params) {
@@ -214,6 +221,16 @@ const App: React.FC = () => {
 
       {currentPath === 'syllabus' && selectedCourseId && (
         <CourseSyllabusPage 
+          courseId={selectedCourseId} 
+          onBack={() => navigateTo('courses')} 
+          onEnroll={enrollNow}
+          onAddToCart={addToCart}
+          isInCart={cart.includes(selectedCourseId)}
+        />
+      )}
+
+      {currentPath === 'ebook' && selectedCourseId && (
+        <EbookDetailPage 
           courseId={selectedCourseId} 
           onBack={() => navigateTo('courses')} 
           onEnroll={enrollNow}
