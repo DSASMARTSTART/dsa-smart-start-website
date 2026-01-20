@@ -261,9 +261,15 @@ export const usersApi = {
     if (filters?.search) {
       query = query.or(`name.ilike.%${filters.search}%,email.ilike.%${filters.search}%`);
     }
+    
+    // Only filter by status if explicitly set (not 'all')
     if (filters?.status && filters.status !== 'all') {
       query = query.eq('status', filters.status);
     }
+    
+    // Note: Don't filter out by status='deleted' - let admins see all users
+    // If you want to hide deleted users, uncomment the line below:
+    // query = query.or('status.neq.deleted,status.is.null');
     
     // Filter by course enrollment
     if (filters?.courseId) {
@@ -291,7 +297,12 @@ export const usersApi = {
       .order('created_at', { ascending: false })
       .range(from, to);
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching users:', error);
+      throw error;
+    }
+    
+    console.log(`Loaded ${data?.length || 0} users (total: ${count})`);
 
     const users = (data || []).map((u: Record<string, unknown>) => toCamelCase<User>(u));
     
