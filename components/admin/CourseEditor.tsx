@@ -508,6 +508,19 @@ const MetadataEditor: React.FC<{
   course: Course;
   onSave: (updates: Partial<Course>) => void;
 }> = ({ course, onSave }) => {
+  const normalizeStringArray = (value: unknown): string[] => {
+    if (!Array.isArray(value)) return [];
+    return value.filter((v): v is string => typeof v === 'string');
+  };
+
+  const normalizeTargetAudienceInfo = (value: unknown): CourseTargetAudience => {
+    const v = value as Partial<CourseTargetAudience> | null | undefined;
+    return {
+      description: typeof v?.description === 'string' ? v.description : '',
+      points: normalizeStringArray(v?.points)
+    };
+  };
+
   const [title, setTitle] = useState(course.draftData?.title || course.title);
   const [description, setDescription] = useState(course.draftData?.description || course.description);
   const [level, setLevel] = useState(course.draftData?.level || course.level);
@@ -541,10 +554,14 @@ const MetadataEditor: React.FC<{
   
   // Extended marketing fields
   const [previewVideoUrl, setPreviewVideoUrl] = useState(course.previewVideoUrl || '');
-  const [learningOutcomes, setLearningOutcomes] = useState<string[]>(course.learningOutcomes || []);
-  const [prerequisites, setPrerequisites] = useState<string[]>(course.prerequisites || []);
-  const [targetAudienceInfo, setTargetAudienceInfo] = useState<CourseTargetAudience>(
-    course.draftData?.targetAudienceInfo || course.targetAudienceInfo || { description: '', points: [] }
+  const [learningOutcomes, setLearningOutcomes] = useState<string[]>(
+    normalizeStringArray(course.draftData?.learningOutcomes ?? course.learningOutcomes)
+  );
+  const [prerequisites, setPrerequisites] = useState<string[]>(
+    normalizeStringArray(course.draftData?.prerequisites ?? course.prerequisites)
+  );
+  const [targetAudienceInfo, setTargetAudienceInfo] = useState<CourseTargetAudience>(() =>
+    normalizeTargetAudienceInfo(course.draftData?.targetAudienceInfo ?? course.targetAudienceInfo)
   );
   const [instructor, setInstructor] = useState<CourseInstructor>(course.instructor || { name: '', title: '', bio: '' });
   const [estimatedWeeklyHours, setEstimatedWeeklyHours] = useState(course.estimatedWeeklyHours || 0);
@@ -667,7 +684,7 @@ const MetadataEditor: React.FC<{
     if (newAudiencePoint.trim()) {
       setTargetAudienceInfo({
         ...targetAudienceInfo,
-        points: [...targetAudienceInfo.points, newAudiencePoint.trim()]
+        points: [...(targetAudienceInfo.points || []), newAudiencePoint.trim()]
       });
       setNewAudiencePoint('');
     }
@@ -676,7 +693,7 @@ const MetadataEditor: React.FC<{
   const removeAudiencePoint = (index: number) => {
     setTargetAudienceInfo({
       ...targetAudienceInfo,
-      points: targetAudienceInfo.points.filter((_, i) => i !== index)
+      points: (targetAudienceInfo.points || []).filter((_, i) => i !== index)
     });
   };
   
@@ -1295,7 +1312,7 @@ const MetadataEditor: React.FC<{
               placeholder="Brief description of who this course is for..."
             />
             <div className="space-y-2">
-              {targetAudienceInfo.points.map((point, i) => (
+              {(targetAudienceInfo.points || []).map((point, i) => (
                 <div key={i} className="flex items-center gap-2 bg-purple-50 px-3 py-2 rounded-xl">
                   <Users size={14} className="text-purple-500 flex-shrink-0" />
                   <span className="text-sm flex-1">{point}</span>
