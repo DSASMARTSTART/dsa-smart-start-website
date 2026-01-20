@@ -314,11 +314,17 @@ export const usersApi = {
     
     if (userError) throw userError;
     
+    // Fetch enrollments with nested course data
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: enrollmentsData } = await (supabase as any)
+    const { data: enrollmentsData, error: enrollmentsError } = await (supabase as any)
       .from('enrollments')
       .select('*, courses(*)')
-      .eq('user_id', id);
+      .eq('user_id', id)
+      .neq('status', 'revoked');
+    
+    if (enrollmentsError) {
+      console.error('Error fetching enrollments:', enrollmentsError);
+    }
     
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: purchasesData } = await (supabase as any)
@@ -328,11 +334,32 @@ export const usersApi = {
 
     const totalSpent = (purchasesData || []).reduce((sum: number, p: { amount: number }) => sum + p.amount, 0);
 
+    // Map enrollments with properly nested course object
+    const enrollments = (enrollmentsData || [])
+      .filter((e: Record<string, unknown>) => e.courses) // Only include enrollments where course exists
+      .map((e: Record<string, unknown>) => {
+        const courseData = e.courses as Record<string, unknown>;
+        return {
+          ...toCamelCase<Enrollment>(e),
+          course: {
+            ...toCamelCase<Course>(courseData),
+            modules: (courseData.modules as Module[]) || [],
+            pricing: courseData.pricing as CoursePricing
+          }
+        };
+      });
+
+    // Calculate progress per course (simplified - would need progress table for real implementation)
+    const progress = enrollments.map(e => ({
+      courseId: e.courseId,
+      percentage: e.status === 'completed' ? 100 : 0
+    }));
+
     return {
       ...toCamelCase<User>(userData),
-      enrollments: (enrollmentsData || []).map((e: Record<string, unknown>) => toCamelCase<Enrollment>(e)),
+      enrollments,
       purchases: (purchasesData || []).map((p: Record<string, unknown>) => toCamelCase<Purchase>(p)),
-      progress: [],
+      progress,
       totalSpent
     } as UserDetail;
   },
