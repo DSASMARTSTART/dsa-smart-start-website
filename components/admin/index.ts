@@ -6,6 +6,7 @@ export { default as AdminCourses } from './AdminCourses';
 export { default as CourseEditor } from './CourseEditor';
 export { default as AdminAudit } from './AdminAudit';
 export { default as AdminDiscountCodes } from './AdminDiscountCodes';
+export { default as AdminTransactions } from './AdminTransactions';
 
 // Re-export UI components
 export * from './AdminUIComponents';

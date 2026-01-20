@@ -146,11 +146,11 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({ onComplete }) => 
 
               <form className="space-y-6" onSubmit={handleSubmit}>
                 <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-600 ml-4">
                     New Password
                   </label>
                   <div className="relative">
-                    <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300" size={20} />
+                    <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                     <input
                       type={showPassword ? "text" : "password"}
                       value={password}
@@ -170,11 +170,11 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({ onComplete }) => 
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-600 ml-4">
                     Confirm New Password
                   </label>
                   <div className="relative">
-                    <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300" size={20} />
+                    <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                     <input
                       type={showConfirmPassword ? "text" : "password"}
                       value={confirmPassword}

@@ -7,7 +7,8 @@ import {
   ArrowLeft, Save, Eye, Upload, Plus, Trash2, GripVertical,
   ChevronDown, ChevronUp, Play, FileText, Link, ExternalLink,
   AlertCircle, CheckCircle, DollarSign, Calendar, Percent, Loader2,
-  Image, X, Users
+  Image, X, Users, Book, Tv, GraduationCap, Users2, FileDown, Globe,
+  Sparkles, BookOpen
 } from 'lucide-react';
 import { 
   Button, Input, Textarea, Select, Modal, ConfirmModal, 
@@ -15,7 +16,7 @@ import {
 } from './AdminUIComponents';
 import { coursesApi, videoHelpers, categoriesApi } from '../../data/supabaseStore';
 import { storageHelpers } from '../../lib/supabase';
-import { Course, Module, Lesson, Homework, VideoLink, CoursePricing, QuizQuestion, QuizOption, QuizQuestionType, CourseInstructor, CourseTargetAudience, Category } from '../../types';
+import { Course, Module, Lesson, Homework, VideoLink, CoursePricing, QuizQuestion, QuizOption, QuizQuestionType, CourseInstructor, CourseTargetAudience, Category, ProductType, TargetAudience, ContentFormat } from '../../types';
 
 interface CourseEditorProps {
   courseId: string;
@@ -27,7 +28,7 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ courseId, onNavigate }) => 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
-  const [activeSection, setActiveSection] = useState<'metadata' | 'pricing' | 'content'>('metadata');
+  const [activeSection, setActiveSection] = useState<'metadata' | 'pricing' | 'content' | 'syllabus'>('metadata');
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
   const [isNewCourse, setIsNewCourse] = useState(false);
 
@@ -354,19 +355,20 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ courseId, onNavigate }) => 
         </div>
       </div>
 
-      {/* Section Tabs */}
-      <div className="flex gap-2 border-b border-gray-100 pb-2">
-        {(['metadata', 'pricing', 'content'] as const).map((section) => (
+      {/* Section Tabs - Content tab only shown for interactive courses */}
+      <div className="flex gap-2 border-b border-gray-100 pb-2 overflow-x-auto">
+        {(['metadata', 'pricing', 'syllabus', ...(course.productType !== 'ebook' ? ['content'] : [])] as const).map((section) => (
           <button
             key={section}
-            onClick={() => setActiveSection(section)}
-            className={`px-6 py-3 rounded-t-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+            onClick={() => setActiveSection(section as 'metadata' | 'pricing' | 'content' | 'syllabus')}
+            className={`px-6 py-3 rounded-t-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
               activeSection === section
                 ? 'bg-purple-50 text-purple-600 border-b-2 border-purple-600'
                 : 'text-gray-500 hover:bg-gray-50'
             }`}
           >
-            {section}
+            {section === 'content' ? (course.productType === 'service' ? 'Schedule' : 'Content') : 
+             section === 'syllabus' ? 'Syllabus Page' : section}
           </button>
         ))}
       </div>
@@ -384,15 +386,27 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ courseId, onNavigate }) => 
         <PricingEditor
           pricing={course.draftData?.pricing || course.pricing}
           onSave={handleSavePricing}
+          productType={course.productType}
+          teachingMaterialsPrice={course.teachingMaterialsPrice}
         />
       )}
 
-      {/* Content Section */}
-      {activeSection === 'content' && (
+      {/* Syllabus Section - For syllabus page content */}
+      {activeSection === 'syllabus' && (
+        <SyllabusEditor
+          course={course}
+          onSave={async (syllabusContent) => {
+            await handleSaveMetadata({ syllabusContent } as Partial<Course>);
+          }}
+        />
+      )}
+
+      {/* Content Section - Only for interactive courses and services */}
+      {activeSection === 'content' && course.productType !== 'ebook' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-black text-gray-900 uppercase tracking-widest">
-              Modules & Lessons
+              {course.productType === 'service' ? 'Course Schedule & Materials' : 'Modules & Lessons'}
             </h2>
             <Button variant="primary" size="sm" icon={Plus} onClick={handleAddModule}>
               Add Module
@@ -401,7 +415,11 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ courseId, onNavigate }) => 
 
           {course.modules.length === 0 ? (
             <div className="bg-gray-50 border-2 border-dashed border-gray-200 rounded-[2rem] p-12 text-center">
-              <p className="text-gray-400 mb-4">No modules yet. Add your first module to get started.</p>
+              <p className="text-gray-400 mb-4">
+                {course.productType === 'service' 
+                  ? 'No schedule yet. Add modules to organize your live course schedule.'
+                  : 'No modules yet. Add your first module to get started.'}
+              </p>
               <Button variant="secondary" icon={Plus} onClick={handleAddModule}>
                 Add Module
               </Button>
@@ -496,6 +514,23 @@ const MetadataEditor: React.FC<{
   const [thumbnailUrl, setThumbnailUrl] = useState(course.draftData?.thumbnailUrl || course.thumbnailUrl);
   const [adminNotes, setAdminNotes] = useState(course.adminNotes || '');
   
+  // Product type fields (NEW)
+  const [productType, setProductType] = useState<ProductType>(course.productType || 'learndash');
+  const [targetAudienceType, setTargetAudienceType] = useState<TargetAudience>(course.targetAudience || 'adults_teens');
+  const [contentFormat, setContentFormat] = useState<ContentFormat>(course.contentFormat || 'interactive');
+  const [teachingMaterialsPrice, setTeachingMaterialsPrice] = useState<number>(course.teachingMaterialsPrice || 50);
+  
+  // E-book specific fields
+  const [ebookPdfUrl, setEbookPdfUrl] = useState<string>((course as any).ebookPdfUrl || '');
+  const [ebookPageCount, setEbookPageCount] = useState<number>((course as any).ebookPageCount || 0);
+  const [uploadingPdf, setUploadingPdf] = useState(false);
+  const [pdfUploadError, setPdfUploadError] = useState('');
+  const pdfInputRef = useRef<HTMLInputElement>(null);
+  
+  // Footer visibility
+  const [showInFooter, setShowInFooter] = useState<boolean>((course as any).showInFooter !== false);
+  const [footerOrder, setFooterOrder] = useState<number>((course as any).footerOrder || 0);
+  
   // Categories state
   const [categories, setCategories] = useState<Category[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
@@ -508,7 +543,9 @@ const MetadataEditor: React.FC<{
   const [previewVideoUrl, setPreviewVideoUrl] = useState(course.previewVideoUrl || '');
   const [learningOutcomes, setLearningOutcomes] = useState<string[]>(course.learningOutcomes || []);
   const [prerequisites, setPrerequisites] = useState<string[]>(course.prerequisites || []);
-  const [targetAudience, setTargetAudience] = useState<CourseTargetAudience>(course.targetAudience || { description: '', points: [] });
+  const [targetAudienceInfo, setTargetAudienceInfo] = useState<CourseTargetAudience>(
+    course.draftData?.targetAudienceInfo || course.targetAudienceInfo || { description: '', points: [] }
+  );
   const [instructor, setInstructor] = useState<CourseInstructor>(course.instructor || { name: '', title: '', bio: '' });
   const [estimatedWeeklyHours, setEstimatedWeeklyHours] = useState(course.estimatedWeeklyHours || 0);
   
@@ -551,7 +588,8 @@ const MetadataEditor: React.FC<{
         name: newCategoryName.trim(),
         color: '#6366f1',
         sortOrder: categories.length + 1,
-        isActive: true
+        isActive: true,
+        catalogType: 'level' // Default to level type for course categories
       });
       setCategories([...categories, newCat]);
       setLevel(newCat.slug);
@@ -627,19 +665,58 @@ const MetadataEditor: React.FC<{
   
   const addAudiencePoint = () => {
     if (newAudiencePoint.trim()) {
-      setTargetAudience({
-        ...targetAudience,
-        points: [...targetAudience.points, newAudiencePoint.trim()]
+      setTargetAudienceInfo({
+        ...targetAudienceInfo,
+        points: [...targetAudienceInfo.points, newAudiencePoint.trim()]
       });
       setNewAudiencePoint('');
     }
   };
   
   const removeAudiencePoint = (index: number) => {
-    setTargetAudience({
-      ...targetAudience,
-      points: targetAudience.points.filter((_, i) => i !== index)
+    setTargetAudienceInfo({
+      ...targetAudienceInfo,
+      points: targetAudienceInfo.points.filter((_, i) => i !== index)
     });
+  };
+  
+  // PDF upload handler for e-books
+  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    // Validate file type
+    if (file.type !== 'application/pdf') {
+      setPdfUploadError('Please select a PDF file');
+      return;
+    }
+    
+    // Validate file size (max 50MB for PDFs)
+    if (file.size > 50 * 1024 * 1024) {
+      setPdfUploadError('PDF must be smaller than 50MB');
+      return;
+    }
+    
+    setUploadingPdf(true);
+    setPdfUploadError('');
+    
+    const { url, error } = await storageHelpers.uploadImage(file, 'ebooks');
+    
+    setUploadingPdf(false);
+    
+    if (error) {
+      setPdfUploadError(error);
+      return;
+    }
+    
+    setEbookPdfUrl(url);
+  };
+  
+  const handleRemovePdf = async () => {
+    if (ebookPdfUrl && storageHelpers.isSupabaseStorageUrl(ebookPdfUrl)) {
+      await storageHelpers.deleteImage(ebookPdfUrl);
+    }
+    setEbookPdfUrl('');
   };
 
   const handleSave = () => {
@@ -649,13 +726,28 @@ const MetadataEditor: React.FC<{
       level, 
       thumbnailUrl, 
       adminNotes,
+      // Product type fields
+      productType,
+      targetAudience: targetAudienceType,
+      contentFormat,
+      teachingMaterialsPrice: productType === 'service' ? teachingMaterialsPrice : undefined,
+      // E-book fields
+      ebookPdfUrl: productType === 'ebook' ? ebookPdfUrl : undefined,
+      ebookPageCount: productType === 'ebook' ? ebookPageCount : undefined,
+      // Footer visibility
+      showInFooter,
+      footerOrder,
+      // Marketing fields
       previewVideoUrl: previewVideoUrl || undefined,
       learningOutcomes: learningOutcomes.length > 0 ? learningOutcomes : undefined,
       prerequisites: prerequisites.length > 0 ? prerequisites : undefined,
-      targetAudience: targetAudience.points.length > 0 ? targetAudience : undefined,
+      targetAudienceInfo:
+        targetAudienceInfo.description || targetAudienceInfo.points.length > 0
+          ? targetAudienceInfo
+          : undefined,
       instructor: instructor.name ? instructor : undefined,
       estimatedWeeklyHours: estimatedWeeklyHours || undefined
-    });
+    } as Partial<Course>);
   };
 
   return (
@@ -740,6 +832,152 @@ const MetadataEditor: React.FC<{
               </div>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Product Type Selection - IMPORTANT: Determines how course is displayed and delivered */}
+      <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 space-y-4 border border-purple-100">
+        <div className="flex items-center gap-2 mb-2">
+          <Globe size={16} className="text-purple-600" />
+          <span className="text-[10px] font-black uppercase tracking-widest text-purple-700">
+            Product Configuration
+          </span>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Product Type */}
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 block">
+              Product Type
+            </label>
+            <div className="grid grid-cols-1 gap-2">
+              {[
+                { value: 'learndash', label: 'Interactive Course', icon: Tv, desc: 'Video lessons, quizzes, modules' },
+                { value: 'service', label: 'Online Course (Live)', icon: GraduationCap, desc: 'Live classes, workshops' },
+                { value: 'ebook', label: 'E-book (PDF)', icon: Book, desc: 'Downloadable PDF' },
+              ].map((type) => (
+                <button
+                  key={type.value}
+                  onClick={() => setProductType(type.value as ProductType)}
+                  className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left ${
+                    productType === type.value
+                      ? 'border-purple-500 bg-purple-50 text-purple-700'
+                      : 'border-gray-200 bg-white hover:border-purple-300'
+                  }`}
+                >
+                  <type.icon size={20} className={productType === type.value ? 'text-purple-600' : 'text-gray-400'} />
+                  <div>
+                    <p className="text-xs font-bold">{type.label}</p>
+                    <p className="text-[10px] text-gray-400">{type.desc}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          {/* Target Audience */}
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 block">
+              Target Audience
+            </label>
+            <div className="grid grid-cols-1 gap-2">
+              {[
+                { value: 'adults_teens', label: 'Adults & Teens', icon: Users2, desc: 'Age 13+' },
+                { value: 'kids', label: 'Kids', icon: Users, desc: 'Age 6-12' },
+              ].map((aud) => (
+                <button
+                  key={aud.value}
+                  onClick={() => setTargetAudienceType(aud.value as TargetAudience)}
+                  className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left ${
+                    targetAudienceType === aud.value
+                      ? 'border-purple-500 bg-purple-50 text-purple-700'
+                      : 'border-gray-200 bg-white hover:border-purple-300'
+                  }`}
+                >
+                  <aud.icon size={20} className={targetAudienceType === aud.value ? 'text-purple-600' : 'text-gray-400'} />
+                  <div>
+                    <p className="text-xs font-bold">{aud.label}</p>
+                    <p className="text-[10px] text-gray-400">{aud.desc}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          {/* Content Format (only for non-ebooks) */}
+          {productType !== 'ebook' && (
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 block">
+                Content Format
+              </label>
+              <div className="grid grid-cols-1 gap-2">
+                {[
+                  { value: 'interactive', label: 'Interactive', desc: 'Self-paced learning' },
+                  { value: 'live', label: 'Live Classes', desc: 'Scheduled sessions' },
+                  { value: 'hybrid', label: 'Hybrid', desc: 'Live + self-paced' },
+                ].map((fmt) => (
+                  <button
+                    key={fmt.value}
+                    onClick={() => setContentFormat(fmt.value as ContentFormat)}
+                    className={`p-3 rounded-xl border-2 transition-all text-left ${
+                      contentFormat === fmt.value
+                        ? 'border-purple-500 bg-purple-50 text-purple-700'
+                        : 'border-gray-200 bg-white hover:border-purple-300'
+                    }`}
+                  >
+                    <p className="text-xs font-bold">{fmt.label}</p>
+                    <p className="text-[10px] text-gray-400">{fmt.desc}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+        
+        {/* Service-specific: Teaching Materials Price */}
+        {productType === 'service' && (
+          <div className="pt-4 border-t border-purple-200">
+            <div className="flex items-center gap-4">
+              <div className="w-48">
+                <Input
+                  label="Teaching Materials Price (€)"
+                  type="number"
+                  value={teachingMaterialsPrice}
+                  onChange={(e) => setTeachingMaterialsPrice(Number(e.target.value))}
+                  placeholder="50"
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-6">
+                Optional add-on price for teaching materials at checkout
+              </p>
+            </div>
+          </div>
+        )}
+        
+        {/* Footer Visibility */}
+        <div className="pt-4 border-t border-purple-200">
+          <div className="flex items-center gap-4">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showInFooter}
+                onChange={(e) => setShowInFooter(e.target.checked)}
+                className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+              />
+              <span className="text-sm font-bold text-gray-700">Show in Footer Links</span>
+            </label>
+            {showInFooter && (
+              <div className="w-32">
+                <Input
+                  label="Order"
+                  type="number"
+                  value={footerOrder}
+                  onChange={(e) => setFooterOrder(Number(e.target.value))}
+                  placeholder="0"
+                />
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -844,6 +1082,126 @@ const MetadataEditor: React.FC<{
         </div>
       </div>
       
+      {/* E-book PDF Upload Section - Only shown for e-book product type */}
+      {productType === 'ebook' && (
+        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-6 space-y-4 border border-blue-100">
+          <div className="flex items-center gap-2 mb-2">
+            <FileDown size={16} className="text-blue-600" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-blue-700">
+              E-book PDF File
+            </span>
+          </div>
+          
+          <div className="flex flex-col md:flex-row gap-4">
+            {/* PDF Preview / Upload Area */}
+            <div 
+              className={`relative w-full md:w-64 h-40 rounded-2xl overflow-hidden border-2 border-dashed transition-all ${
+                ebookPdfUrl 
+                  ? 'border-blue-300 bg-blue-50' 
+                  : 'border-gray-200 hover:border-blue-300 cursor-pointer bg-white'
+              }`}
+              onClick={() => !ebookPdfUrl && pdfInputRef.current?.click()}
+            >
+              {ebookPdfUrl ? (
+                <div className="flex flex-col items-center justify-center h-full text-blue-600">
+                  <Book size={32} className="mb-2" />
+                  <span className="text-xs font-bold">PDF Uploaded</span>
+                  <a 
+                    href={ebookPdfUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-[10px] text-blue-500 underline mt-1"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    Preview PDF
+                  </a>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleRemovePdf(); }}
+                    className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-gray-400">
+                  {uploadingPdf ? (
+                    <Loader2 size={24} className="animate-spin text-blue-600" />
+                  ) : (
+                    <>
+                      <FileDown size={32} className="mb-2" />
+                      <span className="text-xs font-bold">Click to upload PDF</span>
+                      <span className="text-[10px]">Max 50MB</span>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+            
+            {/* PDF Upload Controls */}
+            <div className="flex-1 space-y-3">
+              <input
+                ref={pdfInputRef}
+                type="file"
+                accept=".pdf,application/pdf"
+                onChange={handlePdfUpload}
+                className="hidden"
+              />
+              
+              <div className="flex gap-2">
+                <Button 
+                  variant="secondary" 
+                  size="sm" 
+                  icon={Upload}
+                  onClick={() => pdfInputRef.current?.click()}
+                  loading={uploadingPdf}
+                >
+                  Upload PDF
+                </Button>
+                {ebookPdfUrl && (
+                  <Button 
+                    variant="secondary" 
+                    size="sm" 
+                    icon={Trash2}
+                    onClick={handleRemovePdf}
+                  >
+                    Remove
+                  </Button>
+                )}
+              </div>
+              
+              <div className="text-xs text-gray-400">Or paste a PDF URL (Google Drive, Dropbox, etc.):</div>
+              <Input
+                value={ebookPdfUrl}
+                onChange={(e) => setEbookPdfUrl(e.target.value)}
+                placeholder="https://drive.google.com/... or direct PDF URL"
+              />
+              
+              <div className="w-32">
+                <Input
+                  label="Page Count"
+                  type="number"
+                  value={ebookPageCount || ''}
+                  onChange={(e) => setEbookPageCount(Number(e.target.value))}
+                  placeholder="e.g., 120"
+                />
+              </div>
+              
+              {pdfUploadError && (
+                <div className="flex items-center gap-2 text-red-500 text-xs">
+                  <AlertCircle size={14} />
+                  {pdfUploadError}
+                </div>
+              )}
+              
+              <div className="bg-blue-100 rounded-xl p-3 text-xs text-blue-700">
+                <strong>Note:</strong> For Google Drive files, make sure the sharing is set to "Anyone with the link can view". 
+                The system will handle secure delivery to purchased users only.
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* Preview Video URL */}
       <Input
         label="Preview Video URL (Optional)"
@@ -932,12 +1290,12 @@ const MetadataEditor: React.FC<{
               Target Audience
             </label>
             <Input
-              value={targetAudience.description}
-              onChange={(e) => setTargetAudience({ ...targetAudience, description: e.target.value })}
+              value={targetAudienceInfo.description}
+              onChange={(e) => setTargetAudienceInfo({ ...targetAudienceInfo, description: e.target.value })}
               placeholder="Brief description of who this course is for..."
             />
             <div className="space-y-2">
-              {targetAudience.points.map((point, i) => (
+              {targetAudienceInfo.points.map((point, i) => (
                 <div key={i} className="flex items-center gap-2 bg-purple-50 px-3 py-2 rounded-xl">
                   <Users size={14} className="text-purple-500 flex-shrink-0" />
                   <span className="text-sm flex-1">{point}</span>
@@ -1013,7 +1371,9 @@ const MetadataEditor: React.FC<{
 const PricingEditor: React.FC<{
   pricing: CoursePricing;
   onSave: (pricing: CoursePricing) => void;
-}> = ({ pricing, onSave }) => {
+  productType?: ProductType;
+  teachingMaterialsPrice?: number;
+}> = ({ pricing, onSave, productType, teachingMaterialsPrice }) => {
   const [price, setPrice] = useState(pricing.price);
   const [currency, setCurrency] = useState(pricing.currency);
   const [isFree, setIsFree] = useState(pricing.isFree);
@@ -1182,6 +1542,305 @@ const PricingEditor: React.FC<{
       <div className="flex justify-end">
         <Button variant="primary" onClick={handleSave}>
           Save Pricing
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+// ============================================
+// Syllabus Editor - For editing syllabus page content
+// ============================================
+interface SyllabusUnit {
+  title: string;
+  topics: string[];
+}
+
+interface SyllabusContent {
+  learningOutcomes?: string[];
+  whatYoullFind?: string[];
+  targetAudience?: string[];
+  units?: SyllabusUnit[];
+}
+
+const SyllabusEditor: React.FC<{
+  course: Course;
+  onSave: (syllabusContent: SyllabusContent) => void;
+}> = ({ course, onSave }) => {
+  // Initialize from course data or empty
+  const initialContent = course.syllabusContent || {
+    learningOutcomes: course.learningOutcomes || [],
+    whatYoullFind: [],
+    targetAudience: [],
+    units: []
+  };
+  
+  const [learningOutcomes, setLearningOutcomes] = useState<string[]>(initialContent.learningOutcomes || []);
+  const [whatYoullFind, setWhatYoullFind] = useState<string[]>(initialContent.whatYoullFind || []);
+  const [targetAudience, setTargetAudience] = useState<string[]>(initialContent.targetAudience || []);
+  const [units, setUnits] = useState<SyllabusUnit[]>(initialContent.units || []);
+  
+  // New item inputs
+  const [newOutcome, setNewOutcome] = useState('');
+  const [newFeature, setNewFeature] = useState('');
+  const [newAudience, setNewAudience] = useState('');
+  const [newUnitTitle, setNewUnitTitle] = useState('');
+  const [editingUnitIndex, setEditingUnitIndex] = useState<number | null>(null);
+  const [newTopic, setNewTopic] = useState('');
+  
+  // Expanded sections
+  const [expandedSection, setExpandedSection] = useState<string | null>('outcomes');
+  
+  const addItem = (list: string[], setList: (items: string[]) => void, newItem: string, setNewItem: (s: string) => void) => {
+    if (newItem.trim()) {
+      setList([...list, newItem.trim()]);
+      setNewItem('');
+    }
+  };
+  
+  const removeItem = (list: string[], setList: (items: string[]) => void, index: number) => {
+    setList(list.filter((_, i) => i !== index));
+  };
+  
+  const addUnit = () => {
+    if (newUnitTitle.trim()) {
+      setUnits([...units, { title: newUnitTitle.trim(), topics: [] }]);
+      setNewUnitTitle('');
+    }
+  };
+  
+  const removeUnit = (index: number) => {
+    setUnits(units.filter((_, i) => i !== index));
+    if (editingUnitIndex === index) setEditingUnitIndex(null);
+  };
+  
+  const addTopicToUnit = (unitIndex: number) => {
+    if (newTopic.trim()) {
+      const updated = [...units];
+      updated[unitIndex] = {
+        ...updated[unitIndex],
+        topics: [...updated[unitIndex].topics, newTopic.trim()]
+      };
+      setUnits(updated);
+      setNewTopic('');
+    }
+  };
+  
+  const removeTopicFromUnit = (unitIndex: number, topicIndex: number) => {
+    const updated = [...units];
+    updated[unitIndex] = {
+      ...updated[unitIndex],
+      topics: updated[unitIndex].topics.filter((_, i) => i !== topicIndex)
+    };
+    setUnits(updated);
+  };
+  
+  const handleSave = () => {
+    onSave({
+      learningOutcomes: learningOutcomes.length > 0 ? learningOutcomes : undefined,
+      whatYoullFind: whatYoullFind.length > 0 ? whatYoullFind : undefined,
+      targetAudience: targetAudience.length > 0 ? targetAudience : undefined,
+      units: units.length > 0 ? units : undefined
+    });
+  };
+  
+  const SectionHeader: React.FC<{ id: string; title: string; count: number; icon: React.ReactNode }> = ({ id, title, count, icon }) => (
+    <button
+      onClick={() => setExpandedSection(expandedSection === id ? null : id)}
+      className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+    >
+      <div className="flex items-center gap-3">
+        <div className="p-2 bg-purple-100 rounded-lg text-purple-600">
+          {icon}
+        </div>
+        <span className="font-bold text-gray-700">{title}</span>
+        <span className="text-xs bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full">{count}</span>
+      </div>
+      {expandedSection === id ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+    </button>
+  );
+
+  return (
+    <div className="bg-white rounded-[2rem] border border-gray-100 p-8 space-y-6">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-lg font-black text-gray-900 uppercase tracking-widest">Syllabus Page Content</h2>
+          <p className="text-xs text-gray-400 mt-1">Configure what appears on the public syllabus/detail page for this course</p>
+        </div>
+        <Button variant="secondary" size="sm" icon={Eye} onClick={() => window.location.hash = `#syllabus-${course.id}`}>
+          Preview
+        </Button>
+      </div>
+      
+      {/* Learning Outcomes Section */}
+      <div className="space-y-3">
+        <SectionHeader id="outcomes" title="Learning Outcomes" count={learningOutcomes.length} icon={<CheckCircle size={16} />} />
+        {expandedSection === 'outcomes' && (
+          <div className="pl-4 space-y-3 animate-reveal">
+            <p className="text-xs text-gray-400">What students will achieve by completing this course</p>
+            <div className="space-y-2">
+              {learningOutcomes.map((outcome, i) => (
+                <div key={i} className="flex items-center gap-2 bg-green-50 px-3 py-2 rounded-xl">
+                  <CheckCircle size={14} className="text-green-500 flex-shrink-0" />
+                  <span className="text-sm flex-1">{outcome}</span>
+                  <button onClick={() => removeItem(learningOutcomes, setLearningOutcomes, i)} className="text-gray-400 hover:text-red-500">
+                    <X size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <Input
+                value={newOutcome}
+                onChange={(e) => setNewOutcome(e.target.value)}
+                placeholder="Add a learning outcome..."
+                onKeyDown={(e) => e.key === 'Enter' && addItem(learningOutcomes, setLearningOutcomes, newOutcome, setNewOutcome)}
+              />
+              <Button variant="secondary" size="sm" onClick={() => addItem(learningOutcomes, setLearningOutcomes, newOutcome, setNewOutcome)}>Add</Button>
+            </div>
+          </div>
+        )}
+      </div>
+      
+      {/* What You'll Find Section */}
+      <div className="space-y-3">
+        <SectionHeader id="features" title="What You'll Find" count={whatYoullFind.length} icon={<Sparkles size={16} />} />
+        {expandedSection === 'features' && (
+          <div className="pl-4 space-y-3 animate-reveal">
+            <p className="text-xs text-gray-400">Features and materials included in this course</p>
+            <div className="space-y-2">
+              {whatYoullFind.map((feature, i) => (
+                <div key={i} className="flex items-center gap-2 bg-blue-50 px-3 py-2 rounded-xl">
+                  <Sparkles size={14} className="text-blue-500 flex-shrink-0" />
+                  <span className="text-sm flex-1">{feature}</span>
+                  <button onClick={() => removeItem(whatYoullFind, setWhatYoullFind, i)} className="text-gray-400 hover:text-red-500">
+                    <X size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <Input
+                value={newFeature}
+                onChange={(e) => setNewFeature(e.target.value)}
+                placeholder="Add a feature..."
+                onKeyDown={(e) => e.key === 'Enter' && addItem(whatYoullFind, setWhatYoullFind, newFeature, setNewFeature)}
+              />
+              <Button variant="secondary" size="sm" onClick={() => addItem(whatYoullFind, setWhatYoullFind, newFeature, setNewFeature)}>Add</Button>
+            </div>
+          </div>
+        )}
+      </div>
+      
+      {/* Target Audience Section */}
+      <div className="space-y-3">
+        <SectionHeader id="audience" title="Target Audience" count={targetAudience.length} icon={<Users size={16} />} />
+        {expandedSection === 'audience' && (
+          <div className="pl-4 space-y-3 animate-reveal">
+            <p className="text-xs text-gray-400">Who this course is designed for</p>
+            <div className="space-y-2">
+              {targetAudience.map((audience, i) => (
+                <div key={i} className="flex items-center gap-2 bg-purple-50 px-3 py-2 rounded-xl">
+                  <Users size={14} className="text-purple-500 flex-shrink-0" />
+                  <span className="text-sm flex-1">{audience}</span>
+                  <button onClick={() => removeItem(targetAudience, setTargetAudience, i)} className="text-gray-400 hover:text-red-500">
+                    <X size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <Input
+                value={newAudience}
+                onChange={(e) => setNewAudience(e.target.value)}
+                placeholder="Add target audience..."
+                onKeyDown={(e) => e.key === 'Enter' && addItem(targetAudience, setTargetAudience, newAudience, setNewAudience)}
+              />
+              <Button variant="secondary" size="sm" onClick={() => addItem(targetAudience, setTargetAudience, newAudience, setNewAudience)}>Add</Button>
+            </div>
+          </div>
+        )}
+      </div>
+      
+      {/* Course Units/Curriculum Section */}
+      <div className="space-y-3">
+        <SectionHeader id="units" title="Course Units (Curriculum)" count={units.length} icon={<BookOpen size={16} />} />
+        {expandedSection === 'units' && (
+          <div className="pl-4 space-y-4 animate-reveal">
+            <p className="text-xs text-gray-400">The curriculum structure shown on the syllabus page</p>
+            
+            {/* Existing Units */}
+            <div className="space-y-3">
+              {units.map((unit, unitIndex) => (
+                <div key={unitIndex} className="bg-gray-50 rounded-xl p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="w-8 h-8 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center text-sm font-bold">
+                        {unitIndex + 1}
+                      </span>
+                      <span className="font-bold text-gray-700">{unit.title}</span>
+                      <span className="text-xs text-gray-400">({unit.topics.length} topics)</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setEditingUnitIndex(editingUnitIndex === unitIndex ? null : unitIndex)}
+                        className="p-1.5 hover:bg-purple-100 rounded-lg text-gray-400 hover:text-purple-600"
+                      >
+                        {editingUnitIndex === unitIndex ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                      </button>
+                      <button
+                        onClick={() => removeUnit(unitIndex)}
+                        className="p-1.5 hover:bg-pink-100 rounded-lg text-gray-400 hover:text-pink-600"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Topics (expanded) */}
+                  {editingUnitIndex === unitIndex && (
+                    <div className="pl-11 space-y-2">
+                      {unit.topics.map((topic, topicIndex) => (
+                        <div key={topicIndex} className="flex items-center gap-2 text-sm text-gray-600">
+                          <span className="w-1.5 h-1.5 bg-purple-400 rounded-full" />
+                          <span className="flex-1">{topic}</span>
+                          <button onClick={() => removeTopicFromUnit(unitIndex, topicIndex)} className="text-gray-400 hover:text-red-500">
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ))}
+                      <div className="flex gap-2 mt-2">
+                        <Input
+                          value={newTopic}
+                          onChange={(e) => setNewTopic(e.target.value)}
+                          placeholder="Add topic..."
+                          onKeyDown={(e) => e.key === 'Enter' && addTopicToUnit(unitIndex)}
+                        />
+                        <Button variant="secondary" size="sm" onClick={() => addTopicToUnit(unitIndex)}>Add</Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            
+            {/* Add New Unit */}
+            <div className="flex gap-2 pt-2 border-t border-gray-200">
+              <Input
+                value={newUnitTitle}
+                onChange={(e) => setNewUnitTitle(e.target.value)}
+                placeholder="New unit title..."
+                onKeyDown={(e) => e.key === 'Enter' && addUnit()}
+              />
+              <Button variant="primary" size="sm" icon={Plus} onClick={addUnit}>Add Unit</Button>
+            </div>
+          </div>
+        )}
+      </div>
+      
+      <div className="flex justify-end pt-4 border-t border-gray-100">
+        <Button variant="primary" onClick={handleSave}>
+          Save Syllabus Content
         </Button>
       </div>
     </div>

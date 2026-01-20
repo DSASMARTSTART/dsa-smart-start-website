@@ -142,6 +142,12 @@ export interface Course {
   teachingMaterialsPrice?: number;  // €50 for services
   teachingMaterialsIncluded: boolean;  // User's choice at checkout
   relatedMaterialsId?: string;  // Links service to its materials product
+  // ---------- E-book specific fields ----------
+  ebookPdfUrl?: string;  // URL to the PDF file (Supabase Storage or external)
+  ebookPageCount?: number;  // Number of pages in the e-book
+  // ---------- Footer visibility fields ----------
+  showInFooter?: boolean;  // Whether to show this product in the footer
+  footerOrder?: number;  // Order in footer (lower = first)
   // ---------- Extended marketing fields ----------
   learningOutcomes?: string[];
   prerequisites?: string[];
@@ -150,6 +156,16 @@ export interface Course {
   estimatedWeeklyHours?: number;
   totalStudentsEnrolled?: number;
   previewVideoUrl?: string;
+  // ---------- Syllabus content for dynamic pages ----------
+  syllabusContent?: {
+    learningOutcomes?: string[];
+    whatYoullFind?: string[];
+    targetAudience?: string[];
+    units?: Array<{
+      title: string;
+      topics: string[];
+    }>;
+  };
 }
 
 // ---------- Enrollment & Progress Types ----------
@@ -167,6 +183,9 @@ export interface Purchase {
   userId: string;
   courseId: string;
   amount: number;
+  originalAmount?: number;
+  discountAmount?: number;
+  discountCodeId?: string;
   currency: string;
   purchasedAt: string;
   paymentMethod?: string;
@@ -192,6 +211,7 @@ export type AuditAction =
   | 'user_notes_updated'
   | 'course_created'
   | 'course_updated'
+  | 'course_deleted'
   | 'course_published'
   | 'course_unpublished'
   | 'pricing_updated'

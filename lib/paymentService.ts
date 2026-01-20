@@ -240,10 +240,12 @@ export class PayPalPayment {
     this.config = getPaymentConfig().paypal;
   }
 
-  // Load PayPal SDK
+  // Load PayPal SDK with timeout
   async loadSDK(): Promise<boolean> {
     if (this.sdkLoaded) return true;
     if (!this.config.isConfigured) return false;
+
+    const TIMEOUT_MS = 15000; // 15 second timeout
 
     return new Promise((resolve) => {
       // Check if already loaded
@@ -253,14 +255,45 @@ export class PayPalPayment {
         return;
       }
 
+      // Check if script tag already exists
+      const existingScript = document.querySelector(`script[src*="paypal.com/sdk/js"]`);
+      if (existingScript) {
+        // Wait for existing script to load
+        const checkInterval = setInterval(() => {
+          if (window.paypal) {
+            clearInterval(checkInterval);
+            this.sdkLoaded = true;
+            resolve(true);
+          }
+        }, 100);
+        // Timeout for existing script
+        setTimeout(() => {
+          clearInterval(checkInterval);
+          if (!this.sdkLoaded) {
+            console.error('PayPal SDK loading timeout (existing script)');
+            resolve(false);
+          }
+        }, TIMEOUT_MS);
+        return;
+      }
+
       const script = document.createElement('script');
       script.src = `https://www.paypal.com/sdk/js?client-id=${this.config.clientId}&currency=EUR&intent=capture`;
       script.async = true;
+      
+      // Set up timeout
+      const timeoutId = setTimeout(() => {
+        console.error('PayPal SDK loading timeout');
+        resolve(false);
+      }, TIMEOUT_MS);
+
       script.onload = () => {
+        clearTimeout(timeoutId);
         this.sdkLoaded = true;
         resolve(true);
       };
       script.onerror = () => {
+        clearTimeout(timeoutId);
         console.error('Failed to load PayPal SDK');
         resolve(false);
       };

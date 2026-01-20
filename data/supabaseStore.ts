@@ -133,6 +133,109 @@ export const authApi = {
   canAccessAdmin: async (): Promise<boolean> => {
     const user = await getCurrentUser();
     return user?.role === 'admin' || user?.role === 'editor';
+  },
+
+  /**
+   * Create a guest user account for checkout
+   * Creates an account with a temporary password and sends password reset email
+   * Returns the user ID to use for purchases
+   */
+  createGuestCheckout: async (email: string, name: string): Promise<{ success: boolean; userId?: string; error?: string }> => {
+    try {
+      // First check if user already exists in our users table
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: existingUser } = await (supabase as any)
+        .from('users')
+        .select('id')
+        .eq('email', email.toLowerCase())
+        .single();
+
+      if (existingUser) {
+        // User exists - they should log in instead
+        return { 
+          success: false, 
+          error: 'An account with this email already exists. Please log in to complete your purchase.' 
+        };
+      }
+
+      // Generate a secure random password (user will reset it via email)
+      const tempPassword = crypto.randomUUID() + '!' + Math.random().toString(36).substring(2);
+      
+      // Create the auth user
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password: tempPassword,
+        options: {
+          data: { name },
+          // Don't send confirmation email - we'll send password reset instead
+          emailRedirectTo: `${window.location.origin}/#reset-password`
+        }
+      });
+
+      if (authError) {
+        console.error('Auth signup error:', authError);
+        return { success: false, error: authError.message };
+      }
+
+      if (!authData.user) {
+        return { success: false, error: 'Failed to create account' };
+      }
+
+      const userId = authData.user.id;
+
+      // Create user profile in users table
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error: profileError } = await (supabase as any)
+        .from('users')
+        .insert({
+          id: userId,
+          email: email.toLowerCase(),
+          name: name || email.split('@')[0],
+          role: 'student',
+          status: 'active',
+          created_at: now(),
+          updated_at: now(),
+          last_activity_at: now()
+        });
+
+      if (profileError) {
+        console.error('Profile creation error:', profileError);
+        // Continue anyway - auth user was created
+      }
+
+      // Send password reset email so user can set their password
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/#reset-password`
+      });
+
+      if (resetError) {
+        console.error('Password reset email error:', resetError);
+        // Don't fail the purchase - just log the error
+      }
+
+      return { success: true, userId };
+    } catch (err) {
+      console.error('Guest checkout error:', err);
+      return { success: false, error: 'Failed to create guest account' };
+    }
+  },
+
+  /**
+   * Find user by email (for guest checkout lookup)
+   */
+  findUserByEmail: async (email: string): Promise<User | null> => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data } = await (supabase as any)
+        .from('users')
+        .select('*')
+        .eq('email', email.toLowerCase())
+        .single();
+      
+      return data ? toCamelCase<User>(data) : null;
+    } catch {
+      return null;
+    }
   }
 };
 
@@ -274,15 +377,16 @@ export const usersApi = {
     await createAuditLog('user_notes_updated', 'user', id, `User role changed to ${role}`);
   },
 
-  revokeEnrollment: async (userId: string, enrollmentId: string): Promise<void> => {
+  revokeEnrollment: async (userId: string, courseId: string): Promise<void> => {
+    // Find the enrollment by user_id and course_id
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase as any)
       .from('enrollments')
       .update({ status: 'revoked' })
-      .eq('id', enrollmentId)
+      .eq('course_id', courseId)
       .eq('user_id', userId);
     if (error) throw error;
-    await createAuditLog('enrollment_revoked', 'enrollment', enrollmentId, 'Enrollment revoked');
+    await createAuditLog('enrollment_revoked', 'enrollment', `${userId}-${courseId}`, 'Enrollment revoked');
   },
 
   updateAdminNotes: async (id: string, notes: string): Promise<void> => {
@@ -507,7 +611,22 @@ export const coursesApi = {
       contentFormat: (data.content_format as ContentFormat) || 'interactive',
       teachingMaterialsPrice: data.teaching_materials_price as number | undefined,
       teachingMaterialsIncluded: (data.teaching_materials_included as boolean) || false,
-      relatedMaterialsId: data.related_materials_id as string | undefined
+      relatedMaterialsId: data.related_materials_id as string | undefined,
+      // E-book fields
+      ebookPdfUrl: data.ebook_pdf_url as string | undefined,
+      ebookPageCount: data.ebook_page_count as number | undefined,
+      // Footer visibility
+      showInFooter: data.show_in_footer !== false,
+      footerOrder: data.footer_order || 0,
+      // Marketing fields
+      learningOutcomes: data.learning_outcomes || [],
+      prerequisites: data.prerequisites || [],
+      targetAudienceInfo: data.target_audience_info || undefined,
+      instructor: data.instructor || undefined,
+      estimatedWeeklyHours: data.estimated_weekly_hours || undefined,
+      previewVideoUrl: data.preview_video_url || undefined,
+      totalStudentsEnrolled: data.total_students_enrolled || 0,
+      syllabusContent: data.syllabus_content || undefined
     };
   },
 
@@ -539,7 +658,22 @@ export const coursesApi = {
       contentFormat: (c.content_format as ContentFormat) || 'interactive',
       teachingMaterialsPrice: c.teaching_materials_price as number | undefined,
       teachingMaterialsIncluded: (c.teaching_materials_included as boolean) || false,
-      relatedMaterialsId: c.related_materials_id as string | undefined
+      relatedMaterialsId: c.related_materials_id as string | undefined,
+      // E-book fields
+      ebookPdfUrl: c.ebook_pdf_url as string | undefined,
+      ebookPageCount: c.ebook_page_count as number | undefined,
+      // Footer visibility
+      showInFooter: c.show_in_footer !== false,
+      footerOrder: (c.footer_order as number) || 0,
+      // Marketing fields
+      learningOutcomes: c.learning_outcomes || [],
+      prerequisites: c.prerequisites || [],
+      targetAudienceInfo: c.target_audience_info || undefined,
+      instructor: c.instructor || undefined,
+      estimatedWeeklyHours: c.estimated_weekly_hours || undefined,
+      previewVideoUrl: c.preview_video_url || undefined,
+      totalStudentsEnrolled: (c.total_students_enrolled as number) || 0,
+      syllabusContent: c.syllabus_content || undefined
     }));
   },
 
@@ -600,6 +734,21 @@ export const coursesApi = {
     if (updates.teachingMaterialsPrice !== undefined) dbUpdates.teaching_materials_price = updates.teachingMaterialsPrice;
     if (updates.teachingMaterialsIncluded !== undefined) dbUpdates.teaching_materials_included = updates.teachingMaterialsIncluded;
     if (updates.relatedMaterialsId !== undefined) dbUpdates.related_materials_id = updates.relatedMaterialsId;
+    // E-book specific fields
+    if ((updates as any).ebookPdfUrl !== undefined) dbUpdates.ebook_pdf_url = (updates as any).ebookPdfUrl;
+    if ((updates as any).ebookPageCount !== undefined) dbUpdates.ebook_page_count = (updates as any).ebookPageCount;
+    // Footer visibility fields
+    if ((updates as any).showInFooter !== undefined) dbUpdates.show_in_footer = (updates as any).showInFooter;
+    if ((updates as any).footerOrder !== undefined) dbUpdates.footer_order = (updates as any).footerOrder;
+    // Marketing fields
+    if (updates.learningOutcomes !== undefined) dbUpdates.learning_outcomes = updates.learningOutcomes;
+    if (updates.prerequisites !== undefined) dbUpdates.prerequisites = updates.prerequisites;
+    if ((updates as any).targetAudienceInfo !== undefined) dbUpdates.target_audience_info = (updates as any).targetAudienceInfo;
+    if (updates.instructor !== undefined) dbUpdates.instructor = updates.instructor;
+    if (updates.estimatedWeeklyHours !== undefined) dbUpdates.estimated_weekly_hours = updates.estimatedWeeklyHours;
+    if (updates.previewVideoUrl !== undefined) dbUpdates.preview_video_url = updates.previewVideoUrl;
+    // Syllabus content
+    if (updates.syllabusContent !== undefined) dbUpdates.syllabus_content = updates.syllabusContent;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase as any)
@@ -621,7 +770,17 @@ export const coursesApi = {
       contentFormat: (data.content_format as ContentFormat) || 'interactive',
       teachingMaterialsPrice: data.teaching_materials_price as number | undefined,
       teachingMaterialsIncluded: (data.teaching_materials_included as boolean) || false,
-      relatedMaterialsId: data.related_materials_id as string | undefined
+      relatedMaterialsId: data.related_materials_id as string | undefined,
+      ebookPdfUrl: data.ebook_pdf_url as string | undefined,
+      ebookPageCount: data.ebook_page_count as number | undefined,
+      showInFooter: data.show_in_footer !== false,
+      footerOrder: data.footer_order || 0,
+      learningOutcomes: data.learning_outcomes || [],
+      prerequisites: data.prerequisites || [],
+      targetAudienceInfo: data.target_audience_info || undefined,
+      instructor: data.instructor || undefined,
+      estimatedWeeklyHours: data.estimated_weekly_hours || undefined,
+      previewVideoUrl: data.preview_video_url || undefined
     };
   },
 
@@ -707,9 +866,41 @@ export const coursesApi = {
     };
   },
 
+  delete: async (id: string): Promise<void> => {
+    clearCoursesCache(); // Invalidate cache
+    
+    // First, get the course title for audit log
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: course } = await (supabase as any)
+      .from('courses')
+      .select('title')
+      .eq('id', id)
+      .single();
+    
+    // Delete related enrollments first (foreign key constraint)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error: enrollmentsError } = await (supabase as any)
+      .from('enrollments')
+      .delete()
+      .eq('course_id', id);
+
+    if (enrollmentsError) throw enrollmentsError;
+    
+    // Delete the course
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase as any)
+      .from('courses')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+
+    await createAuditLog('course_deleted', 'course', id, `Course "${course?.title || id}" deleted`);
+  },
+
   // Module operations
   addModule: async (courseId: string, module: Omit<Module, 'id' | 'order'>): Promise<Course> => {
-    const course = await coursesApi.getById(courseId);
+    const course = await coursesApi.getByIdForAdmin(courseId);
     if (!course) throw new Error('Course not found');
 
     const newModule: Module = {
@@ -742,7 +933,7 @@ export const coursesApi = {
   },
 
   updateModule: async (courseId: string, moduleId: string, updates: Partial<Module>): Promise<Course> => {
-    const course = await coursesApi.getById(courseId);
+    const course = await coursesApi.getByIdForAdmin(courseId);
     if (!course) throw new Error('Course not found');
 
     const modules = course.modules.map(m => m.id === moduleId ? { ...m, ...updates } : m);
@@ -766,7 +957,7 @@ export const coursesApi = {
   },
 
   deleteModule: async (courseId: string, moduleId: string): Promise<Course> => {
-    const course = await coursesApi.getById(courseId);
+    const course = await coursesApi.getByIdForAdmin(courseId);
     if (!course) throw new Error('Course not found');
 
     const modules = course.modules.filter(m => m.id !== moduleId);
@@ -791,7 +982,7 @@ export const coursesApi = {
 
   // Lesson operations
   addLesson: async (courseId: string, moduleId: string, lesson: Omit<Lesson, 'id' | 'order'>): Promise<Course> => {
-    const course = await coursesApi.getById(courseId);
+    const course = await coursesApi.getByIdForAdmin(courseId);
     if (!course) throw new Error('Course not found');
 
     const modules = course.modules.map(m => {
@@ -818,7 +1009,7 @@ export const coursesApi = {
   },
 
   updateLesson: async (courseId: string, moduleId: string, lessonId: string, updates: Partial<Lesson>): Promise<Course> => {
-    const course = await coursesApi.getById(courseId);
+    const course = await coursesApi.getByIdForAdmin(courseId);
     if (!course) throw new Error('Course not found');
 
     const modules = course.modules.map(m => {
@@ -845,7 +1036,7 @@ export const coursesApi = {
   },
 
   deleteLesson: async (courseId: string, moduleId: string, lessonId: string): Promise<Course> => {
-    const course = await coursesApi.getById(courseId);
+    const course = await coursesApi.getByIdForAdmin(courseId);
     if (!course) throw new Error('Course not found');
 
     const modules = course.modules.map(m => {
@@ -872,7 +1063,7 @@ export const coursesApi = {
 
   // Homework operations
   addHomework: async (courseId: string, moduleId: string, homework: Omit<Homework, 'id' | 'order'>): Promise<Course> => {
-    const course = await coursesApi.getById(courseId);
+    const course = await coursesApi.getByIdForAdmin(courseId);
     if (!course) throw new Error('Course not found');
 
     const modules = course.modules.map(m => {
@@ -899,7 +1090,7 @@ export const coursesApi = {
   },
 
   updateHomework: async (courseId: string, moduleId: string, homeworkId: string, updates: Partial<Homework>): Promise<Course> => {
-    const course = await coursesApi.getById(courseId);
+    const course = await coursesApi.getByIdForAdmin(courseId);
     if (!course) throw new Error('Course not found');
 
     const modules = course.modules.map(m => {
@@ -926,7 +1117,7 @@ export const coursesApi = {
   },
 
   deleteHomework: async (courseId: string, moduleId: string, homeworkId: string): Promise<Course> => {
-    const course = await coursesApi.getById(courseId);
+    const course = await coursesApi.getByIdForAdmin(courseId);
     if (!course) throw new Error('Course not found');
 
     const modules = course.modules.map(m => {
@@ -1090,10 +1281,16 @@ export const purchasesApi = {
     userId: string;
     courseId: string;
     amount: number;
+    originalAmount?: number;
+    discountAmount?: number;
+    discountCodeId?: string;
     currency: string;
     paymentMethod: string;
     transactionId?: string;
     discountCode?: string;
+    includeTeachingMaterials?: boolean;
+    teachingMaterialsAmount?: number;
+    guestEmail?: string; // For tracking guest discount code uses
   }): Promise<Purchase> => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase as any)
@@ -1102,27 +1299,68 @@ export const purchasesApi = {
         user_id: purchaseData.userId,
         course_id: purchaseData.courseId,
         amount: purchaseData.amount,
+        original_amount: purchaseData.originalAmount || purchaseData.amount,
+        discount_amount: purchaseData.discountAmount || 0,
+        discount_code_id: purchaseData.discountCodeId || null,
         currency: purchaseData.currency,
         payment_method: purchaseData.paymentMethod,
         transaction_id: purchaseData.transactionId || crypto.randomUUID(),
-        discount_code: purchaseData.discountCode
+        include_teaching_materials: purchaseData.includeTeachingMaterials || false,
+        teaching_materials_amount: purchaseData.teachingMaterialsAmount || 0,
       })
       .select()
       .single();
 
     if (error) throw error;
 
-    // Increment discount code usage if one was applied
-    if (purchaseData.discountCode) {
+    // Record discount code usage if one was applied (for per-user tracking)
+    if (purchaseData.discountCodeId) {
       try {
-        // Extract just the code (remove percentage/amount text like "CODE10 (10% OFF)")
-        const codeOnly = purchaseData.discountCode.split(' ')[0].trim();
-        
+        // Insert into discount_code_uses table for per-user tracking
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (supabase as any).rpc('increment_discount_usage', { code_to_update: codeOnly });
+        await (supabase as any)
+          .from('discount_code_uses')
+          .insert({
+            discount_code_id: purchaseData.discountCodeId,
+            user_id: purchaseData.userId,
+            guest_email: purchaseData.guestEmail?.toLowerCase() || null,
+            purchase_id: data.id
+          });
+      } catch (useError) {
+        console.warn('Failed to record discount code use:', useError);
+        // Continue anyway - the primary purchase was successful
+      }
+    }
+
+    // Increment discount code usage if one was applied
+    if (purchaseData.discountCodeId) {
+      try {
+        // Use RPC to atomically increment the usage count
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (supabase as any).rpc('increment_discount_usage_by_id', { 
+          code_id: purchaseData.discountCodeId 
+        });
       } catch (discountError) {
-        // Log but don't fail the purchase if discount increment fails
-        console.error('Failed to increment discount code usage:', discountError);
+        console.warn('RPC increment failed, trying direct update:', discountError);
+        // Fallback: direct SQL increment
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const { data: currentCode } = await (supabase as any)
+            .from('discount_codes')
+            .select('times_used')
+            .eq('id', purchaseData.discountCodeId)
+            .single();
+          
+          if (currentCode) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            await (supabase as any)
+              .from('discount_codes')
+              .update({ times_used: (currentCode.times_used || 0) + 1 })
+              .eq('id', purchaseData.discountCodeId);
+          }
+        } catch (e) {
+          console.error('Failed to increment discount code usage:', e);
+        }
       }
     }
 

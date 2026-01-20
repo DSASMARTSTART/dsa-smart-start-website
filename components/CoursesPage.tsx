@@ -401,6 +401,7 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [internalCart, setInternalCart] = useState<Course[]>([]);
   const [activeTab, setActiveTab] = useState<CatalogTab>('interactive'); // Default to Interactive Courses
@@ -441,6 +442,7 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
 
   useEffect(() => {
     const loadCourses = async () => {
+      setLoadError(null);
       try {
         const data = await coursesApi.list({ isPublished: true });
         console.log('Loaded courses:', data?.length || 0, 'courses');
@@ -448,12 +450,28 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
       } catch (error) {
         console.error("Failed to load courses", error);
         setCourses([]); // Ensure we set empty array on error
+        setLoadError('Unable to load courses. Please check your connection and try again.');
       } finally {
         setLoading(false);
       }
     };
     loadCourses();
   }, []);
+
+  // Retry function for manual retry
+  const retryLoadCourses = async () => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const data = await coursesApi.list({ isPublished: true });
+      setCourses(data || []);
+    } catch (error) {
+      console.error("Failed to load courses on retry", error);
+      setLoadError('Unable to load courses. Please check your connection and try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -515,10 +533,72 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
 
   if (loading) {
     return (
+      <div className="min-h-screen bg-white">
+        {/* Hero Skeleton */}
+        <div className="relative w-full min-h-[70vh] flex flex-col items-center justify-center bg-gradient-to-b from-[#fff5fd] via-[#fffbfd] to-white pt-36 pb-24">
+          <div className="flex flex-col items-center gap-8 animate-pulse">
+            <div className="h-4 w-48 bg-gray-200 rounded-full"></div>
+            <div className="flex gap-4">
+              <div className="h-16 sm:h-24 w-48 sm:w-64 bg-gray-200 rounded-2xl"></div>
+              <div className="h-16 sm:h-24 w-56 sm:w-72 bg-purple-200 rounded-2xl"></div>
+            </div>
+            <div className="h-6 w-96 max-w-full bg-gray-100 rounded-full"></div>
+            <div className="h-14 w-48 bg-purple-200 rounded-full mt-4"></div>
+          </div>
+        </div>
+        
+        {/* Course Cards Skeleton */}
+        <div className="max-w-7xl mx-auto px-6 py-20">
+          <div className="flex items-center gap-6 mb-12 animate-pulse">
+            <div className="h-4 w-32 bg-gray-200 rounded-full"></div>
+            <div className="h-[1px] flex-grow bg-gray-200"></div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white rounded-[2rem] border border-gray-100 p-8 animate-pulse">
+                <div className="flex items-start justify-between mb-6">
+                  <div className="w-14 h-14 bg-gray-200 rounded-2xl"></div>
+                  <div className="h-6 w-16 bg-gray-100 rounded-full"></div>
+                </div>
+                <div className="h-6 w-3/4 bg-gray-200 rounded-lg mb-3"></div>
+                <div className="h-4 w-full bg-gray-100 rounded mb-2"></div>
+                <div className="h-4 w-2/3 bg-gray-100 rounded mb-6"></div>
+                <div className="flex gap-2 mb-6">
+                  <div className="h-6 w-20 bg-purple-100 rounded-full"></div>
+                  <div className="h-6 w-24 bg-purple-100 rounded-full"></div>
+                </div>
+                <div className="flex items-center justify-between pt-6 border-t border-gray-100">
+                  <div className="h-8 w-20 bg-gray-200 rounded-lg"></div>
+                  <div className="h-10 w-28 bg-purple-200 rounded-full"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[#AB8FFF] border-t-purple-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-500 font-medium">Loading courses...</p>
+        <div className="text-center max-w-md mx-auto px-6">
+          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg className="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-3">Oops! Something went wrong</h2>
+          <p className="text-gray-500 mb-6">{loadError}</p>
+          <button
+            onClick={retryLoadCourses}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold rounded-full hover:shadow-lg transition-all hover:scale-105"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Try Again
+          </button>
         </div>
       </div>
     );
@@ -570,27 +650,6 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
 
         <WaveSeparator />
       </div>
-
-      {/* Floating Cart */}
-      {cartIds.length > 0 && (
-        <div className="fixed bottom-6 right-6 z-50 bg-white rounded-2xl shadow-2xl border border-gray-100 p-4 animate-reveal">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-[#AB8FFF] rounded-xl flex items-center justify-center text-white">
-              <ShoppingCart size={20} />
-            </div>
-            <div>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">{cartIds.length} course{cartIds.length > 1 ? 's' : ''} in cart</p>
-              <p className="text-xl font-black text-gray-900">€{cartTotal.toFixed(2)}</p>
-            </div>
-            <button 
-              onClick={() => onNavigate?.('checkout')}
-              className="ml-4 bg-[#AB8FFF] text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-[#9a7eef] transition-all"
-            >
-              Checkout
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Course Listing */}
       <div id="courses-grid" className="max-w-7xl mx-auto px-6 py-24">

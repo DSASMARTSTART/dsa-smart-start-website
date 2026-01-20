@@ -40,18 +40,22 @@ interface CoursesSectionProps {
 const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus }) => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const loadCourses = async () => {
+    setLoadError(null);
+    try {
+      const data = await coursesApi.list({ isPublished: true });
+      setCourses(data);
+    } catch (error) {
+      console.error('Error loading courses:', error);
+      setLoadError('Unable to load courses');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadCourses = async () => {
-      try {
-        const data = await coursesApi.list({ isPublished: true });
-        setCourses(data);
-      } catch (error) {
-        console.error('Error loading courses:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
     loadCourses();
   }, []);
 
@@ -87,8 +91,12 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus })
     return (
       <div 
         key={course.id} 
-        className={`group relative bg-white rounded-[2rem] p-4 pb-10 border border-gray-100 shadow-sm hover:shadow-2xl hover:shadow-${shadowColor}/20 transition-all duration-500 overflow-hidden cursor-pointer`}
+        role="button"
+        tabIndex={0}
+        aria-label={`View details for ${course.title}`}
+        className={`group relative bg-white rounded-[2rem] p-4 pb-10 border border-gray-100 shadow-sm hover:shadow-2xl hover:shadow-${shadowColor}/20 transition-all duration-500 overflow-hidden cursor-pointer focus:outline-none focus:ring-4 focus:ring-purple-300 focus:ring-offset-2`}
         onClick={() => handleViewDetails(course)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleViewDetails(course); } }}
       >
         <div className="relative w-full aspect-[3/4] rounded-[1.5rem] overflow-hidden mb-8 bg-gray-100">
           {course.thumbnailUrl ? (
@@ -186,8 +194,52 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus })
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 size={32} className="animate-spin text-purple-600" />
+          <div className="py-12">
+            {/* Section Header Skeleton */}
+            <div className="flex items-center gap-6 mb-12 animate-pulse">
+              <div className="h-4 w-28 bg-gray-200 rounded-full"></div>
+              <div className="h-[1px] flex-grow bg-gray-200"></div>
+            </div>
+            {/* Course Cards Skeleton */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-white rounded-[2rem] border border-gray-100 p-8 animate-pulse" style={{ animationDelay: `${i * 0.1}s` }}>
+                  <div className="flex items-start justify-between mb-6">
+                    <div className="w-14 h-14 bg-gray-200 rounded-2xl"></div>
+                    <div className="h-6 w-16 bg-gray-100 rounded-full"></div>
+                  </div>
+                  <div className="h-6 w-3/4 bg-gray-200 rounded-lg mb-3"></div>
+                  <div className="h-4 w-full bg-gray-100 rounded mb-2"></div>
+                  <div className="h-4 w-2/3 bg-gray-100 rounded mb-6"></div>
+                  <div className="flex gap-2 mb-6">
+                    <div className="h-6 w-20 bg-purple-100 rounded-full"></div>
+                    <div className="h-6 w-24 bg-purple-100 rounded-full"></div>
+                  </div>
+                  <div className="flex items-center justify-between pt-6 border-t border-gray-100">
+                    <div className="h-8 w-20 bg-gray-200 rounded-lg"></div>
+                    <div className="h-10 w-28 bg-purple-200 rounded-full"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : loadError ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+              <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <p className="text-gray-500 mb-4">{loadError}</p>
+            <button
+              onClick={() => { setLoading(true); loadCourses(); }}
+              className="inline-flex items-center gap-2 px-5 py-2 bg-purple-600 text-white text-sm font-bold rounded-full hover:bg-purple-700 transition-all"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Retry
+            </button>
           </div>
         ) : (
           <>

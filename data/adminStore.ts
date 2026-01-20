@@ -690,7 +690,12 @@ export const coursesApi = {
       isPublished: false,
       isDraft: true,
       createdAt: now(),
-      updatedAt: now()
+      updatedAt: now(),
+      // Required catalog fields
+      productType: courseData?.productType || 'learndash',
+      targetAudience: courseData?.targetAudience || 'adults_teens',
+      contentFormat: courseData?.contentFormat || 'interactive',
+      teachingMaterialsIncluded: courseData?.teachingMaterialsIncluded || false,
     };
 
     courses.push(newCourse);

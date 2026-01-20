@@ -2,7 +2,7 @@
 // Admin Audit Log
 // ============================================
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   History, Filter, ChevronRight, User, BookOpen, FileText,
   AlertCircle, Check, RefreshCw
@@ -218,18 +218,40 @@ const AuditDetailModal: React.FC<{
   log: AuditLog;
   onClose: () => void;
 }> = ({ log, onClose }) => {
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  
+  // Focus the close button when modal opens
+  useEffect(() => {
+    closeButtonRef.current?.focus();
+  }, []);
+  
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+    <div 
+      className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="audit-detail-title"
+      onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
+    >
+      <div 
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm" 
+        onClick={onClose}
+        role="button"
+        tabIndex={0}
+        aria-label="Close modal"
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClose(); } }}
+      />
       
       <div className="relative bg-white rounded-[2rem] shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden animate-reveal">
         <div className="flex items-center justify-between px-8 py-6 border-b border-gray-100">
-          <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight">
+          <h2 id="audit-detail-title" className="text-xl font-black text-gray-900 uppercase tracking-tight">
             Audit Details
           </h2>
           <button
+            ref={closeButtonRef}
             onClick={onClose}
             className="p-2 hover:bg-gray-50 rounded-xl transition-colors"
+            aria-label="Close modal"
           >
             ✕
           </button>

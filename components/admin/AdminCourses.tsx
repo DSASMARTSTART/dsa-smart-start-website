@@ -5,10 +5,11 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Search, Plus, Edit, Eye, ChevronRight, DollarSign,
-  Users, BarChart, ToggleLeft, ToggleRight, Image
+  Users, BarChart, ToggleLeft, ToggleRight, Image, Trash2,
+  ChevronLeft
 } from 'lucide-react';
 import { 
-  DataTable, StatusBadge, ProgressBar, Button, Select
+  DataTable, StatusBadge, ProgressBar, Button, Select, ConfirmModal
 } from './AdminUIComponents';
 import { coursesApi } from '../../data/supabaseStore';
 import { Course, CourseFilters } from '../../types';
@@ -17,27 +18,48 @@ interface AdminCoursesProps {
   onNavigate: (path: string, params?: string) => void;
 }
 
+const ITEMS_PER_PAGE = 10;
+
 const AdminCourses: React.FC<AdminCoursesProps> = ({ onNavigate }) => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<CourseFilters>({ search: '' });
   const [enrollmentCounts, setEnrollmentCounts] = useState<Record<string, number>>({});
   const [avgProgress, setAvgProgress] = useState<Record<string, number>>({});
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCourses, setTotalCourses] = useState(0);
+  
+  // Delete confirmation state
+  const [deleteTarget, setDeleteTarget] = useState<Course | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     loadCourses();
+  }, [filters, currentPage]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
   }, [filters]);
 
   const loadCourses = async () => {
     setLoading(true);
     try {
       const data = await coursesApi.list(filters);
-      setCourses(data);
+      setTotalCourses(data.length);
+      
+      // Apply pagination
+      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+      const paginatedData = data.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+      setCourses(paginatedData);
       
       // Load enrollment counts and progress for each course
       const counts: Record<string, number> = {};
       const progress: Record<string, number> = {};
-      for (const course of data) {
+      for (const course of paginatedData) {
         counts[course.id] = await coursesApi.getEnrollmentCount(course.id);
         progress[course.id] = await coursesApi.getAvgProgress(course.id);
       }
@@ -62,6 +84,29 @@ const AdminCourses: React.FC<AdminCoursesProps> = ({ onNavigate }) => {
       console.error('Error toggling publish:', error);
     }
   };
+
+  const handleDeleteClick = (course: Course) => {
+    setDeleteTarget(course);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    
+    setDeleting(true);
+    try {
+      await coursesApi.delete(deleteTarget.id);
+      setShowDeleteConfirm(false);
+      setDeleteTarget(null);
+      loadCourses();
+    } catch (error) {
+      console.error('Error deleting course:', error);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const totalPages = Math.ceil(totalCourses / ITEMS_PER_PAGE);
 
   const formatPrice = (course: Course) => {
     if (course.pricing.isFree) return 'FREE';
@@ -144,9 +189,9 @@ const AdminCourses: React.FC<AdminCoursesProps> = ({ onNavigate }) => {
     {
       key: 'actions',
       header: '',
-      width: '150px',
+      width: '180px',
       render: (course: Course) => (
-        <div className="flex items-center gap-2 justify-end">
+        <div className="flex items-center gap-1 justify-end">
           <button
             onClick={(e) => { e.stopPropagation(); onNavigate('admin-course-edit', course.id); }}
             className="p-2 hover:bg-purple-50 rounded-xl text-gray-400 hover:text-purple-600 transition-all"
@@ -172,6 +217,13 @@ const AdminCourses: React.FC<AdminCoursesProps> = ({ onNavigate }) => {
           >
             {course.isPublished ? <ToggleRight size={16} /> : <ToggleLeft size={16} />}
           </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); handleDeleteClick(course); }}
+            className="p-2 hover:bg-red-50 rounded-xl text-gray-400 hover:text-red-600 transition-all"
+            title="Delete course"
+          >
+            <Trash2 size={16} />
+          </button>
         </div>
       )
     }
@@ -196,7 +248,7 @@ const AdminCourses: React.FC<AdminCoursesProps> = ({ onNavigate }) => {
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <div className="bg-white rounded-2xl border border-gray-100 p-5">
           <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Total Courses</p>
-          <p className="text-2xl font-black text-gray-900">{courses.length}</p>
+          <p className="text-2xl font-black text-gray-900">{totalCourses}</p>
         </div>
         <div className="bg-white rounded-2xl border border-gray-100 p-5">
           <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Published</p>
@@ -209,7 +261,7 @@ const AdminCourses: React.FC<AdminCoursesProps> = ({ onNavigate }) => {
         <div className="bg-white rounded-2xl border border-gray-100 p-5">
           <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Total Enrollments</p>
           <p className="text-2xl font-black text-purple-600">
-            {courses.reduce((sum, c) => sum + coursesApi.getEnrollmentCount(c.id), 0)}
+            {(Object.values(enrollmentCounts) as number[]).reduce((sum, count) => sum + count, 0)}
           </p>
         </div>
       </div>
@@ -258,6 +310,57 @@ const AdminCourses: React.FC<AdminCoursesProps> = ({ onNavigate }) => {
         onRowClick={(course) => onNavigate('admin-course-edit', course.id)}
         loading={loading}
         emptyMessage="No courses found"
+      />
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between bg-white rounded-2xl border border-gray-100 p-4">
+          <p className="text-sm text-gray-500">
+            Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, totalCourses)} of {totalCourses} courses
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="p-2 rounded-xl border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            >
+              <ChevronLeft size={18} />
+            </button>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`w-9 h-9 rounded-xl text-sm font-bold transition-all ${
+                    page === currentPage
+                      ? 'bg-purple-600 text-white'
+                      : 'hover:bg-gray-100 text-gray-600'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="p-2 rounded-xl border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            >
+              <ChevronRight size={18} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        title="Delete Course"
+        message={`Are you sure you want to delete "${deleteTarget?.title}"? This will also remove all enrollments and student progress. This action cannot be undone.`}
+        confirmLabel={deleting ? "Deleting..." : "Delete Course"}
+        confirmVariant="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => { setShowDeleteConfirm(false); setDeleteTarget(null); }}
       />
     </div>
   );

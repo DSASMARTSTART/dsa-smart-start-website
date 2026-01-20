@@ -1,15 +1,33 @@
-
-import React, { useEffect, useState } from 'react';
-import { Mail, Phone, MapPin, Instagram, Users, MonitorPlay, FileText, Crown, Diamond } from 'lucide-react';
+import React, { useEffect, useState, useMemo } from 'react';
+import { Mail, Phone, MapPin, Instagram, Users, MonitorPlay, FileText, Crown, Diamond, ChevronRight } from 'lucide-react';
 import { coursesApi } from '../data/supabaseStore';
-import { Course } from '../types';
+import { Course, ProductType, TargetAudience } from '../types';
 
 interface FooterProps {
   onNavigate?: (path: string) => void;
 }
 
+// Maximum links per category before showing "View All"
+const MAX_LINKS_PER_CATEGORY = 6;
+
+// Icons for different product types
+const PRODUCT_ICONS: Record<ProductType, React.ReactNode> = {
+  'service': <Users size={16} className="text-violet-400" />,
+  'learndash': <MonitorPlay size={16} className="text-purple-400" />,
+  'ebook': <FileText size={16} className="text-pink-400" />
+};
+
+// Level icons for special programs
+const LEVEL_ICONS: Record<string, React.ReactNode> = {
+  'premium': <Crown size={12} className="text-violet-400" />,
+  'golden': <Diamond size={12} className="text-amber-400" />,
+  'Premium': <Crown size={12} className="text-violet-400" />,
+  'Gold': <Diamond size={12} className="text-amber-400" />
+};
+
 const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadCourses = async () => {
@@ -18,6 +36,8 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         setCourses(data || []);
       } catch (error) {
         console.error('Footer: Failed to load courses', error);
+      } finally {
+        setLoading(false);
       }
     };
     loadCourses();
@@ -30,21 +50,96 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
     }
   };
 
-  // Helper to find course by level and type
-  const findCourse = (level: string, productType: string) => {
-    return courses.find(c => c.level === level && c.productType === productType);
+  // Navigate to course detail page
+  const goToCourse = (course: Course) => {
+    const route = course.productType === 'ebook' 
+      ? `#ebook-${course.id}` 
+      : `#syllabus-${course.id}`;
+    window.location.hash = route;
   };
 
-  // Navigate to course detail page
-  const goToCourse = (level: string, productType: string) => {
-    const course = findCourse(level, productType);
-    if (course) {
-      const route = productType === 'ebook' ? `#ebook-${course.id}` : `#syllabus-${course.id}`;
-      window.location.hash = route;
-    } else {
-      // Fallback to courses page
-      window.location.hash = '#courses';
-    }
+  // Navigate to courses page with filter
+  const goToCoursesFiltered = (productType?: ProductType, audience?: TargetAudience) => {
+    let hash = '#courses';
+    const params: string[] = [];
+    if (productType) params.push(`type=${productType}`);
+    if (audience) params.push(`audience=${audience}`);
+    if (params.length > 0) hash += `?${params.join('&')}`;
+    window.location.hash = hash;
+  };
+
+  // Group courses dynamically by productType and targetAudience
+  const groupedCourses = useMemo(() => {
+    // Filter courses that should appear in footer
+    const footerCourses = courses.filter(c => c.showInFooter !== false && c.isPublished);
+    
+    // Sort by footerOrder (lower first), then by title
+    const sorted = [...footerCourses].sort((a, b) => {
+      const orderA = a.footerOrder ?? 999;
+      const orderB = b.footerOrder ?? 999;
+      if (orderA !== orderB) return orderA - orderB;
+      return a.title.localeCompare(b.title);
+    });
+
+    // Group by productType
+    const services = sorted.filter(c => c.productType === 'service');
+    const interactive = sorted.filter(c => c.productType === 'learndash');
+    const ebooks = sorted.filter(c => c.productType === 'ebook');
+
+    // Further split interactive and ebooks by target audience
+    const interactiveAdults = interactive.filter(c => c.targetAudience === 'adults_teens');
+    const interactiveKids = interactive.filter(c => c.targetAudience === 'kids');
+    const ebooksAdults = ebooks.filter(c => c.targetAudience === 'adults_teens');
+    const ebooksKids = ebooks.filter(c => c.targetAudience === 'kids');
+
+    return {
+      services,
+      interactiveAdults,
+      interactiveKids,
+      ebooksAdults,
+      ebooksKids,
+      totalInteractive: interactive.length,
+      totalEbooks: ebooks.length
+    };
+  }, [courses]);
+
+  // Helper to render course links with limit
+  const renderCourseLinks = (
+    courseList: Course[], 
+    maxItems: number = MAX_LINKS_PER_CATEGORY,
+    showViewAll: boolean = false,
+    viewAllProductType?: ProductType,
+    viewAllAudience?: TargetAudience
+  ) => {
+    const displayCourses = courseList.slice(0, maxItems);
+    const hasMore = courseList.length > maxItems;
+
+    return (
+      <>
+        {displayCourses.map(course => (
+          <li key={course.id}>
+            <button 
+              onClick={() => goToCourse(course)} 
+              className="hover:text-purple-400 transition-colors text-left flex items-center gap-2"
+            >
+              {LEVEL_ICONS[course.level] || null}
+              <span className="truncate max-w-[180px]">{course.title}</span>
+            </button>
+          </li>
+        ))}
+        {(hasMore || showViewAll) && (
+          <li>
+            <button 
+              onClick={() => goToCoursesFiltered(viewAllProductType, viewAllAudience)} 
+              className="hover:text-purple-400 transition-colors text-left flex items-center gap-1 text-purple-400 font-medium mt-1"
+            >
+              View All
+              <ChevronRight size={14} />
+            </button>
+          </li>
+        )}
+      </>
+    );
   };
 
   return (
@@ -57,7 +152,15 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             The first program in the world specifically designed for those living with dyslexia, helping them achieve amazing results and make learning fun.
           </p>
           <div className="flex gap-4">
-            <a href="https://www.instagram.com/dsasmartstart/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-purple-600 transition-colors" aria-label="Follow us on Instagram"><Instagram size={18} /></a>
+            <a 
+              href="https://www.instagram.com/dsasmartstart/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-purple-600 transition-colors" 
+              aria-label="Follow us on Instagram"
+            >
+              <Instagram size={18} />
+            </a>
           </div>
         </div>
 
@@ -74,59 +177,122 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           </ul>
         </div>
 
-        {/* Online & Interactive Courses */}
+        {/* Online & Interactive Courses - Dynamic */}
         <div>
-          <h4 className="text-white font-bold mb-4 flex items-center gap-2">
-            <Users size={16} className="text-violet-400" />
-            Online Courses
-          </h4>
-          <ul className="space-y-3 text-sm mb-6">
-            <li>
-              <button onClick={() => goToCourse('premium', 'service')} className="hover:text-purple-400 transition-colors text-left flex items-center gap-2">
-                <Crown size={12} className="text-violet-400" />
-                Premium Program
-              </button>
-            </li>
-            <li>
-              <button onClick={() => goToCourse('golden', 'service')} className="hover:text-purple-400 transition-colors text-left flex items-center gap-2">
-                <Diamond size={12} className="text-amber-400" />
-                Golden Program
-              </button>
-            </li>
-          </ul>
+          {/* Online Courses (Services) */}
+          {groupedCourses.services.length > 0 && (
+            <>
+              <h4 className="text-white font-bold mb-4 flex items-center gap-2">
+                {PRODUCT_ICONS['service']}
+                Online Courses
+              </h4>
+              <ul className="space-y-3 text-sm mb-6">
+                {renderCourseLinks(
+                  groupedCourses.services, 
+                  MAX_LINKS_PER_CATEGORY, 
+                  false, 
+                  'service'
+                )}
+              </ul>
+            </>
+          )}
           
-          <h4 className="text-white font-bold mb-4 flex items-center gap-2">
-            <MonitorPlay size={16} className="text-purple-400" />
-            Interactive Courses
-          </h4>
-          <ul className="space-y-2 text-sm">
-            <li><button onClick={() => goToCourse('A1', 'learndash')} className="hover:text-purple-400 transition-colors text-left">A1 Beginner</button></li>
-            <li><button onClick={() => goToCourse('A2', 'learndash')} className="hover:text-purple-400 transition-colors text-left">A2 Elementary</button></li>
-            <li><button onClick={() => goToCourse('B1', 'learndash')} className="hover:text-purple-400 transition-colors text-left">B1 Intermediate</button></li>
-            <li><button onClick={() => goToCourse('kids-basic', 'learndash')} className="hover:text-purple-400 transition-colors text-left">Kids Basic</button></li>
-            <li><button onClick={() => goToCourse('kids-medium', 'learndash')} className="hover:text-purple-400 transition-colors text-left">Kids Medium</button></li>
-            <li><button onClick={() => goToCourse('kids-advanced', 'learndash')} className="hover:text-purple-400 transition-colors text-left">Kids Advanced</button></li>
-          </ul>
+          {/* Interactive Courses */}
+          {groupedCourses.totalInteractive > 0 && (
+            <>
+              <h4 className="text-white font-bold mb-4 flex items-center gap-2">
+                {PRODUCT_ICONS['learndash']}
+                Interactive Courses
+              </h4>
+              
+              {/* Adults & Teens */}
+              {groupedCourses.interactiveAdults.length > 0 && (
+                <>
+                  <p className="text-xs text-gray-500 mb-2 uppercase tracking-wider">Adults & Teens</p>
+                  <ul className="space-y-2 text-sm mb-4">
+                    {renderCourseLinks(
+                      groupedCourses.interactiveAdults, 
+                      3, 
+                      groupedCourses.interactiveAdults.length > 3, 
+                      'learndash', 
+                      'adults_teens'
+                    )}
+                  </ul>
+                </>
+              )}
+              
+              {/* Kids */}
+              {groupedCourses.interactiveKids.length > 0 && (
+                <>
+                  <p className="text-xs text-gray-500 mb-2 uppercase tracking-wider">Kids</p>
+                  <ul className="space-y-2 text-sm">
+                    {renderCourseLinks(
+                      groupedCourses.interactiveKids, 
+                      3, 
+                      groupedCourses.interactiveKids.length > 3, 
+                      'learndash', 
+                      'kids'
+                    )}
+                  </ul>
+                </>
+              )}
+            </>
+          )}
         </div>
 
-        {/* E-books Column */}
+        {/* E-books Column - Dynamic */}
         <div>
-          <h4 className="text-white font-bold mb-4 flex items-center gap-2">
-            <FileText size={16} className="text-pink-400" />
-            E-books
-          </h4>
-          <p className="text-xs text-gray-500 mb-2 uppercase tracking-wider">Adults & Teens</p>
-          <ul className="space-y-2 text-sm mb-4">
-            <li><button onClick={() => goToCourse('A1', 'ebook')} className="hover:text-purple-400 transition-colors text-left">A1 Beginner E-book</button></li>
-            <li><button onClick={() => goToCourse('A2', 'ebook')} className="hover:text-purple-400 transition-colors text-left">A2 Elementary E-book</button></li>
-            <li><button onClick={() => goToCourse('B1', 'ebook')} className="hover:text-purple-400 transition-colors text-left">B1 Intermediate E-book</button></li>
-          </ul>
-          <p className="text-xs text-gray-500 mb-2 uppercase tracking-wider">Kids</p>
-          <ul className="space-y-2 text-sm">
-            <li><button onClick={() => goToCourse('kids-basic', 'ebook')} className="hover:text-purple-400 transition-colors text-left">Kids Basic E-book</button></li>
-            <li><button onClick={() => goToCourse('kids-medium', 'ebook')} className="hover:text-purple-400 transition-colors text-left">Kids Medium E-book</button></li>
-            <li><button onClick={() => goToCourse('kids-advanced', 'ebook')} className="hover:text-purple-400 transition-colors text-left">Kids Advanced E-book</button></li>
-          </ul>
+          {groupedCourses.totalEbooks > 0 && (
+            <>
+              <h4 className="text-white font-bold mb-4 flex items-center gap-2">
+                {PRODUCT_ICONS['ebook']}
+                E-books
+              </h4>
+              
+              {/* Adults & Teens */}
+              {groupedCourses.ebooksAdults.length > 0 && (
+                <>
+                  <p className="text-xs text-gray-500 mb-2 uppercase tracking-wider">Adults & Teens</p>
+                  <ul className="space-y-2 text-sm mb-4">
+                    {renderCourseLinks(
+                      groupedCourses.ebooksAdults, 
+                      3, 
+                      groupedCourses.ebooksAdults.length > 3, 
+                      'ebook', 
+                      'adults_teens'
+                    )}
+                  </ul>
+                </>
+              )}
+              
+              {/* Kids */}
+              {groupedCourses.ebooksKids.length > 0 && (
+                <>
+                  <p className="text-xs text-gray-500 mb-2 uppercase tracking-wider">Kids</p>
+                  <ul className="space-y-2 text-sm">
+                    {renderCourseLinks(
+                      groupedCourses.ebooksKids, 
+                      3, 
+                      groupedCourses.ebooksKids.length > 3, 
+                      'ebook', 
+                      'kids'
+                    )}
+                  </ul>
+                </>
+              )}
+            </>
+          )}
+
+          {/* Show placeholder if no ebooks */}
+          {groupedCourses.totalEbooks === 0 && !loading && (
+            <div>
+              <h4 className="text-white font-bold mb-4 flex items-center gap-2">
+                {PRODUCT_ICONS['ebook']}
+                E-books
+              </h4>
+              <p className="text-xs text-gray-500">Coming soon...</p>
+            </div>
+          )}
         </div>
 
         {/* Contact Column */}
@@ -145,7 +311,11 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <MapPin size={16} className="text-purple-500 shrink-0" />
               Viale Bonaria, 90, 09125 Cagliari
             </li>
-            <li className="pt-4"><button onClick={() => handleLinkClick('faq')} className="hover:text-purple-400 transition-colors">Support & FAQ</button></li>
+            <li className="pt-4">
+              <button onClick={() => handleLinkClick('faq')} className="hover:text-purple-400 transition-colors">
+                Support & FAQ
+              </button>
+            </li>
           </ul>
         </div>
       </div>

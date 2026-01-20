@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { Rocket, Clock, ChevronRight, Star, BookOpen, Layout, Zap, Layers, Compass, Music, CheckCircle2, LogIn } from 'lucide-react';
+import { Rocket, Clock, ChevronRight, Star, BookOpen, Layout, Zap, Layers, Compass, Music, CheckCircle2, LogIn, Download, FileText } from 'lucide-react';
 import { enrollmentsApi } from '../data/supabaseStore';
 import { Course, Enrollment } from '../types';
 import { useAuth } from '../contexts/AuthContext';
@@ -31,10 +31,16 @@ interface EnrolledCourse extends Course {
   totalItems: number;
 }
 
+// Interface for purchased e-books
+interface PurchasedEbook extends Course {
+  enrollment: Enrollment;
+}
+
 const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
   const { user: authUser, profile, loading: authLoading } = useAuth();
   const { progress } = useUserProgress(); // Now using hook directly - only loads when Dashboard is rendered
   const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
+  const [purchasedEbooks, setPurchasedEbooks] = useState<PurchasedEbook[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Get the authenticated user ID
@@ -66,23 +72,37 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
         
         if (isCancelled) return;
         
-        // Map to EnrolledCourse format
-        const courses: EnrolledCourse[] = enrollmentsWithCourses.map(({ course, ...enrollment }) => {
-          // Calculate total items (lessons + homework)
-          let totalItems = 0;
-          (course.modules || []).forEach(m => {
-            totalItems += (m.lessons || []).length;
-            totalItems += (m.homework || []).length;
-          });
-          
-          return {
-            ...course,
-            enrollment: enrollment as Enrollment,
-            totalItems: Math.max(totalItems, 1) // Minimum 1 to avoid division by zero
-          };
+        // Separate e-books from interactive courses
+        const ebooks: PurchasedEbook[] = [];
+        const courses: EnrolledCourse[] = [];
+        
+        enrollmentsWithCourses.forEach(({ course, ...enrollment }) => {
+          // Check if it's an e-book (PDF product)
+          if (course.productType === 'ebook' || course.contentFormat === 'pdf') {
+            ebooks.push({
+              ...course,
+              enrollment: enrollment as Enrollment
+            });
+          } else {
+            // Interactive course - calculate total items
+            let totalItems = 0;
+            (course.modules || []).forEach(m => {
+              totalItems += (m.lessons || []).length;
+              totalItems += (m.homework || []).length;
+            });
+            
+            courses.push({
+              ...course,
+              enrollment: enrollment as Enrollment,
+              totalItems: Math.max(totalItems, 1) // Minimum 1 to avoid division by zero
+            });
+          }
         });
 
-        if (!isCancelled) setEnrolledCourses(courses);
+        if (!isCancelled) {
+          setEnrolledCourses(courses);
+          setPurchasedEbooks(ebooks);
+        }
       } catch (error) {
         console.error('Error loading enrolled courses:', error);
       } finally {
@@ -249,6 +269,87 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
                 </div>
               </div>
             )}
+
+            {/* My E-books Section */}
+            {purchasedEbooks.length > 0 && (
+              <div className="mt-12">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-black text-gray-900 uppercase tracking-widest flex items-center gap-3">
+                    <FileText size={20} className="text-emerald-600" />
+                    My E-books
+                  </h2>
+                  <span className="text-xs font-bold text-gray-400">{purchasedEbooks.length} {purchasedEbooks.length === 1 ? 'e-book' : 'e-books'}</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {purchasedEbooks.map((ebook, idx) => {
+                    // Get download URL from the first module's first lesson or homework PDF
+                    const downloadUrl = ebook.modules?.[0]?.lessons?.[0]?.pdfUrl 
+                      || ebook.modules?.[0]?.homework?.[0]?.pdfUrl
+                      || '';
+                    
+                    return (
+                      <div 
+                        key={ebook.id} 
+                        className="group bg-white rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-500 overflow-hidden animate-reveal"
+                        style={{ animationDelay: `${idx * 0.1}s` }}
+                      >
+                        {/* E-book Cover */}
+                        <div className="relative h-48 bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center">
+                          {ebook.thumbnailUrl ? (
+                            <img 
+                              src={ebook.thumbnailUrl} 
+                              alt={ebook.title}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <FileText size={64} className="text-emerald-200" />
+                          )}
+                          <div className="absolute top-4 right-4 px-3 py-1 bg-emerald-500 text-white text-[9px] font-black uppercase tracking-widest rounded-full">
+                            PDF
+                          </div>
+                        </div>
+
+                        {/* E-book Info */}
+                        <div className="p-6">
+                          <h3 className="text-lg font-black text-gray-900 uppercase tracking-tight mb-2 line-clamp-2">
+                            {ebook.title}
+                          </h3>
+                          <p className="text-xs text-gray-500 mb-4 line-clamp-2">
+                            {ebook.description}
+                          </p>
+
+                          {/* Download Button */}
+                          {downloadUrl ? (
+                            <a
+                              href={downloadUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-emerald-600 text-white font-black text-[10px] uppercase tracking-widest hover:bg-emerald-700 transition-all active:scale-95"
+                            >
+                              <Download size={14} />
+                              Download E-book
+                            </a>
+                          ) : (
+                            <button
+                              disabled
+                              className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gray-200 text-gray-500 font-black text-[10px] uppercase tracking-widest cursor-not-allowed"
+                            >
+                              <Download size={14} />
+                              Coming Soon
+                            </button>
+                          )}
+
+                          <p className="text-[9px] text-gray-400 text-center mt-3">
+                            Purchased {new Date(ebook.enrollment.enrolledAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Sidebar - Stats & Activity */}
@@ -279,6 +380,17 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
                     <p className="text-xl font-black text-gray-900">{enrolledCourses.length}</p>
                   </div>
                 </div>
+                {purchasedEbooks.length > 0 && (
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 border border-emerald-100">
+                      <FileText size={18} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest">E-books Owned</p>
+                      <p className="text-xl font-black text-gray-900">{purchasedEbooks.length}</p>
+                    </div>
+                  </div>
+                )}
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 bg-pink-50 rounded-xl flex items-center justify-center text-pink-600 border border-pink-100">
                     <Rocket size={18} />

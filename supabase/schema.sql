@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS courses (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   title TEXT NOT NULL,
   description TEXT NOT NULL,
-  level TEXT NOT NULL CHECK (level IN ('A1', 'A2', 'B1', 'Kids', 'Premium', 'Gold')),
+  level TEXT NOT NULL,
   thumbnail_url TEXT NOT NULL,
   pricing JSONB NOT NULL DEFAULT '{"price": 0, "currency": "EUR", "isFree": true}',
   modules JSONB NOT NULL DEFAULT '[]',
@@ -44,12 +44,39 @@ CREATE TABLE IF NOT EXISTS courses (
   published_at TIMESTAMPTZ,
   admin_notes TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  -- Product type fields
+  product_type TEXT NOT NULL DEFAULT 'learndash' CHECK (product_type IN ('ebook', 'learndash', 'service')),
+  target_audience TEXT NOT NULL DEFAULT 'adults_teens' CHECK (target_audience IN ('adults_teens', 'kids')),
+  content_format TEXT NOT NULL DEFAULT 'interactive' CHECK (content_format IN ('pdf', 'interactive', 'live', 'hybrid')),
+  teaching_materials_price DECIMAL(10, 2),
+  teaching_materials_included BOOLEAN NOT NULL DEFAULT false,
+  related_materials_id UUID REFERENCES courses(id) ON DELETE SET NULL,
+  -- E-book specific fields
+  ebook_pdf_url TEXT,
+  ebook_page_count INTEGER,
+  -- Footer visibility
+  show_in_footer BOOLEAN NOT NULL DEFAULT true,
+  footer_order INTEGER NOT NULL DEFAULT 0,
+  -- Marketing/Extended fields
+  learning_outcomes JSONB DEFAULT '[]',
+  prerequisites JSONB DEFAULT '[]',
+  target_audience_info JSONB,
+  instructor JSONB,
+  estimated_weekly_hours INTEGER,
+  preview_video_url TEXT,
+  total_students_enrolled INTEGER DEFAULT 0,
+  -- Syllabus content for dynamic syllabus pages
+  syllabus_content JSONB
 );
 
 -- Create index for common queries
 CREATE INDEX IF NOT EXISTS idx_courses_level ON courses(level);
 CREATE INDEX IF NOT EXISTS idx_courses_published ON courses(is_published);
+CREATE INDEX IF NOT EXISTS idx_courses_product_type ON courses(product_type);
+CREATE INDEX IF NOT EXISTS idx_courses_target_audience ON courses(target_audience);
+CREATE INDEX IF NOT EXISTS idx_courses_show_in_footer ON courses(show_in_footer);
+CREATE INDEX IF NOT EXISTS idx_courses_footer_order ON courses(footer_order);
 
 -- ============================================
 -- ENROLLMENTS TABLE
@@ -77,16 +104,23 @@ CREATE TABLE IF NOT EXISTS purchases (
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
   amount DECIMAL(10, 2) NOT NULL,
+  original_amount DECIMAL(10, 2), -- Price before discount
+  discount_amount DECIMAL(10, 2) DEFAULT 0, -- Amount discounted
+  discount_code_id UUID REFERENCES discount_codes(id) ON DELETE SET NULL,
   currency TEXT NOT NULL DEFAULT 'EUR',
   purchased_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   payment_method TEXT,
-  transaction_id TEXT
+  transaction_id TEXT,
+  -- Teaching materials add-on
+  teaching_materials_included BOOLEAN DEFAULT false,
+  teaching_materials_price DECIMAL(10, 2)
 );
 
 -- Create indexes
 CREATE INDEX IF NOT EXISTS idx_purchases_user ON purchases(user_id);
 CREATE INDEX IF NOT EXISTS idx_purchases_course ON purchases(course_id);
 CREATE INDEX IF NOT EXISTS idx_purchases_date ON purchases(purchased_at);
+CREATE INDEX IF NOT EXISTS idx_purchases_discount_code ON purchases(discount_code_id);
 
 -- ============================================
 -- AUDIT LOGS TABLE

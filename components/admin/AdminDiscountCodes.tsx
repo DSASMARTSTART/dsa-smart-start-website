@@ -1,7 +1,8 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Trash2, Edit2, Tag, Percent, DollarSign, Calendar, Users, ToggleLeft, ToggleRight, X, Check, AlertCircle } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { ConfirmModal } from './AdminUIComponents';
 
 interface DiscountCode {
   id: string;
@@ -29,6 +30,13 @@ const AdminDiscountCodes: React.FC<AdminDiscountCodesProps> = ({ onNavigate }) =
   const [showModal, setShowModal] = useState(false);
   const [editingCode, setEditingCode] = useState<DiscountCode | null>(null);
   const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  
+  // Focus management refs
+  const createButtonRef = useRef<HTMLButtonElement>(null);
+  const codeInputRef = useRef<HTMLInputElement>(null);
+  const lastEditButtonRef = useRef<HTMLButtonElement | null>(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -46,6 +54,38 @@ const AdminDiscountCodes: React.FC<AdminDiscountCodesProps> = ({ onNavigate }) =
   useEffect(() => {
     loadCodes();
   }, []);
+
+  // Focus management: move focus to modal when opened
+  useEffect(() => {
+    if (showModal) {
+      setTimeout(() => codeInputRef.current?.focus(), 100);
+    }
+  }, [showModal]);
+
+  // Escape key to close modal
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && showModal) {
+        closeModal();
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [showModal]);
+
+  const closeModal = () => {
+    setShowModal(false);
+    resetForm();
+    setError(null);
+    // Return focus to the appropriate button
+    setTimeout(() => {
+      if (lastEditButtonRef.current) {
+        lastEditButtonRef.current.focus();
+      } else {
+        createButtonRef.current?.focus();
+      }
+    }, 0);
+  };
 
   const loadCodes = async () => {
     setLoading(true);
@@ -89,11 +129,13 @@ const AdminDiscountCodes: React.FC<AdminDiscountCodesProps> = ({ onNavigate }) =
   };
 
   const openCreateModal = () => {
+    lastEditButtonRef.current = null;
     resetForm();
     setShowModal(true);
   };
 
-  const openEditModal = (code: DiscountCode) => {
+  const openEditModal = (code: DiscountCode, buttonElement?: HTMLButtonElement) => {
+    if (buttonElement) lastEditButtonRef.current = buttonElement;
     setEditingCode(code);
     setFormData({
       code: code.code,
@@ -192,16 +234,23 @@ const AdminDiscountCodes: React.FC<AdminDiscountCodesProps> = ({ onNavigate }) =
   };
 
   const deleteCode = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this discount code?')) return;
+    setDeleteTarget(id);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { error } = await (supabase as any)
         .from('discount_codes')
         .delete()
-        .eq('id', id);
+        .eq('id', deleteTarget);
 
       if (error) throw error;
+      setShowDeleteConfirm(false);
+      setDeleteTarget(null);
       loadCodes();
     } catch (err) {
       console.error('Error deleting code:', err);
@@ -239,6 +288,7 @@ const AdminDiscountCodes: React.FC<AdminDiscountCodesProps> = ({ onNavigate }) =
           <p className="text-gray-500 mt-1">Create and manage promotional discount codes</p>
         </div>
         <button
+          ref={createButtonRef}
           onClick={openCreateModal}
           className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-xl font-bold text-sm hover:bg-purple-700 transition-colors shadow-lg shadow-purple-100"
         >
@@ -345,7 +395,7 @@ const AdminDiscountCodes: React.FC<AdminDiscountCodesProps> = ({ onNavigate }) =
                   <td className="py-4 px-6">
                     <div className="flex items-center justify-end gap-2">
                       <button
-                        onClick={() => openEditModal(code)}
+                        onClick={(e) => openEditModal(code, e.currentTarget)}
                         className="p-2 hover:bg-purple-100 rounded-lg text-gray-400 hover:text-purple-600 transition-colors"
                       >
                         <Edit2 size={16} />
@@ -367,15 +417,21 @@ const AdminDiscountCodes: React.FC<AdminDiscountCodesProps> = ({ onNavigate }) =
 
       {/* Create/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div 
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="discount-modal-title"
+        >
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white rounded-t-3xl">
-              <h2 className="text-xl font-black text-gray-900">
+              <h2 id="discount-modal-title" className="text-xl font-black text-gray-900">
                 {editingCode ? 'Edit Discount Code' : 'Create Discount Code'}
               </h2>
               <button
-                onClick={() => { setShowModal(false); resetForm(); setError(null); }}
+                onClick={closeModal}
                 className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+                aria-label="Close modal"
               >
                 <X size={20} />
               </button>
@@ -395,6 +451,7 @@ const AdminDiscountCodes: React.FC<AdminDiscountCodesProps> = ({ onNavigate }) =
                   Discount Code *
                 </label>
                 <input
+                  ref={codeInputRef}
                   type="text"
                   value={formData.code}
                   onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
@@ -551,6 +608,17 @@ const AdminDiscountCodes: React.FC<AdminDiscountCodesProps> = ({ onNavigate }) =
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        title="Delete Discount Code"
+        message="Are you sure you want to delete this discount code? This action cannot be undone."
+        confirmLabel="Delete"
+        confirmVariant="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => { setShowDeleteConfirm(false); setDeleteTarget(null); }}
+      />
     </div>
   );
 };

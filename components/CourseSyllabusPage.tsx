@@ -501,7 +501,7 @@ const GOLD_FEATURES = [
 
 // Format price for display
 const formatPrice = (course: Course): string => {
-  const pricing = course.pricing;
+  const pricing = course.pricing || { price: 0, currency: 'EUR', isFree: false };
   
   if (pricing.isFree) return 'FREE';
   
@@ -514,7 +514,7 @@ const formatPrice = (course: Course): string => {
     return `${pricing.discountPrice.toFixed(2)}€`;
   }
   
-  return `${pricing.price.toFixed(2)}€`;
+  return `${(pricing.price || 0).toFixed(2)}€`;
 };
 
 interface SyllabusProps {
@@ -523,9 +523,21 @@ interface SyllabusProps {
   onEnroll: (id: string) => void;
   onAddToCart: (id: string) => void;
   isInCart: boolean;
+  teachingMaterialsSelected?: boolean;
+  onToggleTeachingMaterials?: (selected: boolean) => void;
+  isAddingToCart?: boolean;
 }
 
-const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnroll, onAddToCart, isInCart }) => {
+const CourseSyllabusPage: React.FC<SyllabusProps> = ({ 
+  courseId, 
+  onBack, 
+  onEnroll, 
+  onAddToCart, 
+  isInCart,
+  teachingMaterialsSelected = false,
+  onToggleTeachingMaterials,
+  isAddingToCart = false
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
@@ -655,16 +667,19 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
     ? `${Math.floor(totalDuration / 60)}h ${totalDuration % 60}m`
     : `${totalDuration}m`;
 
-  // Get course content from our comprehensive data (fallback for predefined levels)
-  const courseContent = COURSE_CONTENT[course.level];
+  // Get course content from database (syllabusContent) or fallback to hardcoded COURSE_CONTENT
+  const hardcodedContent = COURSE_CONTENT[course.level];
+  const syllabusContent = course.syllabusContent;
   
-  // PRIORITY: Use course's own data first, then fallback to COURSE_CONTENT, then generic defaults
-  // Learning outcomes: course data > COURSE_CONTENT > extracted from modules > generic
+  // PRIORITY: Use course's syllabusContent first > learningOutcomes field > COURSE_CONTENT > extracted from modules > generic
+  // Learning outcomes
   let outcomes: string[] = [];
-  if (course.learningOutcomes && course.learningOutcomes.length > 0) {
+  if (syllabusContent?.learningOutcomes && syllabusContent.learningOutcomes.length > 0) {
+    outcomes = syllabusContent.learningOutcomes;
+  } else if (course.learningOutcomes && course.learningOutcomes.length > 0) {
     outcomes = course.learningOutcomes;
-  } else if (courseContent?.learningOutcomes) {
-    outcomes = courseContent.learningOutcomes;
+  } else if (hardcodedContent?.learningOutcomes) {
+    outcomes = hardcodedContent.learningOutcomes;
   } else if (modules.length > 0) {
     outcomes = modules.slice(0, 4).map(m => m.lessons?.[0]?.title || m.title).filter(Boolean);
   }
@@ -677,42 +692,64 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
     ];
   }
 
-  // Target audience: course data > COURSE_CONTENT > generic
-  const targetAudience = course.targetAudience && course.targetAudience.points.length > 0
-    ? course.targetAudience 
-    : courseContent 
-      ? {
-          description: `Perfect for ${config.label.toLowerCase()} learners who want to build a strong foundation`,
-          points: courseContent.targetAudience
-        }
-      : {
-          description: `Perfect for ${config.label.toLowerCase()} learners who want to build a strong foundation`,
-          points: ['Complete beginners starting their English journey', 'Visual learners who struggle with traditional textbooks', 'Students with dyslexia or learning differences', 'Anyone who wants a supportive, judgment-free environment']
-        };
+  // Target audience: syllabusContent > course data > COURSE_CONTENT > generic
+  let targetAudiencePoints: string[] = [];
+  if (syllabusContent?.targetAudience && syllabusContent.targetAudience.length > 0) {
+    targetAudiencePoints = syllabusContent.targetAudience;
+  } else if (course.targetAudienceInfo && course.targetAudienceInfo.points && course.targetAudienceInfo.points.length > 0) {
+    targetAudiencePoints = course.targetAudienceInfo.points;
+  } else if (hardcodedContent?.targetAudience) {
+    targetAudiencePoints = hardcodedContent.targetAudience;
+  } else {
+    targetAudiencePoints = ['Complete beginners starting their English journey', 'Visual learners who struggle with traditional textbooks', 'Students with dyslexia or learning differences', 'Anyone who wants a supportive, judgment-free environment'];
+  }
+  
+  const targetAudience = {
+    description: course.targetAudienceInfo?.description || `Perfect for ${config.label.toLowerCase()} learners who want to build a strong foundation`,
+    points: targetAudiencePoints
+  };
 
-  // What you'll find: course prerequisites as alternate, or COURSE_CONTENT, or empty
-  const whatYoullFind = courseContent?.whatYoullFind || 
-    (course.prerequisites && course.prerequisites.length > 0 ? course.prerequisites : []);
+  // What you'll find: syllabusContent > course prerequisites > COURSE_CONTENT > empty
+  let whatYoullFind: string[] = [];
+  if (syllabusContent?.whatYoullFind && syllabusContent.whatYoullFind.length > 0) {
+    whatYoullFind = syllabusContent.whatYoullFind;
+  } else if (hardcodedContent?.whatYoullFind) {
+    whatYoullFind = hardcodedContent.whatYoullFind;
+  } else if (course.prerequisites && course.prerequisites.length > 0) {
+    whatYoullFind = course.prerequisites;
+  }
   
-  // Grammar units from COURSE_CONTENT only (for predefined levels)
+  // Grammar units: syllabusContent > COURSE_CONTENT > empty
   // For custom courses, modules themselves serve as the curriculum display
-  const grammarUnits = courseContent?.units || [];
+  const grammarUnits = (syllabusContent?.units && syllabusContent.units.length > 0)
+    ? syllabusContent.units 
+    : (hardcodedContent?.units || []);
   
-  // Exam prep info
-  const examPrep = courseContent?.examPrep;
+  // Exam prep info (from hardcoded only since it's certification-specific)
+  const examPrep = hardcodedContent?.examPrep;
   
   // Course description: course data > COURSE_CONTENT > empty
-  const courseDescription = course.description || courseContent?.description || '';
+  const courseDescription = course.description || hardcodedContent?.description || '';
 
-  // Check for original price vs discount
-  const hasDiscount = course.pricing.discountPrice !== undefined && course.pricing.discountPrice < course.pricing.price;
-  const originalPrice = hasDiscount ? `${course.pricing.price.toFixed(2)}€` : null;
+  // Check for original price vs discount - with null safety
+  const pricing = course.pricing || { price: 0, currency: 'EUR', isFree: false };
+  const hasDiscount = pricing.discountPrice !== undefined && pricing.discountPrice < pricing.price;
+  const originalPrice = hasDiscount ? `${pricing.price.toFixed(2)}€` : null;
+  
+  // Check if this course supports teaching materials add-on (Premium/Gold programs)
+  const isPremiumOrGold = course.level === 'Premium' || course.level === 'premium' || course.level === 'Gold' || course.level === 'golden';
+  const teachingMaterialsPrice = isPremiumOrGold ? 50 : 0;
+  
+  // Calculate display price including teaching materials if selected
+  const basePrice = parseFloat(price.replace('€', '')) || 0;
+  const totalWithMaterials = teachingMaterialsSelected && isPremiumOrGold ? basePrice + teachingMaterialsPrice : basePrice;
+  const displayPrice = pricing.isFree ? 'FREE' : `${totalWithMaterials.toFixed(2)}€`;
   
   // Check if discount is currently active (for urgency badge)
   const now = new Date();
   const hasActiveDiscount = hasDiscount && 
-    (!course.pricing.discountStartDate || new Date(course.pricing.discountStartDate) <= now) &&
-    (!course.pricing.discountEndDate || new Date(course.pricing.discountEndDate) >= now);
+    (!pricing.discountStartDate || new Date(pricing.discountStartDate) <= now) &&
+    (!pricing.discountEndDate || new Date(pricing.discountEndDate) >= now);
   
   // Check if viewing as admin (for draft indicator)
   const isAdminViewing = isAdmin() || isEditor();
@@ -846,12 +883,22 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
                       <span className="text-[10px] font-black uppercase tracking-widest text-white">Limited Time Offer</span>
                     </div>
                   )}
+                  {/* Teaching Materials Badge */}
+                  {isPremiumOrGold && teachingMaterialsSelected && (
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full w-fit">
+                      <BookOpen size={14} className="text-white" />
+                      <span className="text-[10px] font-black uppercase tracking-widest text-white">+ Teaching Materials</span>
+                    </div>
+                  )}
                   <div className="flex items-baseline gap-3">
                     <span className={`text-4xl sm:text-5xl font-black text-[#1a1c2d]`}>
-                      {price}
+                      {displayPrice}
                     </span>
-                    {originalPrice && (
+                    {originalPrice && !teachingMaterialsSelected && (
                       <span className="text-xl font-bold text-gray-400 line-through decoration-pink-500">{originalPrice}</span>
+                    )}
+                    {teachingMaterialsSelected && isPremiumOrGold && (
+                      <span className="text-sm font-medium text-gray-500">({price} + €50 materials)</span>
                     )}
                   </div>
                 </div>
@@ -866,14 +913,19 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
                   </button>
                   <button 
                     onClick={() => onAddToCart(courseId)}
+                    disabled={isAddingToCart}
                     className={`flex items-center gap-2 px-6 py-4 rounded-full text-[11px] font-black uppercase tracking-widest border transition-all ${
                       isInCart 
                         ? 'bg-green-50 border-green-200 text-green-600' 
-                        : 'bg-white border-gray-200 text-gray-400 hover:border-[#AB8FFF] hover:text-[#AB8FFF]'
+                        : isAddingToCart
+                          ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
+                          : 'bg-white border-gray-200 text-gray-400 hover:border-[#AB8FFF] hover:text-[#AB8FFF]'
                     }`}
                   >
-                    {isInCart ? <Check size={16} /> : <ShoppingCart size={16} />}
-                    {isInCart ? 'Added' : 'Add to Cart'}
+                    {isAddingToCart ? (
+                      <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
+                    ) : isInCart ? <Check size={16} /> : <ShoppingCart size={16} />}
+                    {isAddingToCart ? 'Adding...' : isInCart ? 'Added' : 'Add to Cart'}
                   </button>
                 </div>
               </div>
@@ -1078,7 +1130,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
                 <BookOpen size={28} />
               </div>
               <h3 className="text-3xl font-black text-gray-900 tracking-tight uppercase">
-                {course.level === 'Premium' || course.level === 'Gold' 
+                {course.level === 'Premium' || course.level === 'premium' || course.level === 'Gold' || course.level === 'golden'
                   ? 'Program Includes' 
                   : grammarUnits.length > 0 
                     ? 'Grammar Units' 
@@ -1087,28 +1139,28 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
             </div>
 
             {/* Premium/Gold Features Display */}
-            {(course.level === 'Premium' || course.level === 'Gold') ? (
+            {(course.level === 'Premium' || course.level === 'premium' || course.level === 'Gold' || course.level === 'golden') ? (
               <div className="space-y-6">
                 <div className={`relative overflow-hidden rounded-[3rem] p-10 ${
-                  course.level === 'Premium' 
+                  course.level === 'Premium' || course.level === 'premium'
                     ? 'bg-gradient-to-br from-violet-950 via-purple-900 to-indigo-950' 
                     : 'bg-gradient-to-br from-amber-950 via-yellow-900 to-orange-950'
                 }`}>
                   {/* Animated Background */}
                   <div className="absolute inset-0 overflow-hidden">
                     <div className={`absolute -top-1/2 -right-1/2 w-full h-full rounded-full blur-3xl opacity-20 animate-pulse ${
-                      course.level === 'Premium' ? 'bg-violet-400' : 'bg-amber-400'
+                      course.level === 'Premium' || course.level === 'premium' ? 'bg-violet-400' : 'bg-amber-400'
                     }`}></div>
                   </div>
                   
                   <div className="relative z-10">
                     <div className="flex items-center gap-3 mb-8">
                       <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${
-                        course.level === 'Premium' 
+                        course.level === 'Premium' || course.level === 'premium'
                           ? 'bg-gradient-to-br from-violet-400 to-purple-600 text-white' 
                           : 'bg-gradient-to-br from-amber-400 to-yellow-500 text-amber-950'
                       }`}>
-                        {course.level === 'Premium' ? <Crown size={28} /> : <Diamond size={28} />}
+                        {course.level === 'Premium' || course.level === 'premium' ? <Crown size={28} /> : <Diamond size={28} />}
                       </div>
                       <div>
                         <h4 className="text-xl font-black text-white">Complete Learning Package</h4>
@@ -1117,10 +1169,10 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
                     </div>
                     
                     <div className="space-y-4">
-                      {(course.level === 'Premium' ? PREMIUM_FEATURES : GOLD_FEATURES).map((feature, i) => (
+                      {((course.level === 'Premium' || course.level === 'premium') ? PREMIUM_FEATURES : GOLD_FEATURES).map((feature, i) => (
                         <div key={i} className="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 group hover:bg-white/10 transition-all">
                           <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                            course.level === 'Premium' ? 'bg-violet-500/30 text-violet-300' : 'bg-amber-500/30 text-amber-300'
+                            course.level === 'Premium' || course.level === 'premium' ? 'bg-violet-500/30 text-violet-300' : 'bg-amber-500/30 text-amber-300'
                           }`}>
                             {feature.icon}
                           </div>
@@ -1147,11 +1199,76 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
                   </div>
                 </div>
                 
+                {/* Teaching Materials Add-on */}
+                <div 
+                  role="checkbox"
+                  aria-checked={teachingMaterialsSelected}
+                  aria-label="Include teaching materials add-on for €50"
+                  tabIndex={0}
+                  className={`rounded-[3rem] p-10 border-2 transition-all cursor-pointer focus:outline-none focus:ring-4 focus:ring-amber-300 focus:ring-offset-2 ${
+                    teachingMaterialsSelected 
+                      ? 'bg-gradient-to-br from-amber-100 to-orange-100 border-amber-400 shadow-lg shadow-amber-200/50' 
+                      : 'bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200 hover:border-amber-300'
+                  }`}
+                  onClick={() => onToggleTeachingMaterials?.(!teachingMaterialsSelected)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggleTeachingMaterials?.(!teachingMaterialsSelected); } }}
+                >
+                  <div className="flex items-center justify-between gap-4 mb-6">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-all ${
+                        teachingMaterialsSelected 
+                          ? 'bg-gradient-to-br from-amber-500 to-orange-600 shadow-amber-300' 
+                          : 'bg-gradient-to-br from-amber-400 to-orange-500 shadow-amber-200'
+                      }`}>
+                        <BookOpen size={24} className="text-white" />
+                      </div>
+                      <div>
+                        <h4 className="text-xl font-black text-gray-900 uppercase tracking-tight">Teaching Materials</h4>
+                        <p className="text-amber-600 font-bold text-lg">+€50 <span className="text-sm font-normal text-amber-500">(Optional Add-on)</span></p>
+                      </div>
+                    </div>
+                    {/* Checkbox */}
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleTeachingMaterials?.(!teachingMaterialsSelected);
+                      }}
+                      className={`w-8 h-8 rounded-xl border-2 flex items-center justify-center transition-all ${
+                        teachingMaterialsSelected 
+                          ? 'bg-amber-500 border-amber-500 text-white' 
+                          : 'bg-white border-amber-300 hover:border-amber-400'
+                      }`}
+                    >
+                      {teachingMaterialsSelected && <Check size={18} strokeWidth={3} />}
+                    </button>
+                  </div>
+                  <p className="text-gray-600 leading-relaxed mb-4">
+                    Enhance your learning experience with our comprehensive teaching materials package, including workbooks, practice exercises, supplementary resources, and exclusive study guides designed specifically for this program.
+                  </p>
+                  <div className={`flex items-center gap-2 text-sm rounded-xl px-4 py-2 w-fit transition-all ${
+                    teachingMaterialsSelected 
+                      ? 'text-green-700 bg-green-100' 
+                      : 'text-amber-700 bg-amber-100'
+                  }`}>
+                    {teachingMaterialsSelected ? (
+                      <>
+                        <Check size={16} />
+                        <span className="font-medium">Added to your purchase</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles size={16} />
+                        <span className="font-medium">Click to add to your purchase</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+                
                 {/* Method Description */}
                 <div className="bg-gray-50 rounded-[3rem] p-10 border border-gray-100">
                   <h4 className="text-xl font-black text-gray-900 mb-4 uppercase tracking-tight">The DSA Smart Start Method</h4>
                   <p className="text-gray-600 leading-relaxed">
-                    {course.level === 'Premium' 
+                    {course.level === 'Premium' || course.level === 'premium'
                       ? 'The DSA Smart Start Method is the only one that integrates socialization, specific support tools, and a gradual approach, to guide students step by step, with confidence and motivation.'
                       : 'The DSA Smart Start method is the only one that combines socialization, specific support tools, and a step-by-step approach, to guide students in their learning journey with confidence and motivation.'
                     }
@@ -1182,7 +1299,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
                           </div>
                           <div>
                             <h5 className="text-lg font-black text-gray-900 tracking-tight">{unit.title}</h5>
-                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{unit.topics.length} Topics</span>
+                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{(unit.topics || []).length} Topics</span>
                           </div>
                         </div>
                         <div className={`w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
@@ -1194,7 +1311,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
                       <div className={`transition-all duration-300 ease-in-out ${isExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
                         <div className="px-6 pb-6 pt-0">
                           <div className="pl-16 space-y-2">
-                            {unit.topics.map((topic, j) => (
+                            {(unit.topics || []).map((topic, j) => (
                               <div key={j} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                                 <CheckCircle2 size={16} className="text-green-500 flex-shrink-0" />
                                 <span className="text-sm font-medium text-gray-700">{topic}</span>
@@ -1329,14 +1446,27 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({ courseId, onBack, onEnrol
                       onClick={() => onEnroll(courseId)}
                       className={`group flex items-center justify-center gap-3 px-10 py-5 rounded-full text-xs font-black uppercase tracking-widest text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all bg-gradient-to-r ${config.color}`}
                     >
-                      {price === 'FREE' ? 'Start Learning Free' : `Enroll Now — ${price}`}
+                      {price === 'FREE' ? 'Start Learning Free' : `Enroll Now — ${displayPrice}`}
                       <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
                     </button>
                     <button 
                       onClick={() => onAddToCart(courseId)}
-                      className={`flex items-center justify-center gap-3 px-8 py-5 rounded-full text-[10px] font-black uppercase tracking-widest border-2 transition-all ${isInCart ? 'bg-green-50 border-green-500 text-green-600' : 'bg-white border-gray-200 text-gray-500 hover:border-purple-300 hover:text-purple-600'}`}
+                      disabled={isAddingToCart}
+                      className={`flex items-center justify-center gap-3 px-8 py-5 rounded-full text-[10px] font-black uppercase tracking-widest border-2 transition-all ${
+                        isInCart 
+                          ? 'bg-green-50 border-green-500 text-green-600' 
+                          : isAddingToCart
+                            ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
+                            : 'bg-white border-gray-200 text-gray-500 hover:border-purple-300 hover:text-purple-600'
+                      }`}
                     >
-                      {isInCart ? <><Check size={18} /> Added to Cart</> : <><ShoppingCart size={18} /> Save for Later</>}
+                      {isAddingToCart ? (
+                        <><div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" /> Adding...</>
+                      ) : isInCart ? (
+                        <><Check size={18} /> Added to Cart</>
+                      ) : (
+                        <><ShoppingCart size={18} /> Save for Later</>
+                      )}
                     </button>
                  </div>
                  

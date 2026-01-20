@@ -24,6 +24,11 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const [resetLoading, setResetLoading] = useState(false);
   const [resetError, setResetError] = useState<string | null>(null);
   const [resetSuccess, setResetSuccess] = useState(false);
+  
+  // Focus management refs
+  const forgotPasswordTriggerRef = useRef<HTMLButtonElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+  const emailInputRef = useRef<HTMLInputElement>(null);
 
   // Redirect if already logged in
   useEffect(() => {
@@ -75,7 +80,50 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     setResetEmail('');
     setResetError(null);
     setResetSuccess(false);
+    // Return focus to the trigger button
+    setTimeout(() => forgotPasswordTriggerRef.current?.focus(), 0);
   };
+
+  // Focus management: move focus to modal when opened
+  useEffect(() => {
+    if (showForgotPassword) {
+      // Focus the email input when modal opens
+      setTimeout(() => emailInputRef.current?.focus(), 100);
+    }
+  }, [showForgotPassword]);
+
+  // Escape key to close modal
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && showForgotPassword) {
+        closeForgotPasswordModal();
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [showForgotPassword]);
+
+  // Password strength calculation
+  const getPasswordStrength = (password: string): { score: number; label: string; color: string; requirements: { met: boolean; text: string }[] } => {
+    const requirements = [
+      { met: password.length >= 8, text: 'At least 8 characters' },
+      { met: /[A-Z]/.test(password), text: 'One uppercase letter' },
+      { met: /[a-z]/.test(password), text: 'One lowercase letter' },
+      { met: /[0-9]/.test(password), text: 'One number' },
+      { met: /[^A-Za-z0-9]/.test(password), text: 'One special character' },
+    ];
+    
+    const metCount = requirements.filter(r => r.met).length;
+    
+    if (password.length === 0) return { score: 0, label: '', color: 'bg-gray-200', requirements };
+    if (metCount <= 1) return { score: 1, label: 'Weak', color: 'bg-red-500', requirements };
+    if (metCount <= 2) return { score: 2, label: 'Fair', color: 'bg-orange-500', requirements };
+    if (metCount <= 3) return { score: 3, label: 'Good', color: 'bg-yellow-500', requirements };
+    if (metCount <= 4) return { score: 4, label: 'Strong', color: 'bg-green-500', requirements };
+    return { score: 5, label: 'Excellent', color: 'bg-emerald-500', requirements };
+  };
+
+  const passwordStrength = getPasswordStrength(formData.password);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -196,35 +244,78 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           <form className="space-y-6" onSubmit={handleSubmit}>
             {!isLogin && (
               <div className="flex flex-col gap-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Full Name</label>
+                <label htmlFor="register-name" className="text-[10px] font-black uppercase tracking-widest text-gray-600 ml-4">Full Name</label>
                 <div className="relative">
-                  <User className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300" size={20} />
-                  <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Your Name" required className="w-full pl-16 pr-8 py-5 rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-purple-600 outline-none transition-all font-bold text-gray-900" />
+                  <User className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                  <input id="register-name" type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Your Name" required className="w-full pl-16 pr-8 py-5 rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-purple-600 outline-none transition-all font-bold text-gray-900" />
                 </div>
               </div>
             )}
             <div className="flex flex-col gap-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Email Address</label>
+              <label htmlFor="auth-email" className="text-[10px] font-black uppercase tracking-widest text-gray-600 ml-4">Email Address</label>
               <div className="relative">
-                <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300" size={20} />
-                <input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} placeholder="email@example.com" required className="w-full pl-16 pr-8 py-5 rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-purple-600 outline-none transition-all font-bold text-gray-900" />
+                <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                <input id="auth-email" type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} placeholder="email@example.com" required className="w-full pl-16 pr-8 py-5 rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-purple-600 outline-none transition-all font-bold text-gray-900" />
               </div>
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Password</label>
+              <label htmlFor="auth-password" className="text-[10px] font-black uppercase tracking-widest text-gray-600 ml-4">Password</label>
               <div className="relative">
-                <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300" size={20} />
-                <input type={showPassword ? "text" : "password"} value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} placeholder="••••••••" required className="w-full pl-16 pr-14 py-5 rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-purple-600 outline-none transition-all font-bold text-gray-900" />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400">{showPassword ? <EyeOff size={20} /> : <Eye size={20} />}</button>
+                <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                <input id="auth-password" type={showPassword ? "text" : "password"} value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} placeholder="••••••••" required className="w-full pl-16 pr-14 py-5 rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-purple-600 outline-none transition-all font-bold text-gray-900" />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400" aria-label={showPassword ? 'Hide password' : 'Show password'}>{showPassword ? <EyeOff size={20} /> : <Eye size={20} />}</button>
               </div>
+              {/* Password Strength Indicator - Registration only */}
+              {!isLogin && formData.password && (
+                <div className="mt-2 px-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="flex-1 flex gap-1">
+                      {[1, 2, 3, 4, 5].map((level) => (
+                        <div
+                          key={level}
+                          className={`h-1.5 flex-1 rounded-full transition-all ${
+                            level <= passwordStrength.score ? passwordStrength.color : 'bg-gray-200'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span className={`text-[10px] font-bold uppercase tracking-wider ${
+                      passwordStrength.score <= 1 ? 'text-red-500' :
+                      passwordStrength.score <= 2 ? 'text-orange-500' :
+                      passwordStrength.score <= 3 ? 'text-yellow-600' :
+                      'text-green-600'
+                    }`}>
+                      {passwordStrength.label}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                    {passwordStrength.requirements.map((req, idx) => (
+                      <div key={idx} className="flex items-center gap-1.5">
+                        <div className={`w-3 h-3 rounded-full flex items-center justify-center ${
+                          req.met ? 'bg-green-500' : 'bg-gray-200'
+                        }`}>
+                          {req.met && (
+                            <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                            </svg>
+                          )}
+                        </div>
+                        <span className={`text-[9px] ${req.met ? 'text-green-600' : 'text-gray-400'}`}>
+                          {req.text}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
             {!isLogin && (
               <div className="flex flex-col gap-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Confirm Password</label>
+                <label htmlFor="register-confirm-password" className="text-[10px] font-black uppercase tracking-widest text-gray-600 ml-4">Confirm Password</label>
                 <div className="relative">
-                  <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300" size={20} />
-                  <input type={showConfirmPassword ? "text" : "password"} value={formData.confirmPassword} onChange={e => setFormData({...formData, confirmPassword: e.target.value})} placeholder="••••••••" required className="w-full pl-16 pr-14 py-5 rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-purple-600 outline-none transition-all font-bold text-gray-900" />
-                  <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400">{showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}</button>
+                  <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                  <input id="register-confirm-password" type={showConfirmPassword ? "text" : "password"} value={formData.confirmPassword} onChange={e => setFormData({...formData, confirmPassword: e.target.value})} placeholder="••••••••" required className="w-full pl-16 pr-14 py-5 rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-purple-600 outline-none transition-all font-bold text-gray-900" />
+                  <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400" aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}>{showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}</button>
                 </div>
               </div>
             )}
@@ -250,6 +341,7 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           {isLogin && (
             <div className="mt-6 text-center">
               <button
+                ref={forgotPasswordTriggerRef}
                 type="button"
                 onClick={() => setShowForgotPassword(true)}
                 className="text-purple-600 hover:text-purple-700 text-sm font-semibold hover:underline transition-all"
@@ -263,8 +355,13 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
       {/* Forgot Password Modal */}
       {showForgotPassword && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-[2rem] p-8 max-w-md w-full shadow-2xl relative">
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="forgot-password-title"
+        >
+          <div ref={modalRef} className="bg-white rounded-[2rem] p-8 max-w-md w-full shadow-2xl relative">
             <button
               onClick={closeForgotPasswordModal}
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
@@ -272,7 +369,7 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               <X size={24} />
             </button>
             
-            <h2 className="text-2xl font-black text-gray-900 tracking-tight mb-2">Reset Password</h2>
+            <h2 id="forgot-password-title" className="text-2xl font-black text-gray-900 tracking-tight mb-2">Reset Password</h2>
             <p className="text-gray-500 text-sm mb-6">
               Enter your email address and we'll send you a link to reset your password.
             </p>
@@ -302,16 +399,21 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                   </div>
                 )}
                 
-                <div className="relative">
-                  <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300" size={20} />
-                  <input
-                    type="email"
-                    value={resetEmail}
-                    onChange={e => setResetEmail(e.target.value)}
-                    placeholder="email@example.com"
-                    className="w-full pl-14 pr-6 py-4 rounded-2xl bg-gray-50 border border-transparent focus:bg-white focus:border-purple-600 outline-none transition-all font-medium text-gray-900"
-                    autoFocus
-                  />
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="reset-email" className="sr-only">Email Address</label>
+                  <div className="relative">
+                    <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300" size={20} />
+                    <input
+                      id="reset-email"
+                      ref={emailInputRef}
+                      type="email"
+                      value={resetEmail}
+                      onChange={e => setResetEmail(e.target.value)}
+                      placeholder="email@example.com"
+                      aria-label="Email address for password reset"
+                      className="w-full pl-14 pr-6 py-4 rounded-2xl bg-gray-50 border border-transparent focus:bg-white focus:border-purple-600 outline-none transition-all font-medium text-gray-900"
+                    />
+                  </div>
                 </div>
                 
                 <button

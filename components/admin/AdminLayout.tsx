@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 import { 
   LayoutDashboard, Users, BookOpen, History, Settings, LogOut, 
-  ChevronRight, Menu, X, Bell, Search, Shield, AlertTriangle, Tag
+  ChevronRight, Menu, X, Bell, Search, Shield, AlertTriangle, Tag, CreditCard
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -70,6 +70,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPath, onNavi
     { id: 'admin', label: 'Dashboard', icon: LayoutDashboard, path: 'admin' },
     { id: 'admin-users', label: 'Users', icon: Users, path: 'admin-users' },
     { id: 'admin-courses', label: 'Courses', icon: BookOpen, path: 'admin-courses' },
+    { id: 'admin-transactions', label: 'Transactions', icon: CreditCard, path: 'admin-transactions' },
     { id: 'admin-discounts', label: 'Discount Codes', icon: Tag, path: 'admin-discounts' },
     { id: 'admin-audit', label: 'Audit Log', icon: History, path: 'admin-audit' },
   ];

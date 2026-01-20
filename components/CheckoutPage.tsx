@@ -1,7 +1,7 @@
 
-import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { ArrowLeft, ShieldCheck, Lock, CreditCard, CheckCircle2, ChevronRight, ShoppingCart, User, X, Tag, Ticket, AlertCircle, Loader2, Building2, Wallet, BookOpen, Plus, Minus } from 'lucide-react';
-import { coursesApi, purchasesApi } from '../data/supabaseStore';
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import { ArrowLeft, ShieldCheck, Lock, CreditCard, CheckCircle2, ChevronRight, ShoppingCart, User, X, Tag, Ticket, AlertCircle, Loader2, Building2, Wallet, BookOpen, Plus, Minus, Mail, Check } from 'lucide-react';
+import { coursesApi, purchasesApi, authApi, enrollmentsApi } from '../data/supabaseStore';
 import { Course } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -51,9 +51,28 @@ interface CheckoutProps {
   onClearCart: () => void;
   onBrowse: () => void;
   user: { name: string; email: string } | null;
+  initialTeachingMaterials?: Record<string, boolean>;
+  onTeachingMaterialsChange?: (courseId: string, selected: boolean) => void;
 }
 
-const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onClearCart, onBrowse, user }) => {
+// Email validation regex - standard RFC 5322 compliant pattern
+const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+
+const isValidEmail = (email: string): boolean => {
+  if (!email || email.length < 5 || email.length > 254) return false;
+  return EMAIL_REGEX.test(email.trim());
+};
+
+const CheckoutPage: React.FC<CheckoutProps> = ({ 
+  cart, 
+  onBack, 
+  onRemoveItem, 
+  onClearCart, 
+  onBrowse, 
+  user,
+  initialTeachingMaterials = {},
+  onTeachingMaterialsChange
+}) => {
   const { user: authUser, profile } = useAuth();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const paypalContainerRef = useRef<HTMLDivElement>(null);
@@ -61,7 +80,11 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [cartLoading, setCartLoading] = useState(true); // Track cart items loading
   const [error, setError] = useState<string | null>(null);
+  
+  // Pending removal state for undo functionality
+  const [pendingRemoval, setPendingRemoval] = useState<{ id: string; name: string; timer: NodeJS.Timeout | null } | null>(null);
   
   // Payment method selection
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod | null>(null);
@@ -72,14 +95,119 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
   // Form state
   const [customerName, setCustomerName] = useState(user?.name || profile?.name || '');
   const [customerEmail, setCustomerEmail] = useState(user?.email || profile?.email || '');
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [emailTouched, setEmailTouched] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsError, setTermsError] = useState(false);
   
   // Discount state
   const [discountInput, setDiscountInput] = useState('');
-  const [appliedDiscount, setAppliedDiscount] = useState<{ code: string; amount: number } | null>(null);
+  const [appliedDiscount, setAppliedDiscount] = useState<{ 
+    code: string; 
+    amount: number; 
+    discountCodeId: string;
+  } | null>(null);
   const [discountError, setDiscountError] = useState<string | null>(null);
   
-  // Teaching materials state
-  const [teachingMaterialsSelections, setTeachingMaterialsSelections] = useState<Record<string, boolean>>({});
+  // Screen reader announcements
+  const [announcement, setAnnouncement] = useState<string>('');
+  
+  // Announce message to screen readers
+  const announce = useCallback((message: string) => {
+    setAnnouncement('');
+    // Small delay to ensure the change is detected
+    setTimeout(() => setAnnouncement(message), 100);
+  }, []);
+  
+  // Teaching materials state - initialized from props (syllabus page selections)
+  const [teachingMaterialsSelections, setTeachingMaterialsSelections] = useState<Record<string, boolean>>(initialTeachingMaterials);
+
+  // Handle item removal with undo capability
+  const handleRemoveItem = useCallback((itemId: string, itemName: string) => {
+    // Clear any existing pending removal
+    if (pendingRemoval?.timer) {
+      clearTimeout(pendingRemoval.timer);
+      // Immediately remove the previous pending item
+      onRemoveItem(pendingRemoval.id);
+    }
+
+    // Set new pending removal with 5 second delay
+    const timer = setTimeout(() => {
+      onRemoveItem(itemId);
+      setPendingRemoval(null);
+      announce(`${itemName} removed from cart`);
+    }, 5000);
+
+    setPendingRemoval({ id: itemId, name: itemName, timer });
+    announce(`${itemName} will be removed. Press undo to cancel.`);
+  }, [pendingRemoval, onRemoveItem, announce]);
+
+  // Undo the pending removal
+  const undoRemoval = useCallback(() => {
+    if (pendingRemoval?.timer) {
+      clearTimeout(pendingRemoval.timer);
+    }
+    const itemName = pendingRemoval?.name || 'Item';
+    setPendingRemoval(null);
+    announce(`${itemName} removal cancelled`);
+  }, [pendingRemoval, announce]);
+
+  // Clean up timer on unmount
+  useEffect(() => {
+    return () => {
+      if (pendingRemoval?.timer) {
+        clearTimeout(pendingRemoval.timer);
+      }
+    };
+  }, [pendingRemoval]);
+
+  // Session timeout warning state
+  const [sessionWarning, setSessionWarning] = useState<{ show: boolean; minutesLeft: number }>({ show: false, minutesLeft: 0 });
+  const [checkoutStartTime] = useState(() => Date.now());
+  const CHECKOUT_TIMEOUT_MINUTES = 30; // Warn after 25 minutes, timeout at 30
+  const WARNING_THRESHOLD_MINUTES = 5;
+
+  // Session/checkout timeout monitoring
+  useEffect(() => {
+    // Check session timeout every minute
+    const checkTimeout = () => {
+      const elapsedMinutes = (Date.now() - checkoutStartTime) / (1000 * 60);
+      const remainingMinutes = Math.max(0, Math.ceil(CHECKOUT_TIMEOUT_MINUTES - elapsedMinutes));
+      
+      if (remainingMinutes <= WARNING_THRESHOLD_MINUTES && remainingMinutes > 0) {
+        setSessionWarning({ show: true, minutesLeft: remainingMinutes });
+      } else if (remainingMinutes <= 0) {
+        // Session timed out - clear sensitive data and redirect
+        setSessionWarning({ show: false, minutesLeft: 0 });
+        setAppliedDiscount(null);
+        setError('Your checkout session has expired. Please refresh and try again.');
+      }
+    };
+
+    const intervalId = setInterval(checkTimeout, 30000); // Check every 30 seconds
+    
+    return () => clearInterval(intervalId);
+  }, [checkoutStartTime]);
+
+  // Extend session / dismiss warning
+  const extendSession = useCallback(() => {
+    // Reset the warning by updating checkoutStartTime would require state setter
+    // For now, just dismiss the warning - user activity is implicit extension
+    setSessionWarning({ show: false, minutesLeft: 0 });
+  }, []);
+
+  // Validate email on change (for non-logged-in users)
+  useEffect(() => {
+    if (!authUser && !profile && emailTouched) {
+      if (!customerEmail) {
+        setEmailError('Email is required');
+      } else if (!isValidEmail(customerEmail)) {
+        setEmailError('Please enter a valid email address');
+      } else {
+        setEmailError(null);
+      }
+    }
+  }, [customerEmail, emailTouched, authUser, profile]);
 
   // Check available payment methods
   useEffect(() => {
@@ -113,86 +241,277 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
 
   // Toggle teaching materials for a cart item
   const toggleTeachingMaterials = (itemId: string) => {
+    const newValue = !teachingMaterialsSelections[itemId];
+    const item = cartItems.find(i => i.id === itemId);
     setTeachingMaterialsSelections(prev => ({
       ...prev,
-      [itemId]: !prev[itemId]
+      [itemId]: newValue
     }));
+    // Sync change back to parent (App.tsx) for localStorage persistence
+    onTeachingMaterialsChange?.(itemId, newValue);
+    // Announce change to screen readers
+    if (item) {
+      announce(newValue 
+        ? `Teaching materials added for ${item.name}` 
+        : `Teaching materials removed for ${item.name}`);
+    }
   };
+
+  // Re-validate discount code before payment (in case it expired while user was filling form)
+  const revalidateDiscountCode = useCallback(async (): Promise<boolean> => {
+    if (!appliedDiscount) return true; // No discount to validate
+    
+    interface DiscountCodeRecord {
+      id: string;
+      code: string;
+      discount_type: string;
+      discount_value: number;
+      max_discount: number | null;
+      min_order_amount: number | null;
+      max_uses: number | null;
+      times_used: number;
+      is_active: boolean;
+      expires_at: string | null;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('discount_codes')
+        .select('*')
+        .eq('id', appliedDiscount.discountCodeId)
+        .single();
+
+      const discountData = data as DiscountCodeRecord | null;
+
+      if (error || !discountData) {
+        setAppliedDiscount(null);
+        setError('Your discount code is no longer valid. Please review your order.');
+        return false;
+      }
+
+      // Check if code has expired
+      if (discountData.expires_at && new Date(discountData.expires_at) < new Date()) {
+        setAppliedDiscount(null);
+        setError('Your discount code has expired. Please review your order.');
+        return false;
+      }
+
+      // Check usage limit
+      if (discountData.max_uses && discountData.times_used >= discountData.max_uses) {
+        setAppliedDiscount(null);
+        setError('Your discount code has reached its usage limit. Please review your order.');
+        return false;
+      }
+
+      // Check if code is still active
+      if (!discountData.is_active) {
+        setAppliedDiscount(null);
+        setError('Your discount code has been deactivated. Please review your order.');
+        return false;
+      }
+
+      return true;
+    } catch (err) {
+      console.error('Error revalidating discount code:', err);
+      // On error, allow the purchase but clear the discount to be safe
+      setAppliedDiscount(null);
+      return true;
+    }
+  }, [appliedDiscount]);
 
   // Handle successful payment
   const handlePaymentSuccess = useCallback(async (transactionId: string, method: PaymentMethod) => {
     try {
-      // Get user ID from auth context
-      const userId = authUser?.id || profile?.id;
-      
-      if (!userId) {
-        throw new Error('User not authenticated. Please log in to complete purchase.');
+      // Re-validate discount code before processing
+      const discountValid = await revalidateDiscountCode();
+      if (!discountValid) {
+        setLoading(false);
+        return;
       }
 
-      // Create purchase records for each item
+      // Get user ID from auth context OR create guest user
+      let userId = authUser?.id || profile?.id;
+      let isGuestPurchase = false;
+      
+      if (!userId) {
+        // No logged-in user - create a guest account with proper email validation
+        if (!customerEmail) {
+          throw new Error('Please enter your email address to complete your purchase.');
+        }
+        
+        if (!isValidEmail(customerEmail)) {
+          throw new Error('Please enter a valid email address (e.g., name@example.com).');
+        }
+        
+        const guestResult = await authApi.createGuestCheckout(customerEmail.trim(), customerName || customerEmail.split('@')[0]);
+        
+        if (!guestResult.success) {
+          throw new Error(guestResult.error || 'Failed to create account. Please try again or log in.');
+        }
+        
+        userId = guestResult.userId;
+        isGuestPurchase = true;
+      }
+
+      if (!userId) {
+        throw new Error('Failed to process payment. Please try again.');
+      }
+
+      // CRITICAL: Check for duplicate purchases before processing
+      // This prevents users from paying for courses they already own
+      const alreadyOwnedItems: string[] = [];
+      const itemsToPurchase: typeof cartItems = [];
+      
       for (const item of cartItems) {
+        const isEnrolled = await enrollmentsApi.checkEnrollment(userId, item.id);
+        if (isEnrolled) {
+          alreadyOwnedItems.push(item.name);
+        } else {
+          itemsToPurchase.push(item);
+        }
+      }
+
+      // If ALL items are already owned, show error
+      if (itemsToPurchase.length === 0) {
+        throw new Error(`You already own all items in your cart: ${alreadyOwnedItems.join(', ')}. Please check your dashboard.`);
+      }
+
+      // If SOME items are already owned, warn but continue with remaining items
+      if (alreadyOwnedItems.length > 0) {
+        console.warn(`User already owns: ${alreadyOwnedItems.join(', ')}. Processing only new items.`);
+      }
+
+      // Create purchase records for each NEW item only
+      for (const item of itemsToPurchase) {
+        // Include teaching materials price if selected
+        const includeTeachingMaterials = !!(teachingMaterialsSelections[item.id] && item.teachingMaterialsPrice);
+        const teachingMaterialsCost = includeTeachingMaterials ? item.teachingMaterialsPrice! : 0;
+        const itemTotalPrice = item.price + teachingMaterialsCost;
+        
+        // Calculate per-item discount (proportionally distributed based on total)
+        const orderTotal = subtotal + teachingMaterialsTotal;
+        const itemDiscountAmount = appliedDiscount 
+          ? (itemTotalPrice / orderTotal) * appliedDiscount.amount 
+          : 0;
+        const finalAmount = itemTotalPrice - itemDiscountAmount;
+        
         await purchasesApi.create({
           userId,
           courseId: item.id,
-          amount: item.price,
+          amount: finalAmount,
+          originalAmount: item.price,
+          discountAmount: itemDiscountAmount,
+          discountCodeId: appliedDiscount?.discountCodeId,
           currency: 'EUR',
           paymentMethod: method,
           transactionId,
           discountCode: appliedDiscount?.code,
+          includeTeachingMaterials,
+          teachingMaterialsAmount: teachingMaterialsCost,
+          guestEmail: isGuestPurchase ? customerEmail.trim().toLowerCase() : undefined,
         });
       }
 
-      setPaymentSuccess(true);
+      // Clear cart and redirect to success page
       onClearCart();
+      
+      // Pass guest flag to success page via hash
+      if (isGuestPurchase) {
+        window.location.hash = '#checkout-success?guest=true';
+      } else {
+        window.location.hash = '#checkout-success';
+      }
     } catch (err) {
       console.error('Error recording purchase:', err);
       setError(err instanceof Error ? err.message : 'Failed to complete purchase');
     }
-  }, [authUser, profile, cartItems, appliedDiscount, onClearCart]);
+  }, [authUser, profile, cartItems, appliedDiscount, onClearCart, subtotal, teachingMaterialsSelections, teachingMaterialsTotal, customerEmail, customerName, revalidateDiscountCode]);
 
-  // Render PayPal buttons when ready
+  // Memoize PayPal request to prevent unnecessary re-renders
+  // Only rebuild when cart items or total actually change
+  const paypalRequest = useMemo(() => {
+    if (cartItems.length === 0) return null;
+    return {
+      orderId: generateOrderId(),
+      amount: total,
+      currency: 'EUR',
+      description: `DSA Smart Start - ${cartItems.length} course(s)`,
+      customerEmail,
+      customerName,
+      items: cartItems.map(item => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: 1,
+      })),
+      returnUrl: `${window.location.origin}/#checkout-success`,
+      cancelUrl: `${window.location.origin}/#checkout`,
+    } as PaymentRequest;
+  }, [cartItems, total]); // Only depend on cart items and total, not customer info
+
+  // Render PayPal buttons when ready - with proper cleanup
   useEffect(() => {
-    if (paypalLoaded && selectedPaymentMethod === 'paypal' && paypalContainerRef.current && cartItems.length > 0) {
-      const container = paypalContainerRef.current;
-      container.innerHTML = ''; // Clear previous buttons
-      
-      const orderId = generateOrderId();
-      const request: PaymentRequest = {
-        orderId,
-        amount: total,
-        currency: 'EUR',
-        description: `DSA Smart Start - ${cartItems.length} course(s)`,
-        customerEmail,
-        customerName,
-        items: cartItems.map(item => ({
-          id: item.id,
-          name: item.name,
-          price: item.price,
-          quantity: 1,
-        })),
-        returnUrl: `${window.location.origin}/#checkout-success`,
-        cancelUrl: `${window.location.origin}/#checkout`,
+    if (!paypalLoaded || selectedPaymentMethod !== 'paypal' || !paypalContainerRef.current || !paypalRequest) {
+      return;
+    }
+
+    const container = paypalContainerRef.current;
+    container.innerHTML = ''; // Clear previous buttons
+    
+    // Update request with latest customer info at render time
+    const request: PaymentRequest = {
+      ...paypalRequest,
+      customerEmail,
+      customerName,
+    };
+
+    let buttonsInstance: { close?: () => Promise<void> } | null = null;
+
+    if (window.paypal) {
+      const options = paypalPayment.getButtonOptions(request, {
+        onApprove: async (transactionId) => {
+          await handlePaymentSuccess(transactionId, 'paypal');
+        },
+        onError: (err) => {
+          setError(`PayPal error: ${err.message}`);
+        },
+        onCancel: () => {
+          setError('Payment was cancelled. Please try again.');
+        },
+      });
+
+      // Add terms validation
+      const buttonsConfig = {
+        ...options,
+        onClick: (data: any, actions: any) => {
+          if (!termsAccepted) {
+            setTermsError(true);
+            setError('Please accept the Terms & Conditions to proceed');
+            return actions.reject();
+          }
+          setTermsError(false);
+          return actions.resolve();
+        }
       };
 
-      if (window.paypal) {
-        window.paypal.Buttons(paypalPayment.getButtonOptions(request, {
-          onApprove: async (transactionId) => {
-            await handlePaymentSuccess(transactionId, 'paypal');
-          },
-          onError: (err) => {
-            setError(`PayPal error: ${err.message}`);
-          },
-          onCancel: () => {
-            setError('Payment was cancelled. Please try again.');
-          },
-        })).render(container);
-      }
+      buttonsInstance = window.paypal.Buttons(buttonsConfig);
+      buttonsInstance.render(container);
     }
-  }, [paypalLoaded, selectedPaymentMethod, cartItems, total, customerEmail, customerName, handlePaymentSuccess]);
+
+    // Cleanup function to properly close PayPal buttons
+    return () => {
+      if (buttonsInstance && typeof buttonsInstance.close === 'function') {
+        buttonsInstance.close().catch(() => {
+          // Ignore errors during cleanup
+        });
+      }
+    };
+  }, [paypalLoaded, selectedPaymentMethod, paypalRequest, handlePaymentSuccess, customerEmail, customerName, termsAccepted]);
 
   // Load cart items from store
   useEffect(() => {
     const loadCartItems = async () => {
+      setCartLoading(true);
       const items: CartItem[] = [];
       for (const id of cart) {
         try {
@@ -220,6 +539,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
         }
       }
       setCartItems(items);
+      setCartLoading(false);
     };
     loadCartItems();
   }, [cart]);
@@ -270,6 +590,20 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
 
     setDiscountError(null);
     
+    // Define discount code type for type safety
+    interface DiscountCodeData {
+      id: string;
+      code: string;
+      discount_type: 'percentage' | 'fixed';
+      discount_value: number;
+      max_discount: number | null;
+      min_order_amount: number | null;
+      max_uses: number | null;
+      times_used: number;
+      is_active: boolean;
+      expires_at: string | null;
+    }
+    
     // Validate discount code server-side via Supabase
     try {
       const { data, error } = await supabase
@@ -279,46 +613,76 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
         .eq('is_active', true)
         .single();
 
-      if (error || !data) {
+      const discountData = data as DiscountCodeData | null;
+
+      if (error || !discountData) {
         setDiscountError('Invalid or expired discount code');
         setAppliedDiscount(null);
         return;
       }
 
       // Check if code has expired
-      if (data.expires_at && new Date(data.expires_at) < new Date()) {
+      if (discountData.expires_at && new Date(discountData.expires_at) < new Date()) {
         setDiscountError('This discount code has expired');
         setAppliedDiscount(null);
         return;
       }
 
       // Check usage limit
-      if (data.max_uses && data.times_used >= data.max_uses) {
+      if (discountData.max_uses && discountData.times_used >= discountData.max_uses) {
         setDiscountError('This discount code has reached its usage limit');
         setAppliedDiscount(null);
         return;
       }
 
-      // Check minimum order amount
-      if (data.min_order_amount && subtotal < data.min_order_amount) {
-        setDiscountError(`Minimum order of €${data.min_order_amount} required for this code`);
+      // Check per-user usage limit
+      const emailToCheck = user?.email || customerEmail.trim().toLowerCase();
+      if (emailToCheck) {
+        const { data: existingUse } = await supabase
+          .from('discount_code_uses')
+          .select('id')
+          .eq('discount_code_id', discountData.id)
+          .or(`user_id.eq.${user?.id || '00000000-0000-0000-0000-000000000000'},guest_email.eq.${emailToCheck}`)
+          .maybeSingle();
+
+        if (existingUse) {
+          setDiscountError('You have already used this discount code');
+          setAppliedDiscount(null);
+          return;
+        }
+      }
+
+      // Check minimum order amount (include teaching materials in order total)
+      const orderTotalBeforeDiscount = subtotal + teachingMaterialsTotal;
+      if (discountData.min_order_amount && orderTotalBeforeDiscount < discountData.min_order_amount) {
+        setDiscountError(`Minimum order of €${discountData.min_order_amount} required for this code (your order: €${orderTotalBeforeDiscount.toFixed(2)})`);
         setAppliedDiscount(null);
         return;
       }
 
-      // Calculate discount amount
+      // Calculate discount amount (apply to full order total including teaching materials)
       let discountAmount = 0;
-      if (data.discount_type === 'percentage') {
-        discountAmount = subtotal * (data.discount_value / 100);
+      if (discountData.discount_type === 'percentage') {
+        discountAmount = orderTotalBeforeDiscount * (discountData.discount_value / 100);
         // Apply max discount cap if set
-        if (data.max_discount && discountAmount > data.max_discount) {
-          discountAmount = data.max_discount;
+        if (discountData.max_discount && discountAmount > discountData.max_discount) {
+          discountAmount = discountData.max_discount;
         }
-        setAppliedDiscount({ code: `${code} (${data.discount_value}% OFF)`, amount: discountAmount });
+        setAppliedDiscount({ 
+          code: `${code} (${discountData.discount_value}% OFF)`, 
+          amount: discountAmount,
+          discountCodeId: discountData.id
+        });
+        announce(`Discount code applied! You save €${discountAmount.toFixed(2)}`);
       } else {
-        // Fixed amount discount
-        discountAmount = Math.min(data.discount_value, subtotal);
-        setAppliedDiscount({ code: `${code} (-€${data.discount_value})`, amount: discountAmount });
+        // Fixed amount discount (cap at full order total)
+        discountAmount = Math.min(discountData.discount_value, orderTotalBeforeDiscount);
+        setAppliedDiscount({ 
+          code: `${code} (-€${discountData.discount_value})`, 
+          amount: discountAmount,
+          discountCodeId: discountData.id
+        });
+        announce(`Discount code applied! You save €${discountAmount.toFixed(2)}`);
       }
     } catch (err) {
       // If discount_codes table doesn't exist, show generic message
@@ -332,6 +696,12 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
     e.preventDefault();
     setError(null);
 
+    if (!termsAccepted) {
+      setTermsError(true);
+      setError('Please accept the Terms & Conditions to proceed');
+      return;
+    }
+
     if (!customerName.trim() || !customerEmail.trim()) {
       setError('Please fill in your name and email');
       return;
@@ -340,6 +710,13 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
     setLoading(true);
 
     try {
+      // Re-validate discount code before processing payment
+      const discountValid = await revalidateDiscountCode();
+      if (!discountValid) {
+        setLoading(false);
+        return;
+      }
+
       const orderId = generateOrderId();
       const request: PaymentRequest = {
         orderId,
@@ -421,6 +798,16 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
 
   return (
     <div className="bg-white min-h-screen pt-32 pb-20 relative">
+      {/* Screen reader announcements - visually hidden live region */}
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      >
+        {announcement}
+      </div>
+      
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <canvas ref={canvasRef} className="absolute inset-0" />
       </div>
@@ -428,25 +815,49 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
       <section className="relative z-10 max-w-7xl mx-auto px-6">
         <button 
           onClick={(e) => { e.preventDefault(); onBack(); }}
-          className="group flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-gray-400 hover:text-purple-600 transition-all mb-12 bg-white/50 backdrop-blur-sm px-6 py-3 rounded-full border border-gray-100 shadow-sm relative z-50 pointer-events-auto"
+          className="group flex items-center gap-2 text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-gray-400 hover:text-purple-600 transition-all mb-8 sm:mb-12 bg-white/50 backdrop-blur-sm px-4 sm:px-6 py-3 sm:py-3 rounded-full border border-gray-100 shadow-sm relative z-50 pointer-events-auto min-h-[44px]"
         >
-          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-          Go back to previous page
+          <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+          <span className="hidden sm:inline">Go back to previous page</span>
+          <span className="sm:hidden">Back</span>
         </button>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-16 lg:gap-24 items-start">
           {/* Left Column: Form or Empty State */}
           <div className="lg:col-span-7 animate-reveal">
             {cartItems.length === 0 ? (
-              <div className="bg-white p-12 md:p-24 rounded-[4rem] border border-dashed border-gray-200 text-center">
-                <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center text-gray-300 mx-auto mb-8">
-                  <ShoppingCart size={40} />
+              <div className="bg-white p-8 sm:p-12 md:p-24 rounded-[2rem] sm:rounded-[4rem] border border-dashed border-gray-200 text-center">
+                <div className="w-16 sm:w-20 h-16 sm:h-20 bg-purple-50 rounded-full flex items-center justify-center text-purple-400 mx-auto mb-6 sm:mb-8">
+                  <ShoppingCart size={32} className="sm:hidden" />
+                  <ShoppingCart size={40} className="hidden sm:block" />
                 </div>
-                <h2 className="text-3xl font-black text-gray-900 mb-4 uppercase tracking-tight">Your cart is empty</h2>
-                <p className="text-gray-500 mb-10 font-medium">Add some courses to your cart to begin your journey with us.</p>
+                <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-3 sm:mb-4 uppercase tracking-tight">Your cart is empty</h2>
+                <p className="text-gray-500 mb-6 font-medium text-sm sm:text-base">
+                  Start your learning journey today! Browse our courses designed specifically for students with learning differences.
+                </p>
+                
+                {/* Quick suggestions */}
+                <div className="bg-gray-50 rounded-2xl p-4 sm:p-6 mb-8 text-left">
+                  <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">Popular choices:</p>
+                  <ul className="space-y-2 text-sm text-gray-600">
+                    <li className="flex items-center gap-2">
+                      <span className="w-2 h-2 bg-purple-400 rounded-full"></span>
+                      Interactive A1-B1 English Courses
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="w-2 h-2 bg-pink-400 rounded-full"></span>
+                      Kids English Programs (Basic to Advanced)
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="w-2 h-2 bg-amber-400 rounded-full"></span>
+                      Premium & Gold Pathways for intensive learning
+                    </li>
+                  </ul>
+                </div>
+                
                 <button 
                   onClick={onBrowse}
-                  className="bg-gray-900 text-white px-12 py-5 rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-600 transition-all shadow-xl"
+                  className="bg-purple-600 text-white px-8 sm:px-12 py-4 sm:py-5 rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-all shadow-xl shadow-purple-200 min-h-[48px]"
                 >
                   Browse Courses
                 </button>
@@ -494,34 +905,75 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
                   </div>
                 )}
 
+                {/* Session Timeout Warning */}
+                {sessionWarning.show && (
+                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-center justify-between gap-4 animate-pulse">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-amber-800 font-bold text-sm">Session expiring soon</p>
+                        <p className="text-amber-600 text-xs mt-0.5">
+                          Your checkout session will expire in {sessionWarning.minutesLeft} minute{sessionWarning.minutesLeft !== 1 ? 's' : ''}. 
+                          Please complete your purchase.
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={extendSession}
+                      className="px-4 py-2 bg-amber-500 text-white rounded-xl text-xs font-bold uppercase tracking-wide hover:bg-amber-600 transition-all flex-shrink-0"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                )}
+
                 {/* Student Info */}
-                <div className="bg-white p-10 md:p-14 rounded-[3.5rem] border border-gray-100 shadow-xl">
-                  <h3 className="text-xl font-black text-gray-900 mb-8 uppercase tracking-tight flex items-center gap-3">
+                <div className="bg-white p-6 sm:p-10 md:p-14 rounded-[2rem] sm:rounded-[3.5rem] border border-gray-100 shadow-xl">
+                  <h3 className="text-lg sm:text-xl font-black text-gray-900 mb-6 sm:mb-8 uppercase tracking-tight flex items-center gap-3">
                     <User size={20} className="text-purple-500" />
                     Student Information
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     <div className="flex flex-col gap-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Full Name</label>
+                      <label htmlFor="checkout-name" className="text-[10px] font-black uppercase tracking-widest text-gray-600 ml-4">Full Name</label>
                       <input 
+                        id="checkout-name"
                         required 
                         type="text" 
                         placeholder="Your Name" 
                         value={customerName}
                         onChange={(e) => setCustomerName(e.target.value)}
-                        className="w-full px-8 py-5 rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-purple-600 outline-none transition-all font-bold" 
+                        className="w-full px-5 sm:px-8 py-4 sm:py-5 rounded-2xl sm:rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-purple-600 outline-none transition-all font-bold text-base" 
                       />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Email Address</label>
+                      <label htmlFor="checkout-email" className="text-[10px] font-black uppercase tracking-widest text-gray-600 ml-4">Email Address</label>
                       <input 
+                        id="checkout-email"
                         required 
                         type="email" 
                         placeholder="email@example.com" 
                         value={customerEmail}
                         onChange={(e) => setCustomerEmail(e.target.value)}
-                        className="w-full px-8 py-5 rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-purple-600 outline-none transition-all font-bold" 
+                        onBlur={() => setEmailTouched(true)}
+                        aria-invalid={emailError && emailTouched ? 'true' : 'false'}
+                        aria-describedby={emailError && emailTouched ? 'checkout-email-error' : undefined}
+                        className={`w-full px-5 sm:px-8 py-4 sm:py-5 rounded-2xl sm:rounded-[2rem] bg-gray-50 border outline-none transition-all font-bold text-base ${
+                          emailError && emailTouched
+                            ? 'border-red-400 bg-red-50 focus:border-red-500'
+                            : 'border-transparent focus:bg-white focus:border-purple-600'
+                        }`}
                       />
+                      {emailError && emailTouched && (
+                        <p id="checkout-email-error" className="text-red-500 text-xs font-medium ml-4 flex items-center gap-1" role="alert">
+                          <AlertCircle size={12} />
+                          {emailError}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -531,35 +983,36 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
                   <div className="absolute top-0 right-0 p-8">
                     <ShieldCheck size={40} className="text-green-500/20" />
                   </div>
-                  <h3 className="text-xl font-black text-gray-900 mb-8 uppercase tracking-tight flex items-center gap-3">
+                  <h3 className="text-lg sm:text-xl font-black text-gray-900 mb-6 sm:mb-8 uppercase tracking-tight flex items-center gap-3">
                     <Lock size={20} className="text-purple-500" />
                     Payment Method
                   </h3>
 
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     {/* Card Payment Option (Raiffeisen) */}
                     {paymentConfig.raiffeisen.isConfigured && (
                       <button
                         type="button"
                         onClick={() => setSelectedPaymentMethod('card')}
-                        className={`w-full p-6 rounded-3xl border-2 transition-all flex items-center gap-4 ${
+                        className={`w-full p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-2 transition-all flex items-center gap-3 sm:gap-4 min-h-[72px] ${
                           selectedPaymentMethod === 'card' 
                             ? 'border-purple-600 bg-purple-50' 
                             : 'border-gray-200 hover:border-gray-300'
                         }`}
                       >
-                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
+                        <div className={`w-10 sm:w-12 h-10 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 ${
                           selectedPaymentMethod === 'card' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-500'
                         }`}>
-                          <CreditCard size={24} />
+                          <CreditCard size={20} className="sm:hidden" />
+                          <CreditCard size={24} className="hidden sm:block" />
                         </div>
-                        <div className="text-left flex-grow">
-                          <p className="font-black text-gray-900 uppercase tracking-wide text-sm">Credit / Debit Card</p>
-                          <p className="text-xs text-gray-500 mt-1">Secure payment via Raiffeisen Bank</p>
+                        <div className="text-left flex-grow min-w-0">
+                          <p className="font-black text-gray-900 uppercase tracking-wide text-xs sm:text-sm">Credit / Debit Card</p>
+                          <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5 sm:mt-1 truncate">Secure payment via Raiffeisen Bank</p>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/200px-Visa_Inc._logo.svg.png" alt="Visa" className="h-6 object-contain" />
-                          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/200px-Mastercard-logo.svg.png" alt="Mastercard" className="h-6 object-contain" />
+                        <div className="hidden sm:flex items-center gap-2 shrink-0">
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/200px-Visa_Inc._logo.svg.png" alt="Visa" className="h-5 sm:h-6 object-contain" />
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/200px-Mastercard-logo.svg.png" alt="Mastercard" className="h-5 sm:h-6 object-contain" />
                         </div>
                       </button>
                     )}
@@ -569,22 +1022,23 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
                       <button
                         type="button"
                         onClick={() => setSelectedPaymentMethod('paypal')}
-                        className={`w-full p-6 rounded-3xl border-2 transition-all flex items-center gap-4 ${
+                        className={`w-full p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-2 transition-all flex items-center gap-3 sm:gap-4 min-h-[72px] ${
                           selectedPaymentMethod === 'paypal' 
                             ? 'border-purple-600 bg-purple-50' 
                             : 'border-gray-200 hover:border-gray-300'
                         }`}
                       >
-                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
+                        <div className={`w-10 sm:w-12 h-10 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 ${
                           selectedPaymentMethod === 'paypal' ? 'bg-[#003087] text-white' : 'bg-gray-100 text-gray-500'
                         }`}>
-                          <Wallet size={24} />
+                          <Wallet size={20} className="sm:hidden" />
+                          <Wallet size={24} className="hidden sm:block" />
                         </div>
-                        <div className="text-left flex-grow">
-                          <p className="font-black text-gray-900 uppercase tracking-wide text-sm">PayPal</p>
-                          <p className="text-xs text-gray-500 mt-1">Pay securely with your PayPal account</p>
+                        <div className="text-left flex-grow min-w-0">
+                          <p className="font-black text-gray-900 uppercase tracking-wide text-xs sm:text-sm">PayPal</p>
+                          <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5 sm:mt-1">Pay securely with your PayPal account</p>
                         </div>
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/200px-PayPal.svg.png" alt="PayPal" className="h-6 object-contain" />
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/200px-PayPal.svg.png" alt="PayPal" className="h-5 sm:h-6 object-contain shrink-0" />
                       </button>
                     )}
                   </div>
@@ -592,6 +1046,32 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
                   {/* PayPal Button Container */}
                   {selectedPaymentMethod === 'paypal' && (
                     <div className="mt-8">
+                      {/* Terms Checkbox for PayPal */}
+                      <div className="mb-6">
+                        <label className={`flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl border transition-all cursor-pointer hover:bg-gray-50 ${
+                          termsError ? 'border-red-300 bg-red-50/50' : 'border-gray-200'
+                        }`}>
+                          <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-colors mt-0.5 ${
+                            termsAccepted ? 'bg-purple-600 border-purple-600' : 'border-gray-300'
+                          }`}>
+                            {termsAccepted && <Check size={14} className="text-white" />}
+                          </div>
+                          <input 
+                            type="checkbox" 
+                            checked={termsAccepted}
+                            onChange={(e) => {
+                              setTermsAccepted(e.target.checked);
+                              if(e.target.checked) setTermsError(false);
+                            }}
+                            className="sr-only"
+                          />
+                          <div className="text-sm text-gray-600 leading-relaxed max-w-[90%]">
+                            I accept the <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-purple-600 font-bold hover:underline" onClick={(e) => e.stopPropagation()}>Terms & Conditions</a> and <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-purple-600 font-bold hover:underline" onClick={(e) => e.stopPropagation()}>Privacy Policy</a>
+                          </div>
+                        </label>
+                        {termsError && <p className="text-red-500 text-xs font-bold mt-2 ml-2">You must accept the terms to continue</p>}
+                      </div>
+
                       {paypalLoaded ? (
                         <div ref={paypalContainerRef} className="paypal-button-container" />
                       ) : (
@@ -612,6 +1092,33 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
                           You will be redirected to Raiffeisen Bank's secure payment page to enter your card details.
                         </p>
                       </div>
+
+                      {/* Terms Checkbox */}
+                      <div className="mb-6">
+                        <label className={`flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl border transition-all cursor-pointer hover:bg-gray-50 ${
+                          termsError ? 'border-red-300 bg-red-50/50' : 'border-gray-200'
+                        }`}>
+                          <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-colors mt-0.5 ${
+                            termsAccepted ? 'bg-purple-600 border-purple-600' : 'border-gray-300'
+                          }`}>
+                            {termsAccepted && <Check size={14} className="text-white" />}
+                          </div>
+                          <input 
+                            type="checkbox" 
+                            checked={termsAccepted}
+                            onChange={(e) => {
+                              setTermsAccepted(e.target.checked);
+                              if(e.target.checked) setTermsError(false);
+                            }}
+                            className="sr-only"
+                          />
+                          <div className="text-sm text-gray-600 leading-relaxed max-w-[90%]">
+                            I accept the <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-purple-600 font-bold hover:underline" onClick={(e) => e.stopPropagation()}>Terms & Conditions</a> and <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-purple-600 font-bold hover:underline" onClick={(e) => e.stopPropagation()}>Privacy Policy</a>
+                          </div>
+                        </label>
+                        {termsError && <p className="text-red-500 text-xs font-bold mt-2 ml-2">You must accept the terms to continue</p>}
+                      </div>
+
                       <button 
                         type="button"
                         onClick={handleRaiffeisenPayment}
@@ -647,34 +1154,74 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
           {/* Right Column: Order Summary */}
           <div className="lg:col-span-5 animate-reveal stagger-1">
             <div className="sticky top-32 space-y-8">
-              <div className="bg-gradient-to-br from-[#1a1c2d] to-black p-10 md:p-12 rounded-[3.5rem] text-white relative overflow-hidden">
+              <div className="bg-gradient-to-br from-[#1a1c2d] to-black p-6 sm:p-10 md:p-12 rounded-[2rem] sm:rounded-[3.5rem] text-white relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-purple-600/20 rounded-full blur-[60px] translate-x-1/2 -translate-y-1/2"></div>
-                <h3 className="text-xl font-black mb-8 uppercase tracking-widest border-b border-white/10 pb-6">Your Courses</h3>
+                <h3 className="text-lg sm:text-xl font-black mb-6 sm:mb-8 uppercase tracking-widest border-b border-white/10 pb-4 sm:pb-6">Your Courses</h3>
                 
-                {cartItems.length > 0 ? (
+                {/* Cart Loading Skeleton */}
+                {cartLoading && cart.length > 0 ? (
+                  <div className="space-y-4 mb-8">
+                    {cart.slice(0, 3).map((_, idx) => (
+                      <div key={idx} className="p-4 rounded-2xl bg-white/5 border border-white/10 animate-pulse">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-xl bg-white/10"></div>
+                          <div className="flex-1">
+                            <div className="h-3 w-3/4 bg-white/10 rounded mb-2"></div>
+                            <div className="h-3 w-1/4 bg-white/10 rounded"></div>
+                          </div>
+                          <div className="w-8 h-8 rounded-lg bg-white/10"></div>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="pt-6 border-t border-white/10 space-y-3">
+                      <div className="flex justify-between">
+                        <div className="h-3 w-16 bg-white/10 rounded"></div>
+                        <div className="h-3 w-20 bg-white/10 rounded"></div>
+                      </div>
+                      <div className="flex justify-between">
+                        <div className="h-4 w-12 bg-white/10 rounded"></div>
+                        <div className="h-5 w-24 bg-white/20 rounded"></div>
+                      </div>
+                    </div>
+                  </div>
+                ) : cartItems.length > 0 ? (
                   <div className="space-y-4 mb-8 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                     {cartItems.map((item, idx) => (
-                      <div key={item.id} className="group p-4 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all animate-reveal" style={{ animationDelay: `${idx * 0.1}s` }}>
-                        <div className="flex items-center justify-between gap-4">
-                          <div className="flex items-center gap-4">
-                            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center shrink-0`}>
-                              <ShoppingCart size={16} />
+                      <div 
+                        key={item.id} 
+                        className={`group p-3 sm:p-4 rounded-2xl sm:rounded-3xl border transition-all animate-reveal ${
+                          pendingRemoval?.id === item.id 
+                            ? 'bg-red-500/10 border-red-500/30 opacity-50' 
+                            : 'bg-white/5 border-white/10 hover:bg-white/10'
+                        }`} 
+                        style={{ animationDelay: `${idx * 0.1}s` }}
+                      >
+                        <div className="flex items-center justify-between gap-2 sm:gap-4">
+                          <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+                            <div className={`w-9 sm:w-10 h-9 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center shrink-0`}>
+                              <ShoppingCart size={14} className="sm:hidden" />
+                              <ShoppingCart size={16} className="hidden sm:block" />
                             </div>
-                            <div className="overflow-hidden">
-                              <p className="text-[10px] font-black uppercase tracking-tight leading-tight truncate">{item.name}</p>
+                            <div className="overflow-hidden min-w-0">
+                              <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-tight leading-tight truncate">{item.name}</p>
                               <div className="flex items-center gap-2 mt-1">
-                                <p className="text-[10px] font-bold text-white uppercase tracking-widest">{item.price.toFixed(2)}€</p>
+                                <p className="text-[9px] sm:text-[10px] font-bold text-white uppercase tracking-widest">{item.price.toFixed(2)}€</p>
                                 {item.originalPrice && (
-                                  <p className="text-[9px] font-bold text-gray-500 line-through">{item.originalPrice.toFixed(2)}€</p>
+                                  <p className="text-[8px] sm:text-[9px] font-bold text-gray-500 line-through">{item.originalPrice.toFixed(2)}€</p>
                                 )}
                               </div>
                             </div>
                           </div>
                           <button 
-                            onClick={() => onRemoveItem(item.id)}
-                            className="p-2 text-gray-500 hover:text-pink-500 transition-colors"
+                            onClick={() => handleRemoveItem(item.id, item.name)}
+                            disabled={pendingRemoval?.id === item.id}
+                            className={`p-2 sm:p-2 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-lg transition-colors ${
+                              pendingRemoval?.id === item.id 
+                                ? 'text-red-400 cursor-not-allowed' 
+                                : 'text-gray-500 hover:text-pink-500 hover:bg-white/10'
+                            }`}
                           >
-                            <X size={16} />
+                            <X size={18} />
                           </button>
                         </div>
                         
@@ -726,38 +1273,63 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
                   <div className="py-10 text-center text-gray-500 italic text-sm">No courses selected</div>
                 )}
 
+                {/* Undo Removal Toast */}
+                {pendingRemoval && (
+                  <div className="mb-4 p-4 bg-red-500/20 border border-red-500/30 rounded-2xl flex items-center justify-between animate-reveal">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-red-500/30 flex items-center justify-center">
+                        <X size={14} className="text-red-400" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-tight text-red-400">
+                          Removing: {pendingRemoval.name}
+                        </p>
+                        <p className="text-[8px] text-gray-400 mt-0.5">Will be removed in 5 seconds</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={undoRemoval}
+                      className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-[9px] font-black uppercase tracking-widest text-white transition-all"
+                    >
+                      Undo
+                    </button>
+                  </div>
+                )}
+
                 {/* Discount Code Field */}
                 {cartItems.length > 0 && (
-                  <div className="mb-8 p-6 bg-white/5 rounded-3xl border border-white/10">
-                    <label className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 mb-3 block">Promo Code</label>
-                    <div className="flex gap-2">
+                  <div className="mb-6 sm:mb-8 p-4 sm:p-6 bg-white/5 rounded-2xl sm:rounded-3xl border border-white/10">
+                    <label htmlFor="promo-code" className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2 sm:mb-3 block">Promo Code</label>
+                    <div className="flex flex-col sm:flex-row gap-2">
                       <div className="relative flex-grow">
                         <Tag className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={14} />
                         <input 
+                          id="promo-code"
                           type="text" 
                           value={discountInput}
                           onChange={(e) => setDiscountInput(e.target.value)}
                           placeholder="ENTER CODE"
-                          className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-10 pr-4 text-[10px] font-black uppercase tracking-widest text-white focus:border-purple-500 focus:outline-none transition-all"
+                          aria-describedby={discountError ? 'promo-code-error' : appliedDiscount ? 'promo-code-success' : undefined}
+                          className="w-full bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl py-3 pl-10 pr-4 text-[10px] font-black uppercase tracking-widest text-white focus:border-purple-500 focus:outline-none transition-all"
                         />
                       </div>
                       <button 
                         type="button"
                         onClick={handleApplyDiscount}
-                        className="bg-white text-gray-900 px-6 rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-purple-500 hover:text-white transition-all shadow-md active:scale-95"
+                        className="bg-white text-gray-900 px-6 py-3 sm:py-0 rounded-xl sm:rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-purple-500 hover:text-white transition-all shadow-md active:scale-95 min-h-[44px]"
                       >
                         Apply
                       </button>
                     </div>
                     {discountError && (
-                      <p className="text-[9px] font-bold text-pink-500 mt-2 ml-2 uppercase tracking-widest">{discountError}</p>
+                      <p id="promo-code-error" className="text-[9px] font-bold text-pink-500 mt-2 ml-2 uppercase tracking-widest" role="alert">{discountError}</p>
                     )}
                     {appliedDiscount && (
-                      <div className="flex items-center gap-2 mt-3 ml-2 text-green-400">
+                      <div id="promo-code-success" className="flex items-center gap-2 mt-3 ml-2 text-green-400" role="status">
                         <Ticket size={14} />
-                        <span className="text-[9px] font-black uppercase tracking-widest">Code Applied: {appliedDiscount.code}</span>
-                        <button onClick={() => setAppliedDiscount(null)} className="ml-auto text-white/40 hover:text-white transition-colors">
-                          <X size={12} />
+                        <span className="text-[9px] font-black uppercase tracking-widest flex-1 truncate">Code Applied: {appliedDiscount.code}</span>
+                        <button onClick={() => setAppliedDiscount(null)} className="ml-auto text-white/40 hover:text-white transition-colors p-1 min-w-[32px] min-h-[32px] flex items-center justify-center">
+                          <X size={14} />
                         </button>
                       </div>
                     )}
@@ -804,6 +1376,18 @@ const CheckoutPage: React.FC<CheckoutProps> = ({ cart, onBack, onRemoveItem, onC
                     </div>
                   ))}
                 </div>
+                
+                {/* Email confirmation note */}
+                {customerEmail && (
+                  <div className="mt-6 pt-4 border-t border-gray-100">
+                    <div className="flex items-start gap-3 text-gray-500">
+                      <Mail size={16} className="mt-0.5 flex-shrink-0" />
+                      <p className="text-xs">
+                        Order confirmation will be sent to <strong className="text-gray-700">{customerEmail}</strong>
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Security badges */}
