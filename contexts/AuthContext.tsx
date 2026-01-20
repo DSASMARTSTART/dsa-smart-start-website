@@ -129,16 +129,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     });
     
-    if (!error && data.user && supabase) {
-      // Create user profile in users table
-      await supabase.from('users').insert({
-        id: data.user.id,
-        email,
-        name,
-        role: 'student',
-        status: 'active',
-      });
-    }
+    // Note: User profile is automatically created by database trigger (handle_new_user)
+    // The trigger runs on auth.users INSERT and creates the public.users record
     
     return { error };
   };
