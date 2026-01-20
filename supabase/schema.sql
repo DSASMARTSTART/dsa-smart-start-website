@@ -244,6 +244,7 @@ ALTER TABLE discount_codes ENABLE ROW LEVEL SECURITY;
 -- ============================================
 -- Drop existing policies first (safe to run multiple times)
 DROP POLICY IF EXISTS "Public read access for published user info" ON users;
+DROP POLICY IF EXISTS "Users can create own profile" ON users;
 DROP POLICY IF EXISTS "Users can update own profile" ON users;
 DROP POLICY IF EXISTS "Admins can manage all users" ON users;
 DROP POLICY IF EXISTS "Anyone can view published courses" ON courses;
@@ -267,6 +268,10 @@ DROP POLICY IF EXISTS "Admins can view contact messages" ON contact_messages;
 -- Users policies
 CREATE POLICY "Public read access for published user info" ON users
   FOR SELECT USING (true);
+
+CREATE POLICY "Users can create own profile" ON users
+  FOR INSERT 
+  WITH CHECK (auth.uid()::text = id::text);
 
 CREATE POLICY "Users can update own profile" ON users
   FOR UPDATE USING (auth.uid()::text = id::text);

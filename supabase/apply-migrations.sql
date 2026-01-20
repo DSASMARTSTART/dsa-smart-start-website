@@ -159,9 +159,203 @@ COMMENT ON COLUMN courses.footer_order IS 'Sort order in footer (lower numbers a
 COMMENT ON COLUMN courses.syllabus_content IS 'JSON containing syllabus units, topics, and learning outcomes for the syllabus page';
 
 -- ============================================
+-- MIGRATION: Add Wizard State Fields
+-- For multi-step course creation wizard
+-- ============================================
+
+-- Step 1: Add wizard_step field to track current step (1-4)
+DO $$ 
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'courses' AND column_name = 'wizard_step') THEN
+    ALTER TABLE courses ADD COLUMN wizard_step INTEGER NOT NULL DEFAULT 1 CHECK (wizard_step >= 1 AND wizard_step <= 4);
+  END IF;
+END $$;
+
+-- Step 2: Add steps_completed JSONB field to track which steps are complete
+DO $$ 
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'courses' AND column_name = 'steps_completed') THEN
+    ALTER TABLE courses ADD COLUMN steps_completed JSONB NOT NULL DEFAULT '{"metadata": false, "pricing": false, "syllabus": false, "content": false}';
+  END IF;
+END $$;
+
+-- Step 3: Add wizard_completed flag (true when all 4 steps done, required for publishing)
+DO $$ 
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'courses' AND column_name = 'wizard_completed') THEN
+    ALTER TABLE courses ADD COLUMN wizard_completed BOOLEAN NOT NULL DEFAULT false;
+  END IF;
+END $$;
+
+-- Step 4: Add payment_product_id for PayPal/payment provider integration
+DO $$ 
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'courses' AND column_name = 'payment_product_id') THEN
+    ALTER TABLE courses ADD COLUMN payment_product_id TEXT;
+  END IF;
+END $$;
+
+-- Step 5: Add payment_provider field (paypal, raiffeisen, etc.)
+DO $$ 
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'courses' AND column_name = 'payment_provider') THEN
+    ALTER TABLE courses ADD COLUMN payment_provider TEXT DEFAULT 'paypal';
+  END IF;
+END $$;
+
+-- Step 6: Create indexes for filtering drafts/incomplete courses
+CREATE INDEX IF NOT EXISTS idx_courses_wizard_completed ON courses(wizard_completed);
+CREATE INDEX IF NOT EXISTS idx_courses_wizard_step ON courses(wizard_step);
+
+-- Comments for wizard fields
+COMMENT ON COLUMN courses.wizard_step IS 'Current step in the 4-step creation wizard (1=Metadata, 2=Pricing, 3=Syllabus, 4=Content)';
+COMMENT ON COLUMN courses.steps_completed IS 'JSON tracking which wizard steps are completed: {metadata, pricing, syllabus, content}';
+COMMENT ON COLUMN courses.wizard_completed IS 'True when all 4 wizard steps are completed - required before publishing';
+COMMENT ON COLUMN courses.payment_product_id IS 'Product ID from payment provider (PayPal/Raiffeisen) for checkout integration';
+COMMENT ON COLUMN courses.payment_provider IS 'Which payment provider handles this course: paypal, raiffeisen';
+
+-- ============================================
+-- MIGRATION: Add Purchase Status & Webhook Support
+-- For pending purchases until payment webhook confirms
+-- ============================================
+
+-- Step 1: Add status field to purchases table
+DO $$ 
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'purchases' AND column_name = 'status') THEN
+    ALTER TABLE purchases ADD COLUMN status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'completed', 'failed', 'refunded'));
+  END IF;
+END $$;
+
+-- Step 2: Add webhook_verified field to track if payment was verified by webhook
+DO $$ 
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'purchases' AND column_name = 'webhook_verified') THEN
+    ALTER TABLE purchases ADD COLUMN webhook_verified BOOLEAN NOT NULL DEFAULT false;
+  END IF;
+END $$;
+
+-- Step 3: Add webhook_verified_at timestamp
+DO $$ 
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'purchases' AND column_name = 'webhook_verified_at') THEN
+    ALTER TABLE purchases ADD COLUMN webhook_verified_at TIMESTAMPTZ;
+  END IF;
+END $$;
+
+-- Step 4: Add payment_provider_response JSONB for storing raw webhook data
+DO $$ 
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'purchases' AND column_name = 'payment_provider_response') THEN
+    ALTER TABLE purchases ADD COLUMN payment_provider_response JSONB;
+  END IF;
+END $$;
+
+-- Step 5: Create index for purchase status (for filtering pending/completed)
+CREATE INDEX IF NOT EXISTS idx_purchases_status ON purchases(status);
+CREATE INDEX IF NOT EXISTS idx_purchases_webhook_verified ON purchases(webhook_verified);
+
+-- Step 6: Add guest_checkout fields to users table for magic link flow
+DO $$ 
+BEGIN
+  -- Flag to indicate user was created via guest checkout
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'created_via_guest_checkout') THEN
+    ALTER TABLE users ADD COLUMN created_via_guest_checkout BOOLEAN NOT NULL DEFAULT false;
+  END IF;
+
+  -- Flag to track if user has set their password (completed onboarding)
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'password_set') THEN
+    ALTER TABLE users ADD COLUMN password_set BOOLEAN NOT NULL DEFAULT true;
+  END IF;
+END $$;
+
+-- Step 7: Function to confirm purchase via webhook
+CREATE OR REPLACE FUNCTION confirm_purchase_webhook(
+  p_transaction_id TEXT,
+  p_provider_response JSONB DEFAULT NULL
+) RETURNS JSONB AS $$
+DECLARE
+  v_purchase_id UUID;
+  v_user_id UUID;
+  v_course_id UUID;
+  v_result JSONB;
+BEGIN
+  -- Find the pending purchase by transaction ID
+  SELECT id, user_id, course_id INTO v_purchase_id, v_user_id, v_course_id
+  FROM purchases
+  WHERE transaction_id = p_transaction_id AND status = 'pending'
+  LIMIT 1;
+
+  IF v_purchase_id IS NULL THEN
+    RETURN jsonb_build_object('success', false, 'error', 'Purchase not found or already processed');
+  END IF;
+
+  -- Update purchase to completed
+  UPDATE purchases
+  SET 
+    status = 'completed',
+    webhook_verified = true,
+    webhook_verified_at = NOW(),
+    payment_provider_response = COALESCE(p_provider_response, payment_provider_response)
+  WHERE id = v_purchase_id;
+
+  -- Create enrollment (this grants course access)
+  INSERT INTO enrollments (user_id, course_id, status)
+  VALUES (v_user_id, v_course_id, 'active')
+  ON CONFLICT (user_id, course_id) DO NOTHING;
+
+  RETURN jsonb_build_object(
+    'success', true,
+    'purchase_id', v_purchase_id,
+    'user_id', v_user_id,
+    'course_id', v_course_id
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Step 8: Function to mark purchase as failed
+CREATE OR REPLACE FUNCTION fail_purchase_webhook(
+  p_transaction_id TEXT,
+  p_provider_response JSONB DEFAULT NULL
+) RETURNS JSONB AS $$
+DECLARE
+  v_purchase_id UUID;
+BEGIN
+  -- Find the pending purchase
+  SELECT id INTO v_purchase_id
+  FROM purchases
+  WHERE transaction_id = p_transaction_id AND status = 'pending'
+  LIMIT 1;
+
+  IF v_purchase_id IS NULL THEN
+    RETURN jsonb_build_object('success', false, 'error', 'Purchase not found or already processed');
+  END IF;
+
+  -- Update purchase to failed
+  UPDATE purchases
+  SET 
+    status = 'failed',
+    webhook_verified = true,
+    webhook_verified_at = NOW(),
+    payment_provider_response = COALESCE(p_provider_response, payment_provider_response)
+  WHERE id = v_purchase_id;
+
+  RETURN jsonb_build_object('success', true, 'purchase_id', v_purchase_id);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Comments for new fields
+COMMENT ON COLUMN purchases.status IS 'Purchase status: pending (awaiting webhook), completed (payment confirmed), failed, refunded';
+COMMENT ON COLUMN purchases.webhook_verified IS 'True if payment was verified by webhook callback';
+COMMENT ON COLUMN purchases.webhook_verified_at IS 'Timestamp when webhook verification occurred';
+COMMENT ON COLUMN purchases.payment_provider_response IS 'Raw response data from payment provider webhook';
+COMMENT ON COLUMN users.created_via_guest_checkout IS 'True if user account was created during guest checkout';
+COMMENT ON COLUMN users.password_set IS 'True if user has set their own password (false for guest checkout until they set it)';
+
+-- ============================================
 -- SUCCESS MESSAGE
 -- ============================================
 DO $$ 
 BEGIN
-  RAISE NOTICE 'Migration completed successfully! All course catalog fields have been added.';
+  RAISE NOTICE 'All migrations completed successfully! Purchase status, webhook support, and guest checkout fields have been added.';
 END $$;

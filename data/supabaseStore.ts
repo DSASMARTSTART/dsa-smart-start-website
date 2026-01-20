@@ -9,7 +9,7 @@ import type {
   KPIMetrics, AnalyticsTrends, UserFilters, CourseFilters,
   PaginatedResponse, UserDetail, AuditAction, Module, Lesson, Homework,
   CoursePricing, Category, ProductType, TargetAudience, ContentFormat,
-  CatalogFilters
+  CatalogFilters, WizardStepsCompleted, WizardStep, PaymentProvider
 } from '../types';
 
 // ============================================
@@ -137,10 +137,10 @@ export const authApi = {
 
   /**
    * Create a guest user account for checkout
-   * Creates an account with a temporary password and sends password reset email
+   * Uses magic link for easy first login, then prompts to set password
    * Returns the user ID to use for purchases
    */
-  createGuestCheckout: async (email: string, name: string): Promise<{ success: boolean; userId?: string; error?: string }> => {
+  createGuestCheckout: async (email: string, name: string): Promise<{ success: boolean; userId?: string; error?: string; isExistingUser?: boolean }> => {
     try {
       // First check if user already exists in our users table
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -151,14 +151,33 @@ export const authApi = {
         .single();
 
       if (existingUser) {
-        // User exists - they should log in instead
+        // User exists - send magic link so they can complete purchase easily
+        const { error: magicLinkError } = await supabase.auth.signInWithOtp({
+          email,
+          options: {
+            emailRedirectTo: `${window.location.origin}/#/dashboard?login=magic`,
+            shouldCreateUser: false // Don't create new user, just send login link
+          }
+        });
+
+        if (magicLinkError) {
+          console.error('Magic link error for existing user:', magicLinkError);
+          return { 
+            success: false, 
+            error: 'An account with this email already exists. Please log in to complete your purchase.',
+            isExistingUser: true
+          };
+        }
+
+        // Return success with existing user ID - they'll get a magic link email
         return { 
-          success: false, 
-          error: 'An account with this email already exists. Please log in to complete your purchase.' 
+          success: true, 
+          userId: existingUser.id,
+          isExistingUser: true
         };
       }
 
-      // Generate a secure random password (user will reset it via email)
+      // Generate a secure random password (user will set their own via prompt after magic link login)
       const tempPassword = crypto.randomUUID() + '!' + Math.random().toString(36).substring(2);
       
       // Create the auth user
@@ -167,8 +186,8 @@ export const authApi = {
         password: tempPassword,
         options: {
           data: { name },
-          // Don't send confirmation email - we'll send password reset instead
-          emailRedirectTo: `${window.location.origin}/#reset-password`
+          // Don't send confirmation email - we'll send magic link instead
+          emailRedirectTo: `${window.location.origin}/#/dashboard?login=magic&newuser=true`
         }
       });
 
@@ -183,7 +202,7 @@ export const authApi = {
 
       const userId = authData.user.id;
 
-      // Create user profile in users table
+      // Create user profile in users table with guest checkout flags
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { error: profileError } = await (supabase as any)
         .from('users')
@@ -193,6 +212,8 @@ export const authApi = {
           name: name || email.split('@')[0],
           role: 'student',
           status: 'active',
+          created_via_guest_checkout: true,
+          password_set: false, // Will be set to true when user sets their password
           created_at: now(),
           updated_at: now(),
           last_activity_at: now()
@@ -203,14 +224,21 @@ export const authApi = {
         // Continue anyway - auth user was created
       }
 
-      // Send password reset email so user can set their password
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/#reset-password`
+      // Send magic link email for easy first login
+      const { error: magicLinkError } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/#/dashboard?login=magic&newuser=true`,
+          shouldCreateUser: false // User already created above
+        }
       });
 
-      if (resetError) {
-        console.error('Password reset email error:', resetError);
-        // Don't fail the purchase - just log the error
+      if (magicLinkError) {
+        console.error('Magic link email error:', magicLinkError);
+        // Fall back to password reset if magic link fails
+        await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/#/reset-password`
+        });
       }
 
       return { success: true, userId };
@@ -664,7 +692,13 @@ export const coursesApi = {
       estimatedWeeklyHours: data.estimated_weekly_hours || undefined,
       previewVideoUrl: data.preview_video_url || undefined,
       totalStudentsEnrolled: data.total_students_enrolled || 0,
-      syllabusContent: data.syllabus_content || undefined
+      syllabusContent: data.syllabus_content || undefined,
+      // Wizard state fields
+      wizardStep: (data.wizard_step as WizardStep) || 1,
+      stepsCompleted: (data.steps_completed as WizardStepsCompleted) || { metadata: false, pricing: false, syllabus: false, content: false },
+      wizardCompleted: (data.wizard_completed as boolean) || false,
+      paymentProductId: data.payment_product_id as string | undefined,
+      paymentProvider: (data.payment_provider as PaymentProvider) || 'paypal'
     };
   },
 
@@ -711,12 +745,27 @@ export const coursesApi = {
       estimatedWeeklyHours: c.estimated_weekly_hours || undefined,
       previewVideoUrl: c.preview_video_url || undefined,
       totalStudentsEnrolled: (c.total_students_enrolled as number) || 0,
-      syllabusContent: c.syllabus_content || undefined
+      syllabusContent: c.syllabus_content || undefined,
+      // Wizard state fields
+      wizardStep: (c.wizard_step as WizardStep) || 1,
+      stepsCompleted: (c.steps_completed as WizardStepsCompleted) || { metadata: false, pricing: false, syllabus: false, content: false },
+      wizardCompleted: (c.wizard_completed as boolean) || false,
+      paymentProductId: c.payment_product_id as string | undefined,
+      paymentProvider: (c.payment_provider as PaymentProvider) || 'paypal'
     }));
   },
 
   create: async (courseData: Partial<Course>): Promise<Course> => {
     clearCoursesCache(); // Invalidate cache on create
+    
+    // Default wizard state for new courses
+    const defaultStepsCompleted: WizardStepsCompleted = {
+      metadata: false,
+      pricing: false,
+      syllabus: false,
+      content: false
+    };
+    
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase as any)
       .from('courses')
@@ -735,7 +784,13 @@ export const coursesApi = {
         content_format: courseData.contentFormat || 'interactive',
         teaching_materials_price: courseData.teachingMaterialsPrice || null,
         teaching_materials_included: courseData.teachingMaterialsIncluded || false,
-        related_materials_id: courseData.relatedMaterialsId || null
+        related_materials_id: courseData.relatedMaterialsId || null,
+        // Wizard state fields
+        wizard_step: courseData.wizardStep || 1,
+        steps_completed: courseData.stepsCompleted || defaultStepsCompleted,
+        wizard_completed: false,
+        payment_product_id: null,
+        payment_provider: 'paypal'
       })
       .select()
       .single();
@@ -754,7 +809,13 @@ export const coursesApi = {
       contentFormat: (data.content_format as ContentFormat) || 'interactive',
       teachingMaterialsPrice: data.teaching_materials_price as number | undefined,
       teachingMaterialsIncluded: (data.teaching_materials_included as boolean) || false,
-      relatedMaterialsId: data.related_materials_id as string | undefined
+      relatedMaterialsId: data.related_materials_id as string | undefined,
+      // Wizard state fields
+      wizardStep: (data.wizard_step as WizardStep) || 1,
+      stepsCompleted: (data.steps_completed as WizardStepsCompleted) || { metadata: false, pricing: false, syllabus: false, content: false },
+      wizardCompleted: (data.wizard_completed as boolean) || false,
+      paymentProductId: data.payment_product_id as string | undefined,
+      paymentProvider: (data.payment_provider as PaymentProvider) || 'paypal'
     };
   },
 
@@ -822,6 +883,97 @@ export const coursesApi = {
     };
   },
 
+  // Update wizard state (step, completion status)
+  updateWizardState: async (id: string, updates: { 
+    wizardStep?: WizardStep; 
+    stepsCompleted?: WizardStepsCompleted;
+    wizardCompleted?: boolean;
+  }): Promise<Course> => {
+    clearCoursesCache();
+    const dbUpdates: Record<string, unknown> = { updated_at: now() };
+    
+    if (updates.wizardStep !== undefined) dbUpdates.wizard_step = updates.wizardStep;
+    if (updates.stepsCompleted !== undefined) dbUpdates.steps_completed = updates.stepsCompleted;
+    if (updates.wizardCompleted !== undefined) dbUpdates.wizard_completed = updates.wizardCompleted;
+    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
+      .from('courses')
+      .update(dbUpdates)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    if (!data) throw new Error('Course not found');
+
+    return {
+      ...toCamelCase<Course>(data),
+      modules: data.modules || [],
+      pricing: data.pricing,
+      wizardStep: (data.wizard_step as WizardStep) || 1,
+      stepsCompleted: (data.steps_completed as WizardStepsCompleted) || { metadata: false, pricing: false, syllabus: false, content: false },
+      wizardCompleted: (data.wizard_completed as boolean) || false
+    };
+  },
+
+  // Save draft and update wizard state together (for auto-save on close)
+  saveDraft: async (id: string, courseData: Partial<Course>): Promise<Course> => {
+    clearCoursesCache();
+    
+    const dbUpdates: Record<string, unknown> = { 
+      updated_at: now(), 
+      is_draft: true 
+    };
+    
+    // Update all provided fields
+    if (courseData.title !== undefined) dbUpdates.title = courseData.title;
+    if (courseData.description !== undefined) dbUpdates.description = courseData.description;
+    if (courseData.level !== undefined) dbUpdates.level = courseData.level;
+    if (courseData.thumbnailUrl !== undefined) dbUpdates.thumbnail_url = courseData.thumbnailUrl;
+    if (courseData.pricing !== undefined) dbUpdates.pricing = courseData.pricing;
+    if (courseData.modules !== undefined) dbUpdates.modules = courseData.modules;
+    if (courseData.productType !== undefined) dbUpdates.product_type = courseData.productType;
+    if (courseData.targetAudience !== undefined) dbUpdates.target_audience = courseData.targetAudience;
+    if (courseData.contentFormat !== undefined) dbUpdates.content_format = courseData.contentFormat;
+    if (courseData.teachingMaterialsPrice !== undefined) dbUpdates.teaching_materials_price = courseData.teachingMaterialsPrice;
+    if (courseData.ebookPdfUrl !== undefined) dbUpdates.ebook_pdf_url = courseData.ebookPdfUrl;
+    if (courseData.ebookPageCount !== undefined) dbUpdates.ebook_page_count = courseData.ebookPageCount;
+    if (courseData.showInFooter !== undefined) dbUpdates.show_in_footer = courseData.showInFooter;
+    if (courseData.footerOrder !== undefined) dbUpdates.footer_order = courseData.footerOrder;
+    if (courseData.syllabusContent !== undefined) dbUpdates.syllabus_content = courseData.syllabusContent;
+    if (courseData.learningOutcomes !== undefined) dbUpdates.learning_outcomes = courseData.learningOutcomes;
+    if (courseData.prerequisites !== undefined) dbUpdates.prerequisites = courseData.prerequisites;
+    
+    // Wizard state
+    if (courseData.wizardStep !== undefined) dbUpdates.wizard_step = courseData.wizardStep;
+    if (courseData.stepsCompleted !== undefined) dbUpdates.steps_completed = courseData.stepsCompleted;
+    if (courseData.wizardCompleted !== undefined) dbUpdates.wizard_completed = courseData.wizardCompleted;
+    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
+      .from('courses')
+      .update(dbUpdates)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    if (!data) throw new Error('Course not found');
+
+    return {
+      ...toCamelCase<Course>(data),
+      modules: data.modules || [],
+      pricing: data.pricing,
+      productType: (data.product_type as ProductType) || 'learndash',
+      targetAudience: (data.target_audience as TargetAudience) || 'adults_teens',
+      contentFormat: (data.content_format as ContentFormat) || 'interactive',
+      wizardStep: (data.wizard_step as WizardStep) || 1,
+      stepsCompleted: (data.steps_completed as WizardStepsCompleted) || { metadata: false, pricing: false, syllabus: false, content: false },
+      wizardCompleted: (data.wizard_completed as boolean) || false
+    };
+  },
+
   updatePricing: async (id: string, pricing: CoursePricing): Promise<Course> => {
     clearCoursesCache(); // Invalidate cache on update
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -847,7 +999,16 @@ export const coursesApi = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase as any)
       .from('courses')
-      .update({ is_published: true, is_draft: false, published_at: now(), updated_at: now() })
+      .update({ 
+        is_published: true, 
+        is_draft: false, 
+        published_at: now(), 
+        updated_at: now(),
+        // Ensure course is visible in footer and has payment provider set
+        show_in_footer: true,
+        payment_provider: 'paypal',  // Default to PayPal for now
+        wizard_completed: true
+      })
       .eq('id', id)
       .select()
       .single();
@@ -950,11 +1111,24 @@ export const coursesApi = {
     };
 
     const modules = [...course.modules, newModule];
+    
+    // Build update object - include wizard progress update when first module is added
+    const updateData: Record<string, unknown> = { 
+      modules, 
+      updated_at: now(), 
+      is_draft: true 
+    };
+    
+    // If this is the first module, update wizard progress to show step 4 is started
+    if (course.modules.length === 0) {
+      // Mark content step as started by moving wizard to step 4
+      updateData.wizard_step = 4;
+    }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase as any)
       .from('courses')
-      .update({ modules, updated_at: now(), is_draft: true })
+      .update(updateData)
       .eq('id', courseId)
       .select()
       .single();
@@ -966,7 +1140,10 @@ export const coursesApi = {
     return {
       ...toCamelCase<Course>(data),
       modules: data.modules || [],
-      pricing: data.pricing
+      pricing: data.pricing,
+      wizardStep: data.wizard_step || 1,
+      stepsCompleted: data.steps_completed || { metadata: false, pricing: false, syllabus: false, content: false },
+      wizardCompleted: data.wizard_completed || false
     };
   },
 
@@ -1315,6 +1492,10 @@ export const enrollmentsApi = {
 // PURCHASES API
 // ============================================
 export const purchasesApi = {
+  /**
+   * Create a purchase record with PENDING status
+   * Enrollment is NOT created until webhook confirms payment
+   */
   create: async (purchaseData: {
     userId: string;
     courseId: string;
@@ -1345,6 +1526,8 @@ export const purchasesApi = {
         transaction_id: purchaseData.transactionId || crypto.randomUUID(),
         include_teaching_materials: purchaseData.includeTeachingMaterials || false,
         teaching_materials_amount: purchaseData.teachingMaterialsAmount || 0,
+        status: 'pending', // Start as pending, webhook will confirm
+        webhook_verified: false,
       })
       .select()
       .single();
@@ -1402,10 +1585,108 @@ export const purchasesApi = {
       }
     }
 
-    await enrollmentsApi.create(purchaseData.userId, purchaseData.courseId);
-    await createAuditLog('purchase_created', 'enrollment', data.id, `Purchase completed for course ${purchaseData.courseId}`);
+    // NOTE: Enrollment is NOT created here anymore
+    // It will be created by the webhook when payment is confirmed via confirm_purchase_webhook()
+    await createAuditLog('purchase_created', 'enrollment', data.id, `Pending purchase for course ${purchaseData.courseId} - awaiting payment confirmation`);
 
     return toCamelCase<Purchase>(data);
+  },
+
+  /**
+   * Confirm a purchase after webhook verification
+   * Creates the enrollment and marks purchase as completed
+   */
+  confirmPurchase: async (transactionId: string, providerResponse?: Record<string, unknown>): Promise<{ success: boolean; error?: string }> => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await (supabase as any).rpc('confirm_purchase_webhook', {
+        p_transaction_id: transactionId,
+        p_provider_response: providerResponse || null
+      });
+
+      if (error) {
+        console.error('Webhook confirmation error:', error);
+        return { success: false, error: error.message };
+      }
+
+      if (!data?.success) {
+        return { success: false, error: data?.error || 'Unknown error' };
+      }
+
+      await createAuditLog('purchase_confirmed', 'enrollment', data.purchase_id, `Payment confirmed for transaction ${transactionId}`);
+      return { success: true };
+    } catch (err) {
+      console.error('Confirm purchase error:', err);
+      return { success: false, error: 'Failed to confirm purchase' };
+    }
+  },
+
+  /**
+   * Mark a purchase as failed after webhook verification
+   */
+  failPurchase: async (transactionId: string, providerResponse?: Record<string, unknown>): Promise<{ success: boolean; error?: string }> => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await (supabase as any).rpc('fail_purchase_webhook', {
+        p_transaction_id: transactionId,
+        p_provider_response: providerResponse || null
+      });
+
+      if (error) {
+        console.error('Webhook failure error:', error);
+        return { success: false, error: error.message };
+      }
+
+      await createAuditLog('purchase_failed', 'enrollment', data?.purchase_id, `Payment failed for transaction ${transactionId}`);
+      return { success: true };
+    } catch (err) {
+      console.error('Fail purchase error:', err);
+      return { success: false, error: 'Failed to mark purchase as failed' };
+    }
+  },
+
+  /**
+   * Manually confirm a purchase (for admin or fallback)
+   * Use when webhook doesn't work - creates enrollment directly
+   */
+  manualConfirm: async (purchaseId: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      // Get the purchase details
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: purchase, error: fetchError } = await (supabase as any)
+        .from('purchases')
+        .select('user_id, course_id, status, transaction_id')
+        .eq('id', purchaseId)
+        .single();
+
+      if (fetchError || !purchase) {
+        return { success: false, error: 'Purchase not found' };
+      }
+
+      if (purchase.status === 'completed') {
+        return { success: false, error: 'Purchase already confirmed' };
+      }
+
+      // Update purchase status
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase as any)
+        .from('purchases')
+        .update({
+          status: 'completed',
+          webhook_verified: true,
+          webhook_verified_at: now()
+        })
+        .eq('id', purchaseId);
+
+      // Create enrollment
+      await enrollmentsApi.create(purchase.user_id, purchase.course_id);
+
+      await createAuditLog('purchase_manual_confirm', 'enrollment', purchaseId, `Manual confirmation for transaction ${purchase.transaction_id}`);
+      return { success: true };
+    } catch (err) {
+      console.error('Manual confirm error:', err);
+      return { success: false, error: 'Failed to manually confirm purchase' };
+    }
   },
 
   getByUser: async (userId: string): Promise<Purchase[]> => {
@@ -1414,6 +1695,21 @@ export const purchasesApi = {
       .from('purchases')
       .select('*')
       .eq('user_id', userId)
+      .order('purchased_at', { ascending: false });
+
+    if (error) throw error;
+    return (data || []).map((p: Record<string, unknown>) => toCamelCase<Purchase>(p));
+  },
+
+  /**
+   * Get pending purchases (for admin dashboard or reconciliation)
+   */
+  getPending: async (): Promise<Purchase[]> => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
+      .from('purchases')
+      .select('*')
+      .eq('status', 'pending')
       .order('purchased_at', { ascending: false });
 
     if (error) throw error;

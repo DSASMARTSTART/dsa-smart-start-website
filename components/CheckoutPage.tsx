@@ -332,6 +332,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
       // Get user ID from auth context OR create guest user
       let userId = authUser?.id || profile?.id;
       let isGuestPurchase = false;
+      let isExistingUser = false;
       
       if (!userId) {
         // No logged-in user - create a guest account with proper email validation
@@ -351,6 +352,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
         
         userId = guestResult.userId;
         isGuestPurchase = true;
+        isExistingUser = guestResult.isExistingUser || false;
       }
 
       if (!userId) {
@@ -417,7 +419,8 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
       
       // Pass guest flag to success page via hash
       if (isGuestPurchase) {
-        window.location.hash = '#checkout-success?guest=true';
+        const guestParam = isExistingUser ? 'existing' : 'true';
+        window.location.hash = `#checkout-success?guest=${guestParam}`;
       } else {
         window.location.hash = '#checkout-success';
       }

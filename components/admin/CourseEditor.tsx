@@ -1,14 +1,14 @@
 // ============================================
-// Admin Course Editor - Full Real-time Editing
+// Admin Course Editor - 4-Step Wizard Flow
 // ============================================
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   ArrowLeft, Save, Eye, Upload, Plus, Trash2, GripVertical,
   ChevronDown, ChevronUp, Play, FileText, Link, ExternalLink,
   AlertCircle, CheckCircle, DollarSign, Calendar, Percent, Loader2,
   Image, X, Users, Book, Tv, GraduationCap, Users2, FileDown, Globe,
-  Sparkles, BookOpen
+  Sparkles, BookOpen, ChevronRight, Check
 } from 'lucide-react';
 import { 
   Button, Input, Textarea, Select, Modal, ConfirmModal, 
@@ -16,7 +16,132 @@ import {
 } from './AdminUIComponents';
 import { coursesApi, videoHelpers, categoriesApi } from '../../data/supabaseStore';
 import { storageHelpers } from '../../lib/supabase';
-import { Course, Module, Lesson, Homework, VideoLink, CoursePricing, QuizQuestion, QuizOption, QuizQuestionType, CourseInstructor, CourseTargetAudience, Category, ProductType, TargetAudience, ContentFormat } from '../../types';
+import { Course, Module, Lesson, Homework, VideoLink, CoursePricing, QuizQuestion, QuizOption, QuizQuestionType, CourseInstructor, CourseTargetAudience, Category, ProductType, TargetAudience, ContentFormat, WizardStep, WizardStepsCompleted } from '../../types';
+
+// ============================================
+// Wizard Step Configuration
+// ============================================
+const WIZARD_STEPS = [
+  { id: 1, key: 'metadata', label: 'Course Info', description: 'Basic details and settings' },
+  { id: 2, key: 'pricing', label: 'Pricing', description: 'Set your price and discounts' },
+  { id: 3, key: 'syllabus', label: 'Syllabus', description: 'Create the public syllabus page' },
+  { id: 4, key: 'content', label: 'Content', description: 'Add modules and lessons' }
+] as const;
+
+// ============================================
+// Wizard Stepper Component
+// ============================================
+const WizardStepper: React.FC<{
+  currentStep: WizardStep;
+  stepsCompleted: WizardStepsCompleted;
+  onStepClick: (step: WizardStep) => void;
+  productType: ProductType;
+}> = ({ currentStep, stepsCompleted, onStepClick, productType }) => {
+  // For e-books, step 4 (content) is optional/different
+  const steps = productType === 'ebook' 
+    ? WIZARD_STEPS.slice(0, 3)  // Only show 3 steps for e-books
+    : WIZARD_STEPS;
+
+  return (
+    <div className="bg-white rounded-[2rem] border-2 border-gray-100 p-6 mb-6">
+      <div className="flex items-center justify-between">
+        {steps.map((step, index) => {
+          const stepKey = step.key as keyof WizardStepsCompleted;
+          const isCompleted = stepsCompleted[stepKey];
+          const isCurrent = currentStep === step.id;
+          const isPast = currentStep > step.id;
+          const canClick = isCompleted || isPast || step.id <= currentStep;
+
+          return (
+            <React.Fragment key={step.id}>
+              {/* Step Circle & Info */}
+              <button
+                onClick={() => canClick && onStepClick(step.id as WizardStep)}
+                disabled={!canClick}
+                className={`flex items-center gap-3 transition-all ${canClick ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}
+              >
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold transition-all ${
+                  isCompleted 
+                    ? 'bg-green-500 text-white' 
+                    : isCurrent 
+                      ? 'bg-purple-600 text-white ring-4 ring-purple-200' 
+                      : 'bg-gray-100 text-gray-400'
+                }`}>
+                  {isCompleted ? <Check size={24} /> : step.id}
+                </div>
+                <div className="text-left hidden md:block">
+                  <p className={`font-bold text-sm ${isCurrent ? 'text-purple-600' : isCompleted ? 'text-green-600' : 'text-gray-500'}`}>
+                    {step.label}
+                  </p>
+                  <p className="text-xs text-gray-400">{step.description}</p>
+                </div>
+              </button>
+
+              {/* Connector Line */}
+              {index < steps.length - 1 && (
+                <div className={`flex-1 h-1 mx-4 rounded-full transition-all ${
+                  stepsCompleted[step.key as keyof WizardStepsCompleted] ? 'bg-green-400' : 'bg-gray-200'
+                }`} />
+              )}
+            </React.Fragment>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// ============================================
+// Wizard Navigation Component (Back/Next buttons)
+// ============================================
+const WizardNavigation: React.FC<{
+  currentStep: number;
+  totalSteps: number;
+  onBack?: () => void;
+  onNext: () => void | Promise<void>;
+  nextLabel?: string;
+  canGoNext?: boolean;
+  saving?: boolean;
+}> = ({ currentStep, totalSteps, onBack, onNext, nextLabel, canGoNext = true, saving = false }) => {
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleNext = async () => {
+    setIsSaving(true);
+    try {
+      await onNext();
+    } catch (error) {
+      console.error('Error in wizard navigation:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <div className="flex items-center justify-between pt-6 mt-6 border-t border-gray-100">
+      <div>
+        {currentStep > 1 && onBack && (
+          <Button variant="secondary" onClick={onBack} icon={ArrowLeft}>
+            Back
+          </Button>
+        )}
+      </div>
+      <div className="flex items-center gap-4">
+        <span className="text-sm text-gray-400">
+          Step {currentStep} of {totalSteps}
+        </span>
+        <Button
+          variant="primary"
+          onClick={handleNext}
+          disabled={!canGoNext || isSaving}
+          loading={saving || isSaving}
+          icon={currentStep < totalSteps ? ChevronRight : Check}
+        >
+          {nextLabel || (currentStep < totalSteps ? 'Save & Continue' : 'Complete')}
+        </Button>
+      </div>
+    </div>
+  );
+};
 
 interface CourseEditorProps {
   courseId: string;
@@ -28,7 +153,22 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ courseId, onNavigate }) => 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
-  const [activeSection, setActiveSection] = useState<'metadata' | 'pricing' | 'content' | 'syllabus'>('metadata');
+  
+  // Track the actual course ID (important: courseId prop might be 'new' initially)
+  const [actualCourseId, setActualCourseId] = useState<string>(courseId);
+  
+  // Wizard state - replaces activeSection
+  const [currentStep, setCurrentStep] = useState<WizardStep>(1);
+  const [stepsCompleted, setStepsCompleted] = useState<WizardStepsCompleted>({
+    metadata: false,
+    pricing: false,
+    syllabus: false,
+    content: false
+  });
+  
+  // Legacy activeSection for compatibility with existing sub-components
+  const activeSection = WIZARD_STEPS.find(s => s.id === currentStep)?.key || 'metadata';
+  
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
   const [isNewCourse, setIsNewCourse] = useState(false);
 
@@ -47,6 +187,42 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ courseId, onNavigate }) => 
   const [editingHomework, setEditingHomework] = useState<Homework | null>(null);
   const [editingHomeworkModuleId, setEditingHomeworkModuleId] = useState<string | null>(null);
 
+  // Manual save draft function - saves ALL course data to database
+  const handleSaveDraft = async () => {
+    if (!course) return;
+    setSaving(true);
+    try {
+      await coursesApi.saveDraft(course.id, {
+        ...course,
+        wizardStep: currentStep,
+        stepsCompleted,
+        wizardCompleted: Object.values(stepsCompleted).every(Boolean)
+      });
+      setHasChanges(false);
+      alert('Draft saved successfully!');
+    } catch (error: any) {
+      console.error('Error saving draft:', error);
+      alert(`Error saving draft: ${error.message || 'Unknown error'}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Warn user about unsaved changes on browser close/refresh (but don't auto-save)
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasChanges) {
+        e.preventDefault();
+        e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasChanges]);
+
+  // Note: No auto-save on navigation - user must click "Save Draft" button
+
   useEffect(() => {
     loadCourse();
   }, [courseId]);
@@ -54,8 +230,11 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ courseId, onNavigate }) => 
   const loadCourse = async () => {
     setLoading(true);
     try {
-      // Handle 'new' courseId - create a new course
-      if (courseId === 'new') {
+      // Use actualCourseId if we already have one (after creating new course)
+      const idToLoad = actualCourseId !== 'new' ? actualCourseId : courseId;
+      
+      // Handle 'new' courseId - create a new course (only if we haven't already)
+      if (idToLoad === 'new') {
         const newCourse = await coursesApi.create({
           title: 'New Course',
           description: '',
@@ -73,17 +252,24 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ courseId, onNavigate }) => 
           updatedAt: new Date().toISOString()
         });
         setCourse(newCourse);
+        setActualCourseId(newCourse.id); // Store the real course ID
         setIsNewCourse(true);
         setHasChanges(true);
+        setCurrentStep(1);
+        setStepsCompleted({ metadata: false, pricing: false, syllabus: false, content: false });
         // Navigate to the actual course ID URL
         window.history.replaceState(null, '', `#admin-course-edit-${newCourse.id}`);
         setLoading(false);
         return;
       }
 
-      const data = await coursesApi.getByIdForAdmin(courseId);
+      const data = await coursesApi.getByIdForAdmin(idToLoad);
       if (data) {
         setCourse(data);
+        setActualCourseId(data.id); // Ensure we have the real ID
+        // Restore wizard state from course
+        setCurrentStep(data.wizardStep || 1);
+        setStepsCompleted(data.stepsCompleted || { metadata: false, pricing: false, syllabus: false, content: false });
         // Expand first module by default
         if (data.modules.length > 0) {
           setExpandedModules(new Set([data.modules[0].id]));
@@ -94,6 +280,55 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ courseId, onNavigate }) => 
     } finally {
       setLoading(false);
     }
+  };
+
+  // Save wizard state to database
+  const saveWizardState = async (step: WizardStep, completed: WizardStepsCompleted) => {
+    if (!course) return;
+    try {
+      await coursesApi.updateWizardState(course.id, {
+        wizardStep: step,
+        stepsCompleted: completed,
+        wizardCompleted: Object.values(completed).every(Boolean)
+      });
+    } catch (error) {
+      console.error('Error saving wizard state:', error);
+    }
+  };
+
+  // Mark current step as complete and optionally advance
+  const completeCurrentStep = async (advance: boolean = true) => {
+    const stepKey = WIZARD_STEPS.find(s => s.id === currentStep)?.key as keyof WizardStepsCompleted;
+    const newCompleted = { ...stepsCompleted, [stepKey]: true };
+    setStepsCompleted(newCompleted);
+    
+    if (advance && currentStep < 4) {
+      // For e-books, stop at step 3
+      if (course?.productType === 'ebook' && currentStep === 3) {
+        await saveWizardState(currentStep, newCompleted);
+        return;
+      }
+      const nextStep = (currentStep + 1) as WizardStep;
+      setCurrentStep(nextStep);
+      await saveWizardState(nextStep, newCompleted);
+    } else {
+      await saveWizardState(currentStep, newCompleted);
+    }
+    setHasChanges(true);
+  };
+
+  // Navigate to a specific step
+  const goToStep = (step: WizardStep) => {
+    setCurrentStep(step);
+    saveWizardState(step, stepsCompleted);
+  };
+
+  // Check if all steps are complete (for publish button)
+  const canPublish = () => {
+    if (course?.productType === 'ebook') {
+      return stepsCompleted.metadata && stepsCompleted.pricing && stepsCompleted.syllabus;
+    }
+    return Object.values(stepsCompleted).every(Boolean);
   };
 
   const handleSaveMetadata = async (updates: Partial<Course>) => {
@@ -116,7 +351,7 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ courseId, onNavigate }) => 
     try {
       await coursesApi.updatePricing(course.id, pricing);
       setHasChanges(true);
-      loadCourse();
+      await loadCourse();
     } catch (error: any) {
       alert(error.message || 'Error saving pricing');
     }
@@ -124,24 +359,44 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ courseId, onNavigate }) => 
 
   const handlePublish = async () => {
     if (!course) return;
+    
+    // Validate all steps are complete before publishing
+    if (!canPublish()) {
+      alert('Please complete all wizard steps before publishing.');
+      return;
+    }
+    
     setSaving(true);
     try {
+      // Publish the course with payment integration
       await coursesApi.publish(course.id);
+      
+      // Update wizard state to mark as completed
+      await coursesApi.updateWizardState(course.id, {
+        wizardCompleted: true,
+        stepsCompleted: { metadata: true, pricing: true, syllabus: true, content: true }
+      });
+      
       setHasChanges(false);
       setIsNewCourse(false);
+      
+      // Show success message
+      alert(`Course "${course.title}" has been published successfully!\n\nIt is now:\n• Visible on the Courses page\n• Available for purchase via PayPal\n• Listed in the footer navigation`);
+      
       loadCourse();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error publishing course:', error);
+      alert(`Error publishing course: ${error.message || 'Unknown error'}`);
     } finally {
       setSaving(false);
     }
   };
 
+  // Discard unsaved changes by reloading from database
   const handleDiscard = async () => {
     if (!course) return;
-    await coursesApi.discardDraft(course.id);
     setHasChanges(false);
-    loadCourse();
+    await loadCourse(); // Reload from database to discard in-memory changes
     setShowDiscardConfirm(false);
   };
 
@@ -161,23 +416,33 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ courseId, onNavigate }) => 
   const handleSaveModule = async (data: { title: string; description: string }) => {
     if (!course) return;
     
-    if (editingModuleId) {
-      await coursesApi.updateModule(course.id, editingModuleId, data);
-    } else {
-      await coursesApi.addModule(course.id, { ...data, lessons: [], homework: [] });
+    try {
+      if (editingModuleId) {
+        await coursesApi.updateModule(course.id, editingModuleId, data);
+      } else {
+        await coursesApi.addModule(course.id, { ...data, lessons: [], homework: [] });
+      }
+      
+      // Module is saved directly to DB, so no "unsaved changes" flag needed
+      // Just reload the course to get updated data including wizard state
+      setShowModuleModal(false);
+      await loadCourse();
+    } catch (error: any) {
+      console.error('Error saving module:', error);
+      alert(`Error saving module: ${error.message || 'Unknown error'}`);
     }
-    
-    setHasChanges(true);
-    setShowModuleModal(false);
-    loadCourse();
   };
 
   const handleDeleteModule = async (moduleId: string) => {
     if (!course) return;
     if (confirm('Delete this module and all its content?')) {
-      await coursesApi.deleteModule(course.id, moduleId);
-      setHasChanges(true);
-      loadCourse();
+      try {
+        await coursesApi.deleteModule(course.id, moduleId);
+        await loadCourse();
+      } catch (error: any) {
+        console.error('Error deleting module:', error);
+        alert(`Error deleting module: ${error.message || 'Unknown error'}`);
+      }
     }
   };
 
@@ -197,23 +462,31 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ courseId, onNavigate }) => 
   const handleSaveLesson = async (data: Omit<Lesson, 'id' | 'order'>) => {
     if (!course || !editingLessonModuleId) return;
     
-    if (editingLesson) {
-      await coursesApi.updateLesson(course.id, editingLessonModuleId, editingLesson.id, data);
-    } else {
-      await coursesApi.addLesson(course.id, editingLessonModuleId, data);
+    try {
+      if (editingLesson) {
+        await coursesApi.updateLesson(course.id, editingLessonModuleId, editingLesson.id, data);
+      } else {
+        await coursesApi.addLesson(course.id, editingLessonModuleId, data);
+      }
+      
+      setShowLessonModal(false);
+      await loadCourse();
+    } catch (error: any) {
+      console.error('Error saving lesson:', error);
+      alert(`Error saving lesson: ${error.message || 'Unknown error'}`);
     }
-    
-    setHasChanges(true);
-    setShowLessonModal(false);
-    loadCourse();
   };
 
   const handleDeleteLesson = async (moduleId: string, lessonId: string) => {
     if (!course) return;
     if (confirm('Delete this lesson?')) {
-      await coursesApi.deleteLesson(course.id, moduleId, lessonId);
-      setHasChanges(true);
-      loadCourse();
+      try {
+        await coursesApi.deleteLesson(course.id, moduleId, lessonId);
+        await loadCourse();
+      } catch (error: any) {
+        console.error('Error deleting lesson:', error);
+        alert(`Error deleting lesson: ${error.message || 'Unknown error'}`);
+      }
     }
   };
 
@@ -227,10 +500,14 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ courseId, onNavigate }) => 
   const handleSaveVideo = async (videoLinks: VideoLink) => {
     if (!course || !editingLessonModuleId || !editingLesson) return;
     
-    await coursesApi.updateLesson(course.id, editingLessonModuleId, editingLesson.id, { videoLinks });
-    setHasChanges(true);
-    setShowVideoModal(false);
-    loadCourse();
+    try {
+      await coursesApi.updateLesson(course.id, editingLessonModuleId, editingLesson.id, { videoLinks });
+      setShowVideoModal(false);
+      await loadCourse();
+    } catch (error: any) {
+      console.error('Error saving video:', error);
+      alert(`Error saving video: ${error.message || 'Unknown error'}`);
+    }
   };
 
   // Homework handlers
@@ -249,23 +526,31 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ courseId, onNavigate }) => 
   const handleSaveHomework = async (data: Omit<Homework, 'id' | 'order'>) => {
     if (!course || !editingHomeworkModuleId) return;
     
-    if (editingHomework) {
-      await coursesApi.updateHomework(course.id, editingHomeworkModuleId, editingHomework.id, data);
-    } else {
-      await coursesApi.addHomework(course.id, editingHomeworkModuleId, data);
+    try {
+      if (editingHomework) {
+        await coursesApi.updateHomework(course.id, editingHomeworkModuleId, editingHomework.id, data);
+      } else {
+        await coursesApi.addHomework(course.id, editingHomeworkModuleId, data);
+      }
+      
+      setShowHomeworkModal(false);
+      await loadCourse();
+    } catch (error: any) {
+      console.error('Error saving homework:', error);
+      alert(`Error saving homework: ${error.message || 'Unknown error'}`);
     }
-    
-    setHasChanges(true);
-    setShowHomeworkModal(false);
-    loadCourse();
   };
 
   const handleDeleteHomework = async (moduleId: string, homeworkId: string) => {
     if (!course) return;
     if (confirm('Delete this homework?')) {
-      await coursesApi.deleteHomework(course.id, moduleId, homeworkId);
-      setHasChanges(true);
-      loadCourse();
+      try {
+        await coursesApi.deleteHomework(course.id, moduleId, homeworkId);
+        await loadCourse();
+      } catch (error: any) {
+        console.error('Error deleting homework:', error);
+        alert(`Error deleting homework: ${error.message || 'Unknown error'}`);
+      }
     }
   };
 
@@ -304,7 +589,15 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ courseId, onNavigate }) => 
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => onNavigate('admin-courses')}
+            onClick={() => {
+              if (hasChanges) {
+                if (confirm('You have unsaved changes. Are you sure you want to leave without saving?')) {
+                  onNavigate('admin-courses');
+                }
+              } else {
+                onNavigate('admin-courses');
+              }
+            }}
             className="p-2 hover:bg-gray-50 rounded-xl text-gray-400 hover:text-purple-600 transition-all"
           >
             <ArrowLeft size={20} />
@@ -312,96 +605,107 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ courseId, onNavigate }) => 
           <div>
             <div className="flex items-center gap-3 mb-1">
               <h1 className="text-2xl font-black text-gray-900 tracking-tighter uppercase">
-                {course.title}
+                {course.title || 'New Course'}
               </h1>
               <StatusBadge status={course.isPublished ? 'published' : 'draft'} />
+              {!course.wizardCompleted && (
+                <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold">
+                  Step {currentStep} of {course.productType === 'ebook' ? 3 : 4}
+                </span>
+              )}
             </div>
-            {course.publishedAt && (
+            {course.publishedAt ? (
               <p className="text-xs text-gray-400">
                 Last published: {new Date(course.publishedAt).toLocaleDateString()}
               </p>
+            ) : (
+              <p className="text-xs text-gray-400">Draft - Complete all steps to publish</p>
             )}
           </div>
         </div>
 
         <div className="flex gap-3">
-          {/* Preview as Student - opens syllabus page */}
+          {/* Preview buttons - open in new window */}
           <Button
             variant="secondary"
             icon={Eye}
-            onClick={() => window.location.hash = `#syllabus-${course.id}`}
-            title="Preview how students will see the syllabus page"
+            onClick={() => window.open(`${window.location.origin}${window.location.pathname}#syllabus-${course.id}`, '_blank')}
+            title="Preview syllabus page in new window"
           >
             Preview Syllabus
           </Button>
-          {/* Preview Course Content - opens course viewer */}
           <Button
             variant="secondary"
             icon={Play}
-            onClick={() => window.location.hash = `#course-${course.id}`}
-            title="Preview course content as a student would see it"
+            onClick={() => window.open(`${window.location.origin}${window.location.pathname}#course-${course.id}`, '_blank')}
+            title="Preview course as student in new window"
           >
             Preview as Student
+          </Button>
+          {/* Save Draft Button - saves all current data without publishing */}
+          <Button
+            variant="secondary"
+            icon={Save}
+            onClick={handleSaveDraft}
+            loading={saving}
+            disabled={!hasChanges}
+            title="Save current progress as draft"
+          >
+            Save Draft
           </Button>
           <Button
             variant="primary"
             icon={Save}
             onClick={handlePublish}
             loading={saving}
-            disabled={!course.isDraft && !hasChanges}
+            disabled={!canPublish()}
+            title={!canPublish() ? 'Complete all steps before publishing' : 'Publish course'}
           >
-            {course.isDraft || hasChanges ? 'Publish Changes' : 'Published'}
+            {course.isPublished ? 'Update & Publish' : 'Save & Publish'}
           </Button>
         </div>
       </div>
 
-      {/* Section Tabs - Content tab only shown for interactive courses */}
-      <div className="flex gap-2 border-b border-gray-100 pb-2 overflow-x-auto">
-        {(['metadata', 'pricing', 'syllabus', ...(course.productType !== 'ebook' ? ['content'] : [])] as const).map((section) => (
-          <button
-            key={section}
-            onClick={() => setActiveSection(section as 'metadata' | 'pricing' | 'content' | 'syllabus')}
-            className={`px-6 py-3 rounded-t-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
-              activeSection === section
-                ? 'bg-purple-50 text-purple-600 border-b-2 border-purple-600'
-                : 'text-gray-500 hover:bg-gray-50'
-            }`}
-          >
-            {section === 'content' ? (course.productType === 'service' ? 'Schedule' : 'Content') : 
-             section === 'syllabus' ? 'Syllabus Page' : section}
-          </button>
-        ))}
-      </div>
+      {/* Wizard Stepper */}
+      <WizardStepper
+        currentStep={currentStep}
+        stepsCompleted={stepsCompleted}
+        onStepClick={goToStep}
+        productType={course.productType}
+      />
 
-      {/* Metadata Section */}
+      {/* Step Content */}
       {activeSection === 'metadata' && (
         <MetadataEditor 
           course={course} 
           onSave={handleSaveMetadata}
+          onStepComplete={async () => await completeCurrentStep(true)}
+          isWizardMode={true}
         />
       )}
 
-      {/* Pricing Section */}
       {activeSection === 'pricing' && (
         <PricingEditor
-          pricing={course.draftData?.pricing || course.pricing}
+          pricing={course.pricing}
           onSave={handleSavePricing}
           productType={course.productType}
           teachingMaterialsPrice={course.teachingMaterialsPrice}
+          onStepComplete={async () => await completeCurrentStep(true)}
+          isWizardMode={true}
         />
       )}
 
-      {/* Syllabus Section - For syllabus page content */}
       {activeSection === 'syllabus' && (
         <SyllabusEditor
           course={course}
           onSave={async (syllabusContent) => {
             await handleSaveMetadata({ syllabusContent } as Partial<Course>);
           }}
+          onStepComplete={async () => await completeCurrentStep(true)}
+          isWizardMode={true}
         />
       )}
 
-      {/* Content Section - Only for interactive courses and services */}
       {activeSection === 'content' && course.productType !== 'ebook' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -446,6 +750,16 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ courseId, onNavigate }) => 
               ))}
             </div>
           )}
+          
+          {/* Wizard Navigation for Content Step */}
+          <WizardNavigation
+            currentStep={4}
+            totalSteps={4}
+            onBack={() => goToStep(3)}
+            onNext={async () => await completeCurrentStep(false)}
+            nextLabel={stepsCompleted.content ? "Step Complete ✓" : "Mark Complete"}
+            canGoNext={course.modules.length > 0}
+          />
         </div>
       )}
 
@@ -502,47 +816,37 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ courseId, onNavigate }) => 
 };
 
 // ============================================
-// Metadata Editor - Enhanced with Image Upload & Marketing Fields
+// Metadata Editor - Course Info & Settings
 // ============================================
 const MetadataEditor: React.FC<{
   course: Course;
-  onSave: (updates: Partial<Course>) => void;
-}> = ({ course, onSave }) => {
-  const normalizeStringArray = (value: unknown): string[] => {
-    if (!Array.isArray(value)) return [];
-    return value.filter((v): v is string => typeof v === 'string');
-  };
-
-  const normalizeTargetAudienceInfo = (value: unknown): CourseTargetAudience => {
-    const v = value as Partial<CourseTargetAudience> | null | undefined;
-    return {
-      description: typeof v?.description === 'string' ? v.description : '',
-      points: normalizeStringArray(v?.points)
-    };
-  };
-
-  const [title, setTitle] = useState(course.draftData?.title || course.title);
-  const [description, setDescription] = useState(course.draftData?.description || course.description);
-  const [level, setLevel] = useState(course.draftData?.level || course.level);
-  const [thumbnailUrl, setThumbnailUrl] = useState(course.draftData?.thumbnailUrl || course.thumbnailUrl);
+  onSave: (updates: Partial<Course>) => Promise<void> | void;
+  onStepComplete?: () => Promise<void> | void;
+  isWizardMode?: boolean;
+}> = ({ course, onSave, onStepComplete, isWizardMode = false }) => {
+  // Direct course data - no draftData separation (simplified approach)
+  const [title, setTitle] = useState(course.title);
+  const [description, setDescription] = useState(course.description);
+  const [level, setLevel] = useState(course.level);
+  const [thumbnailUrl, setThumbnailUrl] = useState(course.thumbnailUrl);
   const [adminNotes, setAdminNotes] = useState(course.adminNotes || '');
   
-  // Product type fields (NEW)
+  // Product type fields
   const [productType, setProductType] = useState<ProductType>(course.productType || 'learndash');
   const [targetAudienceType, setTargetAudienceType] = useState<TargetAudience>(course.targetAudience || 'adults_teens');
   const [contentFormat, setContentFormat] = useState<ContentFormat>(course.contentFormat || 'interactive');
   const [teachingMaterialsPrice, setTeachingMaterialsPrice] = useState<number>(course.teachingMaterialsPrice || 50);
   
   // E-book specific fields
-  const [ebookPdfUrl, setEbookPdfUrl] = useState<string>((course as any).ebookPdfUrl || '');
-  const [ebookPageCount, setEbookPageCount] = useState<number>((course as any).ebookPageCount || 0);
+  const [ebookPdfUrl, setEbookPdfUrl] = useState<string>(course.ebookPdfUrl || '');
+  const [ebookPageCount, setEbookPageCount] = useState<number>(course.ebookPageCount || 0);
   const [uploadingPdf, setUploadingPdf] = useState(false);
   const [pdfUploadError, setPdfUploadError] = useState('');
   const pdfInputRef = useRef<HTMLInputElement>(null);
   
   // Footer visibility
-  const [showInFooter, setShowInFooter] = useState<boolean>((course as any).showInFooter !== false);
-  const [footerOrder, setFooterOrder] = useState<number>((course as any).footerOrder || 0);
+  const [showInFooter, setShowInFooter] = useState<boolean>(course.showInFooter !== false);
+  const [footerOrder, setFooterOrder] = useState<number>(course.footerOrder || 0);
   
   // Categories state
   const [categories, setCategories] = useState<Category[]>([]);
@@ -552,17 +856,7 @@ const MetadataEditor: React.FC<{
   const [newCategorySlug, setNewCategorySlug] = useState('');
   const [creatingCategory, setCreatingCategory] = useState(false);
   
-  // Extended marketing fields
-  const [previewVideoUrl, setPreviewVideoUrl] = useState(course.previewVideoUrl || '');
-  const [learningOutcomes, setLearningOutcomes] = useState<string[]>(
-    normalizeStringArray(course.draftData?.learningOutcomes ?? course.learningOutcomes)
-  );
-  const [prerequisites, setPrerequisites] = useState<string[]>(
-    normalizeStringArray(course.draftData?.prerequisites ?? course.prerequisites)
-  );
-  const [targetAudienceInfo, setTargetAudienceInfo] = useState<CourseTargetAudience>(() =>
-    normalizeTargetAudienceInfo(course.draftData?.targetAudienceInfo ?? course.targetAudienceInfo)
-  );
+  // Instructor info (kept in metadata since it's about course settings, not syllabus content)
   const [instructor, setInstructor] = useState<CourseInstructor>(course.instructor || { name: '', title: '', bio: '' });
   const [estimatedWeeklyHours, setEstimatedWeeklyHours] = useState(course.estimatedWeeklyHours || 0);
   
@@ -570,11 +864,6 @@ const MetadataEditor: React.FC<{
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  // New outcome/prerequisite input
-  const [newOutcome, setNewOutcome] = useState('');
-  const [newPrerequisite, setNewPrerequisite] = useState('');
-  const [newAudiencePoint, setNewAudiencePoint] = useState('');
   
   // Expanded sections
   const [showMarketingFields, setShowMarketingFields] = useState(false);
@@ -658,45 +947,6 @@ const MetadataEditor: React.FC<{
     setThumbnailUrl('');
   };
   
-  const addOutcome = () => {
-    if (newOutcome.trim()) {
-      setLearningOutcomes([...learningOutcomes, newOutcome.trim()]);
-      setNewOutcome('');
-    }
-  };
-  
-  const removeOutcome = (index: number) => {
-    setLearningOutcomes(learningOutcomes.filter((_, i) => i !== index));
-  };
-  
-  const addPrerequisite = () => {
-    if (newPrerequisite.trim()) {
-      setPrerequisites([...prerequisites, newPrerequisite.trim()]);
-      setNewPrerequisite('');
-    }
-  };
-  
-  const removePrerequisite = (index: number) => {
-    setPrerequisites(prerequisites.filter((_, i) => i !== index));
-  };
-  
-  const addAudiencePoint = () => {
-    if (newAudiencePoint.trim()) {
-      setTargetAudienceInfo({
-        ...targetAudienceInfo,
-        points: [...(targetAudienceInfo.points || []), newAudiencePoint.trim()]
-      });
-      setNewAudiencePoint('');
-    }
-  };
-  
-  const removeAudiencePoint = (index: number) => {
-    setTargetAudienceInfo({
-      ...targetAudienceInfo,
-      points: (targetAudienceInfo.points || []).filter((_, i) => i !== index)
-    });
-  };
-  
   // PDF upload handler for e-books
   const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -736,8 +986,8 @@ const MetadataEditor: React.FC<{
     setEbookPdfUrl('');
   };
 
-  const handleSave = () => {
-    onSave({ 
+  const handleSave = async (): Promise<void> => {
+    await onSave({ 
       title, 
       description, 
       level, 
@@ -754,14 +1004,7 @@ const MetadataEditor: React.FC<{
       // Footer visibility
       showInFooter,
       footerOrder,
-      // Marketing fields
-      previewVideoUrl: previewVideoUrl || undefined,
-      learningOutcomes: learningOutcomes.length > 0 ? learningOutcomes : undefined,
-      prerequisites: prerequisites.length > 0 ? prerequisites : undefined,
-      targetAudienceInfo:
-        targetAudienceInfo.description || targetAudienceInfo.points.length > 0
-          ? targetAudienceInfo
-          : undefined,
+      // Instructor & course settings (NOT moved to syllabus - these are course settings)
       instructor: instructor.name ? instructor : undefined,
       estimatedWeeklyHours: estimatedWeeklyHours || undefined
     } as Partial<Course>);
@@ -1218,15 +1461,6 @@ const MetadataEditor: React.FC<{
           </div>
         </div>
       )}
-      
-      {/* Preview Video URL */}
-      <Input
-        label="Preview Video URL (Optional)"
-        value={previewVideoUrl}
-        onChange={(e) => setPreviewVideoUrl(e.target.value)}
-        placeholder="https://vimeo.com/... or https://youtube.com/..."
-        hint="A short preview video shown on the syllabus page"
-      />
 
       <Textarea
         label="Admin Notes (Internal)"
@@ -1235,104 +1469,19 @@ const MetadataEditor: React.FC<{
         placeholder="Internal notes not visible to students..."
       />
       
-      {/* Marketing Fields Toggle */}
+      {/* Course Settings Toggle (Instructor, etc.) */}
       <div className="border-t border-gray-100 pt-6">
         <button
           onClick={() => setShowMarketingFields(!showMarketingFields)}
           className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-purple-600 hover:text-purple-700"
         >
           {showMarketingFields ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-          Marketing & Details (Optional)
+          Course Settings (Optional)
         </button>
       </div>
       
       {showMarketingFields && (
         <div className="space-y-6 animate-reveal">
-          {/* Learning Outcomes */}
-          <div className="space-y-3">
-            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 block">
-              Learning Outcomes
-            </label>
-            <div className="space-y-2">
-              {learningOutcomes.map((outcome, i) => (
-                <div key={i} className="flex items-center gap-2 bg-green-50 px-3 py-2 rounded-xl">
-                  <CheckCircle size={14} className="text-green-500 flex-shrink-0" />
-                  <span className="text-sm flex-1">{outcome}</span>
-                  <button onClick={() => removeOutcome(i)} className="text-gray-400 hover:text-red-500">
-                    <X size={14} />
-                  </button>
-                </div>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <Input
-                value={newOutcome}
-                onChange={(e) => setNewOutcome(e.target.value)}
-                placeholder="Add a learning outcome..."
-                onKeyDown={(e) => e.key === 'Enter' && addOutcome()}
-              />
-              <Button variant="secondary" size="sm" onClick={addOutcome}>Add</Button>
-            </div>
-          </div>
-          
-          {/* Prerequisites */}
-          <div className="space-y-3">
-            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 block">
-              Prerequisites
-            </label>
-            <div className="space-y-2">
-              {prerequisites.map((prereq, i) => (
-                <div key={i} className="flex items-center gap-2 bg-blue-50 px-3 py-2 rounded-xl">
-                  <span className="text-sm flex-1">{prereq}</span>
-                  <button onClick={() => removePrerequisite(i)} className="text-gray-400 hover:text-red-500">
-                    <X size={14} />
-                  </button>
-                </div>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <Input
-                value={newPrerequisite}
-                onChange={(e) => setNewPrerequisite(e.target.value)}
-                placeholder="Add a prerequisite..."
-                onKeyDown={(e) => e.key === 'Enter' && addPrerequisite()}
-              />
-              <Button variant="secondary" size="sm" onClick={addPrerequisite}>Add</Button>
-            </div>
-          </div>
-          
-          {/* Target Audience */}
-          <div className="space-y-3">
-            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 block">
-              Target Audience
-            </label>
-            <Input
-              value={targetAudienceInfo.description}
-              onChange={(e) => setTargetAudienceInfo({ ...targetAudienceInfo, description: e.target.value })}
-              placeholder="Brief description of who this course is for..."
-            />
-            <div className="space-y-2">
-              {(targetAudienceInfo.points || []).map((point, i) => (
-                <div key={i} className="flex items-center gap-2 bg-purple-50 px-3 py-2 rounded-xl">
-                  <Users size={14} className="text-purple-500 flex-shrink-0" />
-                  <span className="text-sm flex-1">{point}</span>
-                  <button onClick={() => removeAudiencePoint(i)} className="text-gray-400 hover:text-red-500">
-                    <X size={14} />
-                  </button>
-                </div>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <Input
-                value={newAudiencePoint}
-                onChange={(e) => setNewAudiencePoint(e.target.value)}
-                placeholder="Add a target audience point..."
-                onKeyDown={(e) => e.key === 'Enter' && addAudiencePoint()}
-              />
-              <Button variant="secondary" size="sm" onClick={addAudiencePoint}>Add</Button>
-            </div>
-          </div>
-          
           {/* Instructor Info */}
           <div className="space-y-3">
             <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 block">
@@ -1373,11 +1522,24 @@ const MetadataEditor: React.FC<{
         </div>
       )}
 
-      <div className="flex justify-end">
-        <Button variant="primary" onClick={handleSave}>
-          Save Metadata
-        </Button>
-      </div>
+      {/* Wizard Navigation or Save Button */}
+      {isWizardMode ? (
+        <WizardNavigation
+          currentStep={1}
+          totalSteps={course.productType === 'ebook' ? 3 : 4}
+          onNext={async () => {
+            await handleSave();
+            await onStepComplete?.();
+          }}
+          canGoNext={title.trim().length > 0 && description.trim().length > 0}
+        />
+      ) : (
+        <div className="flex justify-end">
+          <Button variant="primary" onClick={handleSave}>
+            Save Metadata
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
@@ -1387,10 +1549,12 @@ const MetadataEditor: React.FC<{
 // ============================================
 const PricingEditor: React.FC<{
   pricing: CoursePricing;
-  onSave: (pricing: CoursePricing) => void;
+  onSave: (pricing: CoursePricing) => Promise<void> | void;
   productType?: ProductType;
   teachingMaterialsPrice?: number;
-}> = ({ pricing, onSave, productType, teachingMaterialsPrice }) => {
+  onStepComplete?: () => Promise<void> | void;
+  isWizardMode?: boolean;
+}> = ({ pricing, onSave, productType, teachingMaterialsPrice, onStepComplete, isWizardMode = false }) => {
   const [price, setPrice] = useState(pricing.price);
   const [currency, setCurrency] = useState(pricing.currency);
   const [isFree, setIsFree] = useState(pricing.isFree);
@@ -1400,25 +1564,25 @@ const PricingEditor: React.FC<{
   const [discountEnd, setDiscountEnd] = useState(pricing.discountEndDate?.split('T')[0] || '');
   const [error, setError] = useState('');
 
-  const handleSave = () => {
+  const handleSave = async (): Promise<boolean> => {
     setError('');
 
     if (price < 0) {
       setError('Price must be >= 0');
-      return;
+      return false;
     }
 
     if (hasDiscount && discountPrice > price) {
       setError('Discount price cannot exceed base price');
-      return;
+      return false;
     }
 
     if (hasDiscount && discountStart && discountEnd && new Date(discountStart) >= new Date(discountEnd)) {
       setError('Discount end date must be after start date');
-      return;
+      return false;
     }
 
-    onSave({
+    await onSave({
       price: isFree ? 0 : price,
       currency,
       isFree,
@@ -1426,6 +1590,7 @@ const PricingEditor: React.FC<{
       discountStartDate: hasDiscount && discountStart ? `${discountStart}T00:00:00Z` : undefined,
       discountEndDate: hasDiscount && discountEnd ? `${discountEnd}T23:59:59Z` : undefined,
     });
+    return true;
   };
 
   return (
@@ -1556,11 +1721,27 @@ const PricingEditor: React.FC<{
         </div>
       )}
 
-      <div className="flex justify-end">
-        <Button variant="primary" onClick={handleSave}>
-          Save Pricing
-        </Button>
-      </div>
+      {/* Wizard Navigation or Save Button */}
+      {isWizardMode ? (
+        <WizardNavigation
+          currentStep={2}
+          totalSteps={4}
+          onBack={() => {/* handled by parent */}}
+          onNext={async () => {
+            const success = await handleSave();
+            if (success) {
+              await onStepComplete?.();
+            }
+          }}
+          canGoNext={isFree || price > 0}
+        />
+      ) : (
+        <div className="flex justify-end">
+          <Button variant="primary" onClick={handleSave}>
+            Save Pricing
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
@@ -1582,8 +1763,10 @@ interface SyllabusContent {
 
 const SyllabusEditor: React.FC<{
   course: Course;
-  onSave: (syllabusContent: SyllabusContent) => void;
-}> = ({ course, onSave }) => {
+  onSave: (syllabusContent: SyllabusContent) => Promise<void> | void;
+  onStepComplete?: () => Promise<void> | void;
+  isWizardMode?: boolean;
+}> = ({ course, onSave, onStepComplete, isWizardMode = false }) => {
   // Initialize from course data or empty
   const initialContent = course.syllabusContent || {
     learningOutcomes: course.learningOutcomes || [],
@@ -1652,8 +1835,8 @@ const SyllabusEditor: React.FC<{
     setUnits(updated);
   };
   
-  const handleSave = () => {
-    onSave({
+  const handleSave = async (): Promise<void> => {
+    await onSave({
       learningOutcomes: learningOutcomes.length > 0 ? learningOutcomes : undefined,
       whatYoullFind: whatYoullFind.length > 0 ? whatYoullFind : undefined,
       targetAudience: targetAudience.length > 0 ? targetAudience : undefined,
@@ -1855,11 +2038,26 @@ const SyllabusEditor: React.FC<{
         )}
       </div>
       
-      <div className="flex justify-end pt-4 border-t border-gray-100">
-        <Button variant="primary" onClick={handleSave}>
-          Save Syllabus Content
-        </Button>
-      </div>
+      {/* Wizard Navigation or Save Button */}
+      {isWizardMode ? (
+        <WizardNavigation
+          currentStep={3}
+          totalSteps={course.productType === 'ebook' ? 3 : 4}
+          onBack={() => {/* handled by parent */}}
+          onNext={async () => {
+            await handleSave();
+            await onStepComplete?.();
+          }}
+          nextLabel={course.productType === 'ebook' ? 'Complete Setup' : 'Save & Continue'}
+          canGoNext={units.length > 0 || learningOutcomes.length > 0}
+        />
+      ) : (
+        <div className="flex justify-end pt-4 border-t border-gray-100">
+          <Button variant="primary" onClick={handleSave}>
+            Save Syllabus Content
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
@@ -2003,8 +2201,30 @@ const ModuleCard: React.FC<{
                   <FileText size={14} className="text-amber-500" />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-bold text-gray-700 truncate">{hw.title}</p>
+                    {hw.pdfUrl && (
+                      <div className="flex items-center gap-1 mt-0.5">
+                        <span className="text-[9px] font-bold text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded">
+                          📄 PDF attached
+                        </span>
+                        {hw.pdfTitle && (
+                          <span className="text-[9px] text-gray-400 truncate">{hw.pdfTitle}</span>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {hw.pdfUrl && (
+                      <a
+                        href={hw.pdfUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="p-1.5 hover:bg-blue-100 rounded-lg text-gray-400 hover:text-blue-600"
+                        title="View PDF"
+                      >
+                        <ExternalLink size={12} />
+                      </a>
+                    )}
                     <button
                       onClick={() => onEditHomework(hw)}
                       className="p-1.5 hover:bg-amber-100 rounded-lg text-gray-400 hover:text-amber-600"

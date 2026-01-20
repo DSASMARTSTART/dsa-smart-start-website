@@ -151,7 +151,7 @@ export function useUserProgress() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]); // Only run when user ID changes (login/logout)
 
-  // Update progress mutation
+  // Update progress mutation with optimistic updates for instant UI feedback
   const updateProgress = useMutation({
     mutationFn: async ({ 
       courseId, 
@@ -193,9 +193,35 @@ export function useUserProgress() {
         }
       }
 
-      return { [progressKey]: isCompleted };
+      return { progressKey, isCompleted };
     },
-    onSuccess: () => {
+    // Optimistic update: immediately update cache before server response
+    onMutate: async ({ courseId, itemKey, isCompleted }) => {
+      const progressKey = `${courseId}_${itemKey}`;
+      
+      // Cancel any outgoing refetches so they don't overwrite our optimistic update
+      await queryClient.cancelQueries({ queryKey: ['userProgress', user?.id] });
+      
+      // Snapshot the previous value
+      const previousProgress = queryClient.getQueryData<ProgressMap>(['userProgress', user?.id]);
+      
+      // Optimistically update the cache
+      queryClient.setQueryData<ProgressMap>(['userProgress', user?.id], (old) => ({
+        ...(old || {}),
+        [progressKey]: isCompleted,
+      }));
+      
+      // Return context with previous value for rollback
+      return { previousProgress };
+    },
+    // If mutation fails, rollback to previous value
+    onError: (_err, _variables, context) => {
+      if (context?.previousProgress) {
+        queryClient.setQueryData(['userProgress', user?.id], context.previousProgress);
+      }
+    },
+    // Always refetch after error or success to ensure consistency
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['userProgress', user?.id] });
     },
   });

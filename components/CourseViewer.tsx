@@ -35,8 +35,9 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
             setCourse(data);
             if (data.modules.length > 0) {
               setActiveModuleId(data.modules[0].id);
-              if (data.modules[0].lessons.length > 0) {
-                setSelectedItemId(data.modules[0].lessons[0].id);
+              const firstLessons = data.modules[0].lessons || [];
+              if (firstLessons.length > 0) {
+                setSelectedItemId(firstLessons[0].id);
               }
             }
           }
@@ -75,8 +76,9 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
           setCourse(data);
           if (enrolled && data.modules.length > 0) {
             setActiveModuleId(data.modules[0].id);
-            if (data.modules[0].lessons.length > 0) {
-              setSelectedItemId(data.modules[0].lessons[0].id);
+            const firstLessons = data.modules[0].lessons || [];
+            if (firstLessons.length > 0) {
+              setSelectedItemId(firstLessons[0].id);
             }
           }
         }
@@ -169,9 +171,13 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
   const currentModuleIndex = course.modules.findIndex(m => m.id === activeModuleId);
   const currentModule = course.modules[currentModuleIndex] || course.modules[0];
   
-  const selectedLesson = currentModule.lessons.find(l => l.id === selectedItemId);
-  const selectedHomework = currentModule.homework.find(h => h.id === selectedItemId);
-  const selectedItem = selectedLesson || selectedHomework || currentModule.lessons[0];
+  // Defensive: ensure lessons and homework are arrays (might be null from DB)
+  const moduleLessons = currentModule?.lessons || [];
+  const moduleHomework = currentModule?.homework || [];
+  
+  const selectedLesson = moduleLessons.find(l => l.id === selectedItemId);
+  const selectedHomework = moduleHomework.find(h => h.id === selectedItemId);
+  const selectedItem = selectedLesson || selectedHomework || moduleLessons[0];
 
   const isCompleted = (id: string) => !!progress[`${courseId}_${id}`];
   
@@ -179,14 +185,14 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
     let total = 0;
     let done = 0;
     course.modules.forEach(m => {
-      m.lessons.forEach(l => { total++; if (isCompleted(l.id)) done++; });
-      m.homework.forEach(h => { total++; if (isCompleted(h.id)) done++; });
+      (m.lessons || []).forEach(l => { total++; if (isCompleted(l.id)) done++; });
+      (m.homework || []).forEach(h => { total++; if (isCompleted(h.id)) done++; });
     });
     return total > 0 ? Math.round((done / total) * 100) : 0;
   };
 
   const handleNext = () => {
-    const currentItems = [...currentModule.lessons, ...currentModule.homework];
+    const currentItems = [...moduleLessons, ...moduleHomework];
     const currentIndex = currentItems.findIndex(item => item.id === selectedItemId);
 
     if (currentIndex < currentItems.length - 1) {
@@ -195,7 +201,7 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
     } else if (currentModuleIndex < course.modules.length - 1) {
       const nextModule = course.modules[currentModuleIndex + 1];
       setActiveModuleId(nextModule.id);
-      setSelectedItemId(nextModule.lessons[0]?.id || '');
+      setSelectedItemId((nextModule.lessons || [])[0]?.id || '');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       onBack();
@@ -203,7 +209,7 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
   };
 
   const getNextLabel = () => {
-    const currentItems = [...currentModule.lessons, ...currentModule.homework];
+    const currentItems = [...moduleLessons, ...moduleHomework];
     const currentIndex = currentItems.findIndex(item => item.id === selectedItemId);
 
     if (currentIndex < currentItems.length - 1) {
@@ -286,7 +292,7 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
 
                 {activeModuleId === module.id && (
                   <div className="pl-4 space-y-2 animate-reveal">
-                    {module.lessons.map(lesson => (
+                    {(module.lessons || []).map(lesson => (
                       <button 
                         key={lesson.id}
                         onClick={() => setSelectedItemId(lesson.id)}
@@ -310,10 +316,10 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
                       </button>
                     ))}
 
-                    {module.homework.length > 0 && (
+                    {(module.homework || []).length > 0 && (
                       <div className="pt-2 border-t border-gray-50 mt-2">
                         <p className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2 pl-3">Assignments</p>
-                        {module.homework.map(h => (
+                        {(module.homework || []).map(h => (
                           <button 
                             key={h.id}
                             onClick={() => setSelectedItemId(h.id)}

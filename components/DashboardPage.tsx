@@ -1,8 +1,8 @@
 
 import React, { useEffect, useState } from 'react';
-import { Rocket, Clock, ChevronRight, Star, BookOpen, Layout, Zap, Layers, Compass, Music, CheckCircle2, LogIn, Download, FileText } from 'lucide-react';
-import { enrollmentsApi } from '../data/supabaseStore';
-import { Course, Enrollment } from '../types';
+import { Rocket, Clock, ChevronRight, Star, BookOpen, Layout, Zap, Layers, Compass, Music, CheckCircle2, LogIn, Download, FileText, AlertCircle, Loader2, Key, X, Mail } from 'lucide-react';
+import { enrollmentsApi, purchasesApi, coursesApi } from '../data/supabaseStore';
+import { Course, Enrollment, Purchase } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { useUserProgress } from '../hooks/useUserProgress';
 
@@ -36,17 +36,44 @@ interface PurchasedEbook extends Course {
   enrollment: Enrollment;
 }
 
+// Interface for pending purchases
+interface PendingPurchase extends Purchase {
+  course?: Course;
+}
+
 const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
-  const { user: authUser, profile, loading: authLoading } = useAuth();
+  const { user: authUser, profile, loading: authLoading, resetPassword } = useAuth();
   const { progress } = useUserProgress(); // Now using hook directly - only loads when Dashboard is rendered
   const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
   const [purchasedEbooks, setPurchasedEbooks] = useState<PurchasedEbook[]>([]);
+  const [pendingPurchases, setPendingPurchases] = useState<PendingPurchase[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showSetPasswordPrompt, setShowSetPasswordPrompt] = useState(false);
+  const [passwordResetSent, setPasswordResetSent] = useState(false);
 
   // Get the authenticated user ID
   const userId = authUser?.id || profile?.id;
   const displayName = profile?.name || user?.name || 'Student';
 
+  // Check if user came from magic link login (guest checkout)
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash.includes('login=magic') && hash.includes('newuser=true')) {
+      setShowSetPasswordPrompt(true);
+      // Clean up the URL
+      window.history.replaceState(null, '', window.location.pathname + '#/dashboard');
+    }
+  }, []);
+
+  // Handle sending password reset email
+  const handleSendPasswordReset = async () => {
+    if (!authUser?.email) return;
+    
+    const { error } = await resetPassword(authUser.email);
+    if (!error) {
+      setPasswordResetSent(true);
+    }
+  };
   useEffect(() => {
     // Track if component is still mounted to prevent state updates after unmount
     let isCancelled = false;
@@ -99,9 +126,26 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
           }
         });
 
+        // Also fetch pending purchases (awaiting payment confirmation)
+        const userPurchases = await purchasesApi.getByUser(userId);
+        const pendingOnes = userPurchases.filter(p => p.status === 'pending');
+        
+        // Fetch course details for pending purchases
+        const pendingWithCourses: PendingPurchase[] = await Promise.all(
+          pendingOnes.map(async (purchase) => {
+            try {
+              const course = await coursesApi.getById(purchase.courseId);
+              return { ...purchase, course: course || undefined };
+            } catch {
+              return { ...purchase };
+            }
+          })
+        );
+
         if (!isCancelled) {
           setEnrolledCourses(courses);
           setPurchasedEbooks(ebooks);
+          setPendingPurchases(pendingWithCourses);
         }
       } catch (error) {
         console.error('Error loading enrolled courses:', error);
@@ -175,6 +219,89 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
           </h1>
           <p className="text-gray-500 text-lg font-medium italic">Keep pushing forward. Your neurodiversity is your superpower.</p>
         </div>
+
+        {/* Set Password Prompt for Guest Checkout Users */}
+        {showSetPasswordPrompt && (
+          <div className="mb-8 animate-reveal">
+            <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-2xl p-6">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Key size={24} className="text-purple-600" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-lg font-bold text-purple-800">Welcome! Set Your Password</h3>
+                    <button 
+                      onClick={() => setShowSetPasswordPrompt(false)}
+                      className="text-purple-400 hover:text-purple-600 transition-colors"
+                    >
+                      <X size={20} />
+                    </button>
+                  </div>
+                  {passwordResetSent ? (
+                    <div className="flex items-center gap-3 bg-white/60 rounded-lg px-4 py-3">
+                      <CheckCircle2 size={18} className="text-emerald-500" />
+                      <span className="text-sm text-emerald-800">
+                        Password reset email sent! Check your inbox to set your password.
+                      </span>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-purple-700 text-sm mb-4">
+                        You're logged in via magic link. Set a password to make future logins easier!
+                      </p>
+                      <button
+                        onClick={handleSendPasswordReset}
+                        className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-xl font-bold text-sm hover:bg-purple-700 transition-colors"
+                      >
+                        <Mail size={16} />
+                        Send Password Setup Email
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Pending Purchases Alert */}
+        {pendingPurchases.length > 0 && (
+          <div className="mb-8 animate-reveal">
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Loader2 size={24} className="text-amber-600 animate-spin" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-amber-800 mb-2">Payment Processing</h3>
+                  <p className="text-amber-700 text-sm mb-4">
+                    {pendingPurchases.length === 1 
+                      ? 'Your recent purchase is being verified. This usually takes a few moments.'
+                      : `You have ${pendingPurchases.length} purchases being verified. This usually takes a few moments.`
+                    }
+                  </p>
+                  <div className="space-y-2">
+                    {pendingPurchases.map((purchase) => (
+                      <div key={purchase.id} className="flex items-center gap-3 bg-white/60 rounded-lg px-4 py-3">
+                        <AlertCircle size={18} className="text-amber-500" />
+                        <span className="text-sm font-medium text-amber-900">
+                          {purchase.course?.title || 'Course'} - {purchase.currency} {purchase.amount.toFixed(2)}
+                        </span>
+                        <span className="text-xs text-amber-600 ml-auto">
+                          Verifying payment...
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-amber-600 mt-4">
+                    Your course will appear below automatically once payment is confirmed. If this takes longer than expected, please contact support.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           

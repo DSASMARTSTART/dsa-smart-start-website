@@ -120,6 +120,18 @@ export interface CourseTargetAudience {
   points: string[];
 }
 
+// ---------- Wizard State Types ----------
+export interface WizardStepsCompleted {
+  metadata: boolean;
+  pricing: boolean;
+  syllabus: boolean;
+  content: boolean;
+}
+
+export type WizardStep = 1 | 2 | 3 | 4;
+
+export type PaymentProvider = 'paypal' | 'raiffeisen';
+
 export interface Course {
   id: string;
   title: string;
@@ -135,6 +147,13 @@ export interface Course {
   createdAt: string;
   updatedAt: string;
   adminNotes?: string;
+  // ---------- Wizard state fields ----------
+  wizardStep: WizardStep;  // Current step (1-4)
+  stepsCompleted: WizardStepsCompleted;  // Which steps are done
+  wizardCompleted: boolean;  // True when all 4 steps complete
+  // ---------- Payment integration ----------
+  paymentProductId?: string;  // Product ID from PayPal/Raiffeisen
+  paymentProvider?: PaymentProvider;  // Which payment provider
   // ---------- NEW: Catalog fields ----------
   productType: ProductType;  // 'ebook' | 'learndash' | 'service'
   targetAudience: TargetAudience;  // 'adults_teens' | 'kids'
@@ -178,6 +197,8 @@ export interface Enrollment {
   completedAt?: string;
 }
 
+export type PurchaseStatus = 'pending' | 'completed' | 'failed' | 'refunded';
+
 export interface Purchase {
   id: string;
   userId: string;
@@ -190,6 +211,11 @@ export interface Purchase {
   purchasedAt: string;
   paymentMethod?: string;
   transactionId?: string;
+  // New fields for webhook verification flow
+  status: PurchaseStatus;
+  webhookVerified: boolean;
+  webhookVerifiedAt?: string;
+  paymentProviderResponse?: Record<string, unknown>;
 }
 
 export interface Progress {
@@ -229,6 +255,9 @@ export type AuditAction =
   | 'enrollment_granted'
   | 'enrollment_revoked'
   | 'purchase_created'
+  | 'purchase_confirmed'
+  | 'purchase_failed'
+  | 'purchase_manual_confirm'
   | 'admin_note_updated';
 
 export interface AuditLog {

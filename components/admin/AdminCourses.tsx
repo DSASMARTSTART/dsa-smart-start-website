@@ -6,7 +6,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Search, Plus, Edit, Eye, ChevronRight, DollarSign,
   Users, BarChart, ToggleLeft, ToggleRight, Image, Trash2,
-  ChevronLeft
+  ChevronLeft, Square, CheckSquare, XCircle
 } from 'lucide-react';
 import { 
   DataTable, StatusBadge, ProgressBar, Button, Select, ConfirmModal
@@ -22,6 +22,7 @@ const ITEMS_PER_PAGE = 10;
 
 const AdminCourses: React.FC<AdminCoursesProps> = ({ onNavigate }) => {
   const [courses, setCourses] = useState<Course[]>([]);
+  const [allCourses, setAllCourses] = useState<Course[]>([]); // For stats calculation
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<CourseFilters>({ search: '' });
   const [enrollmentCounts, setEnrollmentCounts] = useState<Record<string, number>>({});
@@ -35,6 +36,10 @@ const AdminCourses: React.FC<AdminCoursesProps> = ({ onNavigate }) => {
   const [deleteTarget, setDeleteTarget] = useState<Course | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  
+  // Multi-select state for bulk operations
+  const [selectedCourses, setSelectedCourses] = useState<Set<string>>(new Set());
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
 
   useEffect(() => {
     loadCourses();
@@ -48,7 +53,31 @@ const AdminCourses: React.FC<AdminCoursesProps> = ({ onNavigate }) => {
   const loadCourses = async () => {
     setLoading(true);
     try {
-      const data = await coursesApi.list(filters);
+      // Use listForAdmin to include ALL courses (drafts, unpublished, etc.)
+      let data = await coursesApi.listForAdmin();
+      
+      // Store all courses for stats (before filtering)
+      setAllCourses(data);
+      
+      // Apply search filter
+      if (filters.search) {
+        const searchLower = filters.search.toLowerCase();
+        data = data.filter(c => 
+          c.title.toLowerCase().includes(searchLower) ||
+          c.description?.toLowerCase().includes(searchLower)
+        );
+      }
+      
+      // Apply level filter
+      if (filters.level && filters.level !== 'all') {
+        data = data.filter(c => c.level === filters.level);
+      }
+      
+      // Apply status filter
+      if (filters.isPublished !== undefined) {
+        data = data.filter(c => c.isPublished === filters.isPublished);
+      }
+      
       setTotalCourses(data.length);
       
       // Apply pagination
@@ -98,9 +127,66 @@ const AdminCourses: React.FC<AdminCoursesProps> = ({ onNavigate }) => {
       await coursesApi.delete(deleteTarget.id);
       setShowDeleteConfirm(false);
       setDeleteTarget(null);
+      setSelectedCourses(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(deleteTarget.id);
+        return newSet;
+      });
       loadCourses();
     } catch (error) {
       console.error('Error deleting course:', error);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  // Bulk selection handlers
+  const toggleSelectCourse = (courseId: string) => {
+    setSelectedCourses(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(courseId)) {
+        newSet.delete(courseId);
+      } else {
+        newSet.add(courseId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedCourses.size === courses.length) {
+      // Deselect all
+      setSelectedCourses(new Set());
+    } else {
+      // Select all on current page
+      setSelectedCourses(new Set(courses.map(c => c.id)));
+    }
+  };
+
+  const clearSelection = () => {
+    setSelectedCourses(new Set());
+  };
+
+  const confirmBulkDelete = async () => {
+    if (selectedCourses.size === 0) return;
+    
+    setDeleting(true);
+    try {
+      // Delete all selected courses
+      const courseIds: string[] = Array.from(selectedCourses);
+      for (const id of courseIds) {
+        try {
+          await coursesApi.delete(id);
+        } catch (err) {
+          console.error(`Error deleting course ${id}:`, err);
+        }
+      }
+      
+      setShowBulkDeleteConfirm(false);
+      setSelectedCourses(new Set());
+      loadCourses();
+    } catch (error) {
+      console.error('Error during bulk delete:', error);
     } finally {
       setDeleting(false);
     }
@@ -115,6 +201,35 @@ const AdminCourses: React.FC<AdminCoursesProps> = ({ onNavigate }) => {
   };
 
   const columns = [
+    {
+      key: 'select',
+      header: (
+        <button
+          onClick={(e) => { e.stopPropagation(); toggleSelectAll(); }}
+          className="p-1 hover:bg-gray-100 rounded transition-colors"
+          title={selectedCourses.size === courses.length ? 'Deselect all' : 'Select all'}
+        >
+          {selectedCourses.size === courses.length && courses.length > 0 ? (
+            <CheckSquare size={18} className="text-purple-600" />
+          ) : (
+            <Square size={18} className="text-gray-400" />
+          )}
+        </button>
+      ),
+      width: '50px',
+      render: (course: Course) => (
+        <button
+          onClick={(e) => { e.stopPropagation(); toggleSelectCourse(course.id); }}
+          className="p-1 hover:bg-gray-100 rounded transition-colors"
+        >
+          {selectedCourses.has(course.id) ? (
+            <CheckSquare size={18} className="text-purple-600" />
+          ) : (
+            <Square size={18} className="text-gray-400" />
+          )}
+        </button>
+      )
+    },
     {
       key: 'title',
       header: 'Course',
@@ -155,12 +270,17 @@ const AdminCourses: React.FC<AdminCoursesProps> = ({ onNavigate }) => {
     {
       key: 'status',
       header: 'Status',
-      width: '120px',
+      width: '140px',
       render: (course: Course) => (
         <div className="flex flex-col gap-1">
           <StatusBadge status={course.isPublished ? 'published' : 'draft'} />
-          {course.isDraft && (
-            <span className="text-[9px] font-bold text-amber-500">Has unsaved changes</span>
+          {!course.isPublished && !course.wizardCompleted && (
+            <span className="text-[9px] font-bold text-amber-600">
+              Step {course.wizardStep || 1} of {course.productType === 'ebook' ? 3 : 4}
+            </span>
+          )}
+          {course.isDraft && course.wizardCompleted && (
+            <span className="text-[9px] font-bold text-blue-500">Ready to publish</span>
           )}
         </div>
       )
@@ -245,18 +365,22 @@ const AdminCourses: React.FC<AdminCoursesProps> = ({ onNavigate }) => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
         <div className="bg-white rounded-2xl border border-gray-100 p-5">
           <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Total Courses</p>
-          <p className="text-2xl font-black text-gray-900">{totalCourses}</p>
+          <p className="text-2xl font-black text-gray-900">{allCourses.length}</p>
         </div>
         <div className="bg-white rounded-2xl border border-gray-100 p-5">
           <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Published</p>
-          <p className="text-2xl font-black text-green-600">{courses.filter(c => c.isPublished).length}</p>
+          <p className="text-2xl font-black text-green-600">{allCourses.filter(c => c.isPublished).length}</p>
         </div>
         <div className="bg-white rounded-2xl border border-gray-100 p-5">
-          <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Drafts</p>
-          <p className="text-2xl font-black text-amber-600">{courses.filter(c => !c.isPublished).length}</p>
+          <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">In Progress</p>
+          <p className="text-2xl font-black text-amber-600">{allCourses.filter(c => !c.isPublished && !c.wizardCompleted).length}</p>
+        </div>
+        <div className="bg-white rounded-2xl border border-gray-100 p-5">
+          <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Ready to Publish</p>
+          <p className="text-2xl font-black text-blue-600">{allCourses.filter(c => !c.isPublished && c.wizardCompleted).length}</p>
         </div>
         <div className="bg-white rounded-2xl border border-gray-100 p-5">
           <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Total Enrollments</p>
@@ -298,10 +422,38 @@ const AdminCourses: React.FC<AdminCoursesProps> = ({ onNavigate }) => {
           options={[
             { value: 'all', label: 'All Status' },
             { value: 'true', label: 'Published' },
-            { value: 'false', label: 'Draft' },
+            { value: 'false', label: 'All Drafts' },
           ]}
         />
       </div>
+
+      {/* Bulk Action Bar - shows when courses are selected */}
+      {selectedCourses.size > 0 && (
+        <div className="bg-purple-50 border border-purple-200 rounded-2xl p-4 flex items-center justify-between animate-reveal">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-bold text-purple-700">
+              {selectedCourses.size} course{selectedCourses.size > 1 ? 's' : ''} selected
+            </span>
+            <button
+              onClick={clearSelection}
+              className="text-sm text-purple-600 hover:text-purple-800 font-medium flex items-center gap-1"
+            >
+              <XCircle size={14} />
+              Clear selection
+            </button>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="danger"
+              size="sm"
+              icon={Trash2}
+              onClick={() => setShowBulkDeleteConfirm(true)}
+            >
+              Delete Selected
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Courses Table */}
       <DataTable
@@ -361,6 +513,17 @@ const AdminCourses: React.FC<AdminCoursesProps> = ({ onNavigate }) => {
         confirmVariant="danger"
         onConfirm={confirmDelete}
         onCancel={() => { setShowDeleteConfirm(false); setDeleteTarget(null); }}
+      />
+
+      {/* Bulk Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showBulkDeleteConfirm}
+        title="Delete Multiple Courses"
+        message={`Are you sure you want to delete ${selectedCourses.size} course${selectedCourses.size > 1 ? 's' : ''}? This will also remove all enrollments and student progress for these courses. This action cannot be undone.`}
+        confirmLabel={deleting ? "Deleting..." : `Delete ${selectedCourses.size} Course${selectedCourses.size > 1 ? 's' : ''}`}
+        confirmVariant="danger"
+        onConfirm={confirmBulkDelete}
+        onCancel={() => setShowBulkDeleteConfirm(false)}
       />
     </div>
   );

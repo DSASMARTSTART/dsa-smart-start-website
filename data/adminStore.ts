@@ -696,6 +696,10 @@ export const coursesApi = {
       targetAudience: courseData?.targetAudience || 'adults_teens',
       contentFormat: courseData?.contentFormat || 'interactive',
       teachingMaterialsIncluded: courseData?.teachingMaterialsIncluded || false,
+      // Wizard state fields
+      wizardStep: courseData?.wizardStep || 1,
+      stepsCompleted: courseData?.stepsCompleted || { metadata: false, pricing: false, syllabus: false, content: false },
+      wizardCompleted: false,
     };
 
     courses.push(newCourse);
