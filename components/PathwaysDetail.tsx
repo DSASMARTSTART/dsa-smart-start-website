@@ -29,9 +29,9 @@ const PathwaysDetail: React.FC = () => {
              <div className="absolute -inset-6 bg-pink-100 rounded-[3rem] blur-3xl opacity-30 group-hover:opacity-50 transition-opacity"></div>
              <div className="relative overflow-hidden rounded-[3rem] aspect-[4/5] shadow-2xl border-4 border-white">
                 <img 
-                  src="https://images.unsplash.com/photo-1491013516836-7ad643eead76?auto=format&fit=crop&q=80&w=1200" 
-                  alt="Child learning" 
-                  className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-700"
+                  src="https://images.unsplash.com/photo-1580894732444-8ecded7900cd?auto=format&fit=crop&q=80&w=1200" 
+                  alt="Mother helping child with homework" 
+                  className="w-full h-full object-cover object-right transform hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-pink-900/60 to-transparent"></div>
                 <div className="absolute bottom-10 left-10 text-white">
