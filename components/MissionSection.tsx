@@ -1,23 +1,24 @@
 
 import React from 'react';
-import { Heart } from 'lucide-react';
+import { Heart, ChevronRight } from 'lucide-react';
 
-const MissionSection: React.FC = () => {
+interface MissionSectionProps {
+  onNavigate?: (path: string) => void;
+}
+
+const MissionSection: React.FC<MissionSectionProps> = ({ onNavigate }) => {
   const points = [
     {
-      number: '01.',
       highlight: '+3,000',
-      text: 'Every year, students with learning disabilities choose DSA SMART START for their learning.',
+      text: 'DSA students every year choose DSA SMART START for their learning journey.',
     },
     {
-      number: '02.',
       highlight: 'Method',
-      text: 'Every year thousands DSA Students Discover a New Method for Learning English with DSA SMART START',
+      text: 'Every year thousands of DSA students discover a new way to learn English with DSA SMART START.',
     },
     {
-      number: '03.',
-      highlight: "Let's help",
-      text: 'Children, teenagers and adults with learning disabilities transform the impossible into possible',
+      highlight: "Let's Help",
+      text: 'We help DSA children, teens, and adults turn the impossible into possible.',
     },
   ];
 
@@ -47,12 +48,7 @@ const MissionSection: React.FC = () => {
               key={index} 
               className="group relative flex flex-col p-8 bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-purple-500/5 transition-all duration-500 hover:-translate-y-2"
             >
-              {/* Numbering Background */}
-              <span className="absolute -top-6 left-8 text-7xl font-black text-purple-100/50 group-hover:text-purple-100 transition-colors pointer-events-none">
-                {point.number}
-              </span>
-
-              <div className="relative z-10 pt-4">
+              <div className="relative z-10">
                 <div className="mb-4">
                    <span className="text-2xl font-bold text-purple-600 tracking-tight">
                     {point.highlight}
@@ -71,6 +67,17 @@ const MissionSection: React.FC = () => {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* CTA Button */}
+        <div className="text-center mt-16">
+          <button
+            onClick={() => onNavigate?.('courses')}
+            className="inline-flex items-center gap-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-10 py-4 rounded-full font-bold uppercase tracking-wider hover:from-purple-700 hover:to-pink-700 transition-all shadow-lg shadow-purple-200 active:scale-95"
+          >
+            Explore Courses
+            <ChevronRight size={20} />
+          </button>
         </div>
       </div>
 

@@ -4,44 +4,12 @@ import { Zap, TrendingUp, Globe, Heart, Star, Layout, Users, Sparkles, CheckCirc
 
 const MethodSection: React.FC = () => {
   const metrics = [
-    { label: 'LEARNING EFFECTIVENESS', value: '6x', suffix: 'MORE EFFECTIVE', color: 'text-purple-600' },
-    { label: 'MEMORY RETENTION', value: '70%', suffix: 'FASTER STORAGE', color: 'text-pink-500' },
-    { label: 'DIFFICULTY REDUCTION', value: '85%', suffix: 'LESS STRESS', color: 'text-blue-500' },
-    { label: 'SPEAKING IMPROVEMENT', value: '110%', suffix: 'BETTER FLUENCY', color: 'text-indigo-600' },
-    { label: 'MEASURABLE PROGRESS', value: '4', suffix: 'WEEKS TARGET', color: 'text-orange-500' },
-  ];
-
-  const benefits = [
-    {
-      title: 'GREATER AUTONOMY',
-      desc: "Fun, dynamic activities designed to make you more independent in learning English.",
-      icon: <Layout className="text-purple-500" />
-    },
-    {
-      title: 'IMPROVED SELF-ESTEEM',
-      desc: "Successes achieved during the program build motivation and long-term confidence.",
-      icon: <Heart className="text-pink-500" />
-    },
-    {
-      title: 'INTERNATIONAL EXAMS',
-      desc: "Prepare for official exams with techniques aimed specifically at neurodiverse needs.",
-      icon: <Globe className="text-blue-500" />
-    },
-    {
-      title: 'ENGAGING PROGRAM',
-      desc: "Interactive materials and video lessons designed to maintain focus and curiosity.",
-      icon: <Star className="text-yellow-500" />
-    },
-    {
-      title: 'MULTISENSORY TOOLS',
-      desc: "Visual, auditory, and hands-on tools make memorization natural and easy.",
-      icon: <Sparkles className="text-purple-400" />
-    },
-    {
-      title: 'PERSONAL TUTOR',
-      desc: "Receive dedicated assistance from our specialists to overcome every roadblock.",
-      icon: <Users className="text-indigo-500" />
-    },
+    { label: 'CLEAR AND GUIDED LEARNING', value: '100%', suffix: 'STRUCTURED METHOD', color: 'text-purple-600' },
+    { label: 'NATURAL AND INTUITIVE PROCESS', value: '100%', suffix: 'EFFORTLESS LEARNING', color: 'text-pink-500' },
+    { label: 'FASTER RESULTS THAN TRADITIONAL METHODS', value: '6x', suffix: 'FASTER', color: 'text-blue-500' },
+    { label: 'INDEPENDENT LEARNING SKILLS', value: '90%', suffix: 'MORE AUTONOMY', color: 'text-indigo-600' },
+    { label: 'SPEAKING WITHOUT FEAR', value: '95%', suffix: 'HIGHER CONFIDENCE', color: 'text-orange-500' },
+    { label: 'IMPROVED ATTENTION SPAN', value: '80%', suffix: 'BETTER FOCUS', color: 'text-green-500' },
   ];
 
   return (
@@ -60,7 +28,7 @@ const MethodSection: React.FC = () => {
         </div>
 
         {/* Dynamic Performance Metrics */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-6 mb-32">
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-32">
           {metrics.map((m, i) => (
             <div key={i} className="group p-8 rounded-[2rem] bg-gray-50 border border-gray-100 text-center hover:bg-white hover:shadow-2xl hover:shadow-purple-100 transition-all duration-500 animate-reveal" style={{ animationDelay: `${i * 0.1}s` }}>
               <div className={`text-4xl md:text-5xl font-black ${m.color} mb-2 group-hover:scale-110 transition-transform`}>{m.value}</div>
@@ -77,8 +45,8 @@ const MethodSection: React.FC = () => {
             {/* Background pattern */}
             <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-purple-50/50 to-transparent pointer-events-none"></div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start relative z-10">
-              <div className="lg:col-span-5">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10">
+              <div>
                 <div className="flex items-center gap-2 mb-6">
                   <ShieldCheck className="text-purple-600" size={20} />
                   <span className="text-xs font-bold text-purple-600 uppercase tracking-widest">Premium Learning Experience</span>
@@ -99,18 +67,11 @@ const MethodSection: React.FC = () => {
                 </div>
               </div>
 
-              <div className="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-12">
-                {benefits.map((b, i) => (
-                  <div key={i} className="flex flex-col gap-4 group/item">
-                    <div className="w-12 h-12 flex items-center justify-center bg-gray-50 rounded-2xl group-hover/item:bg-purple-50 transition-colors group-hover/item:scale-110 duration-300">
-                      {b.icon}
-                    </div>
-                    <div>
-                      <h6 className="font-bold text-gray-900 tracking-tight text-lg mb-2">{b.title}</h6>
-                      <p className="text-gray-500 text-sm leading-relaxed">{b.desc}</p>
-                    </div>
-                  </div>
-                ))}
+              <div className="flex items-center justify-center">
+                <div className="text-center">
+                  <div className="text-8xl mb-4">🌍</div>
+                  <p className="text-gray-500 text-lg">Open doors worldwide with confidence</p>
+                </div>
               </div>
             </div>
 

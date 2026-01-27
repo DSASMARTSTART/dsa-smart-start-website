@@ -1,12 +1,22 @@
 
-import React from 'react';
-import { Star, Zap, Award, BookOpen, Music, Play, Layers, Compass, ChevronRight, Sparkles, GraduationCap, Baby } from 'lucide-react';
+import React, { useState } from 'react';
+import { Star, Zap, Award, BookOpen, Music, Play, Layers, Compass, ChevronRight, Sparkles, GraduationCap, Baby, ClipboardCheck } from 'lucide-react';
+import AssessmentPopup from './AssessmentPopup';
+import { AssessmentTestType } from '../types';
 
 interface RootsSectionProps {
   onNavigate?: (path: string) => void;
 }
 
 const RootsSection: React.FC<RootsSectionProps> = ({ onNavigate }) => {
+  const [showAssessment, setShowAssessment] = useState(false);
+  const [assessmentType, setAssessmentType] = useState<AssessmentTestType>('teens_adults');
+
+  const handleOpenAssessment = (type: AssessmentTestType) => {
+    setAssessmentType(type);
+    setShowAssessment(true);
+  };
+
   const adultCourses = [
     { name: "A1 LEVEL", level: "Beginner", icon: <Layers size={22} />, color: "from-blue-500 to-indigo-600", desc: "Foundation strategies for complete beginners with dyslexia." },
     { name: "A2 LEVEL", level: "Elementary", icon: <Compass size={22} />, color: "from-indigo-500 to-purple-600", desc: "Developing confidence in daily communication and basic structures." },
@@ -34,19 +44,19 @@ const RootsSection: React.FC<RootsSectionProps> = ({ onNavigate }) => {
             <span className="text-[10px] uppercase tracking-widest text-purple-600 font-bold">Comprehensive Curriculum</span>
           </div>
           <h2 className="text-4xl md:text-6xl font-black text-gray-900 mb-6 tracking-tighter">
-            Discover Our <span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-[#9b4dff] via-[#8a3ffc] to-[#ff2d85] italic px-4">Roots</span>
+            Discover Your <span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-[#9b4dff] via-[#8a3ffc] to-[#ff2d85] italic px-4">Level</span>
           </h2>
           <p className="text-gray-500 max-w-2xl mx-auto text-lg leading-relaxed">
-            Meticulously structured pathways to accommodate neurodiversity, ensuring progress without frustration across all age groups.
+            Take the test to discover your English level and learning program designed for you.
           </p>
         </div>
 
-        {/* Adults & Teens Section */}
+        {/* Teens & Adults Section */}
         <div className="mb-32">
           <div className="flex items-center gap-6 mb-12 animate-reveal stagger-1">
             <div className="flex items-center gap-3">
               <GraduationCap className="text-indigo-600" size={24} />
-              <h4 className="text-2xl font-black text-gray-900 tracking-tight">Adults & Teens</h4>
+              <h4 className="text-2xl font-black text-gray-900 tracking-tight">Teens & Adults</h4>
             </div>
             <div className="h-[1px] flex-grow bg-gradient-to-r from-indigo-200 to-transparent"></div>
           </div>
@@ -84,7 +94,7 @@ const RootsSection: React.FC<RootsSectionProps> = ({ onNavigate }) => {
           <div className="flex items-center gap-6 mb-12 animate-reveal stagger-2">
             <div className="flex items-center gap-3">
               <Baby className="text-pink-600" size={24} />
-              <h4 className="text-2xl font-black text-gray-900 tracking-tight">Kids Program</h4>
+              <h4 className="text-2xl font-black text-gray-900 tracking-tight">Kids</h4>
             </div>
             <div className="h-[1px] flex-grow bg-gradient-to-r from-pink-200 to-transparent"></div>
           </div>
@@ -122,19 +132,73 @@ const RootsSection: React.FC<RootsSectionProps> = ({ onNavigate }) => {
           <div className="bg-white p-12 rounded-[3rem] shadow-xl border border-gray-100 inline-block relative overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-pink-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             <div className="relative z-10">
-              <h5 className="text-2xl font-bold text-gray-900 mb-6">Not sure which root is for you?</h5>
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <ClipboardCheck className="w-8 h-8 text-purple-600" />
+              </div>
+              <h5 className="text-2xl font-bold text-gray-900 mb-3">Not sure which level is for you?</h5>
+              <p className="text-gray-500 max-w-md mx-auto mb-8">
+                Take our free placement test to discover your English level and find the perfect course for you!
+              </p>
+              
+              {/* Assessment Test Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+                <button 
+                  onClick={() => handleOpenAssessment('teens_adults')}
+                  className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-indigo-200 active:scale-95"
+                >
+                  <GraduationCap size={20} />
+                  Take the Test — Teens & Adults
+                </button>
+                <button 
+                  onClick={() => handleOpenAssessment('kids')}
+                  className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-pink-200 active:scale-95"
+                >
+                  <Baby size={20} />
+                  Take the Test — Kids
+                </button>
+              </div>
+
+              <div className="flex items-center justify-center gap-4 text-sm text-gray-400">
+                <span className="flex items-center gap-1">
+                  <Sparkles size={14} />
+                  No login required
+                </span>
+                <span>•</span>
+                <span>~15 minutes</span>
+                <span>•</span>
+                <span>Free</span>
+              </div>
+
+              {/* Divider */}
+              <div className="flex items-center gap-4 my-8">
+                <div className="h-px flex-1 bg-gray-200"></div>
+                <span className="text-xs uppercase tracking-widest text-gray-400 font-semibold">Or</span>
+                <div className="h-px flex-1 bg-gray-200"></div>
+              </div>
+
               <a 
                 href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ0qY73eSZNjDKlM_CQETEMDZFNGB5SONV3eJl2rbRFfK6hT6uNAwz_X4L7Jo0lIbuw-zerkbJWu"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block bg-purple-600 text-white px-12 py-5 rounded-full font-black uppercase tracking-widest hover:bg-purple-700 transition-all shadow-xl shadow-purple-100 active:scale-95"
+                className="inline-block bg-white text-purple-600 px-10 py-4 rounded-full font-black uppercase tracking-widest hover:bg-purple-50 transition-all border-2 border-purple-200 active:scale-95"
               >
-                Book A Consultation
+                Book A Free Consultation
               </a>
+              <p className="text-gray-400 text-sm mt-3">
+                Speak with one of our experts to find your perfect study plan.
+              </p>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Assessment Popup */}
+      <AssessmentPopup
+        isOpen={showAssessment}
+        onClose={() => setShowAssessment(false)}
+        testType={assessmentType}
+        onNavigate={onNavigate}
+      />
     </section>
   );
 };

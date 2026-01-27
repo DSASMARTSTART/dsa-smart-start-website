@@ -315,7 +315,7 @@ const App: React.FC = () => {
           <>
             <HeroSection onNavigate={navigateTo} />
             <div id="about"><AboutSection /></div>
-            <MissionSection />
+            <MissionSection onNavigate={navigateTo} />
             <div id="roots"><RootsSection onNavigate={navigateTo} /></div>
             <div id="methods"><MethodSection /></div>
             <PathwaysDetail />

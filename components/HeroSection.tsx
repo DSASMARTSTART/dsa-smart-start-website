@@ -80,13 +80,12 @@ const HeroSection: React.FC<HeroProps> = ({ onNavigate }) => {
           </span>
         </div>
 
-        {/* Main Title - Removed italics, improved contrast */}
+        {/* Main Title */}
         <h1 className="flex flex-col items-center justify-center text-5xl sm:text-7xl md:text-8xl font-extrabold text-[#1a1c2d] tracking-tight leading-[1.1] mb-8 animate-reveal">
-          <span className="block">Master English</span>
           <span className="flex items-center gap-3 sm:gap-6">
-            with 
+            English 
             <span className="relative inline-block text-[#AB8FFF]">
-              Confidence
+              & DSA
                {/* Underline decoration */}
               <svg className="absolute w-full h-3 -bottom-1 left-0 text-[#FFC1F2]" viewBox="0 0 100 10" preserveAspectRatio="none">
                  <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="8" fill="none" />
@@ -97,7 +96,7 @@ const HeroSection: React.FC<HeroProps> = ({ onNavigate }) => {
 
         {/* Subtitle - Dyslexia friendly sans-serif, good line height */}
         <p className="text-lg sm:text-2xl font-medium text-gray-600 max-w-3xl mx-auto mb-10 leading-relaxed animate-reveal stagger-1">
-          A specialized learning method designed for <span className="font-bold text-[#AB8FFF]">dyslexic minds</span>.
+          The first method for <span className="font-bold text-[#AB8FFF]">DSA students</span>.
           <span className="block mt-2 text-gray-500 font-normal">Learning made effortless, engaging, and effective.</span>
         </p>
 

@@ -404,3 +404,42 @@ export interface CatalogFilters {
   priceRange?: { min: number; max: number };
   isPublished?: boolean;
 }
+
+// ---------- Assessment/Placement Test Types ----------
+export type AssessmentTestType = 'teens_adults' | 'kids';
+
+export interface AssessmentOption {
+  id: string;         // 'A', 'B', 'C'
+  text: string;       // The answer text
+}
+
+export interface AssessmentQuestion {
+  id: number;
+  level: 'A1' | 'A2' | 'B1' | 'B2' | 'kids-basic' | 'kids-medium' | 'kids-advanced';
+  question: string;
+  options: AssessmentOption[];
+  correctAnswer: string;  // The id of the correct option ('A', 'B', 'C')
+}
+
+export interface AssessmentAnswer {
+  questionId: number;
+  selectedAnswer: string;
+  isCorrect: boolean;
+}
+
+export interface AssessmentLevelScore {
+  level: string;
+  correct: number;
+  total: number;
+  passed: boolean;  // 7/10 or more = passed
+}
+
+export interface AssessmentResult {
+  testType: AssessmentTestType;
+  answers: AssessmentAnswer[];
+  levelScores: AssessmentLevelScore[];
+  recommendedLevel: CourseLevel;
+  totalCorrect: number;
+  totalQuestions: number;
+  completedAt: string;
+}
