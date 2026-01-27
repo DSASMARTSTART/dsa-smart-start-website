@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
+import type { Database } from '../lib/database.types';
+
+type UserRow = Database['public']['Tables']['users']['Row'];
 
 interface UserProfile {
   id: string;
@@ -46,17 +49,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .single();
     
     if (!error && data) {
+      const userData = data as UserRow;
       setProfile({
-        id: data.id,
-        email: data.email,
-        name: data.name,
-        role: data.role,
-        status: data.status,
-        avatarUrl: data.avatar_url,
-        createdAt: data.created_at,
-        updatedAt: data.updated_at,
-        lastActivityAt: data.last_activity_at,
-        adminNotes: data.admin_notes,
+        id: userData.id,
+        email: userData.email,
+        name: userData.name,
+        role: userData.role,
+        status: userData.status,
+        avatarUrl: userData.avatar_url ?? undefined,
+        createdAt: userData.created_at,
+        updatedAt: userData.updated_at,
+        lastActivityAt: userData.last_activity_at,
+        adminNotes: userData.admin_notes ?? undefined,
       });
     }
   };
@@ -115,8 +119,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     if (!supabase) return { error: new Error('Supabase not configured') };
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error };
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    
+    if (error) return { error };
+    
+    // Check user status after successful authentication
+    if (data.user) {
+      const { data: profileData, error: profileError } = await supabase
+        .from('users')
+        .select('status')
+        .eq('id', data.user.id)
+        .single();
+      
+      if (!profileError && profileData) {
+        const userStatus = (profileData as Pick<UserRow, 'status'>).status;
+        if (userStatus === 'paused') {
+          await supabase.auth.signOut();
+          return { error: new Error('Your account has been paused. Please contact support.') };
+        }
+        if (userStatus === 'deleted') {
+          await supabase.auth.signOut();
+          return { error: new Error('This account has been deactivated.') };
+        }
+      }
+    }
+    
+    return { error: null };
   };
 
   const signUp = async (email: string, password: string, name: string) => {
@@ -147,7 +175,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const resetPassword = async (email: string) => {
     if (!supabase) return { error: new Error('Supabase not configured') };
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: `${window.location.origin}/#reset-password`,
     });
     return { error };
   };

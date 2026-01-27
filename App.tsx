@@ -314,10 +314,10 @@ const App: React.FC = () => {
         {currentPath === 'home' && (
           <>
             <HeroSection onNavigate={navigateTo} />
-            <div id="about"><AboutSection /></div>
+            <div id="about"><AboutSection onNavigate={navigateTo} /></div>
             <MissionSection onNavigate={navigateTo} />
             <div id="roots"><RootsSection onNavigate={navigateTo} /></div>
-            <div id="methods"><MethodSection /></div>
+            <div id="methods"><MethodSection onNavigate={navigateTo} /></div>
             <PathwaysDetail />
             <CareerSection />
             <TestimonialsSection />

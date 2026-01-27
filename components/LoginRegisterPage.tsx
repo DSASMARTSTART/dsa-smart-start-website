@@ -41,7 +41,7 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     if (!formData.email.trim()) return 'Email is required';
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) return 'Invalid email format';
     if (!formData.password) return 'Password is required';
-    if (formData.password.length < 6) return 'Password must be at least 6 characters';
+    if (formData.password.length < 8) return 'Password must be at least 8 characters';
     if (!isLogin && !formData.name.trim()) return 'Name is required';
     if (!isLogin && formData.password !== formData.confirmPassword) return 'Passwords do not match';
     return null;

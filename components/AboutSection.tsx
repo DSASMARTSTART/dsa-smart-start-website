@@ -2,7 +2,11 @@
 import React from 'react';
 import { ChevronRight, Users, Sparkles } from 'lucide-react';
 
-const AboutSection: React.FC = () => {
+interface AboutSectionProps {
+  onNavigate?: (path: string) => void;
+}
+
+const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate }) => {
   return (
     <section className="relative bg-white py-24 md:py-32 px-6 overflow-hidden">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -33,7 +37,10 @@ const AboutSection: React.FC = () => {
           </div>
 
           <div className="mt-12">
-            <button className="group flex items-center gap-3 bg-gray-900 text-white px-10 py-4 rounded-full font-black text-xs tracking-widest transition-all duration-300 uppercase hover:bg-purple-600 hover:-translate-y-1 shadow-xl shadow-gray-200">
+            <button 
+              onClick={() => onNavigate?.('who-we-are')}
+              className="group flex items-center gap-3 bg-gray-900 text-white px-10 py-4 rounded-full font-black text-xs tracking-widest transition-all duration-300 uppercase hover:bg-purple-600 hover:-translate-y-1 shadow-xl shadow-gray-200"
+            >
               Find out more
               <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </button>

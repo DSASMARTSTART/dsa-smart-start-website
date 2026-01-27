@@ -2,7 +2,11 @@
 import React from 'react';
 import { Zap, TrendingUp, Globe, Heart, Star, Layout, Users, Sparkles, CheckCircle, ShieldCheck } from 'lucide-react';
 
-const MethodSection: React.FC = () => {
+interface MethodSectionProps {
+  onNavigate?: (path: string) => void;
+}
+
+const MethodSection: React.FC<MethodSectionProps> = ({ onNavigate }) => {
   const metrics = [
     { label: 'CLEAR AND GUIDED LEARNING', value: '100%', suffix: 'STRUCTURED METHOD', color: 'text-purple-600' },
     { label: 'NATURAL AND INTUITIVE PROCESS', value: '100%', suffix: 'EFFORTLESS LEARNING', color: 'text-pink-500' },
@@ -81,8 +85,11 @@ const MethodSection: React.FC = () => {
                 <h5 className="text-2xl font-bold text-gray-900 mb-2">Ready to change your future?</h5>
                 <p className="text-gray-500">Join over 3,000 successful students every year.</p>
               </div>
-              <button className="bg-purple-600 text-white px-12 py-5 rounded-full font-black uppercase tracking-widest hover:bg-purple-700 transition-all shadow-xl shadow-purple-200 hover:-translate-y-1 active:scale-95">
-                BOOK NOW
+              <button 
+                onClick={() => onNavigate?.('courses')}
+                className="bg-purple-600 text-white px-12 py-5 rounded-full font-black uppercase tracking-widest hover:bg-purple-700 transition-all shadow-xl shadow-purple-200 hover:-translate-y-1 active:scale-95"
+              >
+                Explore Courses
               </button>
             </div>
           </div>
