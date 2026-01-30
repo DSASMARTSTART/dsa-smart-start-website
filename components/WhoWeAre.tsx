@@ -129,11 +129,8 @@ const WhoWeAre: React.FC = () => {
               Since 2008, our team has supported children and adults with dyslexia in their English language studies, offering targeted tools and strategies. For over a decade, we have been passionately dedicated to helping those struggling with English learning, transforming challenges into real opportunities for growth.
             </p>
             <div className="flex flex-col sm:flex-row gap-6">
-              <button className="bg-[#AB8FFF] text-white px-10 py-5 rounded-full font-black text-xs uppercase tracking-widest hover:scale-110 hover:-rotate-1 transition-all shadow-xl shadow-purple-200">
+              <button className="bg-[#25D366] text-white px-10 py-5 rounded-full font-black text-xs uppercase tracking-widest hover:scale-110 hover:-rotate-1 transition-all shadow-xl shadow-[#25D366]/30">
                 START NOW
-              </button>
-              <button className="bg-gray-50 text-gray-900 px-10 py-5 rounded-full font-black text-xs uppercase tracking-widest hover:bg-white border border-gray-100 transition-all">
-                LEARN MORE
               </button>
             </div>
           </div>
@@ -203,11 +200,11 @@ const WhoWeAre: React.FC = () => {
                 Our vision is based on the belief that every individual deserves to be <span className="text-white font-black underline decoration-purple-500 decoration-2 underline-offset-8">understood, supported and guided</span> towards success, without being limited by labels or judgments.
               </p>
               <p>
-                We believe in changing society's perception of learning disabilities, and we are committed to providing concrete tools for learning English and a positive environment for those who have not yet found the right support to achieve their personal goals.
+                We believe in changing society's perception of learning difficulties, and we are committed to providing concrete tools for learning English and a positive environment for those who have not yet found the right support to achieve their personal goals.
               </p>
             </div>
             <div className="mt-12 sm:mt-16">
-              <button className="bg-purple-600 text-white px-12 py-5 rounded-full font-black uppercase tracking-widest hover:scale-110 transition-all shadow-2xl shadow-purple-500/20 active:scale-95">
+              <button className="bg-[#25D366] text-white px-12 py-5 rounded-full font-black uppercase tracking-widest hover:scale-110 transition-all shadow-2xl shadow-[#25D366]/30 active:scale-95">
                 BOOK NOW
               </button>
             </div>
@@ -228,43 +225,8 @@ const WhoWeAre: React.FC = () => {
         </div>
       </section>
 
-      {/* Final Motivational Section with Image */}
-      <section className="py-24 sm:py-32 px-6 bg-white overflow-hidden">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 sm:gap-20 items-center">
-          <div className="animate-reveal relative group" style={{ animationName: 'fadeInLeft' }}>
-            <div className="absolute -inset-10 bg-purple-100 rounded-full blur-[120px] opacity-30 group-hover:opacity-50 transition-opacity"></div>
-            <div className="relative rounded-[3.5rem] sm:rounded-[5rem] overflow-hidden aspect-[4/5] shadow-2xl border-4 border-white rotate-[-2deg] group-hover:rotate-0 transition-transform duration-700">
-               <img src="https://images.unsplash.com/photo-1491013516836-7ad643eead76?auto=format&fit=crop&q=80&w=800" alt="Student success" className="w-full h-full object-cover" />
-               <div className="absolute inset-0 bg-gradient-to-t from-purple-900/60 via-transparent to-transparent"></div>
-               <div className="absolute bottom-12 left-12 right-12">
-                  <span className="text-xs font-black text-purple-200 uppercase tracking-[0.3em] mb-4 block">Real Results</span>
-                  <p className="text-2xl sm:text-3xl font-bold text-white italic leading-tight">"I finally feel understood and capable."</p>
-               </div>
-            </div>
-          </div>
-
-          <div className="animate-reveal stagger-1" style={{ animationName: 'fadeInRight' }}>
-            <h3 className="text-4xl sm:text-5xl md:text-7xl font-black text-gray-900 mb-8 leading-tight tracking-tighter uppercase">
-              You are a <br /><span className="text-[#8a3ffc]">DSA student?</span>
-            </h3>
-            <p className="text-xl sm:text-2xl font-bold text-gray-900 mb-8 italic leading-snug border-l-4 border-purple-600 pl-6 sm:pl-8">
-              "We are here to give hope and accompany each person on the path to reaching their potential."
-            </p>
-            <p className="text-gray-600 text-lg mb-12 leading-relaxed font-medium">
-              With the Innovative DSA SMART START Method, we will transform your challenges into extraordinary growth opportunities. We're ready to give you the tools you need to approach the English language with confidence, determination, and passion.
-            </p>
-            <div className="flex flex-col gap-6">
-              <button className="flex items-center justify-between bg-purple-50 text-[#8a3ffc] px-8 sm:px-10 py-6 sm:py-7 rounded-[2.5rem] font-black uppercase tracking-widest group border border-purple-100 hover:bg-white transition-all hover:scale-105 active:scale-95 shadow-lg shadow-purple-100 text-[10px] sm:text-sm">
-                FIND OUT MORE ABOUT METHOD
-                <ChevronRight className="group-hover:translate-x-3 transition-transform" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Free Consultation CTA */}
-      <section className="pb-32 px-6">
+      <section className="pt-16 pb-32 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="bg-gradient-to-br from-[#f3e8ff] to-[#fef2f2] p-10 sm:p-12 md:p-24 rounded-[3.5rem] sm:rounded-[5rem] text-center animate-reveal relative overflow-hidden group">
              <div className="absolute top-0 left-0 w-64 h-64 bg-white/40 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 group-hover:scale-150 transition-transform duration-1000"></div>
@@ -279,7 +241,7 @@ const WhoWeAre: React.FC = () => {
                  href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ0qY73eSZNjDKlM_CQETEMDZFNGB5SONV3eJl2rbRFfK6hT6uNAwz_X4L7Jo0lIbuw-zerkbJWu"
                  target="_blank"
                  rel="noopener noreferrer"
-                 className="inline-block bg-[#8a3ffc] text-white px-10 sm:px-16 py-5 sm:py-6 rounded-full font-black uppercase tracking-widest shadow-2xl shadow-purple-500/20 hover:scale-110 active:scale-95 transition-all text-xs sm:text-base"
+                 className="inline-block bg-[#25D366] text-white px-10 sm:px-16 py-5 sm:py-6 rounded-full font-black uppercase tracking-widest shadow-2xl shadow-[#25D366]/30 hover:scale-110 active:scale-95 transition-all text-xs sm:text-base"
                >
                  BOOK FREE CONSULTATION
                </a>

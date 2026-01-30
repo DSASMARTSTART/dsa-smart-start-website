@@ -24,7 +24,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate }) => {
 
           <div className="space-y-8">
             <p className="text-2xl md:text-3xl font-bold text-gray-900 leading-tight">
-              We are here to break down every <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#9b4dff] via-[#8a3ffc] to-[#ff2d85]">barrier</span> and prejudice built against those with learning disabilities.
+              We are here to break down every <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#9b4dff] via-[#8a3ffc] to-[#ff2d85]">barrier</span> and prejudice built against those with learning difficulties.
             </p>
 
             <div className="w-20 h-1.5 bg-gradient-to-r from-purple-600 to-pink-500 rounded-full" />
@@ -39,7 +39,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate }) => {
           <div className="mt-12">
             <button 
               onClick={() => onNavigate?.('who-we-are')}
-              className="group flex items-center gap-3 bg-gray-900 text-white px-10 py-4 rounded-full font-black text-xs tracking-widest transition-all duration-300 uppercase hover:bg-purple-600 hover:-translate-y-1 shadow-xl shadow-gray-200"
+              className="group flex items-center gap-3 bg-[#25D366] text-white px-10 py-4 rounded-full font-black text-xs tracking-widest transition-all duration-300 uppercase hover:bg-[#1ebe5d] hover:-translate-y-1 shadow-xl shadow-[#25D366]/30"
             >
               Find out more
               <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />

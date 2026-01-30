@@ -87,7 +87,7 @@ const MethodSection: React.FC<MethodSectionProps> = ({ onNavigate }) => {
               </div>
               <button 
                 onClick={() => onNavigate?.('courses')}
-                className="bg-purple-600 text-white px-12 py-5 rounded-full font-black uppercase tracking-widest hover:bg-purple-700 transition-all shadow-xl shadow-purple-200 hover:-translate-y-1 active:scale-95"
+                className="bg-[#25D366] text-white px-12 py-5 rounded-full font-black uppercase tracking-widest hover:bg-[#1ebe5d] transition-all shadow-xl shadow-[#25D366]/30 hover:-translate-y-1 active:scale-95"
               >
                 Explore Courses
               </button>

@@ -53,12 +53,23 @@ const RootsSection: React.FC<RootsSectionProps> = ({ onNavigate }) => {
 
         {/* Teens & Adults Section */}
         <div className="mb-32">
-          <div className="flex items-center gap-6 mb-12 animate-reveal stagger-1">
+          <div className="flex items-center gap-6 mb-8 animate-reveal stagger-1">
             <div className="flex items-center gap-3">
               <GraduationCap className="text-indigo-600" size={24} />
               <h4 className="text-2xl font-black text-gray-900 tracking-tight">Teens & Adults</h4>
             </div>
             <div className="h-[1px] flex-grow bg-gradient-to-r from-indigo-200 to-transparent"></div>
+          </div>
+
+          {/* Teens & Adults Assessment Test CTA */}
+          <div className="flex justify-center mb-10 animate-reveal stagger-1">
+            <button 
+              onClick={() => handleOpenAssessment('teens_adults')}
+              className="inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
+            >
+              <ClipboardCheck size={20} />
+              Take the Test — Teens & Adults
+            </button>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -91,12 +102,23 @@ const RootsSection: React.FC<RootsSectionProps> = ({ onNavigate }) => {
 
         {/* Kids Section */}
         <div>
-          <div className="flex items-center gap-6 mb-12 animate-reveal stagger-2">
+          <div className="flex items-center gap-6 mb-8 animate-reveal stagger-2">
             <div className="flex items-center gap-3">
               <Baby className="text-pink-600" size={24} />
               <h4 className="text-2xl font-black text-gray-900 tracking-tight">Kids</h4>
             </div>
             <div className="h-[1px] flex-grow bg-gradient-to-r from-pink-200 to-transparent"></div>
+          </div>
+
+          {/* Kids Assessment Test CTA */}
+          <div className="flex justify-center mb-10 animate-reveal stagger-2">
+            <button 
+              onClick={() => handleOpenAssessment('kids')}
+              className="inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
+            >
+              <ClipboardCheck size={20} />
+              Take the Test — Kids
+            </button>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -126,68 +148,25 @@ const RootsSection: React.FC<RootsSectionProps> = ({ onNavigate }) => {
             ))}
           </div>
         </div>
-        
-        {/* Unified Booking CTA Area */}
-        <div className="mt-24 text-center animate-reveal stagger-3">
-          <div className="bg-white p-12 rounded-[3rem] shadow-xl border border-gray-100 inline-block relative overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-pink-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="relative z-10">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <ClipboardCheck className="w-8 h-8 text-purple-600" />
-              </div>
-              <h5 className="text-2xl font-bold text-gray-900 mb-3">Not sure which level is for you?</h5>
-              <p className="text-gray-500 max-w-md mx-auto mb-8">
-                Take our free placement test to discover your English level and find the perfect course for you!
-              </p>
-              
-              {/* Assessment Test Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-                <button 
-                  onClick={() => handleOpenAssessment('teens_adults')}
-                  className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-indigo-200 active:scale-95"
-                >
-                  <GraduationCap size={20} />
-                  Take the Test — Teens & Adults
-                </button>
-                <button 
-                  onClick={() => handleOpenAssessment('kids')}
-                  className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-pink-200 active:scale-95"
-                >
-                  <Baby size={20} />
-                  Take the Test — Kids
-                </button>
-              </div>
 
-              <div className="flex items-center justify-center gap-4 text-sm text-gray-400">
-                <span className="flex items-center gap-1">
-                  <Sparkles size={14} />
-                  No login required
-                </span>
-                <span>•</span>
-                <span>~15 minutes</span>
-                <span>•</span>
-                <span>Free</span>
-              </div>
-
-              {/* Divider */}
-              <div className="flex items-center gap-4 my-8">
-                <div className="h-px flex-1 bg-gray-200"></div>
-                <span className="text-xs uppercase tracking-widest text-gray-400 font-semibold">Or</span>
-                <div className="h-px flex-1 bg-gray-200"></div>
-              </div>
-
-              <a 
-                href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ0qY73eSZNjDKlM_CQETEMDZFNGB5SONV3eJl2rbRFfK6hT6uNAwz_X4L7Jo0lIbuw-zerkbJWu"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block bg-white text-purple-600 px-10 py-4 rounded-full font-black uppercase tracking-widest hover:bg-purple-50 transition-all border-2 border-purple-200 active:scale-95"
-              >
-                Book A Free Consultation
-              </a>
-              <p className="text-gray-400 text-sm mt-3">
-                Speak with one of our experts to find your perfect study plan.
-              </p>
-            </div>
+        {/* Still Not Sure CTA */}
+        <div className="mt-20 text-center animate-reveal stagger-3">
+          <div className="bg-white p-10 sm:p-12 rounded-[3rem] shadow-lg border border-gray-100 max-w-2xl mx-auto">
+            <h5 className="text-2xl sm:text-3xl font-black text-gray-900 mb-4 tracking-tight">
+              Still not sure which level is right for you?
+            </h5>
+            <p className="text-gray-500 max-w-md mx-auto mb-8 text-lg">
+              Book a free consultation and one of our specialists will guide you to the perfect learning path.
+            </p>
+            <a 
+              href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ0qY73eSZNjDKlM_CQETEMDZFNGB5SONV3eJl2rbRFfK6hT6uNAwz_X4L7Jo0lIbuw-zerkbJWu"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-3 bg-[#25D366] text-white px-10 py-4 rounded-full font-black uppercase tracking-widest hover:bg-[#1ebe5d] transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
+            >
+              Book a Free Call
+              <ChevronRight size={20} />
+            </a>
           </div>
         </div>
       </div>

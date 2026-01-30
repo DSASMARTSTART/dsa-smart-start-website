@@ -1,9 +1,10 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Layers, Compass, Zap, Music, Play, Award, Star, ChevronRight, CheckCircle2, Clock, Sparkles, BookOpen, ShoppingCart, Check, Rocket, Shield, ArrowDown, Filter, Search, BarChart3, Globe, ArrowRight, Plus, Crown, Diamond, Users, Video, Brain, Headphones, FileCheck, MessageCircle, GraduationCap, FileText, MonitorPlay, Package, Briefcase, Eye } from 'lucide-react';
+import { Layers, Compass, Zap, Music, Play, Award, Star, ChevronRight, CheckCircle2, Clock, Sparkles, BookOpen, ShoppingCart, Check, Rocket, Shield, ArrowDown, Filter, Search, BarChart3, Globe, ArrowRight, Plus, Crown, Diamond, Users, Video, Brain, Headphones, FileCheck, MessageCircle, GraduationCap, FileText, MonitorPlay, Package, Briefcase, Eye, Baby } from 'lucide-react';
 import { coursesApi, catalogApi } from '../data/supabaseStore';
 import { Course, ProductType, TargetAudience } from '../types';
 import WaveSeparator from './WaveSeparator';
+import AssessmentPopup from './AssessmentPopup';
 
 // Tab type for navigation
 type CatalogTab = 'services' | 'interactive' | 'ebooks';
@@ -405,6 +406,13 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [internalCart, setInternalCart] = useState<Course[]>([]);
   const [activeTab, setActiveTab] = useState<CatalogTab>('interactive'); // Default to Interactive Courses
+  const [showAssessment, setShowAssessment] = useState(false);
+  const [assessmentType, setAssessmentType] = useState<'teens_adults' | 'kids'>('teens_adults');
+
+  const handleOpenAssessment = (type: 'teens_adults' | 'kids') => {
+    setAssessmentType(type);
+    setShowAssessment(true);
+  };
 
   // Use external cart if provided, otherwise internal
   const cartIds = externalCart.length > 0 ? externalCart : internalCart.map(c => c.id);
@@ -738,13 +746,25 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
             {/* Adults & Teens Interactive Courses */}
             {adultLearndash.length > 0 && (
               <div className="mb-16">
-                <div className="flex items-center gap-6 mb-8">
+                <div className="flex items-center gap-6 mb-6">
                   <div className="flex items-center gap-3">
                     <MonitorPlay size={20} className="text-[#AB8FFF]" />
                     <h3 className="text-2xl font-black text-gray-900 whitespace-nowrap">Adults & Teens</h3>
                   </div>
                   <div className="h-[2px] flex-grow bg-gradient-to-r from-[#AB8FFF] to-transparent rounded-full"></div>
                 </div>
+
+                {/* Adults Assessment Test Button - On Top */}
+                <div className="mb-8 flex justify-center">
+                  <button 
+                    onClick={() => handleOpenAssessment('teens_adults')}
+                    className="inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
+                  >
+                    <GraduationCap size={20} />
+                    Take the Test — Teens & Adults
+                  </button>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-reveal stagger-1">
                   {adultLearndash.map((course, idx) => (
                     <CourseCard 
@@ -763,13 +783,25 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
             {/* Kids Interactive Courses */}
             {kidsLearndash.length > 0 && (
               <div className="mb-16">
-                <div className="flex items-center gap-6 mb-8">
+                <div className="flex items-center gap-6 mb-6">
                   <div className="flex items-center gap-3">
                     <MonitorPlay size={20} className="text-pink-500" />
                     <h3 className="text-2xl font-black text-gray-900 whitespace-nowrap">Kids</h3>
                   </div>
                   <div className="h-[2px] flex-grow bg-gradient-to-r from-pink-400 to-transparent rounded-full"></div>
                 </div>
+
+                {/* Kids Assessment Test Button - On Top */}
+                <div className="mb-8 flex justify-center">
+                  <button 
+                    onClick={() => handleOpenAssessment('kids')}
+                    className="inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
+                  >
+                    <Baby size={20} />
+                    Take the Test — Kids
+                  </button>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-reveal stagger-1">
                   {kidsLearndash.map((course, idx) => (
                     <CourseCard 
@@ -901,6 +933,14 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
            </div>
         )}
       </div>
+
+      {/* Assessment Popup */}
+      <AssessmentPopup
+        isOpen={showAssessment}
+        onClose={() => setShowAssessment(false)}
+        testType={assessmentType}
+        onNavigate={onNavigate}
+      />
     </div>
   );
 };

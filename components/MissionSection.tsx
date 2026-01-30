@@ -73,9 +73,9 @@ const MissionSection: React.FC<MissionSectionProps> = ({ onNavigate }) => {
         <div className="text-center mt-16">
           <button
             onClick={() => onNavigate?.('courses')}
-            className="inline-flex items-center gap-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-10 py-4 rounded-full font-bold uppercase tracking-wider hover:from-purple-700 hover:to-pink-700 transition-all shadow-lg shadow-purple-200 active:scale-95"
+            className="inline-flex items-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-10 py-4 rounded-full font-bold uppercase tracking-wider transition-all shadow-lg shadow-[#25D366]/30 active:scale-95"
           >
-            Explore Courses
+            Explore
             <ChevronRight size={20} />
           </button>
         </div>

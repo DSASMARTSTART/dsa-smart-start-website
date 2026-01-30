@@ -81,7 +81,7 @@ const HeroSection: React.FC<HeroProps> = ({ onNavigate }) => {
         </div>
 
         {/* Main Title */}
-        <h1 className="flex flex-col items-center justify-center text-5xl sm:text-7xl md:text-8xl font-extrabold text-[#1a1c2d] tracking-tight leading-[1.1] mb-8 animate-reveal">
+        <h1 className="flex flex-col items-center justify-center text-5xl sm:text-7xl md:text-8xl font-extrabold text-[#1a1c2d] tracking-tight leading-[1.1] mb-4 animate-reveal">
           <span className="flex items-center gap-3 sm:gap-6">
             English 
             <span className="relative inline-block text-[#AB8FFF]">
@@ -93,6 +93,11 @@ const HeroSection: React.FC<HeroProps> = ({ onNavigate }) => {
             </span>
           </span>
         </h1>
+
+        {/* The First Method - New subtitle */}
+        <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-[#1a1c2d] tracking-tight mb-8 animate-reveal">
+          The First Method
+        </h2>
 
         {/* Subtitle - Dyslexia friendly sans-serif, good line height */}
         <p className="text-lg sm:text-2xl font-medium text-gray-600 max-w-3xl mx-auto mb-10 leading-relaxed animate-reveal stagger-1">
@@ -126,7 +131,7 @@ const HeroSection: React.FC<HeroProps> = ({ onNavigate }) => {
         <div className="animate-reveal stagger-2">
           <button 
             onClick={() => onNavigate?.('courses')}
-            className="group relative inline-flex items-center justify-center gap-3 bg-[#AB8FFF] hover:bg-[#9a7eef] text-white px-10 sm:px-12 py-4 sm:py-5 rounded-full font-bold text-sm sm:text-base tracking-widest shadow-xl shadow-[#AB8FFF]/30 transition-all duration-300 transform hover:-translate-y-1 active:scale-95 uppercase"
+            className="group relative inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-10 sm:px-12 py-4 sm:py-5 rounded-full font-bold text-sm sm:text-base tracking-widest shadow-xl shadow-[#25D366]/30 transition-all duration-300 transform hover:-translate-y-1 active:scale-95 uppercase"
           >
             Explore Our Courses
             <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />

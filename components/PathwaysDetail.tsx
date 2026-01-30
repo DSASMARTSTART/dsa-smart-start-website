@@ -62,10 +62,15 @@ const PathwaysDetail: React.FC = () => {
                 </div>
               ))}
             </div>
-            <button className="flex items-center justify-center gap-3 bg-pink-600 text-white px-12 py-5 rounded-full font-black uppercase tracking-widest hover:bg-pink-700 transition-all shadow-xl shadow-pink-100 active:scale-95">
-              BOOK NOW
+            <a 
+              href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ0qY73eSZNjDKlM_CQETEMDZFNGB5SONV3eJl2rbRFfK6hT6uNAwz_X4L7Jo0lIbuw-zerkbJWu"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-3 bg-[#25D366] text-white px-12 py-5 rounded-full font-black uppercase tracking-widest hover:bg-[#1ebe5d] transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
+            >
+              Book a Free Call
               <ChevronRight size={20} />
-            </button>
+            </a>
           </div>
         </div>
 
@@ -92,10 +97,15 @@ const PathwaysDetail: React.FC = () => {
               ))}
             </div>
 
-            <button className="flex items-center justify-center gap-3 bg-gray-900 text-white px-12 py-5 rounded-full font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-xl shadow-gray-100 active:scale-95">
-              BOOK NOW
+            <a 
+              href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ0qY73eSZNjDKlM_CQETEMDZFNGB5SONV3eJl2rbRFfK6hT6uNAwz_X4L7Jo0lIbuw-zerkbJWu"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-3 bg-[#25D366] text-white px-12 py-5 rounded-full font-black uppercase tracking-widest hover:bg-[#1ebe5d] transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
+            >
+              Book a Free Call
               <ChevronRight size={20} />
-            </button>
+            </a>
           </div>
 
           <div className="relative order-1 lg:order-2 group animate-reveal">

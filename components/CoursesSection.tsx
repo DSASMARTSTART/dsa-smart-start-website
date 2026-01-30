@@ -1,8 +1,9 @@
 
 import React, { useEffect, useState } from 'react';
-import { Star, Zap, Award, Music, Play, Layers, Compass, ChevronRight, Crown, Diamond, Loader2 } from 'lucide-react';
+import { Star, Zap, Award, Music, Play, Layers, Compass, ChevronRight, Crown, Diamond, Loader2, GraduationCap, Baby } from 'lucide-react';
 import { coursesApi } from '../data/supabaseStore';
 import { Course, CourseLevel } from '../types';
+import AssessmentPopup from './AssessmentPopup';
 
 // Level configuration for icons and colors
 const LEVEL_CONFIG: Record<string, { icon: React.ReactNode; color: string; label: string; category: 'adult' | 'kids' | 'pathway' }> = {
@@ -35,12 +36,20 @@ const FALLBACK_KIDS_COURSES = [
 
 interface CoursesSectionProps {
   onNavigateToSyllabus?: (courseId: string) => void;
+  onNavigate?: (path: string) => void;
 }
 
-const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus }) => {
+const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus, onNavigate }) => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [showAssessment, setShowAssessment] = useState(false);
+  const [assessmentType, setAssessmentType] = useState<'teens_adults' | 'kids'>('teens_adults');
+
+  const handleOpenAssessment = (type: 'teens_adults' | 'kids') => {
+    setAssessmentType(type);
+    setShowAssessment(true);
+  };
 
   const loadCourses = async () => {
     setLoadError(null);
@@ -256,6 +265,17 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus })
                   : FALLBACK_ADULT_COURSES.map(course => renderFallbackCard(course, '[#AB8FFF]'))
                 }
               </div>
+
+              {/* Adults Assessment Test Button */}
+              <div className="mt-10 flex justify-center">
+                <button 
+                  onClick={() => handleOpenAssessment('teens_adults')}
+                  className="inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
+                >
+                  <GraduationCap size={20} />
+                  Take the Test — Teens & Adults
+                </button>
+              </div>
             </div>
 
             {/* Kids Section */}
@@ -270,6 +290,17 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus })
                   ? kidsCourses.map(course => renderCourseCard(course, '[#FFC1F2]'))
                   : FALLBACK_KIDS_COURSES.map(course => renderFallbackCard(course, '[#FFC1F2]'))
                 }
+              </div>
+
+              {/* Kids Assessment Test Button */}
+              <div className="mt-10 flex justify-center">
+                <button 
+                  onClick={() => handleOpenAssessment('kids')}
+                  className="inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
+                >
+                  <Baby size={20} />
+                  Take the Test — Kids
+                </button>
               </div>
             </div>
 
@@ -289,6 +320,14 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus })
           </>
         )}
       </div>
+
+      {/* Assessment Popup */}
+      <AssessmentPopup
+        isOpen={showAssessment}
+        onClose={() => setShowAssessment(false)}
+        testType={assessmentType}
+        onNavigate={onNavigate}
+      />
     </section>
   );
 };

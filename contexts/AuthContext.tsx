@@ -153,9 +153,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email, 
       password,
       options: {
-        data: { name }
+        data: { name },
+        emailRedirectTo: `${window.location.origin}/#login`
       }
     });
+    
+    // Debug: Log signup response to help diagnose email issues
+    if (import.meta.env.DEV) {
+      console.log('SignUp response:', { 
+        user: data?.user?.id,
+        email: data?.user?.email,
+        emailConfirmedAt: data?.user?.email_confirmed_at,
+        confirmationSentAt: data?.user?.confirmation_sent_at,
+        error: error?.message 
+      });
+    }
     
     // Note: User profile is automatically created by database trigger (handle_new_user)
     // The trigger runs on auth.users INSERT and creates the public.users record
