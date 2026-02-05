@@ -1017,7 +1017,7 @@ const MetadataEditor: React.FC<{
           label="Course Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="e.g., DSA SMART START A1"
+          placeholder="e.g., Eduway A1"
         />
         <div className="space-y-2">
           <Select

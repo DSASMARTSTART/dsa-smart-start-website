@@ -103,11 +103,11 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus, o
         role="button"
         tabIndex={0}
         aria-label={`View details for ${course.title}`}
-        className={`group relative bg-white rounded-[2rem] p-4 pb-10 border border-gray-100 shadow-sm hover:shadow-2xl hover:shadow-${shadowColor}/20 transition-all duration-500 overflow-hidden cursor-pointer focus:outline-none focus:ring-4 focus:ring-purple-300 focus:ring-offset-2`}
+        className={`group relative bg-white/5 rounded-[2rem] p-4 pb-10 border border-white/10 shadow-sm hover:shadow-2xl hover:shadow-${shadowColor}/20 transition-all duration-500 overflow-hidden cursor-pointer focus:outline-none focus:ring-4 focus:ring-purple-500/50 focus:ring-offset-2 focus:ring-offset-black`}
         onClick={() => handleViewDetails(course)}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleViewDetails(course); } }}
       >
-        <div className="relative w-full aspect-[3/4] rounded-[1.5rem] overflow-hidden mb-8 bg-gray-100">
+        <div className="relative w-full aspect-[3/4] rounded-[1.5rem] overflow-hidden mb-8 bg-white/10">
           {course.thumbnailUrl ? (
             <img 
               src={course.thumbnailUrl} 
@@ -125,8 +125,8 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus, o
           
           {/* Price Badge */}
           {!course.pricing.isFree && (
-            <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-lg">
-              <span className="font-black text-sm text-gray-900">
+            <div className="absolute bottom-4 right-4 bg-black/80 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-lg border border-white/10">
+              <span className="font-black text-sm text-white">
                 {course.pricing.discountPrice !== undefined 
                   ? `€${course.pricing.discountPrice}`
                   : `€${course.pricing.price}`
@@ -137,16 +137,16 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus, o
         </div>
         <div className="px-6">
           <span className="text-[10px] font-black text-[#AB8FFF] uppercase tracking-[0.2em] mb-1 block">{config.label}</span>
-          <h5 className="text-2xl font-black text-gray-900 tracking-tight mb-4">{course.title}</h5>
-          <p className="text-gray-500 leading-relaxed mb-8 text-sm line-clamp-2">
+          <h5 className="text-2xl font-black text-white tracking-tight mb-4">{course.title}</h5>
+          <p className="text-gray-400 leading-relaxed mb-8 text-sm line-clamp-2">
             {course.description}
           </p>
-          <div className="pt-6 border-t border-gray-50 flex items-center justify-between">
+          <div className="pt-6 border-t border-white/10 flex items-center justify-between">
             <button className="text-[11px] font-black uppercase tracking-widest text-[#AB8FFF] flex items-center gap-2 group-hover:gap-4 transition-all">
               View Details
               <ChevronRight size={14} />
             </button>
-            <Star size={16} className="text-gray-200" />
+            <Star size={16} className="text-white/20" />
           </div>
         </div>
       </div>
@@ -155,7 +155,7 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus, o
 
   // Render static fallback card (for when no DB courses exist)
   const renderFallbackCard = (course: typeof FALLBACK_ADULT_COURSES[0], shadowColor: string) => (
-    <div key={course.name} className={`group relative bg-white rounded-[2rem] p-4 pb-10 border border-gray-100 shadow-sm hover:shadow-2xl hover:shadow-${shadowColor}/20 transition-all duration-500 overflow-hidden`}>
+    <div key={course.name} className={`group relative bg-white/5 rounded-[2rem] p-4 pb-10 border border-white/10 shadow-sm hover:shadow-2xl hover:shadow-${shadowColor}/20 transition-all duration-500 overflow-hidden`}>
       <div className="relative w-full aspect-[3/4] rounded-[1.5rem] overflow-hidden mb-8">
         <img 
           src={course.image} 
@@ -168,36 +168,36 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus, o
       </div>
       <div className="px-6">
         <span className="text-[10px] font-black text-[#AB8FFF] uppercase tracking-[0.2em] mb-1 block">{course.level}</span>
-        <h5 className="text-2xl font-black text-gray-900 tracking-tight mb-4">DSA SMART START {course.name}</h5>
-        <p className="text-gray-500 leading-relaxed mb-8 text-sm">
+        <h5 className="text-2xl font-black text-white tracking-tight mb-4">Eduway {course.name}</h5>
+        <p className="text-gray-400 leading-relaxed mb-8 text-sm">
           {course.desc}
         </p>
-        <div className="pt-6 border-t border-gray-50 flex items-center justify-between">
+        <div className="pt-6 border-t border-white/10 flex items-center justify-between">
           <button className="text-[11px] font-black uppercase tracking-widest text-[#AB8FFF] flex items-center gap-2 group-hover:gap-4 transition-all">
             Coming Soon
             <ChevronRight size={14} />
           </button>
-          <Star size={16} className="text-gray-200" />
+          <Star size={16} className="text-white/20" />
         </div>
       </div>
     </div>
   );
 
   return (
-    <section className="py-32 bg-white relative overflow-hidden">
+    <section className="py-32 bg-black relative overflow-hidden">
       {/* Decorative Orbs */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-[#AB8FFF] rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2 opacity-20"></div>
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#FFC1F2] rounded-full blur-[120px] translate-x-1/2 translate-y-1/2 opacity-30"></div>
+      <div className="absolute top-0 left-0 w-96 h-96 bg-[#AB8FFF] rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2 opacity-15"></div>
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#FFC1F2] rounded-full blur-[120px] translate-x-1/2 translate-y-1/2 opacity-20"></div>
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="flex flex-col lg:flex-row justify-between items-end mb-24 gap-8">
           <div className="max-w-2xl">
             <span className="text-[10px] font-black text-[#AB8FFF] uppercase tracking-[0.4em] mb-4 block">Our Curriculum</span>
-            <h3 className="text-4xl md:text-6xl font-black text-[#1a1c2d] leading-[1.1] tracking-tighter">
+            <h3 className="text-4xl md:text-6xl font-black text-white leading-[1.1] tracking-tighter">
               Tailored Programs for <br /> Every <span className="text-[#AB8FFF]">Learning Stage</span>
             </h3>
           </div>
-          <p className="text-gray-500 lg:max-w-sm text-lg font-medium leading-relaxed">
+          <p className="text-gray-400 lg:max-w-sm text-lg font-medium leading-relaxed">
             Meticulously structured pathways to accommodate neurodiversity, ensuring progress without frustration.
           </p>
         </div>
@@ -206,27 +206,27 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus, o
           <div className="py-12">
             {/* Section Header Skeleton */}
             <div className="flex items-center gap-6 mb-12 animate-pulse">
-              <div className="h-4 w-28 bg-gray-200 rounded-full"></div>
-              <div className="h-[1px] flex-grow bg-gray-200"></div>
+              <div className="h-4 w-28 bg-white/10 rounded-full"></div>
+              <div className="h-[1px] flex-grow bg-white/10"></div>
             </div>
             {/* Course Cards Skeleton */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-white rounded-[2rem] border border-gray-100 p-8 animate-pulse" style={{ animationDelay: `${i * 0.1}s` }}>
+                <div key={i} className="bg-white/5 rounded-[2rem] border border-white/10 p-8 animate-pulse" style={{ animationDelay: `${i * 0.1}s` }}>
                   <div className="flex items-start justify-between mb-6">
-                    <div className="w-14 h-14 bg-gray-200 rounded-2xl"></div>
-                    <div className="h-6 w-16 bg-gray-100 rounded-full"></div>
+                    <div className="w-14 h-14 bg-white/10 rounded-2xl"></div>
+                    <div className="h-6 w-16 bg-white/5 rounded-full"></div>
                   </div>
-                  <div className="h-6 w-3/4 bg-gray-200 rounded-lg mb-3"></div>
-                  <div className="h-4 w-full bg-gray-100 rounded mb-2"></div>
-                  <div className="h-4 w-2/3 bg-gray-100 rounded mb-6"></div>
+                  <div className="h-6 w-3/4 bg-white/10 rounded-lg mb-3"></div>
+                  <div className="h-4 w-full bg-white/5 rounded mb-2"></div>
+                  <div className="h-4 w-2/3 bg-white/5 rounded mb-6"></div>
                   <div className="flex gap-2 mb-6">
-                    <div className="h-6 w-20 bg-purple-100 rounded-full"></div>
-                    <div className="h-6 w-24 bg-purple-100 rounded-full"></div>
+                    <div className="h-6 w-20 bg-purple-500/20 rounded-full"></div>
+                    <div className="h-6 w-24 bg-purple-500/20 rounded-full"></div>
                   </div>
-                  <div className="flex items-center justify-between pt-6 border-t border-gray-100">
-                    <div className="h-8 w-20 bg-gray-200 rounded-lg"></div>
-                    <div className="h-10 w-28 bg-purple-200 rounded-full"></div>
+                  <div className="flex items-center justify-between pt-6 border-t border-white/10">
+                    <div className="h-8 w-20 bg-white/10 rounded-lg"></div>
+                    <div className="h-10 w-28 bg-purple-500/20 rounded-full"></div>
                   </div>
                 </div>
               ))}
@@ -255,8 +255,8 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus, o
             {/* Adults & Teens Section */}
             <div className="mb-32">
               <div className="flex items-center gap-6 mb-12">
-                <h4 className="text-sm font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">Adults & Teens</h4>
-                <div className="h-[1px] flex-grow bg-gradient-to-r from-gray-200 to-transparent"></div>
+                <h4 className="text-sm font-black text-gray-300 uppercase tracking-widest whitespace-nowrap">Adults & Teens</h4>
+                <div className="h-[1px] flex-grow bg-gradient-to-r from-white/20 to-transparent"></div>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -281,8 +281,8 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus, o
             {/* Kids Section */}
             <div className="mb-32">
               <div className="flex items-center gap-6 mb-12">
-                <h4 className="text-sm font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">Kids</h4>
-                <div className="h-[1px] flex-grow bg-gradient-to-r from-gray-200 to-transparent"></div>
+                <h4 className="text-sm font-black text-gray-300 uppercase tracking-widest whitespace-nowrap">Kids</h4>
+                <div className="h-[1px] flex-grow bg-gradient-to-r from-white/20 to-transparent"></div>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -308,8 +308,8 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus, o
             {pathwayCourses.length > 0 && (
               <div>
                 <div className="flex items-center gap-6 mb-12">
-                  <h4 className="text-sm font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">Premium Pathways</h4>
-                  <div className="h-[1px] flex-grow bg-gradient-to-r from-gray-200 to-transparent"></div>
+                  <h4 className="text-sm font-black text-gray-300 uppercase tracking-widest whitespace-nowrap">Premium Pathways</h4>
+                  <div className="h-[1px] flex-grow bg-gradient-to-r from-white/20 to-transparent"></div>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

@@ -143,11 +143,11 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   };
 
   return (
-    <footer className="bg-gray-900 text-gray-300 pt-20 pb-10 px-6">
+    <footer className="bg-black text-gray-300 pt-20 pb-10 px-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
         {/* About Column */}
         <div className="lg:col-span-1">
-          <h4 className="text-white text-xl font-bold mb-6">DSA SMART START</h4>
+          <h4 className="text-white text-xl font-bold mb-6">EDUWAY</h4>
           <p className="text-sm leading-loose mb-8">
             The first program in the world specifically designed for those living with dyslexia, helping them achieve amazing results and make learning fun.
           </p>
@@ -321,7 +321,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
       </div>
 
       <div className="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-medium text-gray-500">
-        <p>Copyright © 2026 DSA SMARTSTART | All rights reserved</p>
+        <p>Copyright © 2026 EDUWAY | All rights reserved</p>
         <div className="flex gap-6 flex-wrap justify-center">
           <button onClick={() => handleLinkClick('cookie-policy')} className="hover:text-white">Cookie Policy</button>
           <button onClick={() => handleLinkClick('privacy-policy')} className="hover:text-white">Privacy Policy</button>

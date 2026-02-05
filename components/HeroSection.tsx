@@ -61,27 +61,21 @@ const HeroSection: React.FC<HeroProps> = ({ onNavigate }) => {
   }, []);
 
   return (
-    <div className="relative w-full min-h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-[#fff5fd] via-[#fffbfd] to-white">
+    <div className="relative w-full min-h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-black">
       {/* Background Elements */}
       <div className="absolute inset-0 z-0 pointer-events-none">
          {/* Soft gradient blobs using the new colors */}
-         <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#FFC1F2] rounded-full mix-blend-multiply filter blur-[100px] opacity-30 animate-pulse-slow"></div>
-         <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-[#AB8FFF] rounded-full mix-blend-multiply filter blur-[100px] opacity-20 animate-pulse-slow delay-1000"></div>
+         <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#FFC1F2] rounded-full mix-blend-screen filter blur-[100px] opacity-20 animate-pulse-slow"></div>
+         <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-[#AB8FFF] rounded-full mix-blend-screen filter blur-[100px] opacity-15 animate-pulse-slow delay-1000"></div>
          <canvas ref={canvasRef} className="absolute inset-0 z-0 opacity-60" />
       </div>
 
       <div className="relative z-30 w-full max-w-7xl mx-auto px-4 sm:px-6 flex flex-col items-center text-center pt-20 pb-16">
         
-        {/* Badge */}
-        <div className="inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-full bg-white border border-[#AB8FFF]/30 shadow-sm animate-reveal">
-          <Star size={14} className="text-[#AB8FFF] fill-[#AB8FFF]" />
-          <span className="text-xs sm:text-sm font-bold text-gray-600 tracking-wide uppercase">
-            Pioneering DSA Excellence
-          </span>
-        </div>
+{/* Badge Removed */}
 
         {/* Main Title */}
-        <h1 className="flex flex-col items-center justify-center text-5xl sm:text-7xl md:text-8xl font-extrabold text-[#1a1c2d] tracking-tight leading-[1.1] mb-4 animate-reveal">
+        <h1 className="flex flex-col items-center justify-center text-5xl sm:text-7xl md:text-8xl font-extrabold text-white tracking-tight leading-[1.1] mb-4 animate-reveal">
           <span className="flex items-center gap-3 sm:gap-6">
             English 
             <span className="relative inline-block text-[#AB8FFF]">
@@ -94,35 +88,32 @@ const HeroSection: React.FC<HeroProps> = ({ onNavigate }) => {
           </span>
         </h1>
 
-        {/* The First Method - New subtitle */}
-        <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-[#1a1c2d] tracking-tight mb-8 animate-reveal">
-          The First Method
-        </h2>
+{/* Subtitle Removed */}
 
         {/* Subtitle - Dyslexia friendly sans-serif, good line height */}
-        <p className="text-lg sm:text-2xl font-medium text-gray-600 max-w-3xl mx-auto mb-10 leading-relaxed animate-reveal stagger-1">
-          The first method for <span className="font-bold text-[#AB8FFF]">DSA students</span>.
-          <span className="block mt-2 text-gray-500 font-normal">Learning made effortless, engaging, and effective.</span>
+        <p className="text-lg sm:text-2xl font-medium text-gray-300 max-w-3xl mx-auto mb-10 leading-relaxed animate-reveal stagger-1">
+          The First Method for <span className="font-bold text-[#AB8FFF]">DSA students</span>.
+          <span className="block mt-2 text-gray-400 font-normal">Learning made effortless, engaging, and effective.</span>
         </p>
 
         {/* Features Row - Replaces floating cards for better mobile definition */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12 w-full max-w-2xl animate-reveal stagger-2">
-            <div className="flex items-center gap-4 bg-white p-4 rounded-2xl shadow-md border border-gray-100 hover:border-[#AB8FFF]/50 transition-colors">
-                <div className="w-12 h-12 rounded-xl bg-[#FFF0FA] flex items-center justify-center text-[#AB8FFF]">
+            <div className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl shadow-md border border-white/10 hover:border-[#AB8FFF]/50 transition-colors">
+                <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-[#AB8FFF]">
                     <ShieldCheck size={24} />
                 </div>
                 <div className="text-left">
-                    <h3 className="text-sm font-bold text-gray-900">Proven Methodology</h3>
-                    <p className="text-xs text-gray-500">DSA SMART START Framework</p>
+                    <h3 className="text-sm font-bold text-white">Proven Methodology</h3>
+                    <p className="text-xs text-gray-400">Eduway Framework</p>
                 </div>
             </div>
-            <div className="flex items-center gap-4 bg-white p-4 rounded-2xl shadow-md border border-gray-100 hover:border-[#AB8FFF]/50 transition-colors">
-                <div className="w-12 h-12 rounded-xl bg-[#F4F0FF] flex items-center justify-center text-[#AB8FFF]">
+            <div className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl shadow-md border border-white/10 hover:border-[#AB8FFF]/50 transition-colors">
+                <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-[#AB8FFF]">
                     <ArrowUpRight size={24} />
                 </div>
                 <div className="text-left">
-                    <h3 className="text-sm font-bold text-gray-900">Premium Courses</h3>
-                    <p className="text-xs text-gray-500">Tailored for your success</p>
+                    <h3 className="text-sm font-bold text-white">Premium Courses</h3>
+                    <p className="text-xs text-gray-400">Tailored for your success</p>
                 </div>
             </div>
         </div>
@@ -142,9 +133,9 @@ const HeroSection: React.FC<HeroProps> = ({ onNavigate }) => {
        {/* Bottom Curve Separator - Smoother SVG */}
        <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none">
          <svg className="relative block w-full h-[50px] sm:h-[100px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-             <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" className="fill-white opacity-0"></path>
-             {/* Simple white curve */}
-             <path d="M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z" className="fill-white"></path>
+             <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" className="fill-black opacity-0"></path>
+             {/* Simple black curve */}
+             <path d="M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z" className="fill-black"></path>
          </svg>
        </div>
     </div>

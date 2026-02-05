@@ -95,10 +95,10 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
 
   if (loading || isEnrolled === null) {
     return (
-      <div className="min-h-screen bg-[#f8f9fb] flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-500 font-medium">Loading course...</p>
+          <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-400 font-medium">Loading course...</p>
         </div>
       </div>
     );
@@ -107,16 +107,16 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
   // ACCESS DENIED - Not enrolled
   if (!isEnrolled) {
     return (
-      <div className="min-h-screen bg-[#f8f9fb] flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-4">
-          <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Lock size={32} className="text-red-500" />
+          <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Lock size={32} className="text-red-400" />
           </div>
-          <h3 className="text-2xl font-black text-gray-900 mb-4">Access Denied</h3>
-          <p className="text-gray-500 mb-2">
-            {course?.title && <span className="font-semibold text-gray-700">"{course.title}"</span>}
+          <h3 className="text-2xl font-black text-white mb-4">Access Denied</h3>
+          <p className="text-gray-400 mb-2">
+            {course?.title && <span className="font-semibold text-gray-300">"{course.title}"</span>}
           </p>
-          <p className="text-gray-500 mb-8">
+          <p className="text-gray-400 mb-8">
             {user 
               ? "You don't have access to this course. Please purchase it to continue learning."
               : "Please log in and purchase this course to access its content."
@@ -125,7 +125,7 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button 
               onClick={onBack} 
-              className="px-6 py-3 bg-gray-100 text-gray-700 rounded-full font-bold text-sm hover:bg-gray-200 transition-colors"
+              className="px-6 py-3 bg-white/5 text-gray-300 rounded-full font-bold text-sm hover:bg-white/10 transition-colors border border-white/10"
             >
               Go Back
             </button>
@@ -153,13 +153,13 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
 
   if (!course || course.modules.length === 0) {
     return (
-      <div className="min-h-screen bg-[#f8f9fb] flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
-          <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
-            <BookOpen size={32} className="text-gray-300" />
+          <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
+            <BookOpen size={32} className="text-gray-500" />
           </div>
-          <h3 className="text-2xl font-black text-gray-900 mb-4">Course Not Available</h3>
-          <p className="text-gray-500 mb-8">This course doesn't have any content yet or doesn't exist.</p>
+          <h3 className="text-2xl font-black text-white mb-4">Course Not Available</h3>
+          <p className="text-gray-400 mb-8">This course doesn't have any content yet or doesn't exist.</p>
           <button onClick={onBack} className="px-8 py-4 bg-purple-600 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-colors">
             Back to Dashboard
           </button>
@@ -231,27 +231,27 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
   const embedUrl = getVideoEmbed();
 
   return (
-    <div className="bg-[#f8f9fb] min-h-screen pt-24">
+    <div className="bg-black min-h-screen pt-24">
       {/* Top Header */}
-      <div className="bg-white border-b border-gray-100 py-6 px-8 flex flex-col md:flex-row items-center justify-between gap-6 fixed top-24 left-0 right-0 z-40">
+      <div className="bg-black border-b border-white/10 py-6 px-8 flex flex-col md:flex-row items-center justify-between gap-6 fixed top-24 left-0 right-0 z-40">
         <div className="flex items-center gap-6">
-          <button onClick={onBack} className="p-2 hover:bg-gray-50 rounded-full text-gray-400 hover:text-purple-600 transition-all">
+          <button onClick={onBack} className="p-2 hover:bg-white/5 rounded-full text-gray-400 hover:text-purple-400 transition-all">
             <ArrowLeft size={20} />
           </button>
-          <div className="h-10 w-px bg-gray-100"></div>
+          <div className="h-10 w-px bg-white/10"></div>
           <div>
-            <span className="text-[10px] font-black uppercase tracking-widest text-purple-500 mb-1 block">Classroom Environment</span>
-            <h1 className="text-xl font-black text-gray-900 tracking-tight uppercase">{course.title}</h1>
+            <span className="text-[10px] font-black uppercase tracking-widest text-purple-400 mb-1 block">Classroom Environment</span>
+            <h1 className="text-xl font-black text-white tracking-tight uppercase">{course.title}</h1>
           </div>
         </div>
 
         <div className="flex items-center gap-8 w-full md:w-auto">
           <div className="flex-grow md:flex-initial min-w-[150px]">
              <div className="flex justify-between items-end mb-1">
-                <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">Course Progress</span>
-                <span className="text-xs font-black text-gray-900">{calculateCourseProgress()}%</span>
+                <span className="text-[9px] font-black uppercase tracking-widest text-gray-500">Course Progress</span>
+                <span className="text-xs font-black text-white">{calculateCourseProgress()}%</span>
              </div>
-             <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+             <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
                 <div 
                   className="h-full bg-purple-600 transition-all duration-500"
                   style={{ width: `${calculateCourseProgress()}%` }}
@@ -260,7 +260,7 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
           </div>
           <button 
             onClick={handleNext}
-            className="flex items-center gap-2 px-6 py-2.5 bg-[#8a3ffc] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-purple-100 hover:scale-105 active:scale-95 transition-all"
+            className="flex items-center gap-2 px-6 py-2.5 bg-[#8a3ffc] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-purple-500/20 hover:scale-105 active:scale-95 transition-all"
           >
             Continue Next
             <ChevronRight size={14} />
@@ -271,23 +271,23 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-0 lg:gap-8 pt-32 lg:pt-24 min-h-[calc(100vh-100px)]">
         
         {/* Sidebar */}
-        <div className="lg:col-span-4 bg-white border-r border-gray-100 h-full lg:sticky lg:top-[184px] lg:h-[calc(100vh-184px)] overflow-y-auto custom-scrollbar p-6">
+        <div className="lg:col-span-4 bg-white/5 border-r border-white/10 h-full lg:sticky lg:top-[184px] lg:h-[calc(100vh-184px)] overflow-y-auto custom-scrollbar p-6">
           <div className="space-y-6">
             {course.modules.map((module, idx) => (
               <div key={module.id} className="space-y-3">
                 <button 
                   onClick={() => setActiveModuleId(module.id)}
-                  className={`w-full text-left p-4 rounded-2xl flex items-center justify-between transition-all ${activeModuleId === module.id ? 'bg-purple-50 border border-purple-100' : 'hover:bg-gray-50'}`}
+                  className={`w-full text-left p-4 rounded-2xl flex items-center justify-between transition-all ${activeModuleId === module.id ? 'bg-purple-500/10 border border-purple-500/20' : 'hover:bg-white/5'}`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-[10px] ${activeModuleId === module.id ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-400'}`}>
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-[10px] ${activeModuleId === module.id ? 'bg-purple-600 text-white' : 'bg-white/10 text-gray-400'}`}>
                       {idx + 1}
                     </div>
-                    <h4 className={`text-sm font-black uppercase tracking-tight ${activeModuleId === module.id ? 'text-purple-900' : 'text-gray-900'}`}>
+                    <h4 className={`text-sm font-black uppercase tracking-tight ${activeModuleId === module.id ? 'text-purple-300' : 'text-white'}`}>
                       {module.title}
                     </h4>
                   </div>
-                  {activeModuleId === module.id ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                  {activeModuleId === module.id ? <ChevronUp size={16} className="text-gray-400" /> : <ChevronDown size={16} className="text-gray-500" />}
                 </button>
 
                 {activeModuleId === module.id && (
@@ -296,41 +296,41 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
                       <button 
                         key={lesson.id}
                         onClick={() => setSelectedItemId(lesson.id)}
-                        className={`w-full flex items-center justify-between p-3 rounded-xl text-left transition-all ${selectedItemId === lesson.id ? 'bg-gray-50 shadow-sm ring-1 ring-purple-100' : 'hover:bg-gray-50'}`}
+                        className={`w-full flex items-center justify-between p-3 rounded-xl text-left transition-all ${selectedItemId === lesson.id ? 'bg-white/5 shadow-sm ring-1 ring-purple-500/30' : 'hover:bg-white/5'}`}
                       >
                         <div className="flex items-center gap-3">
                           {isCompleted(lesson.id) ? (
-                            <CheckCircle2 size={16} className="text-green-500 shrink-0" />
+                            <CheckCircle2 size={16} className="text-green-400 shrink-0" />
                           ) : (
-                            <Circle size={16} className="text-gray-300 shrink-0" />
+                            <Circle size={16} className="text-gray-500 shrink-0" />
                           )}
                           <div className="overflow-hidden">
-                            <p className={`text-xs font-bold leading-tight truncate ${selectedItemId === lesson.id ? 'text-purple-600' : 'text-gray-700'}`}>
+                            <p className={`text-xs font-bold leading-tight truncate ${selectedItemId === lesson.id ? 'text-purple-400' : 'text-gray-300'}`}>
                               {lesson.title}
                             </p>
-                            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{lesson.duration} • {lesson.type}</span>
+                            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">{lesson.duration} • {lesson.type}</span>
                           </div>
                         </div>
-                        {lesson.type === 'video' && <PlayCircle size={14} className="text-gray-400 shrink-0" />}
+                        {lesson.type === 'video' && <PlayCircle size={14} className="text-gray-500 shrink-0" />}
                         {lesson.pdfUrl && <FileText size={14} className="text-blue-400 shrink-0" />}
                       </button>
                     ))}
 
                     {(module.homework || []).length > 0 && (
-                      <div className="pt-2 border-t border-gray-50 mt-2">
-                        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2 pl-3">Assignments</p>
+                      <div className="pt-2 border-t border-white/10 mt-2">
+                        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2 pl-3">Assignments</p>
                         {(module.homework || []).map(h => (
                           <button 
                             key={h.id}
                             onClick={() => setSelectedItemId(h.id)}
-                            className={`w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all ${selectedItemId === h.id ? 'bg-gray-50 shadow-sm ring-1 ring-purple-100' : 'hover:bg-gray-50'}`}
+                            className={`w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all ${selectedItemId === h.id ? 'bg-white/5 shadow-sm ring-1 ring-purple-500/30' : 'hover:bg-white/5'}`}
                           >
                             {isCompleted(h.id) ? (
-                               <CheckCircle2 size={16} className="text-green-500 shrink-0" />
+                               <CheckCircle2 size={16} className="text-green-400 shrink-0" />
                              ) : (
-                               <FileText size={16} className="text-gray-300 shrink-0" />
+                               <FileText size={16} className="text-gray-500 shrink-0" />
                              )}
-                            <p className={`text-xs font-bold truncate ${selectedItemId === h.id ? 'text-purple-600' : 'text-gray-600'}`}>{h.title}</p>
+                            <p className={`text-xs font-bold truncate ${selectedItemId === h.id ? 'text-purple-400' : 'text-gray-300'}`}>{h.title}</p>
                           </button>
                         ))}
                       </div>
@@ -345,14 +345,14 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
         {/* Main Viewer Area */}
         <div className="lg:col-span-8 p-6 md:p-12 overflow-y-auto h-full animate-reveal">
           <div className="flex items-center gap-2 mb-8">
-            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Learning Center</span>
-            <ChevronRight size={10} className="text-gray-300" />
-            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{course.title}</span>
-            <ChevronRight size={10} className="text-gray-300" />
-            <span className="text-[9px] font-bold text-purple-600 uppercase tracking-widest">{selectedItem?.title}</span>
+            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Learning Center</span>
+            <ChevronRight size={10} className="text-gray-600" />
+            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">{course.title}</span>
+            <ChevronRight size={10} className="text-gray-600" />
+            <span className="text-[9px] font-bold text-purple-400 uppercase tracking-widest">{selectedItem?.title}</span>
           </div>
 
-          <div className="bg-white rounded-[3rem] border border-gray-100 shadow-xl shadow-purple-500/5 overflow-hidden mb-12">
+          <div className="bg-white/5 rounded-[3rem] border border-white/10 shadow-xl shadow-purple-500/10 overflow-hidden mb-12">
             {selectedLesson ? (
               selectedLesson.type === 'video' ? (
                 embedUrl ? (
@@ -371,27 +371,27 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
                       <PlayCircle size={80} className="text-white/20 mx-auto mb-4" />
                       <p className="text-white/40 text-sm">No video uploaded yet</p>
                     </div>
-                    <div className="absolute bottom-6 left-6 text-white/40 text-[10px] font-black uppercase tracking-widest">DSA SMART START PLAYER</div>
+                    <div className="absolute bottom-6 left-6 text-white/40 text-[10px] font-black uppercase tracking-widest">Eduway PLAYER</div>
                   </div>
                 )
               ) : (
                 <div className="p-12 md:p-20 text-center">
-                  <div className="w-20 h-20 bg-purple-50 rounded-3xl flex items-center justify-center text-purple-600 mx-auto mb-8 border border-purple-100">
+                  <div className="w-20 h-20 bg-purple-500/10 rounded-3xl flex items-center justify-center text-purple-400 mx-auto mb-8 border border-purple-500/20">
                     <BookOpen size={40} />
                   </div>
-                  <h3 className="text-3xl font-black text-gray-900 mb-6 uppercase tracking-tight">Reading Resource</h3>
-                  <p className="text-gray-500 text-lg max-w-xl mx-auto leading-relaxed">
+                  <h3 className="text-3xl font-black text-white mb-6 uppercase tracking-tight">Reading Resource</h3>
+                  <p className="text-gray-400 text-lg max-w-xl mx-auto leading-relaxed">
                     {selectedLesson.content || 'Access visual materials. High-contrast viewing mode recommended.'}
                   </p>
                 </div>
               )
             ) : (
-              <div className="p-12 md:p-20 text-center bg-gray-50/50">
-                <div className="w-20 h-20 bg-indigo-50 rounded-3xl flex items-center justify-center text-indigo-600 mx-auto mb-8 border border-indigo-100 shadow-sm">
+              <div className="p-12 md:p-20 text-center bg-white/5">
+                <div className="w-20 h-20 bg-indigo-500/10 rounded-3xl flex items-center justify-center text-indigo-400 mx-auto mb-8 border border-indigo-500/20 shadow-sm">
                   <ClipboardCheck size={40} />
                 </div>
-                <h3 className="text-3xl font-black text-gray-900 mb-6 uppercase tracking-tight">Practice Assignment</h3>
-                <p className="text-gray-500 text-lg max-w-xl mx-auto leading-relaxed">
+                <h3 className="text-3xl font-black text-white mb-6 uppercase tracking-tight">Practice Assignment</h3>
+                <p className="text-gray-400 text-lg max-w-xl mx-auto leading-relaxed">
                   {selectedHomework?.description || 'Complete this assignment to reinforce your learning.'}
                 </p>
               </div>
@@ -399,14 +399,14 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
 
             {/* PDF Attachment Section */}
             {selectedLesson?.pdfUrl && (
-              <div className="p-6 bg-blue-50 border-t border-blue-100 flex items-center justify-between">
+              <div className="p-6 bg-blue-500/10 border-t border-blue-500/20 flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600">
+                  <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center text-blue-400">
                     <FileText size={24} />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-gray-900">{selectedLesson.pdfTitle || 'Lesson PDF'}</p>
-                    <p className="text-xs text-gray-500">PDF Attachment</p>
+                    <p className="text-sm font-bold text-white">{selectedLesson.pdfTitle || 'Lesson PDF'}</p>
+                    <p className="text-xs text-gray-400">PDF Attachment</p>
                   </div>
                 </div>
                 <div className="flex gap-2">
@@ -414,7 +414,7 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
                     href={selectedLesson.pdfUrl} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-2 bg-white border border-blue-200 rounded-xl text-blue-600 text-xs font-bold hover:bg-blue-100 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-blue-500/30 rounded-xl text-blue-400 text-xs font-bold hover:bg-blue-500/10 transition-colors"
                   >
                     <ExternalLink size={14} />
                     Open
@@ -433,14 +433,14 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
 
             {/* Homework PDF Attachment Section */}
             {selectedHomework?.pdfUrl && (
-              <div className="p-6 bg-indigo-50 border-t border-indigo-100 flex items-center justify-between">
+              <div className="p-6 bg-indigo-500/10 border-t border-indigo-500/20 flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600">
+                  <div className="w-12 h-12 bg-indigo-500/20 rounded-xl flex items-center justify-center text-indigo-400">
                     <FileText size={24} />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-gray-900">{selectedHomework.pdfTitle || 'Homework PDF'}</p>
-                    <p className="text-xs text-gray-500">Download to complete this assignment</p>
+                    <p className="text-sm font-bold text-white">{selectedHomework.pdfTitle || 'Homework PDF'}</p>
+                    <p className="text-xs text-gray-400">Download to complete this assignment</p>
                   </div>
                 </div>
                 <div className="flex gap-2">
@@ -448,7 +448,7 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
                     href={selectedHomework.pdfUrl} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-2 bg-white border border-indigo-200 rounded-xl text-indigo-600 text-xs font-bold hover:bg-indigo-100 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-indigo-500/30 rounded-xl text-indigo-400 text-xs font-bold hover:bg-indigo-500/10 transition-colors"
                   >
                     <ExternalLink size={14} />
                     Open
@@ -465,14 +465,14 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
               </div>
             )}
 
-            <div className="p-10 flex flex-col md:flex-row items-center justify-between gap-8 border-t border-gray-50">
+            <div className="p-10 flex flex-col md:flex-row items-center justify-between gap-8 border-t border-white/10">
                <div>
-                  <h2 className="text-2xl font-black text-gray-900 tracking-tight uppercase mb-2">{selectedItem?.title}</h2>
-                  <p className="text-gray-500 font-medium">{selectedLesson ? `Part of ${currentModule.title}` : 'Independent Assignment'}</p>
+                  <h2 className="text-2xl font-black text-white tracking-tight uppercase mb-2">{selectedItem?.title}</h2>
+                  <p className="text-gray-400 font-medium">{selectedLesson ? `Part of ${currentModule.title}` : 'Independent Assignment'}</p>
                </div>
                <button 
                  onClick={() => selectedItem && toggleProgress(courseId, selectedItem.id)}
-                 className={`flex items-center gap-3 px-10 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl transition-all ${selectedItem && isCompleted(selectedItem.id) ? 'bg-green-500 text-white shadow-green-100' : 'bg-gray-900 text-white hover:bg-purple-600 shadow-gray-100'}`}
+                 className={`flex items-center gap-3 px-10 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl transition-all ${selectedItem && isCompleted(selectedItem.id) ? 'bg-green-500 text-white shadow-green-500/20' : 'bg-white text-black hover:bg-purple-600 hover:text-white shadow-white/10'}`}
                >
                  {selectedItem && isCompleted(selectedItem.id) ? (
                    <><CheckCircle2 size={18} /> Completed</>
@@ -485,18 +485,18 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
 
           <button 
             onClick={handleNext}
-            className="w-full bg-[#f3e8ff]/50 rounded-[3rem] border border-purple-100 p-10 flex flex-col md:flex-row items-center justify-between gap-8 group transition-all hover:bg-purple-100/50"
+            className="w-full bg-purple-500/10 rounded-[3rem] border border-purple-500/20 p-10 flex flex-col md:flex-row items-center justify-between gap-8 group transition-all hover:bg-purple-500/20"
           >
             <div className="flex items-center gap-6">
-              <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-purple-600 shadow-sm border border-purple-50 group-hover:scale-110 transition-transform">
+              <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-purple-400 shadow-sm border border-purple-500/20 group-hover:scale-110 transition-transform">
                 <Clock size={28} />
               </div>
               <div className="text-left">
-                <h4 className="text-xl font-black text-gray-900 tracking-tight uppercase mb-1">Coming Up Next</h4>
-                <p className="text-gray-500 font-medium">{getNextLabel()}</p>
+                <h4 className="text-xl font-black text-white tracking-tight uppercase mb-1">Coming Up Next</h4>
+                <p className="text-gray-400 font-medium">{getNextLabel()}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-purple-600 group-hover:gap-6 transition-all">
+            <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-purple-400 group-hover:gap-6 transition-all">
               GO TO NEXT
               <ChevronRight size={18} />
             </div>
@@ -506,8 +506,8 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
       
       <style dangerouslySetInnerHTML={{ __html: `
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f8f9fb; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #0a0a0a; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
       `}} />
     </div>
   );

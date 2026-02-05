@@ -20,14 +20,14 @@ const PathwaysDetail: React.FC = () => {
   ];
 
   return (
-    <section className="py-32 px-6 bg-white overflow-hidden">
+    <section className="py-32 px-6 bg-black overflow-hidden">
       <div className="max-w-7xl mx-auto space-y-40">
         
         {/* Story & Kids Path */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
           <div className="relative group animate-reveal">
-             <div className="absolute -inset-6 bg-pink-100 rounded-[3rem] blur-3xl opacity-30 group-hover:opacity-50 transition-opacity"></div>
-             <div className="relative overflow-hidden rounded-[3rem] aspect-[4/5] shadow-2xl border-4 border-white">
+             <div className="absolute -inset-6 bg-pink-600 rounded-[3rem] blur-3xl opacity-20 group-hover:opacity-30 transition-opacity"></div>
+             <div className="relative overflow-hidden rounded-[3rem] aspect-[4/5] shadow-2xl border-4 border-white/10">
                 <img 
                   src="https://images.unsplash.com/photo-1580894732444-8ecded7900cd?auto=format&fit=crop&q=80&w=1200" 
                   alt="Mother helping child with homework" 
@@ -43,22 +43,22 @@ const PathwaysDetail: React.FC = () => {
           
           <div className="flex flex-col animate-reveal">
             <div className="flex items-center gap-3 mb-6">
-               <span className="w-10 h-[1px] bg-pink-300"></span>
-               <span className="text-xs font-black text-pink-600 uppercase tracking-widest">Parental Support</span>
+               <span className="w-10 h-[1px] bg-pink-400"></span>
+               <span className="text-xs font-black text-pink-400 uppercase tracking-widest">Parental Support</span>
             </div>
-            <h3 className="text-4xl md:text-5xl font-black text-gray-900 mb-8 leading-[1.1] tracking-tight">
-              Does your child have dyslexia and learning English seems <span className="text-pink-600">impossible?</span>
+            <h3 className="text-4xl md:text-5xl font-black text-white mb-8 leading-[1.1] tracking-tight">
+              Does your child have dyslexia and learning English seems <span className="text-pink-400">impossible?</span>
             </h3>
-            <p className="text-xl text-gray-600 mb-10 leading-relaxed font-medium italic">
-              "With DSA SMART START it's possible! Your child will have the keys and methods to achieve amazing results and make learning fun."
+            <p className="text-xl text-gray-300 mb-10 leading-relaxed font-medium italic">
+              "With Eduway it's possible! Your child will have the keys and methods to achieve amazing results and make learning fun."
             </p>
             <div className="grid grid-cols-1 gap-5 mb-12">
               {kidBenefits.map((b, i) => (
-                <div key={i} className="flex items-center gap-4 bg-pink-50/50 p-4 rounded-2xl border border-pink-100/50 hover:bg-pink-50 transition-colors">
-                  <div className="w-6 h-6 rounded-full bg-pink-100 flex items-center justify-center shrink-0">
-                    <CheckCircle2 className="text-pink-600" size={14} />
+                <div key={i} className="flex items-center gap-4 bg-pink-500/10 p-4 rounded-2xl border border-pink-500/20 hover:bg-pink-500/20 transition-colors">
+                  <div className="w-6 h-6 rounded-full bg-pink-500/20 flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="text-pink-400" size={14} />
                   </div>
-                  <span className="text-gray-800 font-bold text-sm tracking-tight">{b}</span>
+                  <span className="text-white font-bold text-sm tracking-tight">{b}</span>
                 </div>
               ))}
             </div>
@@ -78,21 +78,21 @@ const PathwaysDetail: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
           <div className="order-2 lg:order-1 flex flex-col animate-reveal">
             <div className="flex items-center gap-3 mb-6">
-               <span className="w-10 h-[1px] bg-blue-300"></span>
-               <span className="text-xs font-black text-blue-600 uppercase tracking-widest">Global Opportunities</span>
+               <span className="w-10 h-[1px] bg-blue-400"></span>
+               <span className="text-xs font-black text-blue-400 uppercase tracking-widest">Global Opportunities</span>
             </div>
-            <h3 className="text-4xl md:text-5xl font-black text-gray-900 mb-8 leading-[1.1] tracking-tight">
-              Do you need to pass an International English Exam and <span className="text-blue-600">want to do it well?</span>
+            <h3 className="text-4xl md:text-5xl font-black text-white mb-8 leading-[1.1] tracking-tight">
+              Do you need to pass an International English Exam and <span className="text-blue-400">want to do it well?</span>
             </h3>
-            <p className="text-lg text-gray-500 mb-10 leading-relaxed">
-              Our programs are designed specifically to prepare DSA students for exams recognized by the <span className="font-black text-gray-900 underline decoration-blue-500 decoration-2">MIUR</span>, using tools that align with neurodiverse learning styles.
+            <p className="text-lg text-gray-400 mb-10 leading-relaxed">
+              Our programs are designed specifically to prepare DSA students for exams recognized by the <span className="font-black text-white underline decoration-blue-500 decoration-2">MIUR</span>, using tools that align with neurodiverse learning styles.
             </p>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
               {exams.map((exam, i) => (
-                <div key={i} className="group p-5 bg-gray-50 rounded-[2rem] border border-gray-100 hover:border-blue-200 hover:bg-white transition-all">
-                  <h4 className="text-sm font-black text-gray-900 mb-1">{exam.title}</h4>
-                  <p className="text-[10px] text-blue-500 font-bold uppercase tracking-widest">{exam.detail}</p>
+                <div key={i} className="group p-5 bg-white/5 rounded-[2rem] border border-white/10 hover:border-blue-500/30 hover:bg-white/10 transition-all">
+                  <h4 className="text-sm font-black text-white mb-1">{exam.title}</h4>
+                  <p className="text-[10px] text-blue-400 font-bold uppercase tracking-widest">{exam.detail}</p>
                 </div>
               ))}
             </div>
@@ -109,8 +109,8 @@ const PathwaysDetail: React.FC = () => {
           </div>
 
           <div className="relative order-1 lg:order-2 group animate-reveal">
-             <div className="absolute -inset-6 bg-blue-100 rounded-[3rem] blur-3xl opacity-30 group-hover:opacity-50 transition-opacity"></div>
-             <div className="relative overflow-hidden rounded-[3rem] aspect-[4/5] shadow-2xl border-4 border-white">
+             <div className="absolute -inset-6 bg-blue-600 rounded-[3rem] blur-3xl opacity-20 group-hover:opacity-30 transition-opacity"></div>
+             <div className="relative overflow-hidden rounded-[3rem] aspect-[4/5] shadow-2xl border-4 border-white/10">
                 <img 
                   src="https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&q=80&w=1200" 
                   alt="Young professionals" 

@@ -22,10 +22,10 @@ const CareerSection: React.FC = () => {
   ];
 
   return (
-    <section className="py-32 px-6 bg-[#0f172a] text-white overflow-hidden relative">
+    <section className="py-32 px-6 bg-black text-white overflow-hidden relative">
       {/* Background Orbs */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[150px] translate-x-1/2 -translate-y-1/2"></div>
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[150px] -translate-x-1/2 translate-y-1/2"></div>
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[150px] translate-x-1/2 -translate-y-1/2"></div>
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[150px] -translate-x-1/2 translate-y-1/2"></div>
 
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="text-center mb-24 animate-reveal">
@@ -35,7 +35,7 @@ const CareerSection: React.FC = () => {
           <p className="text-gray-400 text-xl max-w-2xl mx-auto mb-12 font-medium">
             Discover our Career Advisor service and turn your dreams into concrete results with expert mentorship.
           </p>
-          <button className="bg-gradient-to-r from-purple-600 to-blue-600 px-14 py-5 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-2xl shadow-purple-500/20 active:scale-95">
+          <button className="bg-[#25D366] hover:bg-[#1ebe5d] text-white px-14 py-5 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-2xl shadow-[#25D366]/30 active:scale-95">
             BOOK NOW
           </button>
         </div>

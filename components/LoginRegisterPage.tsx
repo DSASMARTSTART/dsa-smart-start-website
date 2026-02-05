@@ -209,61 +209,61 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   }, []);
 
   return (
-    <div className="bg-white min-h-screen pt-32 pb-20 relative">
+    <div className="bg-black min-h-screen pt-32 pb-20 relative">
       <div className="absolute inset-0 z-0 pointer-events-none">
         <canvas ref={canvasRef} className="absolute inset-0" />
       </div>
 
       <div className="relative z-10 max-w-xl mx-auto px-6">
-        <div className="bg-white p-8 sm:p-14 rounded-[3.5rem] border border-gray-100 shadow-2xl shadow-purple-500/10">
+        <div className="bg-white/5 p-8 sm:p-14 rounded-[3.5rem] border border-white/10 shadow-2xl shadow-purple-500/10">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-black text-gray-900 tracking-tighter uppercase mb-4">
+            <h1 className="text-4xl font-black text-white tracking-tighter uppercase mb-4">
               {isLogin ? 'Welcome Back' : 'Join the Family'}
             </h1>
-            <p className="text-gray-500 italic font-medium">Empowering dyslexic minds through specialized English learning.</p>
+            <p className="text-gray-400 italic font-medium">Empowering dyslexic minds through specialized English learning.</p>
           </div>
 
-          <div className="flex p-2 bg-gray-50 rounded-3xl mb-10">
-            <button onClick={() => { setIsLogin(true); setError(null); setSuccessMessage(null); }} className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-2xl transition-all ${isLogin ? 'bg-white shadow-sm text-purple-600' : 'text-gray-400'}`}>Login</button>
-            <button onClick={() => { setIsLogin(false); setError(null); setSuccessMessage(null); }} className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-2xl transition-all ${!isLogin ? 'bg-white shadow-sm text-purple-600' : 'text-gray-400'}`}>Register</button>
+          <div className="flex p-2 bg-white/5 rounded-3xl mb-10 border border-white/10">
+            <button onClick={() => { setIsLogin(true); setError(null); setSuccessMessage(null); }} className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-2xl transition-all ${isLogin ? 'bg-white/10 shadow-sm text-purple-400' : 'text-gray-500'}`}>Login</button>
+            <button onClick={() => { setIsLogin(false); setError(null); setSuccessMessage(null); }} className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-2xl transition-all ${!isLogin ? 'bg-white/10 shadow-sm text-purple-400' : 'text-gray-500'}`}>Register</button>
           </div>
 
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3">
-              <AlertCircle className="text-red-500 flex-shrink-0 mt-0.5" size={20} />
-              <p className="text-red-700 text-sm font-medium">{error}</p>
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-start gap-3">
+              <AlertCircle className="text-red-400 flex-shrink-0 mt-0.5" size={20} />
+              <p className="text-red-400 text-sm font-medium">{error}</p>
             </div>
           )}
 
           {successMessage && (
-            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-2xl">
-              <p className="text-green-700 text-sm font-medium">{successMessage}</p>
+            <div className="mb-6 p-4 bg-green-500/10 border border-green-500/20 rounded-2xl">
+              <p className="text-green-400 text-sm font-medium">{successMessage}</p>
             </div>
           )}
 
           <form className="space-y-6" onSubmit={handleSubmit}>
             {!isLogin && (
               <div className="flex flex-col gap-2">
-                <label htmlFor="register-name" className="text-[10px] font-black uppercase tracking-widest text-gray-600 ml-4">Full Name</label>
+                <label htmlFor="register-name" className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-4">Full Name</label>
                 <div className="relative">
-                  <User className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                  <input id="register-name" type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Your Name" required className="w-full pl-16 pr-8 py-5 rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-purple-600 outline-none transition-all font-bold text-gray-900" />
+                  <User className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
+                  <input id="register-name" type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Your Name" required className="w-full pl-16 pr-8 py-5 rounded-[2rem] bg-white/5 border border-white/10 focus:bg-white/10 focus:border-purple-500 outline-none transition-all font-bold text-white placeholder-gray-500" />
                 </div>
               </div>
             )}
             <div className="flex flex-col gap-2">
-              <label htmlFor="auth-email" className="text-[10px] font-black uppercase tracking-widest text-gray-600 ml-4">Email Address</label>
+              <label htmlFor="auth-email" className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-4">Email Address</label>
               <div className="relative">
-                <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                <input id="auth-email" type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} placeholder="email@example.com" required className="w-full pl-16 pr-8 py-5 rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-purple-600 outline-none transition-all font-bold text-gray-900" />
+                <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
+                <input id="auth-email" type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} placeholder="email@example.com" required className="w-full pl-16 pr-8 py-5 rounded-[2rem] bg-white/5 border border-white/10 focus:bg-white/10 focus:border-purple-500 outline-none transition-all font-bold text-white placeholder-gray-500" />
               </div>
             </div>
             <div className="flex flex-col gap-2">
-              <label htmlFor="auth-password" className="text-[10px] font-black uppercase tracking-widest text-gray-600 ml-4">Password</label>
+              <label htmlFor="auth-password" className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-4">Password</label>
               <div className="relative">
-                <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                <input id="auth-password" type={showPassword ? "text" : "password"} value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} placeholder="••••••••" required className="w-full pl-16 pr-14 py-5 rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-purple-600 outline-none transition-all font-bold text-gray-900" />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400" aria-label={showPassword ? 'Hide password' : 'Show password'}>{showPassword ? <EyeOff size={20} /> : <Eye size={20} />}</button>
+                <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
+                <input id="auth-password" type={showPassword ? "text" : "password"} value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} placeholder="••••••••" required className="w-full pl-16 pr-14 py-5 rounded-[2rem] bg-white/5 border border-white/10 focus:bg-white/10 focus:border-purple-500 outline-none transition-all font-bold text-white placeholder-gray-500" />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-500" aria-label={showPassword ? 'Hide password' : 'Show password'}>{showPassword ? <EyeOff size={20} /> : <Eye size={20} />}</button>
               </div>
               {/* Password Strength Indicator - Registration only */}
               {!isLogin && formData.password && (
@@ -274,16 +274,16 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                         <div
                           key={level}
                           className={`h-1.5 flex-1 rounded-full transition-all ${
-                            level <= passwordStrength.score ? passwordStrength.color : 'bg-gray-200'
+                            level <= passwordStrength.score ? passwordStrength.color : 'bg-white/10'
                           }`}
                         />
                       ))}
                     </div>
                     <span className={`text-[10px] font-bold uppercase tracking-wider ${
-                      passwordStrength.score <= 1 ? 'text-red-500' :
-                      passwordStrength.score <= 2 ? 'text-orange-500' :
-                      passwordStrength.score <= 3 ? 'text-yellow-600' :
-                      'text-green-600'
+                      passwordStrength.score <= 1 ? 'text-red-400' :
+                      passwordStrength.score <= 2 ? 'text-orange-400' :
+                      passwordStrength.score <= 3 ? 'text-yellow-400' :
+                      'text-green-400'
                     }`}>
                       {passwordStrength.label}
                     </span>
@@ -292,7 +292,7 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                     {passwordStrength.requirements.map((req, idx) => (
                       <div key={idx} className="flex items-center gap-1.5">
                         <div className={`w-3 h-3 rounded-full flex items-center justify-center ${
-                          req.met ? 'bg-green-500' : 'bg-gray-200'
+                          req.met ? 'bg-green-500' : 'bg-white/10'
                         }`}>
                           {req.met && (
                             <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -300,7 +300,7 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                             </svg>
                           )}
                         </div>
-                        <span className={`text-[9px] ${req.met ? 'text-green-600' : 'text-gray-400'}`}>
+                        <span className={`text-[9px] ${req.met ? 'text-green-400' : 'text-gray-500'}`}>
                           {req.text}
                         </span>
                       </div>
@@ -311,11 +311,11 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             </div>
             {!isLogin && (
               <div className="flex flex-col gap-2">
-                <label htmlFor="register-confirm-password" className="text-[10px] font-black uppercase tracking-widest text-gray-600 ml-4">Confirm Password</label>
+                <label htmlFor="register-confirm-password" className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-4">Confirm Password</label>
                 <div className="relative">
-                  <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                  <input id="register-confirm-password" type={showConfirmPassword ? "text" : "password"} value={formData.confirmPassword} onChange={e => setFormData({...formData, confirmPassword: e.target.value})} placeholder="••••••••" required className="w-full pl-16 pr-14 py-5 rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-purple-600 outline-none transition-all font-bold text-gray-900" />
-                  <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400" aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}>{showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}</button>
+                  <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
+                  <input id="register-confirm-password" type={showConfirmPassword ? "text" : "password"} value={formData.confirmPassword} onChange={e => setFormData({...formData, confirmPassword: e.target.value})} placeholder="••••••••" required className="w-full pl-16 pr-14 py-5 rounded-[2rem] bg-white/5 border border-white/10 focus:bg-white/10 focus:border-purple-500 outline-none transition-all font-bold text-white placeholder-gray-500" />
+                  <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-500" aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}>{showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}</button>
                 </div>
               </div>
             )}
@@ -344,7 +344,7 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 ref={forgotPasswordTriggerRef}
                 type="button"
                 onClick={() => setShowForgotPassword(true)}
-                className="text-purple-600 hover:text-purple-700 text-sm font-semibold hover:underline transition-all"
+                className="text-purple-400 hover:text-purple-300 text-sm font-semibold hover:underline transition-all"
               >
                 Forgot your password?
               </button>
@@ -356,32 +356,32 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
       {/* Forgot Password Modal */}
       {showForgotPassword && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
           role="dialog"
           aria-modal="true"
           aria-labelledby="forgot-password-title"
         >
-          <div ref={modalRef} className="bg-white rounded-[2rem] p-8 max-w-md w-full shadow-2xl relative">
+          <div ref={modalRef} className="bg-[#1a1a1a] rounded-[2rem] p-8 max-w-md w-full shadow-2xl relative border border-white/10">
             <button
               onClick={closeForgotPasswordModal}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-300 transition-colors"
             >
               <X size={24} />
             </button>
             
-            <h2 id="forgot-password-title" className="text-2xl font-black text-gray-900 tracking-tight mb-2">Reset Password</h2>
-            <p className="text-gray-500 text-sm mb-6">
+            <h2 id="forgot-password-title" className="text-2xl font-black text-white tracking-tight mb-2">Reset Password</h2>
+            <p className="text-gray-400 text-sm mb-6">
               Enter your email address and we'll send you a link to reset your password.
             </p>
 
             {resetSuccess ? (
               <div className="text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Mail className="text-green-600" size={32} />
+                <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Mail className="text-green-400" size={32} />
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-2">Check your email</h3>
-                <p className="text-gray-600 text-sm mb-6">
-                  We've sent a password reset link to <strong>{resetEmail}</strong>
+                <h3 className="text-lg font-bold text-white mb-2">Check your email</h3>
+                <p className="text-gray-400 text-sm mb-6">
+                  We've sent a password reset link to <strong className="text-white">{resetEmail}</strong>
                 </p>
                 <button
                   onClick={closeForgotPasswordModal}
@@ -393,16 +393,16 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             ) : (
               <form onSubmit={handleForgotPassword} className="space-y-4">
                 {resetError && (
-                  <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2">
-                    <AlertCircle className="text-red-500 flex-shrink-0 mt-0.5" size={18} />
-                    <p className="text-red-700 text-sm">{resetError}</p>
+                  <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-2">
+                    <AlertCircle className="text-red-400 flex-shrink-0 mt-0.5" size={18} />
+                    <p className="text-red-400 text-sm">{resetError}</p>
                   </div>
                 )}
                 
                 <div className="flex flex-col gap-2">
                   <label htmlFor="reset-email" className="sr-only">Email Address</label>
                   <div className="relative">
-                    <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300" size={20} />
+                    <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
                     <input
                       id="reset-email"
                       ref={emailInputRef}
@@ -411,7 +411,7 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                       onChange={e => setResetEmail(e.target.value)}
                       placeholder="email@example.com"
                       aria-label="Email address for password reset"
-                      className="w-full pl-14 pr-6 py-4 rounded-2xl bg-gray-50 border border-transparent focus:bg-white focus:border-purple-600 outline-none transition-all font-medium text-gray-900"
+                      className="w-full pl-14 pr-6 py-4 rounded-2xl bg-white/5 border border-white/10 focus:bg-white/10 focus:border-purple-500 outline-none transition-all font-medium text-white placeholder-gray-500"
                     />
                   </div>
                 </div>
@@ -434,7 +434,7 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 <button
                   type="button"
                   onClick={closeForgotPasswordModal}
-                  className="w-full py-3 text-gray-500 hover:text-gray-700 font-medium transition-colors"
+                  className="w-full py-3 text-gray-400 hover:text-gray-300 font-medium transition-colors"
                 >
                   Cancel
                 </button>

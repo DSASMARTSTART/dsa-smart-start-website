@@ -36,7 +36,7 @@ interface CourseContentData {
 
 const COURSE_CONTENT: Record<string, CourseContentData> = {
   'A1': {
-    description: "The DSA Smart Start Level A1 volume is designed to guide students with Specific Learning Disabilities (SLD) in their first steps in learning English. Thanks to a visual, multisensory, and inclusive approach, each teaching unit is designed to facilitate comprehension, memorization, and active use of the language, making the learning experience accessible and motivating.",
+    description: "The Eduway Level A1 volume is designed to guide students with Specific Learning Disabilities (SLD) in their first steps in learning English. Thanks to a visual, multisensory, and inclusive approach, each teaching unit is designed to facilitate comprehension, memorization, and active use of the language, making the learning experience accessible and motivating.",
     learningOutcomes: [
       "Master subject pronouns and the verb TO BE in all forms",
       "Form questions and negatives with confidence",
@@ -78,7 +78,7 @@ const COURSE_CONTENT: Record<string, CourseContentData> = {
     ]
   },
   'A2': {
-    description: "The DSA Smart Start Level A2 volume is designed to accompany students with Specific Learning Disabilities (SLD) in consolidating acquired language skills and introducing more complex grammatical structures. Through a visual, multisensory, and inclusive approach, each teaching unit is structured to facilitate comprehension, memorization, and active use of the language, making the study experience accessible and motivating.",
+    description: "The Eduway Level A2 volume is designed to accompany students with Specific Learning Disabilities (SLD) in consolidating acquired language skills and introducing more complex grammatical structures. Through a visual, multisensory, and inclusive approach, each teaching unit is structured to facilitate comprehension, memorization, and active use of the language, making the study experience accessible and motivating.",
     learningOutcomes: [
       "Distinguish between present simple and present continuous",
       "Use past continuous to describe ongoing past actions",
@@ -121,7 +121,7 @@ const COURSE_CONTENT: Record<string, CourseContentData> = {
     ]
   },
   'B1': {
-    description: "The DSA Smart Start Level B1 volume is designed to accompany students with Specific Learning Disabilities (SLD) through an intermediate stage of English learning, where language becomes a more complex, articulated tool closer to real-world use. This level introduces more advanced grammatical structures and promotes the development of all 4 skills: listening, reading, writing, and speaking.",
+    description: "The Eduway Level B1 volume is designed to accompany students with Specific Learning Disabilities (SLD) through an intermediate stage of English learning, where language becomes a more complex, articulated tool closer to real-world use. This level introduces more advanced grammatical structures and promotes the development of all 4 skills: listening, reading, writing, and speaking.",
     learningOutcomes: [
       "Use present perfect continuous for ongoing situations",
       "Master the past perfect for sequencing events",
@@ -164,7 +164,7 @@ const COURSE_CONTENT: Record<string, CourseContentData> = {
     ]
   },
   'Kids': {
-    description: "The DSA Smart Start Advanced Level is designed to accompany young learners with learning difficulties step by step in their English language studies. Students can improve gradually, starting from A1 Starters exams, moving through Movers, and reaching A2 Flyers. This Advanced Level completes the program, offering essential content for A2 Flyers exam preparation — the third level of Cambridge English Young Learners, designed for primary and lower secondary school students.",
+    description: "The Eduway Advanced Level is designed to accompany young learners with learning difficulties step by step in their English language studies. Students can improve gradually, starting from A1 Starters exams, moving through Movers, and reaching A2 Flyers. This Advanced Level completes the program, offering essential content for A2 Flyers exam preparation — the third level of Cambridge English Young Learners, designed for primary and lower secondary school students.",
     learningOutcomes: [
       "Understand and use more complex sentences on familiar topics",
       "Read and listen to short texts, stories, and realistic dialogues in English",
@@ -207,7 +207,7 @@ const COURSE_CONTENT: Record<string, CourseContentData> = {
     ]
   },
   'Premium': {
-    description: "The Premium Pathway DSA Smart Start is a complete and innovative program designed for students with SLD who want to learn English in a clear, stimulating way without frustration. Through a multisensory method and high-readability materials, the pathway combines individual lessons, group workshops, mind maps, and video lessons to make learning simpler and more effective.",
+    description: "The Premium Pathway Eduway is a complete and innovative program designed for students with SLD who want to learn English in a clear, stimulating way without frustration. Through a multisensory method and high-readability materials, the pathway combines individual lessons, group workshops, mind maps, and video lessons to make learning simpler and more effective.",
     learningOutcomes: [
       "Achieve personalized progress through 1-on-1 lessons",
       "Build confidence in group workshop settings",
@@ -234,7 +234,7 @@ const COURSE_CONTENT: Record<string, CourseContentData> = {
     units: []
   },
   'Gold': {
-    description: "The Gold Pathway DSA Smart Start is a structured and innovative program designed for students with SLD who wish to learn English in a clear, engaging way without frustration. Thanks to a multisensory and high-readability method, the pathway combines interactive group lessons, mind maps, video lessons, and dedicated materials to make learning simpler and more effective.",
+    description: "The Gold Pathway Eduway is a structured and innovative program designed for students with SLD who wish to learn English in a clear, engaging way without frustration. Thanks to a multisensory and high-readability method, the pathway combines interactive group lessons, mind maps, video lessons, and dedicated materials to make learning simpler and more effective.",
     learningOutcomes: [
       "Build confidence through twice-weekly group workshops",
       "Master vocabulary with 525 visual mind maps",
@@ -260,7 +260,7 @@ const COURSE_CONTENT: Record<string, CourseContentData> = {
     units: []
   },
   'B2': {
-    description: "The DSA Smart Start Level B2 volume represents the culmination of our structured learning pathway, designed for students with Specific Learning Disabilities (SLD) who are ready to achieve upper-intermediate proficiency. This advanced level focuses on nuanced language use, academic English, and sophisticated communication strategies that prepare learners for professional and educational contexts.",
+    description: "The Eduway Level B2 volume represents the culmination of our structured learning pathway, designed for students with Specific Learning Disabilities (SLD) who are ready to achieve upper-intermediate proficiency. This advanced level focuses on nuanced language use, academic English, and sophisticated communication strategies that prepare learners for professional and educational contexts.",
     learningOutcomes: [
       "Master all conditional forms including mixed conditionals",
       "Use advanced passive structures and causative forms",
@@ -303,7 +303,7 @@ const COURSE_CONTENT: Record<string, CourseContentData> = {
     ]
   },
   'kids-basic': {
-    description: "The DSA Smart Start Kids Basic program is specially crafted for young learners aged 5-8 who are just beginning their English adventure. Using a playful, multisensory approach with colorful visuals, songs, and interactive games, this course makes learning English an exciting journey. Every lesson is designed with dyslexia-friendly techniques to ensure every child can succeed.",
+    description: "The Eduway Kids Basic program is specially crafted for young learners aged 5-8 who are just beginning their English adventure. Using a playful, multisensory approach with colorful visuals, songs, and interactive games, this course makes learning English an exciting journey. Every lesson is designed with dyslexia-friendly techniques to ensure every child can succeed.",
     learningOutcomes: [
       "Recognize and use basic greetings and introductions",
       "Identify colors, numbers 1-20, and common shapes",
@@ -343,7 +343,7 @@ const COURSE_CONTENT: Record<string, CourseContentData> = {
     ]
   },
   'kids-medium': {
-    description: "The DSA Smart Start Kids Medium program builds on the basics, designed for young learners aged 7-10 who are ready to expand their English skills. Through story-based learning, creative activities, and interactive exercises, children develop reading, writing, and speaking confidence. Every lesson incorporates dyslexia-friendly methods to support all learning styles.",
+    description: "The Eduway Kids Medium program builds on the basics, designed for young learners aged 7-10 who are ready to expand their English skills. Through story-based learning, creative activities, and interactive exercises, children develop reading, writing, and speaking confidence. Every lesson incorporates dyslexia-friendly methods to support all learning styles.",
     learningOutcomes: [
       "Read and understand simple English stories",
       "Write short sentences about familiar topics",
@@ -383,7 +383,7 @@ const COURSE_CONTENT: Record<string, CourseContentData> = {
     ]
   },
   'kids-advanced': {
-    description: "The DSA Smart Start Kids Advanced program is designed for confident young learners aged 9-12 who are ready to master English at a higher level. This comprehensive course prepares students for school English requirements and Cambridge A2 Flyers exam. Complex grammar is taught through engaging contexts, and creative expression is encouraged throughout.",
+    description: "The Eduway Kids Advanced program is designed for confident young learners aged 9-12 who are ready to master English at a higher level. This comprehensive course prepares students for school English requirements and Cambridge A2 Flyers exam. Complex grammar is taught through engaging contexts, and creative expression is encouraged throughout.",
     learningOutcomes: [
       "Read and comprehend longer, more complex texts",
       "Write paragraphs and short compositions",
@@ -624,10 +624,10 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-500 font-medium">Loading course details...</p>
+          <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-400 font-medium">Loading course details...</p>
         </div>
       </div>
     );
@@ -635,13 +635,13 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
 
   if (!course) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
-          <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
-            <BookOpen size={32} className="text-gray-300" />
+          <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/10">
+            <BookOpen size={32} className="text-gray-500" />
           </div>
-          <h3 className="text-2xl font-black text-gray-900 mb-4">Course Not Found</h3>
-          <p className="text-gray-500 mb-8">The course you're looking for doesn't exist or has been removed.</p>
+          <h3 className="text-2xl font-black text-white mb-4">Course Not Found</h3>
+          <p className="text-gray-400 mb-8">The course you're looking for doesn't exist or has been removed.</p>
           <button onClick={onBack} className="px-8 py-4 bg-purple-600 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-colors">
             Back to Courses
           </button>
@@ -756,7 +756,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
   const isDraft = !course.isPublished;
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="bg-black min-h-screen">
       {/* Draft Warning Banner for Admins */}
       {isAdminViewing && isDraft && (
         <div className="fixed top-0 left-0 right-0 z-50 bg-amber-500 text-white py-2 px-4 text-center">
@@ -774,12 +774,12 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
       )}
       
       {/* Light Syllabus Hero - matching Home Page style */}
-      <div className={`relative w-full min-h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-[#fff5fd] via-[#fffbfd] to-white ${isAdminViewing && isDraft ? 'pt-12' : ''}`}>
+      <div className={`relative w-full min-h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-black ${isAdminViewing && isDraft ? 'pt-12' : ''}`}>
         {/* Background Elements */}
         <div className="absolute inset-0 z-0 pointer-events-none">
            {/* Soft gradient blobs using the new colors */}
-           <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#FFC1F2] rounded-full mix-blend-multiply filter blur-[100px] opacity-30 animate-pulse-slow"></div>
-           <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-[#AB8FFF] rounded-full mix-blend-multiply filter blur-[100px] opacity-20 animate-pulse-slow delay-1000"></div>
+           <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#FFC1F2] rounded-full mix-blend-screen filter blur-[100px] opacity-20 animate-pulse-slow"></div>
+           <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-[#AB8FFF] rounded-full mix-blend-screen filter blur-[100px] opacity-15 animate-pulse-slow delay-1000"></div>
            <canvas ref={canvasRef} className="absolute inset-0 z-0 opacity-60" />
         </div>
 
@@ -788,9 +788,9 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
           {/* Back Button */}
           <button 
             onClick={onBack}
-            className="group flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-[#AB8FFF] transition-colors mb-12"
+            className="group flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-[#AB8FFF] transition-colors mb-12"
           >
-            <div className="w-10 h-10 rounded-full bg-white border border-gray-100 flex items-center justify-center group-hover:border-[#AB8FFF]/30 group-hover:shadow-md transition-all">
+            <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-[#AB8FFF]/30 group-hover:shadow-md transition-all">
               <ArrowLeft size={16} />
             </div>
             Back to Courses
@@ -806,12 +806,12 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                 </div>
                 <div className="flex flex-col">
                   <span className="text-[10px] font-black uppercase tracking-widest text-[#AB8FFF]">Level {course.level}</span>
-                  <span className="text-sm font-bold text-gray-800">{config.label}</span>
+                  <span className="text-sm font-bold text-gray-300">{config.label}</span>
                 </div>
               </div>
 
               {/* Title */}
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-[#1a1c2d] leading-[0.9] tracking-tight">
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white leading-[0.9] tracking-tight">
                 {course.title.split(' ').map((word, i) => (
                    <React.Fragment key={i}>
                     {i === 0 ? (
@@ -822,7 +822,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                         </svg>
                       </span>
                     ) : (
-                      <span className="text-[#1a1c2d]">{word}</span>
+                      <span className="text-white">{word}</span>
                     )}
                     {' '}
                    </React.Fragment>
@@ -830,45 +830,45 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
               </h1>
 
               {/* Description */}
-              <p className="text-lg sm:text-xl font-medium text-gray-600 leading-relaxed max-w-xl">
+              <p className="text-lg sm:text-xl font-medium text-gray-400 leading-relaxed max-w-xl">
                 {courseDescription || `Transform your English skills with our ${config.label.toLowerCase()} course. Designed specifically for visual learners and students with dyslexia — learn at your own pace with proven, brain-friendly methods.`}
               </p>
 
               {/* Exam Prep Badge */}
               {examPrep && (
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 rounded-full border border-green-200">
-                  <GraduationCap size={16} className="text-green-600" />
-                  <span className="text-xs font-bold text-green-700">Prepares for {examPrep}</span>
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/20 rounded-full border border-green-500/30">
+                  <GraduationCap size={16} className="text-green-400" />
+                  <span className="text-xs font-bold text-green-400">Prepares for {examPrep}</span>
                 </div>
               )}
 
               {/* Stats Row - Updated to match light theme */}
               <div className="flex flex-wrap gap-6">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-purple-50 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-2xl bg-purple-500/20 flex items-center justify-center">
                     <Layers size={20} className="text-[#AB8FFF]" />
                   </div>
                   <div>
-                    <p className="text-2xl font-black text-gray-900">{totalModules}</p>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Modules</p>
+                    <p className="text-2xl font-black text-white">{totalModules}</p>
+                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Modules</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-pink-50 flex items-center justify-center">
-                    <Play size={20} className="text-pink-500" />
+                  <div className="w-12 h-12 rounded-2xl bg-pink-500/20 flex items-center justify-center">
+                    <Play size={20} className="text-pink-400" />
                   </div>
                   <div>
-                    <p className="text-2xl font-black text-gray-900">{totalLessons}</p>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Lessons</p>
+                    <p className="text-2xl font-black text-white">{totalLessons}</p>
+                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Lessons</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center">
-                    <Clock size={20} className="text-indigo-500" />
+                  <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 flex items-center justify-center">
+                    <Clock size={20} className="text-indigo-400" />
                   </div>
                   <div>
-                    <p className="text-2xl font-black text-gray-900">{formattedDuration || '2h+'}</p>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Duration</p>
+                    <p className="text-2xl font-black text-white">{formattedDuration || '2h+'}</p>
+                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Duration</p>
                   </div>
                 </div>
               </div>
@@ -891,14 +891,14 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                     </div>
                   )}
                   <div className="flex items-baseline gap-3">
-                    <span className={`text-4xl sm:text-5xl font-black text-[#1a1c2d]`}>
+                    <span className={`text-4xl sm:text-5xl font-black text-white`}>
                       {displayPrice}
                     </span>
                     {originalPrice && !teachingMaterialsSelected && (
-                      <span className="text-xl font-bold text-gray-400 line-through decoration-pink-500">{originalPrice}</span>
+                      <span className="text-xl font-bold text-gray-500 line-through decoration-pink-500">{originalPrice}</span>
                     )}
                     {teachingMaterialsSelected && isPremiumOrGold && (
-                      <span className="text-sm font-medium text-gray-500">({price} + €50 materials)</span>
+                      <span className="text-sm font-medium text-gray-400">({price} + €50 materials)</span>
                     )}
                   </div>
                 </div>
@@ -916,14 +916,14 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                     disabled={isAddingToCart}
                     className={`flex items-center gap-2 px-6 py-4 rounded-full text-[11px] font-black uppercase tracking-widest border transition-all ${
                       isInCart 
-                        ? 'bg-green-50 border-green-200 text-green-600' 
+                        ? 'bg-green-500/20 border-green-500/30 text-green-400' 
                         : isAddingToCart
-                          ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
-                          : 'bg-white border-gray-200 text-gray-400 hover:border-[#AB8FFF] hover:text-[#AB8FFF]'
+                          ? 'bg-white/5 border-white/10 text-gray-500 cursor-not-allowed'
+                          : 'bg-white/5 border-white/10 text-gray-400 hover:border-[#AB8FFF]/50 hover:text-[#AB8FFF]'
                     }`}
                   >
                     {isAddingToCart ? (
-                      <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
+                      <div className="w-4 h-4 border-2 border-gray-500 border-t-gray-300 rounded-full animate-spin" />
                     ) : isInCart ? <Check size={16} /> : <ShoppingCart size={16} />}
                     {isAddingToCart ? 'Adding...' : isInCart ? 'Added' : 'Add to Cart'}
                   </button>
@@ -934,9 +934,9 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
             {/* Right: Course Visual Card - Light version */}
             <div className="relative animate-reveal stagger-1">
               {/* Main Card */}
-              <div className="relative bg-white rounded-[3rem] p-6 border border-gray-100 shadow-2xl shadow-purple-500/5">
+              <div className="relative bg-white/5 rounded-[3rem] p-6 border border-white/10 shadow-2xl shadow-purple-500/10">
                 {/* Thumbnail */}
-                <div className="relative aspect-video rounded-3xl overflow-hidden mb-6 bg-gray-100 shadow-inner">
+                <div className="relative aspect-video rounded-3xl overflow-hidden mb-6 bg-white/5 shadow-inner">
                   {course.thumbnailUrl ? (
                     <img 
                       src={course.thumbnailUrl} 
@@ -944,14 +944,14 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className={`w-full h-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center`}>
-                      <BookOpen size={48} className="text-gray-300" />
+                    <div className={`w-full h-full bg-gradient-to-br from-white/5 to-white/10 flex items-center justify-center`}>
+                      <BookOpen size={48} className="text-gray-500" />
                     </div>
                   )}
                   {/* Play overlay */}
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/5 opacity-0 hover:opacity-100 transition-opacity cursor-pointer group">
-                    <div className={`w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-2xl transform scale-90 group-hover:scale-100 transition-transform`}>
-                      <Play size={32} className="text-[#AB8FFF] ml-1" fill="currentColor" />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 hover:opacity-100 transition-opacity cursor-pointer group">
+                    <div className={`w-20 h-20 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center shadow-2xl transform scale-90 group-hover:scale-100 transition-transform border border-white/20`}>
+                      <Play size={32} className="text-white ml-1" fill="currentColor" />
                     </div>
                   </div>
                   {/* Level tag */}
@@ -965,29 +965,29 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                 {/* Quick highlights */}
                 <div className="space-y-3 px-2 pb-2">
                   <div className="flex items-center gap-3">
-                    <div className="p-1 rounded-full bg-green-100 text-green-600">
+                    <div className="p-1 rounded-full bg-green-500/20 text-green-400">
                       <CheckCircle2 size={14} />
                     </div>
-                    <span className="text-sm font-bold text-gray-600">Lifetime access to all materials</span>
+                    <span className="text-sm font-bold text-gray-300">Lifetime access to all materials</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="p-1 rounded-full bg-green-100 text-green-600">
+                    <div className="p-1 rounded-full bg-green-500/20 text-green-400">
                       <CheckCircle2 size={14} />
                     </div>
-                    <span className="text-sm font-bold text-gray-600">Certificate of completion</span>
+                    <span className="text-sm font-bold text-gray-300">Certificate of completion</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="p-1 rounded-full bg-green-100 text-green-600">
+                    <div className="p-1 rounded-full bg-green-500/20 text-green-400">
                       <CheckCircle2 size={14} />
                     </div>
-                    <span className="text-sm font-bold text-gray-600">Dyslexia-friendly design</span>
+                    <span className="text-sm font-bold text-gray-300">Dyslexia-friendly design</span>
                   </div>
                 </div>
               </div>
 
               {/* Decorative floating elements */}
-              <div className="absolute -top-6 -right-6 w-24 h-24 bg-[#FFC1F2] rounded-3xl rotate-12 opacity-40 blur-xl"></div>
-              <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-[#AB8FFF] rounded-full opacity-30 blur-2xl"></div>
+              <div className="absolute -top-6 -right-6 w-24 h-24 bg-[#FFC1F2] rounded-3xl rotate-12 opacity-20 blur-xl"></div>
+              <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-[#AB8FFF] rounded-full opacity-15 blur-2xl"></div>
             </div>
           </div>
         </div>
@@ -995,8 +995,8 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
         {/* Curved transition to white */}
         <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none">
           <svg className="relative block w-full h-[50px] sm:h-[100px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-              <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" className="fill-white opacity-0"></path>
-              <path d="M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z" className="fill-white"></path>
+              <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" className="fill-black opacity-0"></path>
+              <path d="M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z" className="fill-black"></path>
           </svg>
         </div>
       </div>
@@ -1009,28 +1009,28 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
           <div className="lg:col-span-5 space-y-16 animate-reveal">
             <div>
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-3 bg-purple-50 rounded-2xl text-purple-600 border border-purple-100">
+                <div className="p-3 bg-purple-500/20 rounded-2xl text-purple-400 border border-purple-500/30">
                   <Target size={28} />
                 </div>
-                <h3 className="text-3xl font-black text-gray-900 tracking-tight uppercase">What You'll Achieve</h3>
+                <h3 className="text-3xl font-black text-white tracking-tight uppercase">What You'll Achieve</h3>
               </div>
-              <p className="text-gray-500 text-lg mb-8 font-medium">
+              <p className="text-gray-400 text-lg mb-8 font-medium">
                 By the end of this course, you'll be able to confidently:
               </p>
               <div className="space-y-4">
                 {outcomes.slice(0, 4).map((item, i) => (
-                  <div key={i} className="flex items-center gap-4 p-5 bg-gray-50 rounded-[2rem] border border-gray-100 group hover:bg-white hover:border-purple-200 hover:shadow-lg hover:shadow-purple-500/5 transition-all">
-                    <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                      <CheckCircle2 className="text-green-600" size={18} />
+                  <div key={i} className="flex items-center gap-4 p-5 bg-white/5 rounded-[2rem] border border-white/10 group hover:bg-white/10 hover:border-purple-500/30 hover:shadow-lg hover:shadow-purple-500/10 transition-all">
+                    <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                      <CheckCircle2 className="text-green-400" size={18} />
                     </div>
-                    <span className="text-sm font-bold text-gray-700">{item}</span>
+                    <span className="text-sm font-bold text-gray-300">{item}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="p-10 bg-gradient-to-br from-[#1a1c2d] to-black rounded-[3rem] text-white relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-purple-600/20 rounded-full blur-[60px] translate-x-1/2 -translate-y-1/2"></div>
+            <div className="p-10 bg-gradient-to-br from-[#1a1c2d] to-black rounded-[3rem] text-white relative overflow-hidden group border border-white/10">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-purple-600/30 rounded-full blur-[60px] translate-x-1/2 -translate-y-1/2"></div>
               <div className="relative z-10">
                 <Sparkles className="text-purple-400 mb-6" size={32} />
                 <h4 className="text-2xl font-black mb-4 uppercase tracking-tight">The DSA Advantage</h4>
@@ -1047,18 +1047,18 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
 
             {/* What's Included Section */}
             {whatYoullFind.length > 0 && (
-              <div className="p-8 bg-white rounded-[3rem] border border-gray-100 shadow-sm">
+              <div className="p-8 bg-white/5 rounded-[3rem] border border-white/10 shadow-sm">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2 bg-blue-50 rounded-xl text-blue-600">
+                  <div className="p-2 bg-blue-500/20 rounded-xl text-blue-400">
                     <FileCheck size={24} />
                   </div>
-                  <h4 className="text-xl font-black text-gray-900 uppercase tracking-tight">What's Included</h4>
+                  <h4 className="text-xl font-black text-white uppercase tracking-tight">What's Included</h4>
                 </div>
                 <div className="space-y-3">
                   {whatYoullFind.map((item, i) => (
-                    <div key={i} className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl hover:bg-blue-50 transition-colors">
-                      <CheckCircle2 size={18} className="text-blue-500 mt-0.5 flex-shrink-0" />
-                      <span className="text-sm font-medium text-gray-700">{item}</span>
+                    <div key={i} className="flex items-start gap-3 p-3 bg-white/5 rounded-xl hover:bg-blue-500/10 transition-colors">
+                      <CheckCircle2 size={18} className="text-blue-400 mt-0.5 flex-shrink-0" />
+                      <span className="text-sm font-medium text-gray-300">{item}</span>
                     </div>
                   ))}
                 </div>
@@ -1066,23 +1066,23 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
             )}
 
             {/* Who Is This For? Section */}
-            <div className="p-8 bg-gradient-to-br from-purple-50 to-pink-50 rounded-[3rem] border border-purple-100 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-[#FFC1F2] rounded-full blur-[40px] translate-x-1/2 -translate-y-1/2 opacity-50"></div>
+            <div className="p-8 bg-gradient-to-br from-purple-500/10 via-white/5 to-pink-500/10 rounded-[3rem] border border-purple-500/20 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-[#FFC1F2] rounded-full blur-[40px] translate-x-1/2 -translate-y-1/2 opacity-20"></div>
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2 bg-white rounded-xl text-[#AB8FFF] shadow-sm">
+                  <div className="p-2 bg-white/10 rounded-xl text-[#AB8FFF] shadow-sm border border-white/10">
                     <UserCheck size={24} />
                   </div>
-                  <h4 className="text-xl font-black text-gray-900 uppercase tracking-tight">Who Is This For?</h4>
+                  <h4 className="text-xl font-black text-white uppercase tracking-tight">Who Is This For?</h4>
                 </div>
-                <p className="text-gray-600 text-sm mb-6 font-medium">{targetAudience.description}</p>
+                <p className="text-gray-400 text-sm mb-6 font-medium">{targetAudience.description}</p>
                 <div className="space-y-3">
                   {targetAudience.points.map((point, i) => (
                     <div key={i} className="flex items-start gap-3">
                       <div className="mt-0.5 w-5 h-5 rounded-full bg-[#AB8FFF] flex items-center justify-center flex-shrink-0">
                         <Check size={12} className="text-white" />
                       </div>
-                      <span className="text-sm font-medium text-gray-700">{point}</span>
+                      <span className="text-sm font-medium text-gray-300">{point}</span>
                     </div>
                   ))}
                 </div>
@@ -1090,34 +1090,34 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
             </div>
 
             {/* Trust & Guarantee Section */}
-            <div className="p-8 bg-white rounded-[3rem] border border-gray-100 shadow-lg shadow-purple-500/5">
+            <div className="p-8 bg-white/5 rounded-[3rem] border border-white/10 shadow-lg shadow-purple-500/5">
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-green-50 rounded-xl text-green-600">
+                <div className="p-2 bg-green-500/20 rounded-xl text-green-400">
                   <Shield size={24} />
                 </div>
-                <h4 className="text-xl font-black text-gray-900 uppercase tracking-tight">Our Promise</h4>
+                <h4 className="text-xl font-black text-white uppercase tracking-tight">Our Promise</h4>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-gray-50">
-                  <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-3">
-                    <RefreshCcw size={20} className="text-green-600" />
+                <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-white/5">
+                  <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center mb-3">
+                    <RefreshCcw size={20} className="text-green-400" />
                   </div>
-                  <span className="text-xs font-black uppercase tracking-wider text-gray-900">14-Day</span>
-                  <span className="text-[10px] text-gray-500 font-medium">Money Back Guarantee</span>
+                  <span className="text-xs font-black uppercase tracking-wider text-white">14-Day</span>
+                  <span className="text-[10px] text-gray-400 font-medium">Money Back Guarantee</span>
                 </div>
-                <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-gray-50">
-                  <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mb-3">
-                    <Heart size={20} className="text-purple-600" />
+                <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-white/5">
+                  <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center mb-3">
+                    <Heart size={20} className="text-purple-400" />
                   </div>
-                  <span className="text-xs font-black uppercase tracking-wider text-gray-900">Dyslexia</span>
-                  <span className="text-[10px] text-gray-500 font-medium">Friendly Design</span>
+                  <span className="text-xs font-black uppercase tracking-wider text-white">Dyslexia</span>
+                  <span className="text-[10px] text-gray-400 font-medium">Friendly Design</span>
                 </div>
-                <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-gray-50">
-                  <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center mb-3">
-                    <BadgeCheck size={20} className="text-amber-600" />
+                <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-white/5">
+                  <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center mb-3">
+                    <BadgeCheck size={20} className="text-amber-400" />
                   </div>
-                  <span className="text-xs font-black uppercase tracking-wider text-gray-900">Certificate</span>
-                  <span className="text-[10px] text-gray-500 font-medium">Upon Completion</span>
+                  <span className="text-xs font-black uppercase tracking-wider text-white">Certificate</span>
+                  <span className="text-[10px] text-gray-400 font-medium">Upon Completion</span>
                 </div>
               </div>
             </div>
@@ -1126,10 +1126,10 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
           {/* Right: Modules Timeline */}
           <div className="lg:col-span-7 animate-reveal stagger-1">
             <div className="flex items-center gap-3 mb-10">
-              <div className="p-3 bg-indigo-50 rounded-2xl text-indigo-600 border border-indigo-100">
+              <div className="p-3 bg-indigo-500/20 rounded-2xl text-indigo-400 border border-indigo-500/30">
                 <BookOpen size={28} />
               </div>
-              <h3 className="text-3xl font-black text-gray-900 tracking-tight uppercase">
+              <h3 className="text-3xl font-black text-white tracking-tight uppercase">
                 {course.level === 'Premium' || course.level === 'premium' || course.level === 'Gold' || course.level === 'golden'
                   ? 'Program Includes' 
                   : grammarUnits.length > 0 
@@ -1205,10 +1205,10 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                   aria-checked={teachingMaterialsSelected}
                   aria-label="Include teaching materials add-on for €50"
                   tabIndex={0}
-                  className={`rounded-[3rem] p-10 border-2 transition-all cursor-pointer focus:outline-none focus:ring-4 focus:ring-amber-300 focus:ring-offset-2 ${
+                  className={`rounded-[3rem] p-10 border-2 transition-all cursor-pointer focus:outline-none focus:ring-4 focus:ring-amber-300 focus:ring-offset-2 focus:ring-offset-black ${
                     teachingMaterialsSelected 
-                      ? 'bg-gradient-to-br from-amber-100 to-orange-100 border-amber-400 shadow-lg shadow-amber-200/50' 
-                      : 'bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200 hover:border-amber-300'
+                      ? 'bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-amber-400 shadow-lg shadow-amber-500/20' 
+                      : 'bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/30 hover:border-amber-500/50'
                   }`}
                   onClick={() => onToggleTeachingMaterials?.(!teachingMaterialsSelected)}
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggleTeachingMaterials?.(!teachingMaterialsSelected); } }}
@@ -1217,14 +1217,14 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                     <div className="flex items-center gap-4">
                       <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-all ${
                         teachingMaterialsSelected 
-                          ? 'bg-gradient-to-br from-amber-500 to-orange-600 shadow-amber-300' 
-                          : 'bg-gradient-to-br from-amber-400 to-orange-500 shadow-amber-200'
+                          ? 'bg-gradient-to-br from-amber-500 to-orange-600 shadow-amber-500/30' 
+                          : 'bg-gradient-to-br from-amber-400 to-orange-500 shadow-amber-500/20'
                       }`}>
                         <BookOpen size={24} className="text-white" />
                       </div>
                       <div>
-                        <h4 className="text-xl font-black text-gray-900 uppercase tracking-tight">Teaching Materials</h4>
-                        <p className="text-amber-600 font-bold text-lg">+€50 <span className="text-sm font-normal text-amber-500">(Optional Add-on)</span></p>
+                        <h4 className="text-xl font-black text-white uppercase tracking-tight">Teaching Materials</h4>
+                        <p className="text-amber-400 font-bold text-lg">+€50 <span className="text-sm font-normal text-amber-500/70">(Optional Add-on)</span></p>
                       </div>
                     </div>
                     {/* Checkbox */}
@@ -1236,19 +1236,19 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                       className={`w-8 h-8 rounded-xl border-2 flex items-center justify-center transition-all ${
                         teachingMaterialsSelected 
                           ? 'bg-amber-500 border-amber-500 text-white' 
-                          : 'bg-white border-amber-300 hover:border-amber-400'
+                          : 'bg-white/5 border-amber-500/50 hover:border-amber-400'
                       }`}
                     >
                       {teachingMaterialsSelected && <Check size={18} strokeWidth={3} />}
                     </button>
                   </div>
-                  <p className="text-gray-600 leading-relaxed mb-4">
+                  <p className="text-gray-400 leading-relaxed mb-4">
                     Enhance your learning experience with our comprehensive teaching materials package, including workbooks, practice exercises, supplementary resources, and exclusive study guides designed specifically for this program.
                   </p>
                   <div className={`flex items-center gap-2 text-sm rounded-xl px-4 py-2 w-fit transition-all ${
                     teachingMaterialsSelected 
-                      ? 'text-green-700 bg-green-100' 
-                      : 'text-amber-700 bg-amber-100'
+                      ? 'text-green-400 bg-green-500/20' 
+                      : 'text-amber-400 bg-amber-500/20'
                   }`}>
                     {teachingMaterialsSelected ? (
                       <>
@@ -1265,12 +1265,12 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                 </div>
                 
                 {/* Method Description */}
-                <div className="bg-gray-50 rounded-[3rem] p-10 border border-gray-100">
-                  <h4 className="text-xl font-black text-gray-900 mb-4 uppercase tracking-tight">The DSA Smart Start Method</h4>
-                  <p className="text-gray-600 leading-relaxed">
+                <div className="bg-white/5 rounded-[3rem] p-10 border border-white/10">
+                  <h4 className="text-xl font-black text-white mb-4 uppercase tracking-tight">The Eduway Method</h4>
+                  <p className="text-gray-400 leading-relaxed">
                     {course.level === 'Premium' || course.level === 'premium'
-                      ? 'The DSA Smart Start Method is the only one that integrates socialization, specific support tools, and a gradual approach, to guide students step by step, with confidence and motivation.'
-                      : 'The DSA Smart Start method is the only one that combines socialization, specific support tools, and a step-by-step approach, to guide students in their learning journey with confidence and motivation.'
+                      ? 'The Eduway Method is the only one that integrates socialization, specific support tools, and a gradual approach, to guide students step by step, with confidence and motivation.'
+                      : 'The Eduway method is the only one that combines socialization, specific support tools, and a step-by-step approach, to guide students in their learning journey with confidence and motivation.'
                     }
                   </p>
                 </div>
@@ -1278,8 +1278,8 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
             ) : grammarUnits.length > 0 ? (
               /* Grammar Units Display for A1, A2, B1, Kids */
               <div className="space-y-4">
-                <p className="text-gray-500 text-sm mb-6">
-                  This course covers <span className="font-bold text-gray-700">{grammarUnits.length} comprehensive units</span>, each designed with visual learning techniques and dyslexia-friendly materials.
+                <p className="text-gray-400 text-sm mb-6">
+                  This course covers <span className="font-bold text-white">{grammarUnits.length} comprehensive units</span>, each designed with visual learning techniques and dyslexia-friendly materials.
                 </p>
                 
                 {grammarUnits.map((unit, i) => {
@@ -1287,23 +1287,23 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                   const isExpanded = expandedModules.has(unitId);
                   
                   return (
-                    <div key={i} className="bg-white rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-lg hover:shadow-purple-500/5 transition-all duration-300 overflow-hidden">
+                    <div key={i} className="bg-white/5 rounded-[2rem] border border-white/10 shadow-sm hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-300 overflow-hidden">
                       {/* Unit Header - Clickable */}
                       <button 
                         onClick={() => toggleModule(unitId)}
-                        className="w-full p-6 flex items-center justify-between gap-4 text-left hover:bg-gray-50/50 transition-colors"
+                        className="w-full p-6 flex items-center justify-between gap-4 text-left hover:bg-white/5 transition-colors"
                       >
                         <div className="flex items-center gap-4">
                           <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${config.color} flex items-center justify-center text-white font-black text-lg shadow-lg`}>
                             {i + 1}
                           </div>
                           <div>
-                            <h5 className="text-lg font-black text-gray-900 tracking-tight">{unit.title}</h5>
-                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{(unit.topics || []).length} Topics</span>
+                            <h5 className="text-lg font-black text-white tracking-tight">{unit.title}</h5>
+                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">{(unit.topics || []).length} Topics</span>
                           </div>
                         </div>
-                        <div className={`w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
-                          <ChevronDown size={20} className="text-gray-500" />
+                        <div className={`w-10 h-10 rounded-full bg-white/5 flex items-center justify-center transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
+                          <ChevronDown size={20} className="text-gray-400" />
                         </div>
                       </button>
                       
@@ -1312,9 +1312,9 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                         <div className="px-6 pb-6 pt-0">
                           <div className="pl-16 space-y-2">
                             {(unit.topics || []).map((topic, j) => (
-                              <div key={j} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                                <CheckCircle2 size={16} className="text-green-500 flex-shrink-0" />
-                                <span className="text-sm font-medium text-gray-700">{topic}</span>
+                              <div key={j} className="flex items-center gap-3 p-3 bg-white/5 rounded-xl">
+                                <CheckCircle2 size={16} className="text-green-400 flex-shrink-0" />
+                                <span className="text-sm font-medium text-gray-300">{topic}</span>
                               </div>
                             ))}
                           </div>
@@ -1325,10 +1325,10 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                 })}
               </div>
             ) : modules.length === 0 ? (
-              <div className="bg-gray-50 rounded-[3rem] p-12 text-center">
-                <BookOpen size={48} className="text-gray-300 mx-auto mb-4" />
-                <h4 className="text-xl font-black text-gray-900 mb-2">Content Coming Soon</h4>
-                <p className="text-gray-500">This course is being developed. Check back soon for the full curriculum!</p>
+              <div className="bg-white/5 rounded-[3rem] p-12 text-center border border-white/10">
+                <BookOpen size={48} className="text-gray-500 mx-auto mb-4" />
+                <h4 className="text-xl font-black text-white mb-2">Content Coming Soon</h4>
+                <p className="text-gray-400">This course is being developed. Check back soon for the full curriculum!</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -1342,7 +1342,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                         setExpandedModules(new Set(modules.map(m => m.id)));
                       }
                     }}
-                    className="text-[10px] font-black uppercase tracking-widest text-[#AB8FFF] hover:text-purple-700 transition-colors"
+                    className="text-[10px] font-black uppercase tracking-widest text-[#AB8FFF] hover:text-purple-300 transition-colors"
                   >
                     {expandedModules.size === modules.length ? 'Collapse All' : 'Expand All'}
                   </button>
@@ -1354,28 +1354,28 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                   const totalModuleDuration = (module.lessons || []).reduce((sum, l) => sum + (parseInt(l.duration) || 0), 0);
                   
                   return (
-                    <div key={module.id} className="bg-white rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-lg hover:shadow-purple-500/5 transition-all duration-300 overflow-hidden">
+                    <div key={module.id} className="bg-white/5 rounded-[2rem] border border-white/10 shadow-sm hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-300 overflow-hidden">
                       {/* Module Header - Clickable */}
                       <button 
                         onClick={() => toggleModule(module.id)}
-                        className="w-full p-6 md:p-8 flex items-center justify-between gap-4 text-left hover:bg-gray-50/50 transition-colors"
+                        className="w-full p-6 md:p-8 flex items-center justify-between gap-4 text-left hover:bg-white/5 transition-colors"
                       >
                         <div className="flex items-center gap-4">
                           <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${config.color} flex items-center justify-center text-white font-black text-lg shadow-lg`}>
                             {i + 1}
                           </div>
                           <div>
-                            <h5 className="text-lg md:text-xl font-black text-gray-900 tracking-tight">{module.title}</h5>
+                            <h5 className="text-lg md:text-xl font-black text-white tracking-tight">{module.title}</h5>
                             <div className="flex items-center gap-4 mt-1">
-                              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{lessonCount} Lessons</span>
+                              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">{lessonCount} Lessons</span>
                               {totalModuleDuration > 0 && (
-                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{totalModuleDuration} min</span>
+                                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">{totalModuleDuration} min</span>
                               )}
                             </div>
                           </div>
                         </div>
-                        <div className={`w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
-                          <ChevronDown size={20} className="text-gray-500" />
+                        <div className={`w-10 h-10 rounded-full bg-white/5 flex items-center justify-center transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
+                          <ChevronDown size={20} className="text-gray-400" />
                         </div>
                       </button>
                       
@@ -1383,36 +1383,36 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                       <div className={`transition-all duration-300 ease-in-out ${isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
                         <div className="px-6 md:px-8 pb-6 md:pb-8 pt-0">
                           {module.description && (
-                            <p className="text-gray-500 text-sm mb-6 pl-16">{module.description}</p>
+                            <p className="text-gray-400 text-sm mb-6 pl-16">{module.description}</p>
                           )}
                           
                           <div className="pl-16 space-y-3">
                             {(module.lessons || []).map((lesson, j) => (
-                              <div key={lesson.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl group hover:bg-purple-50 transition-colors">
+                              <div key={lesson.id} className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl group hover:bg-purple-500/10 transition-colors">
                                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                                  lesson.type === 'video' ? 'bg-purple-100 text-purple-600' :
-                                  lesson.type === 'reading' ? 'bg-blue-100 text-blue-600' :
-                                  'bg-green-100 text-green-600'
+                                  lesson.type === 'video' ? 'bg-purple-500/20 text-purple-400' :
+                                  lesson.type === 'reading' ? 'bg-blue-500/20 text-blue-400' :
+                                  'bg-green-500/20 text-green-400'
                                 }`}>
                                   {lesson.type === 'video' && <Play size={18} />}
                                   {lesson.type === 'reading' && <FileText size={18} />}
                                   {lesson.type === 'quiz' && <Target size={18} />}
                                 </div>
                                 <div className="flex-1">
-                                  <span className="text-sm font-bold text-gray-700 block">{lesson.title}</span>
-                                  <span className="text-xs text-gray-400">{lesson.type.charAt(0).toUpperCase() + lesson.type.slice(1)} • {lesson.duration}</span>
+                                  <span className="text-sm font-bold text-gray-300 block">{lesson.title}</span>
+                                  <span className="text-xs text-gray-500">{lesson.type.charAt(0).toUpperCase() + lesson.type.slice(1)} • {lesson.duration}</span>
                                 </div>
-                                <Lock size={14} className="text-gray-300 group-hover:text-purple-300" />
+                                <Lock size={14} className="text-gray-500 group-hover:text-purple-400" />
                               </div>
                             ))}
                             
                             {(module.homework?.length || 0) > 0 && (
-                              <div className="mt-4 pt-4 border-t border-gray-100">
-                                <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-3">Practice & Homework</span>
+                              <div className="mt-4 pt-4 border-t border-white/10">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 block mb-3">Practice & Homework</span>
                                 {(module.homework || []).map((hw) => (
-                                  <div key={hw.id} className="flex items-center gap-3 p-3 bg-amber-50 rounded-xl mb-2">
-                                    <FileText size={16} className="text-amber-600" />
-                                    <span className="text-sm font-medium text-gray-700">{hw.title}</span>
+                                  <div key={hw.id} className="flex items-center gap-3 p-3 bg-amber-500/10 rounded-xl mb-2">
+                                    <FileText size={16} className="text-amber-400" />
+                                    <span className="text-sm font-medium text-gray-300">{hw.title}</span>
                                   </div>
                                 ))}
                               </div>
@@ -1427,18 +1427,18 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
             )}
 
             {/* BOTTOM CTAs FOR THE SYLLABUS PAGE */}
-            <div className="mt-20 p-12 bg-gradient-to-br from-purple-50 via-white to-pink-50 rounded-[4rem] border border-purple-100 text-center animate-reveal relative overflow-hidden">
+            <div className="mt-20 p-12 bg-white/5 rounded-[4rem] border border-white/10 text-center animate-reveal relative overflow-hidden">
                {/* Decorative elements */}
-               <div className="absolute top-0 right-0 w-32 h-32 bg-[#FFC1F2] rounded-full blur-[60px] opacity-40"></div>
-               <div className="absolute bottom-0 left-0 w-24 h-24 bg-[#AB8FFF] rounded-full blur-[50px] opacity-30"></div>
+               <div className="absolute top-0 right-0 w-32 h-32 bg-[#FFC1F2] rounded-full blur-[60px] opacity-15 mix-blend-screen"></div>
+               <div className="absolute bottom-0 left-0 w-24 h-24 bg-[#AB8FFF] rounded-full blur-[50px] opacity-20 mix-blend-screen"></div>
                
                <div className="relative z-10">
-                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-purple-100 mb-6">
+                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/10 mb-6">
                    <Rocket size={16} className="text-[#AB8FFF]" />
-                   <span className="text-[10px] font-black uppercase tracking-widest text-gray-600">Start Your Transformation</span>
+                   <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Start Your Transformation</span>
                  </div>
-                 <h4 className="text-3xl font-black text-gray-900 mb-4 tracking-tight">Ready to unlock your potential?</h4>
-                 <p className="text-gray-500 mb-10 font-medium max-w-lg mx-auto">
+                 <h4 className="text-3xl font-black text-white mb-4 tracking-tight">Ready to unlock your potential?</h4>
+                 <p className="text-gray-400 mb-10 font-medium max-w-lg mx-auto">
                    Join hundreds of students who've discovered a better way to learn. Your journey to confidence starts with a single step.
                  </p>
                  <div className="flex flex-col sm:flex-row justify-center gap-4">
@@ -1454,14 +1454,14 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                       disabled={isAddingToCart}
                       className={`flex items-center justify-center gap-3 px-8 py-5 rounded-full text-[10px] font-black uppercase tracking-widest border-2 transition-all ${
                         isInCart 
-                          ? 'bg-green-50 border-green-500 text-green-600' 
+                          ? 'bg-green-500/10 border-green-500 text-green-400' 
                           : isAddingToCart
-                            ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
-                            : 'bg-white border-gray-200 text-gray-500 hover:border-purple-300 hover:text-purple-600'
+                            ? 'bg-white/5 border-white/10 text-gray-500 cursor-not-allowed'
+                            : 'bg-white/5 border-white/10 text-gray-400 hover:border-purple-500/50 hover:text-purple-400'
                       }`}
                     >
                       {isAddingToCart ? (
-                        <><div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" /> Adding...</>
+                        <><div className="w-4 h-4 border-2 border-gray-500 border-t-gray-300 rounded-full animate-spin" /> Adding...</>
                       ) : isInCart ? (
                         <><Check size={18} /> Added to Cart</>
                       ) : (
@@ -1471,16 +1471,16 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                  </div>
                  
                  {/* Trust row */}
-                 <div className="flex flex-wrap items-center justify-center gap-6 mt-10 pt-8 border-t border-gray-100">
-                   <div className="flex items-center gap-2 text-gray-400 text-[10px] font-bold">
+                 <div className="flex flex-wrap items-center justify-center gap-6 mt-10 pt-8 border-t border-white/10">
+                   <div className="flex items-center gap-2 text-gray-500 text-[10px] font-bold">
                      <Shield size={14} />
                      <span>14-Day Money Back</span>
                    </div>
-                   <div className="flex items-center gap-2 text-gray-400 text-[10px] font-bold">
+                   <div className="flex items-center gap-2 text-gray-500 text-[10px] font-bold">
                      <Lock size={14} />
                      <span>Secure Checkout</span>
                    </div>
-                   <div className="flex items-center gap-2 text-gray-400 text-[10px] font-bold">
+                   <div className="flex items-center gap-2 text-gray-500 text-[10px] font-bold">
                      <Award size={14} />
                      <span>Certificate Included</span>
                    </div>

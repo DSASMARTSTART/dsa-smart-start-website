@@ -120,12 +120,12 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#fff5fd] to-white flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="animate-pulse flex flex-col items-center">
           <div className="w-16 h-16 bg-[#AB8FFF]/20 rounded-full flex items-center justify-center mb-4">
             <FileText size={32} className="text-[#AB8FFF]" />
           </div>
-          <p className="text-gray-500 font-medium">Loading e-book details...</p>
+          <p className="text-gray-400 font-medium">Loading e-book details...</p>
         </div>
       </div>
     );
@@ -133,13 +133,13 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
 
   if (!course) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#fff5fd] to-white flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/20">
             <FileText size={32} className="text-red-400" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">E-book Not Found</h2>
-          <p className="text-gray-500 mb-6">The e-book you're looking for doesn't exist or has been removed.</p>
+          <h2 className="text-2xl font-bold text-white mb-2">E-book Not Found</h2>
+          <p className="text-gray-400 mb-6">The e-book you're looking for doesn't exist or has been removed.</p>
           <button
             onClick={onBack}
             className="inline-flex items-center gap-2 text-[#AB8FFF] font-bold hover:underline"
@@ -167,15 +167,15 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
   const hasDiscount = originalPrice && originalPrice > price;
 
   return (
-    <div className="bg-white min-h-screen">
-      {/* Light Hero - matching CourseSyllabusPage style */}
-      <div className="relative w-full min-h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-[#fff5fd] via-[#fffbfd] to-white">
+    <div className="bg-black min-h-screen">
+      {/* Dark Hero - matching CourseSyllabusPage style */}
+      <div className="relative w-full min-h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-black">
         {/* Background Elements */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           {/* Soft gradient blobs using brand colors */}
-          <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#FFC1F2] rounded-full mix-blend-multiply filter blur-[100px] opacity-30 animate-pulse"></div>
-          <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-[#AB8FFF] rounded-full mix-blend-multiply filter blur-[100px] opacity-20 animate-pulse"></div>
-          <div className="absolute top-[30%] left-[20%] w-[300px] h-[300px] bg-[#FFC1F2] rounded-full mix-blend-multiply filter blur-[80px] opacity-20"></div>
+          <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#FFC1F2] rounded-full mix-blend-screen filter blur-[100px] opacity-15 animate-pulse"></div>
+          <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-[#AB8FFF] rounded-full mix-blend-screen filter blur-[100px] opacity-10 animate-pulse"></div>
+          <div className="absolute top-[30%] left-[20%] w-[300px] h-[300px] bg-[#FFC1F2] rounded-full mix-blend-screen filter blur-[80px] opacity-10"></div>
         </div>
 
         {/* Content */}
@@ -183,9 +183,9 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
           {/* Back Button */}
           <button
             onClick={onBack}
-            className="group flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-[#AB8FFF] transition-colors mb-12"
+            className="group flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-[#AB8FFF] transition-colors mb-12"
           >
-            <div className="w-10 h-10 rounded-full bg-white border border-gray-100 flex items-center justify-center group-hover:border-[#AB8FFF]/30 group-hover:shadow-md transition-all">
+            <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-[#AB8FFF]/30 group-hover:shadow-md transition-all">
               <ArrowLeft size={16} />
             </div>
             Back to Courses
@@ -201,12 +201,12 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
                 </div>
                 <div className="flex flex-col">
                   <span className="text-[10px] font-black uppercase tracking-widest text-[#AB8FFF]">Digital E-book</span>
-                  <span className="text-sm font-bold text-gray-800">{config.label}</span>
+                  <span className="text-sm font-bold text-gray-300">{config.label}</span>
                 </div>
               </div>
 
               {/* Title */}
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-[#1a1c2d] leading-[0.9] tracking-tight">
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white leading-[0.9] tracking-tight">
                 {course.title.split(' ').map((word, i) => (
                   <React.Fragment key={i}>
                     {i === 0 ? (
@@ -217,7 +217,7 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
                         </svg>
                       </span>
                     ) : (
-                      <span className="text-[#1a1c2d]">{word}</span>
+                      <span className="text-white">{word}</span>
                     )}
                     {' '}
                   </React.Fragment>
@@ -225,37 +225,37 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
               </h1>
 
               {/* Description */}
-              <p className="text-lg sm:text-xl font-medium text-gray-600 leading-relaxed max-w-xl">
+              <p className="text-lg sm:text-xl font-medium text-gray-400 leading-relaxed max-w-xl">
                 {course.description || `Comprehensive PDF guide designed for the dyslexic mind. Visual, multisensory learning approach with ${config.label} content.`}
               </p>
 
               {/* Quick Stats */}
               <div className="flex flex-wrap gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-purple-50 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20">
                     <Download size={20} className="text-[#AB8FFF]" />
                   </div>
                   <div>
-                    <p className="text-lg font-black text-gray-900">Instant</p>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Download</p>
+                    <p className="text-lg font-black text-white">Instant</p>
+                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Download</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-pink-50 flex items-center justify-center">
-                    <FileText size={20} className="text-pink-500" />
+                  <div className="w-12 h-12 rounded-2xl bg-pink-500/10 flex items-center justify-center border border-pink-500/20">
+                    <FileText size={20} className="text-pink-400" />
                   </div>
                   <div>
-                    <p className="text-lg font-black text-gray-900">PDF</p>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Format</p>
+                    <p className="text-lg font-black text-white">PDF</p>
+                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Format</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center">
-                    <Shield size={20} className="text-indigo-500" />
+                  <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
+                    <Shield size={20} className="text-indigo-400" />
                   </div>
                   <div>
-                    <p className="text-lg font-black text-gray-900">Lifetime</p>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Access</p>
+                    <p className="text-lg font-black text-white">Lifetime</p>
+                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Access</p>
                   </div>
                 </div>
               </div>
@@ -263,9 +263,9 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
               {/* Price & CTA */}
               <div className="flex flex-wrap items-center gap-6 pt-4">
                 <div className="flex items-baseline gap-3">
-                  <span className="text-4xl sm:text-5xl font-black text-[#1a1c2d]">€{price}</span>
+                  <span className="text-4xl sm:text-5xl font-black text-white">€{price}</span>
                   {hasDiscount && (
-                    <span className="text-xl text-gray-400 line-through decoration-pink-500">€{originalPrice}</span>
+                    <span className="text-xl text-gray-500 line-through decoration-pink-500">€{originalPrice}</span>
                   )}
                 </div>
 
@@ -275,7 +275,7 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
                       onAddToCart(course.id);
                       window.location.hash = '#checkout';
                     }}
-                    className="group flex items-center gap-3 bg-[#AB8FFF] text-white px-8 py-4 rounded-full font-black text-xs uppercase tracking-widest hover:bg-[#9a7eef] transition-all shadow-lg hover:shadow-purple-200 transform hover:scale-105 active:scale-95"
+                    className="group flex items-center gap-3 bg-[#AB8FFF] text-white px-8 py-4 rounded-full font-black text-xs uppercase tracking-widest hover:bg-[#9a7eef] transition-all shadow-lg shadow-purple-500/30 transform hover:scale-105 active:scale-95"
                   >
                     Buy Now
                     <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
@@ -284,8 +284,8 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
                     onClick={() => onAddToCart(course.id)}
                     className={`flex items-center gap-2 px-6 py-4 rounded-full font-black text-xs uppercase tracking-widest transition-all ${
                       isInCart
-                        ? 'bg-green-50 text-green-600 border border-green-200'
-                        : 'bg-white text-gray-600 border border-gray-200 hover:border-[#AB8FFF]/30 hover:shadow-md'
+                        ? 'bg-green-500/10 text-green-400 border border-green-500/30'
+                        : 'bg-white/5 text-gray-300 border border-white/10 hover:border-[#AB8FFF]/30 hover:shadow-md'
                     }`}
                   >
                     {isInCart ? <Check size={16} /> : <ShoppingCart size={16} />}
@@ -308,7 +308,7 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
                     <h3 className="text-2xl font-black text-center mb-2">{course.level}</h3>
                     <p className="text-sm text-white/80 text-center font-medium">Digital E-book</p>
                     <div className="mt-6 px-4 py-2 bg-white/20 rounded-full">
-                      <span className="text-xs font-bold uppercase tracking-wider">DSA Smart Start</span>
+                      <span className="text-xs font-bold uppercase tracking-wider">Eduway</span>
                     </div>
                   </div>
                   {/* Spine Effect */}
@@ -321,11 +321,11 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
                     PDF<br/>Format
                   </span>
                 </div>
-                <div className="absolute -bottom-4 -left-4 bg-white rounded-2xl shadow-lg p-4 flex items-center gap-3 border border-gray-100">
+                <div className="absolute -bottom-4 -left-4 bg-white/5 rounded-2xl shadow-lg p-4 flex items-center gap-3 border border-white/10">
                   <div className="w-10 h-10 rounded-xl bg-[#AB8FFF]/10 flex items-center justify-center">
                     <Download size={18} className="text-[#AB8FFF]" />
                   </div>
-                  <span className="text-sm font-black text-gray-700">Instant Access</span>
+                  <span className="text-sm font-black text-gray-300">Instant Access</span>
                 </div>
               </div>
             </div>
@@ -335,7 +335,7 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
         {/* Wave Separator */}
         <div className="absolute bottom-0 left-0 right-0">
           <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
-            <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0V120Z" fill="white"/>
+            <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0V120Z" fill="black"/>
           </svg>
         </div>
       </div>
@@ -348,74 +348,74 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
             <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${config.color} flex items-center justify-center text-white`}>
               <Sparkles size={24} />
             </div>
-            <h2 className="text-3xl font-black text-gray-900">What's Included</h2>
+            <h2 className="text-3xl font-black text-white">What's Included</h2>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature, idx) => (
-              <div key={idx} className="flex items-start gap-4 p-6 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+              <div key={idx} className="flex items-start gap-4 p-6 bg-white/5 rounded-2xl border border-white/10 shadow-sm hover:shadow-md hover:shadow-purple-500/10 transition-shadow">
                 <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${config.color} flex items-center justify-center text-white flex-shrink-0`}>
                   <CheckCircle2 size={16} />
                 </div>
-                <p className="text-gray-700 font-medium">{feature}</p>
+                <p className="text-gray-300 font-medium">{feature}</p>
               </div>
             ))}
           </div>
         </section>
 
         {/* Device Compatibility */}
-        <section className="mb-16 bg-gradient-to-br from-[#fff5fd] to-purple-50 rounded-3xl p-8 md:p-12">
-          <h2 className="text-2xl font-black text-gray-900 mb-6 text-center">Read on Any Device</h2>
+        <section className="mb-16 bg-white/5 rounded-3xl p-8 md:p-12 border border-white/10">
+          <h2 className="text-2xl font-black text-white mb-6 text-center">Read on Any Device</h2>
           <div className="flex justify-center gap-8 md:gap-16">
             <div className="flex flex-col items-center gap-3">
-              <div className="w-16 h-16 bg-white rounded-2xl shadow-md flex items-center justify-center">
+              <div className="w-16 h-16 bg-white/5 rounded-2xl shadow-md flex items-center justify-center border border-white/10">
                 <Monitor size={28} className="text-[#AB8FFF]" />
               </div>
-              <span className="text-sm font-medium text-gray-600">Computer</span>
+              <span className="text-sm font-medium text-gray-400">Computer</span>
             </div>
             <div className="flex flex-col items-center gap-3">
-              <div className="w-16 h-16 bg-white rounded-2xl shadow-md flex items-center justify-center">
+              <div className="w-16 h-16 bg-white/5 rounded-2xl shadow-md flex items-center justify-center border border-white/10">
                 <Tablet size={28} className="text-[#AB8FFF]" />
               </div>
-              <span className="text-sm font-medium text-gray-600">Tablet</span>
+              <span className="text-sm font-medium text-gray-400">Tablet</span>
             </div>
             <div className="flex flex-col items-center gap-3">
-              <div className="w-16 h-16 bg-white rounded-2xl shadow-md flex items-center justify-center">
+              <div className="w-16 h-16 bg-white/5 rounded-2xl shadow-md flex items-center justify-center border border-white/10">
                 <Smartphone size={28} className="text-[#AB8FFF]" />
               </div>
-              <span className="text-sm font-medium text-gray-600">Phone</span>
+              <span className="text-sm font-medium text-gray-400">Phone</span>
             </div>
           </div>
         </section>
 
         {/* Why Choose This E-book */}
         <section className="mb-16">
-          <h2 className="text-3xl font-black text-gray-900 mb-8 text-center">Why Choose Our E-books?</h2>
+          <h2 className="text-3xl font-black text-white mb-8 text-center">Why Choose Our E-books?</h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center p-6">
-              <div className="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Heart size={28} className="text-pink-500" />
+              <div className="w-16 h-16 bg-pink-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-pink-500/20">
+                <Heart size={28} className="text-pink-400" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Dyslexia-Friendly</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-bold text-white mb-2">Dyslexia-Friendly</h3>
+              <p className="text-gray-400">
                 Specially designed with fonts, colors, and layouts that make reading easier for dyslexic learners.
               </p>
             </div>
             <div className="text-center p-6">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Download size={28} className="text-green-500" />
+              <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-500/20">
+                <Download size={28} className="text-green-400" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Instant Access</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-bold text-white mb-2">Instant Access</h3>
+              <p className="text-gray-400">
                 Download immediately after purchase. No waiting, start learning right away.
               </p>
             </div>
             <div className="text-center p-6">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <RefreshCcw size={28} className="text-blue-500" />
+              <div className="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-500/20">
+                <RefreshCcw size={28} className="text-blue-400" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Lifetime Updates</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-bold text-white mb-2">Lifetime Updates</h3>
+              <p className="text-gray-400">
                 Get free updates whenever we improve the content. Your purchase gives you lifetime access.
               </p>
             </div>

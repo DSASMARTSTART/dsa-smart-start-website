@@ -774,19 +774,19 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
   // Success state
   if (paymentSuccess) {
     return (
-      <div className="min-h-screen bg-[#f8f5ff] flex items-center justify-center px-6 py-20 relative z-[101]">
-        <div className="max-w-2xl w-full bg-white rounded-[4rem] p-12 md:p-20 text-center shadow-2xl animate-reveal">
+      <div className="min-h-screen bg-black flex items-center justify-center px-6 py-20 relative z-[101]">
+        <div className="max-w-2xl w-full bg-white/5 rounded-[4rem] p-12 md:p-20 text-center shadow-2xl border border-white/10 animate-reveal">
           <div className="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center text-white mx-auto mb-10 shadow-xl animate-bounce">
             <CheckCircle2 size={48} />
           </div>
-          <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 tracking-tight">Payment Successful!</h2>
-          <p className="text-gray-500 text-xl mb-12 font-medium">
+          <h2 className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tight">Payment Successful!</h2>
+          <p className="text-gray-400 text-xl mb-12 font-medium">
             Your courses are now unlocked. Welcome to the DSA Smart Start family! 
             A confirmation email has been sent to {customerEmail}.
           </p>
           <button 
             onClick={() => window.location.hash = '#dashboard'}
-            className="group flex items-center gap-3 bg-gray-900 text-white px-10 py-5 rounded-full font-black text-xs tracking-widest transition-all mx-auto uppercase shadow-xl hover:bg-purple-600"
+            className="group flex items-center gap-3 bg-white text-gray-900 px-10 py-5 rounded-full font-black text-xs tracking-widest transition-all mx-auto uppercase shadow-xl hover:bg-purple-600 hover:text-white"
           >
             Go to My Courses
             <ChevronRight size={18} />
@@ -800,7 +800,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
   const paymentNotConfigured = !isPaymentConfigured();
 
   return (
-    <div className="bg-white min-h-screen pt-32 pb-20 relative">
+    <div className="bg-black min-h-screen pt-32 pb-20 relative">
       {/* Screen reader announcements - visually hidden live region */}
       <div
         role="status"
@@ -818,7 +818,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
       <section className="relative z-10 max-w-7xl mx-auto px-6">
         <button 
           onClick={(e) => { e.preventDefault(); onBack(); }}
-          className="group flex items-center gap-2 text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-gray-400 hover:text-purple-600 transition-all mb-8 sm:mb-12 bg-white/50 backdrop-blur-sm px-4 sm:px-6 py-3 sm:py-3 rounded-full border border-gray-100 shadow-sm relative z-50 pointer-events-auto min-h-[44px]"
+          className="group flex items-center gap-2 text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-gray-400 hover:text-purple-400 transition-all mb-8 sm:mb-12 bg-white/5 backdrop-blur-sm px-4 sm:px-6 py-3 sm:py-3 rounded-full border border-white/10 shadow-sm relative z-50 pointer-events-auto min-h-[44px]"
         >
           <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
           <span className="hidden sm:inline">Go back to previous page</span>
@@ -829,20 +829,20 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
           {/* Left Column: Form or Empty State */}
           <div className="lg:col-span-7 animate-reveal">
             {cartItems.length === 0 ? (
-              <div className="bg-white p-8 sm:p-12 md:p-24 rounded-[2rem] sm:rounded-[4rem] border border-dashed border-gray-200 text-center">
-                <div className="w-16 sm:w-20 h-16 sm:h-20 bg-purple-50 rounded-full flex items-center justify-center text-purple-400 mx-auto mb-6 sm:mb-8">
+              <div className="bg-white/5 p-8 sm:p-12 md:p-24 rounded-[2rem] sm:rounded-[4rem] border border-dashed border-white/20 text-center">
+                <div className="w-16 sm:w-20 h-16 sm:h-20 bg-purple-500/10 rounded-full flex items-center justify-center text-purple-400 mx-auto mb-6 sm:mb-8">
                   <ShoppingCart size={32} className="sm:hidden" />
                   <ShoppingCart size={40} className="hidden sm:block" />
                 </div>
-                <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-3 sm:mb-4 uppercase tracking-tight">Your cart is empty</h2>
-                <p className="text-gray-500 mb-6 font-medium text-sm sm:text-base">
+                <h2 className="text-2xl sm:text-3xl font-black text-white mb-3 sm:mb-4 uppercase tracking-tight">Your cart is empty</h2>
+                <p className="text-gray-400 mb-6 font-medium text-sm sm:text-base">
                   Start your learning journey today! Browse our courses designed specifically for students with learning differences.
                 </p>
                 
                 {/* Quick suggestions */}
-                <div className="bg-gray-50 rounded-2xl p-4 sm:p-6 mb-8 text-left">
-                  <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">Popular choices:</p>
-                  <ul className="space-y-2 text-sm text-gray-600">
+                <div className="bg-white/5 rounded-2xl p-4 sm:p-6 mb-8 text-left border border-white/10">
+                  <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3">Popular choices:</p>
+                  <ul className="space-y-2 text-sm text-gray-400">
                     <li className="flex items-center gap-2">
                       <span className="w-2 h-2 bg-purple-400 rounded-full"></span>
                       Interactive A1-B1 English Courses
@@ -860,33 +860,33 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                 
                 <button 
                   onClick={onBrowse}
-                  className="bg-purple-600 text-white px-8 sm:px-12 py-4 sm:py-5 rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-all shadow-xl shadow-purple-200 min-h-[48px]"
+                  className="bg-purple-600 text-white px-8 sm:px-12 py-4 sm:py-5 rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-all shadow-xl shadow-purple-500/20 min-h-[48px]"
                 >
                   Browse Courses
                 </button>
               </div>
             ) : paymentNotConfigured ? (
               // Payment not configured notice
-              <div className="bg-white p-12 md:p-16 rounded-[4rem] border border-amber-200 text-center">
-                <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 mx-auto mb-8">
+              <div className="bg-white/5 p-12 md:p-16 rounded-[4rem] border border-amber-500/30 text-center">
+                <div className="w-20 h-20 bg-amber-500/10 rounded-full flex items-center justify-center text-amber-500 mx-auto mb-8">
                   <AlertCircle size={40} />
                 </div>
-                <h2 className="text-3xl font-black text-gray-900 mb-4 uppercase tracking-tight">Payment Setup Required</h2>
-                <p className="text-gray-500 mb-6 font-medium">
+                <h2 className="text-3xl font-black text-white mb-4 uppercase tracking-tight">Payment Setup Required</h2>
+                <p className="text-gray-400 mb-6 font-medium">
                   Payment processing is not yet configured. Please contact us to complete your enrollment.
                 </p>
-                <div className="bg-gray-50 rounded-3xl p-6 text-left mb-8">
-                  <p className="text-sm text-gray-600 mb-2"><strong>Your courses:</strong></p>
-                  <ul className="text-sm text-gray-500 list-disc list-inside">
+                <div className="bg-white/5 rounded-3xl p-6 text-left mb-8 border border-white/10">
+                  <p className="text-sm text-gray-300 mb-2"><strong>Your courses:</strong></p>
+                  <ul className="text-sm text-gray-400 list-disc list-inside">
                     {cartItems.map(item => (
                       <li key={item.id}>{item.name} - €{item.price.toFixed(2)}</li>
                     ))}
                   </ul>
-                  <p className="text-sm font-bold text-gray-800 mt-4">Total: €{total.toFixed(2)}</p>
+                  <p className="text-sm font-bold text-white mt-4">Total: €{total.toFixed(2)}</p>
                 </div>
                 <button 
                   onClick={() => window.location.hash = '#contact'}
-                  className="bg-purple-600 text-white px-12 py-5 rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-all shadow-xl"
+                  className="bg-purple-600 text-white px-12 py-5 rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-all shadow-xl shadow-purple-500/20"
                 >
                   Contact Us to Enroll
                 </button>
@@ -894,32 +894,32 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
             ) : (
               <div className="space-y-8">
                 <div className="flex items-center gap-4 mb-2">
-                  <div className="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center text-white shadow-lg">
+                  <div className="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-purple-500/30">
                     <CreditCard size={24} />
                   </div>
-                  <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter uppercase">Checkout</h1>
+                  <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase">Checkout</h1>
                 </div>
 
                 {/* Error message */}
                 {error && (
-                  <div className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3">
-                    <AlertCircle className="text-red-500 flex-shrink-0 mt-0.5" size={20} />
-                    <p className="text-red-700 text-sm font-medium">{error}</p>
+                  <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-2xl flex items-start gap-3">
+                    <AlertCircle className="text-red-400 flex-shrink-0 mt-0.5" size={20} />
+                    <p className="text-red-400 text-sm font-medium">{error}</p>
                   </div>
                 )}
 
                 {/* Session Timeout Warning */}
                 {sessionWarning.show && (
-                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-center justify-between gap-4 animate-pulse">
+                  <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center justify-between gap-4 animate-pulse">
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
-                        <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="w-10 h-10 bg-amber-500/20 rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg className="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                       </div>
                       <div>
-                        <p className="text-amber-800 font-bold text-sm">Session expiring soon</p>
-                        <p className="text-amber-600 text-xs mt-0.5">
+                        <p className="text-amber-400 font-bold text-sm">Session expiring soon</p>
+                        <p className="text-amber-500/80 text-xs mt-0.5">
                           Your checkout session will expire in {sessionWarning.minutesLeft} minute{sessionWarning.minutesLeft !== 1 ? 's' : ''}. 
                           Please complete your purchase.
                         </p>
@@ -935,14 +935,14 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                 )}
 
                 {/* Student Info */}
-                <div className="bg-white p-6 sm:p-10 md:p-14 rounded-[2rem] sm:rounded-[3.5rem] border border-gray-100 shadow-xl">
-                  <h3 className="text-lg sm:text-xl font-black text-gray-900 mb-6 sm:mb-8 uppercase tracking-tight flex items-center gap-3">
-                    <User size={20} className="text-purple-500" />
+                <div className="bg-white/5 p-6 sm:p-10 md:p-14 rounded-[2rem] sm:rounded-[3.5rem] border border-white/10 shadow-xl">
+                  <h3 className="text-lg sm:text-xl font-black text-white mb-6 sm:mb-8 uppercase tracking-tight flex items-center gap-3">
+                    <User size={20} className="text-purple-400" />
                     Student Information
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     <div className="flex flex-col gap-2">
-                      <label htmlFor="checkout-name" className="text-[10px] font-black uppercase tracking-widest text-gray-600 ml-4">Full Name</label>
+                      <label htmlFor="checkout-name" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Full Name</label>
                       <input 
                         id="checkout-name"
                         required 
@@ -950,11 +950,11 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                         placeholder="Your Name" 
                         value={customerName}
                         onChange={(e) => setCustomerName(e.target.value)}
-                        className="w-full px-5 sm:px-8 py-4 sm:py-5 rounded-2xl sm:rounded-[2rem] bg-gray-50 border border-transparent focus:bg-white focus:border-purple-600 outline-none transition-all font-bold text-base" 
+                        className="w-full px-5 sm:px-8 py-4 sm:py-5 rounded-2xl sm:rounded-[2rem] bg-white/5 border border-white/10 focus:bg-white/10 focus:border-purple-500 outline-none transition-all font-bold text-base text-white placeholder:text-gray-500" 
                       />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label htmlFor="checkout-email" className="text-[10px] font-black uppercase tracking-widest text-gray-600 ml-4">Email Address</label>
+                      <label htmlFor="checkout-email" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Email Address</label>
                       <input 
                         id="checkout-email"
                         required 
@@ -965,14 +965,14 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                         onBlur={() => setEmailTouched(true)}
                         aria-invalid={emailError && emailTouched ? 'true' : 'false'}
                         aria-describedby={emailError && emailTouched ? 'checkout-email-error' : undefined}
-                        className={`w-full px-5 sm:px-8 py-4 sm:py-5 rounded-2xl sm:rounded-[2rem] bg-gray-50 border outline-none transition-all font-bold text-base ${
+                        className={`w-full px-5 sm:px-8 py-4 sm:py-5 rounded-2xl sm:rounded-[2rem] bg-white/5 border outline-none transition-all font-bold text-base text-white placeholder:text-gray-500 ${
                           emailError && emailTouched
-                            ? 'border-red-400 bg-red-50 focus:border-red-500'
-                            : 'border-transparent focus:bg-white focus:border-purple-600'
+                            ? 'border-red-400 bg-red-500/10 focus:border-red-500'
+                            : 'border-white/10 focus:bg-white/10 focus:border-purple-500'
                         }`}
                       />
                       {emailError && emailTouched && (
-                        <p id="checkout-email-error" className="text-red-500 text-xs font-medium ml-4 flex items-center gap-1" role="alert">
+                        <p id="checkout-email-error" className="text-red-400 text-xs font-medium ml-4 flex items-center gap-1" role="alert">
                           <AlertCircle size={12} />
                           {emailError}
                         </p>
@@ -982,12 +982,12 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                 </div>
 
                 {/* Payment Method Selection */}
-                <div className="bg-white p-10 md:p-14 rounded-[3.5rem] border border-gray-100 shadow-xl relative overflow-hidden">
+                <div className="bg-white/5 p-10 md:p-14 rounded-[3.5rem] border border-white/10 shadow-xl relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-8">
                     <ShieldCheck size={40} className="text-green-500/20" />
                   </div>
-                  <h3 className="text-lg sm:text-xl font-black text-gray-900 mb-6 sm:mb-8 uppercase tracking-tight flex items-center gap-3">
-                    <Lock size={20} className="text-purple-500" />
+                  <h3 className="text-lg sm:text-xl font-black text-white mb-6 sm:mb-8 uppercase tracking-tight flex items-center gap-3">
+                    <Lock size={20} className="text-purple-400" />
                     Payment Method
                   </h3>
 
@@ -999,19 +999,19 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                         onClick={() => setSelectedPaymentMethod('card')}
                         className={`w-full p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-2 transition-all flex items-center gap-3 sm:gap-4 min-h-[72px] ${
                           selectedPaymentMethod === 'card' 
-                            ? 'border-purple-600 bg-purple-50' 
-                            : 'border-gray-200 hover:border-gray-300'
+                            ? 'border-purple-500 bg-purple-500/10' 
+                            : 'border-white/10 hover:border-white/20 bg-white/5'
                         }`}
                       >
                         <div className={`w-10 sm:w-12 h-10 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 ${
-                          selectedPaymentMethod === 'card' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-500'
+                          selectedPaymentMethod === 'card' ? 'bg-purple-600 text-white' : 'bg-white/10 text-gray-400'
                         }`}>
                           <CreditCard size={20} className="sm:hidden" />
                           <CreditCard size={24} className="hidden sm:block" />
                         </div>
                         <div className="text-left flex-grow min-w-0">
-                          <p className="font-black text-gray-900 uppercase tracking-wide text-xs sm:text-sm">Credit / Debit Card</p>
-                          <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5 sm:mt-1 truncate">Secure payment via Raiffeisen Bank</p>
+                          <p className="font-black text-white uppercase tracking-wide text-xs sm:text-sm">Credit / Debit Card</p>
+                          <p className="text-[10px] sm:text-xs text-gray-400 mt-0.5 sm:mt-1 truncate">Secure payment via Raiffeisen Bank</p>
                         </div>
                         <div className="hidden sm:flex items-center gap-2 shrink-0">
                           <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/200px-Visa_Inc._logo.svg.png" alt="Visa" className="h-5 sm:h-6 object-contain" />
@@ -1027,19 +1027,19 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                         onClick={() => setSelectedPaymentMethod('paypal')}
                         className={`w-full p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-2 transition-all flex items-center gap-3 sm:gap-4 min-h-[72px] ${
                           selectedPaymentMethod === 'paypal' 
-                            ? 'border-purple-600 bg-purple-50' 
-                            : 'border-gray-200 hover:border-gray-300'
+                            ? 'border-purple-500 bg-purple-500/10' 
+                            : 'border-white/10 hover:border-white/20 bg-white/5'
                         }`}
                       >
                         <div className={`w-10 sm:w-12 h-10 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 ${
-                          selectedPaymentMethod === 'paypal' ? 'bg-[#003087] text-white' : 'bg-gray-100 text-gray-500'
+                          selectedPaymentMethod === 'paypal' ? 'bg-[#003087] text-white' : 'bg-white/10 text-gray-400'
                         }`}>
                           <Wallet size={20} className="sm:hidden" />
                           <Wallet size={24} className="hidden sm:block" />
                         </div>
                         <div className="text-left flex-grow min-w-0">
-                          <p className="font-black text-gray-900 uppercase tracking-wide text-xs sm:text-sm">PayPal</p>
-                          <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5 sm:mt-1">Pay securely with your PayPal account</p>
+                          <p className="font-black text-white uppercase tracking-wide text-xs sm:text-sm">PayPal</p>
+                          <p className="text-[10px] sm:text-xs text-gray-400 mt-0.5 sm:mt-1">Pay securely with your PayPal account</p>
                         </div>
                         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/200px-PayPal.svg.png" alt="PayPal" className="h-5 sm:h-6 object-contain shrink-0" />
                       </button>
@@ -1051,11 +1051,11 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                     <div className="mt-8">
                       {/* Terms Checkbox for PayPal */}
                       <div className="mb-6">
-                        <label className={`flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl border transition-all cursor-pointer hover:bg-gray-50 ${
-                          termsError ? 'border-red-300 bg-red-50/50' : 'border-gray-200'
+                        <label className={`flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl border transition-all cursor-pointer hover:bg-white/5 ${
+                          termsError ? 'border-red-500/30 bg-red-500/10' : 'border-white/10'
                         }`}>
                           <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-colors mt-0.5 ${
-                            termsAccepted ? 'bg-purple-600 border-purple-600' : 'border-gray-300'
+                            termsAccepted ? 'bg-purple-600 border-purple-600' : 'border-gray-500'
                           }`}>
                             {termsAccepted && <Check size={14} className="text-white" />}
                           </div>
@@ -1068,19 +1068,19 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                             }}
                             className="sr-only"
                           />
-                          <div className="text-sm text-gray-600 leading-relaxed max-w-[90%]">
-                            I accept the <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-purple-600 font-bold hover:underline" onClick={(e) => e.stopPropagation()}>Terms & Conditions</a> and <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-purple-600 font-bold hover:underline" onClick={(e) => e.stopPropagation()}>Privacy Policy</a>
+                          <div className="text-sm text-gray-400 leading-relaxed max-w-[90%]">
+                            I accept the <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-purple-400 font-bold hover:underline" onClick={(e) => e.stopPropagation()}>Terms & Conditions</a> and <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-purple-400 font-bold hover:underline" onClick={(e) => e.stopPropagation()}>Privacy Policy</a>
                           </div>
                         </label>
-                        {termsError && <p className="text-red-500 text-xs font-bold mt-2 ml-2">You must accept the terms to continue</p>}
+                        {termsError && <p className="text-red-400 text-xs font-bold mt-2 ml-2">You must accept the terms to continue</p>}
                       </div>
 
                       {paypalLoaded ? (
                         <div ref={paypalContainerRef} className="paypal-button-container" />
                       ) : (
                         <div className="flex items-center justify-center p-8">
-                          <Loader2 className="animate-spin text-purple-600" size={32} />
-                          <span className="ml-3 text-gray-500">Loading PayPal...</span>
+                          <Loader2 className="animate-spin text-purple-400" size={32} />
+                          <span className="ml-3 text-gray-400">Loading PayPal...</span>
                         </div>
                       )}
                     </div>
@@ -1089,8 +1089,8 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                   {/* Card Payment Form - Redirects to Raiffeisen */}
                   {selectedPaymentMethod === 'card' && (
                     <div className="mt-8">
-                      <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6">
-                        <p className="text-sm text-blue-800">
+                      <div className="bg-blue-500/10 border border-blue-500/30 rounded-2xl p-4 mb-6">
+                        <p className="text-sm text-blue-300">
                           <Building2 className="inline mr-2" size={16} />
                           You will be redirected to Raiffeisen Bank's secure payment page to enter your card details.
                         </p>
@@ -1098,11 +1098,11 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
 
                       {/* Terms Checkbox */}
                       <div className="mb-6">
-                        <label className={`flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl border transition-all cursor-pointer hover:bg-gray-50 ${
-                          termsError ? 'border-red-300 bg-red-50/50' : 'border-gray-200'
+                        <label className={`flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl border transition-all cursor-pointer hover:bg-white/5 ${
+                          termsError ? 'border-red-500/30 bg-red-500/10' : 'border-white/10'
                         }`}>
                           <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-colors mt-0.5 ${
-                            termsAccepted ? 'bg-purple-600 border-purple-600' : 'border-gray-300'
+                            termsAccepted ? 'bg-purple-600 border-purple-600' : 'border-gray-500'
                           }`}>
                             {termsAccepted && <Check size={14} className="text-white" />}
                           </div>
@@ -1115,11 +1115,11 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                             }}
                             className="sr-only"
                           />
-                          <div className="text-sm text-gray-600 leading-relaxed max-w-[90%]">
-                            I accept the <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-purple-600 font-bold hover:underline" onClick={(e) => e.stopPropagation()}>Terms & Conditions</a> and <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-purple-600 font-bold hover:underline" onClick={(e) => e.stopPropagation()}>Privacy Policy</a>
+                          <div className="text-sm text-gray-400 leading-relaxed max-w-[90%]">
+                            I accept the <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-purple-400 font-bold hover:underline" onClick={(e) => e.stopPropagation()}>Terms & Conditions</a> and <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-purple-400 font-bold hover:underline" onClick={(e) => e.stopPropagation()}>Privacy Policy</a>
                           </div>
                         </label>
-                        {termsError && <p className="text-red-500 text-xs font-bold mt-2 ml-2">You must accept the terms to continue</p>}
+                        {termsError && <p className="text-red-400 text-xs font-bold mt-2 ml-2">You must accept the terms to continue</p>}
                       </div>
 
                       <button 
@@ -1365,7 +1365,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                 </div>
               </div>
 
-              <div className="bg-white p-8 rounded-[3rem] border border-gray-100 shadow-xl">
+              <div className="bg-white/5 p-8 rounded-[3rem] border border-white/10 shadow-xl">
                 <div className="space-y-4">
                   {[
                     "Lifetime course updates",
@@ -1374,19 +1374,19 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                     "Satisfaction guarantee"
                   ].map((item, i) => (
                     <div key={i} className="flex items-center gap-3">
-                      <CheckCircle2 size={16} className="text-purple-500" />
-                      <span className="text-[11px] font-bold text-gray-600 uppercase tracking-widest">{item}</span>
+                      <CheckCircle2 size={16} className="text-purple-400" />
+                      <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">{item}</span>
                     </div>
                   ))}
                 </div>
                 
                 {/* Email confirmation note */}
                 {customerEmail && (
-                  <div className="mt-6 pt-4 border-t border-gray-100">
+                  <div className="mt-6 pt-4 border-t border-white/10">
                     <div className="flex items-start gap-3 text-gray-500">
                       <Mail size={16} className="mt-0.5 flex-shrink-0" />
                       <p className="text-xs">
-                        Order confirmation will be sent to <strong className="text-gray-700">{customerEmail}</strong>
+                        Order confirmation will be sent to <strong className="text-gray-300">{customerEmail}</strong>
                       </p>
                     </div>
                   </div>

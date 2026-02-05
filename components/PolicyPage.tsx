@@ -104,12 +104,12 @@ const PolicyPage: React.FC<PolicyPageProps> = ({ type, onBack }) => {
   const Icon = policy.icon;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white pt-32 pb-20 px-6">
+    <div className="min-h-screen bg-black pt-32 pb-20 px-6">
       <div className="max-w-4xl mx-auto">
         {/* Back Button */}
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-gray-600 hover:text-purple-600 mb-8 font-medium transition-colors"
+          className="flex items-center gap-2 text-gray-400 hover:text-purple-400 mb-8 font-medium transition-colors"
         >
           <ArrowLeft size={20} />
           Back to Home
@@ -117,10 +117,10 @@ const PolicyPage: React.FC<PolicyPageProps> = ({ type, onBack }) => {
 
         {/* Header */}
         <div className="text-center mb-16">
-          <div className="w-20 h-20 bg-purple-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
-            <Icon size={40} className="text-purple-600" />
+          <div className="w-20 h-20 bg-purple-500/10 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-purple-500/20">
+            <Icon size={40} className="text-purple-400" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-4 tracking-tight">
+          <h1 className="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight">
             {policy.title}
           </h1>
           <p className="text-gray-500 font-medium">
@@ -129,14 +129,14 @@ const PolicyPage: React.FC<PolicyPageProps> = ({ type, onBack }) => {
         </div>
 
         {/* Content */}
-        <div className="bg-white rounded-3xl shadow-xl shadow-purple-100/50 p-8 md:p-12">
+        <div className="bg-white/5 rounded-3xl shadow-xl shadow-purple-500/10 p-8 md:p-12 border border-white/10">
           <div className="space-y-10">
             {policy.content.map((section, index) => (
               <div key={index}>
-                <h2 className="text-xl font-bold text-gray-900 mb-4">
+                <h2 className="text-xl font-bold text-white mb-4">
                   {section.heading}
                 </h2>
-                <p className="text-gray-600 leading-relaxed whitespace-pre-line">
+                <p className="text-gray-400 leading-relaxed whitespace-pre-line">
                   {section.text}
                 </p>
               </div>
@@ -149,7 +149,7 @@ const PolicyPage: React.FC<PolicyPageProps> = ({ type, onBack }) => {
           <p className="text-gray-500 mb-4">Have questions about this policy?</p>
           <a
             href="mailto:dsa.smart.start@gmail.com"
-            className="inline-flex items-center gap-2 text-purple-600 font-bold hover:text-purple-700 transition-colors"
+            className="inline-flex items-center gap-2 text-purple-400 font-bold hover:text-purple-300 transition-colors"
           >
             Contact us at dsa.smart.start@gmail.com
           </a>

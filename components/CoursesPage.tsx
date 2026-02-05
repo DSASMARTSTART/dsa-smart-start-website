@@ -18,15 +18,15 @@ const TabNavigation: React.FC<{ activeTab: CatalogTab; onTabChange: (tab: Catalo
   ];
 
   return (
-    <div className="flex items-center justify-center gap-2 p-2 bg-gray-100/80 backdrop-blur-sm rounded-full shadow-inner">
+    <div className="flex items-center justify-center gap-2 p-2 bg-white/10 backdrop-blur-sm rounded-full shadow-inner border border-white/10">
       {tabs.map((tab) => (
         <button
           key={tab.id}
           onClick={() => onTabChange(tab.id)}
           className={`flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm transition-all duration-300 ${
             activeTab === tab.id
-              ? 'bg-gradient-to-r from-[#AB8FFF] to-purple-600 text-white shadow-lg shadow-purple-200 scale-105'
-              : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+              ? 'bg-gradient-to-r from-[#AB8FFF] to-purple-600 text-white shadow-lg shadow-purple-500/30 scale-105'
+              : 'text-gray-400 hover:text-white hover:bg-white/10'
           }`}
         >
           {tab.icon}
@@ -274,11 +274,11 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, onAddToC
     : null;
 
   return (
-    <div className={`group relative bg-white rounded-[2.5rem] p-8 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl flex flex-col h-full border border-gray-100 ${isPink ? 'hover:shadow-pink-500/10 hover:border-pink-200' : 'hover:shadow-purple-500/10 hover:border-purple-200'}`}>
+    <div className={`group relative bg-white/5 rounded-[2.5rem] p-8 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl flex flex-col h-full border border-white/10 ${isPink ? 'hover:shadow-pink-500/20 hover:border-pink-500/30' : 'hover:shadow-purple-500/20 hover:border-purple-500/30'}`}>
       
       {/* Popular Badge */}
       {idx === 1 && (
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-[#AB8FFF] to-pink-500 text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-purple-200 flex items-center gap-2 z-10">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-[#AB8FFF] to-pink-500 text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-purple-500/30 flex items-center gap-2 z-10">
           <Star size={12} fill="currentColor" />
           Most Popular
         </div>
@@ -289,48 +289,48 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, onAddToC
         <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${config.color} flex items-center justify-center text-white shadow-lg transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
           {config.icon}
         </div>
-        <div className={`px-4 py-1.5 rounded-full border text-[11px] font-black uppercase tracking-widest ${isPink ? 'bg-pink-50 text-pink-600 border-pink-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
+        <div className={`px-4 py-1.5 rounded-full border text-[11px] font-black uppercase tracking-widest ${isPink ? 'bg-pink-500/20 text-pink-400 border-pink-500/30' : 'bg-blue-500/20 text-blue-400 border-blue-500/30'}`}>
           Level {course.level}
         </div>
       </div>
 
       <div className="mb-6">
-        <h3 className="text-2xl font-black text-gray-900 mb-2 leading-tight group-hover:text-[#AB8FFF] transition-colors">
+        <h3 className="text-2xl font-black text-white mb-2 leading-tight group-hover:text-[#AB8FFF] transition-colors">
           {course.title}
         </h3>
         
         {/* Price Tag */}
         <div className="flex items-center gap-3 mb-4">
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-black text-gray-900">{price}</span>
+            <span className="text-3xl font-black text-white">{price}</span>
             {originalPrice && (
-              <span className="text-sm font-bold text-gray-400 line-through decoration-pink-500">{originalPrice}</span>
+              <span className="text-sm font-bold text-gray-500 line-through decoration-pink-500">{originalPrice}</span>
             )}
           </div>
           {originalPrice && <span className="text-[10px] font-black text-[#AB8FFF] uppercase tracking-widest">Limited Time Offer</span>}
         </div>
 
-        <p className="text-gray-600 leading-relaxed mb-8 text-sm flex-grow font-medium line-clamp-4">
+        <p className="text-gray-400 leading-relaxed mb-8 text-sm flex-grow font-medium line-clamp-4">
           {course.description || 'Scientifically designed for the dyslexic mind. Visual, multisensory, and inclusive learning approach.'}
         </p>
 
         <div className="space-y-3 mb-10">
           {features.slice(0, 3).map((f: string, i: number) => (
             <div key={i} className="flex items-center gap-3">
-              <CheckCircle2 size={16} className={isPink ? 'text-pink-500' : 'text-[#AB8FFF]'} />
-              <span className="text-sm font-bold text-gray-700">{f}</span>
+              <CheckCircle2 size={16} className={isPink ? 'text-pink-400' : 'text-[#AB8FFF]'} />
+              <span className="text-sm font-bold text-gray-300">{f}</span>
             </div>
           ))}
           {features.length > 3 && (
              <div className="flex items-center gap-3">
-              <CheckCircle2 size={16} className={isPink ? 'text-pink-500' : 'text-[#AB8FFF]'} />
-              <span className="text-sm font-bold text-gray-400 italic">...and {features.length - 3} more</span>
+              <CheckCircle2 size={16} className={isPink ? 'text-pink-400' : 'text-[#AB8FFF]'} />
+              <span className="text-sm font-bold text-gray-500 italic">...and {features.length - 3} more</span>
             </div>
           )}
         </div>
       </div>
 
-      <div className="mt-auto pt-6 border-t border-gray-50 flex flex-col gap-3">
+      <div className="mt-auto pt-6 border-t border-white/10 flex flex-col gap-3">
         {/* Three Action Buttons */}
         <div className="grid grid-cols-3 gap-2">
           {/* See More Button */}
@@ -344,8 +344,8 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, onAddToC
             }}
             className={`flex items-center justify-center gap-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${
               isPink 
-                ? 'bg-pink-50 text-pink-600 hover:bg-pink-100' 
-                : 'bg-[#AB8FFF]/10 text-[#AB8FFF] hover:bg-[#AB8FFF]/20'
+                ? 'bg-pink-500/20 text-pink-400 hover:bg-pink-500/30' 
+                : 'bg-[#AB8FFF]/20 text-[#AB8FFF] hover:bg-[#AB8FFF]/30'
             }`}>
             <Eye size={12} />
             <span className="hidden lg:inline">See More</span>
@@ -356,8 +356,8 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, onAddToC
             onClick={() => isInCart ? onRemoveFromCart(course.id) : onAddToCart(course)}
             className={`flex items-center justify-center gap-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${
               isInCart
-                ? 'bg-green-50 text-green-600 border border-green-200 hover:bg-green-100'
-                : 'bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100'
+                ? 'bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30'
+                : 'bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10'
             }`}
           >
             {isInCart ? <Check size={12} /> : <ShoppingCart size={12} />}
@@ -372,8 +372,8 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, onAddToC
             }}
             className={`flex items-center justify-center gap-1 py-3 rounded-xl text-white text-[10px] font-black uppercase tracking-wider shadow-lg transition-all transform active:scale-95 ${
               isPink
-                ? 'bg-gradient-to-r from-pink-500 to-rose-500 hover:shadow-pink-200'
-                : 'bg-[#AB8FFF] hover:bg-[#9a7eef] hover:shadow-purple-200'
+                ? 'bg-gradient-to-r from-pink-500 to-rose-500 hover:shadow-pink-500/30'
+                : 'bg-[#AB8FFF] hover:bg-[#9a7eef] hover:shadow-purple-500/30'
             }`}>
             <span className="hidden lg:inline">Enroll</span>
             <ArrowRight size={12} />
@@ -541,43 +541,47 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-black">
         {/* Hero Skeleton */}
-        <div className="relative w-full min-h-[70vh] flex flex-col items-center justify-center bg-gradient-to-b from-[#fff5fd] via-[#fffbfd] to-white pt-36 pb-24">
-          <div className="flex flex-col items-center gap-8 animate-pulse">
-            <div className="h-4 w-48 bg-gray-200 rounded-full"></div>
+        <div className="relative w-full min-h-[70vh] flex flex-col items-center justify-center bg-black pt-36 pb-24">
+          <div className="absolute inset-0 z-0">
+            <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#FFC1F2] rounded-full mix-blend-screen filter blur-[100px] opacity-20 animate-pulse-slow"></div>
+            <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-[#AB8FFF] rounded-full mix-blend-screen filter blur-[100px] opacity-15 animate-pulse-slow delay-1000"></div>
+          </div>
+          <div className="flex flex-col items-center gap-8 animate-pulse relative z-10">
+            <div className="h-4 w-48 bg-white/10 rounded-full"></div>
             <div className="flex gap-4">
-              <div className="h-16 sm:h-24 w-48 sm:w-64 bg-gray-200 rounded-2xl"></div>
-              <div className="h-16 sm:h-24 w-56 sm:w-72 bg-purple-200 rounded-2xl"></div>
+              <div className="h-16 sm:h-24 w-48 sm:w-64 bg-white/10 rounded-2xl"></div>
+              <div className="h-16 sm:h-24 w-56 sm:w-72 bg-purple-500/20 rounded-2xl"></div>
             </div>
-            <div className="h-6 w-96 max-w-full bg-gray-100 rounded-full"></div>
-            <div className="h-14 w-48 bg-purple-200 rounded-full mt-4"></div>
+            <div className="h-6 w-96 max-w-full bg-white/5 rounded-full"></div>
+            <div className="h-14 w-48 bg-purple-500/20 rounded-full mt-4"></div>
           </div>
         </div>
         
         {/* Course Cards Skeleton */}
         <div className="max-w-7xl mx-auto px-6 py-20">
           <div className="flex items-center gap-6 mb-12 animate-pulse">
-            <div className="h-4 w-32 bg-gray-200 rounded-full"></div>
-            <div className="h-[1px] flex-grow bg-gray-200"></div>
+            <div className="h-4 w-32 bg-white/10 rounded-full"></div>
+            <div className="h-[1px] flex-grow bg-white/10"></div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-[2rem] border border-gray-100 p-8 animate-pulse">
+              <div key={i} className="bg-white/5 rounded-[2rem] border border-white/10 p-8 animate-pulse">
                 <div className="flex items-start justify-between mb-6">
-                  <div className="w-14 h-14 bg-gray-200 rounded-2xl"></div>
-                  <div className="h-6 w-16 bg-gray-100 rounded-full"></div>
+                  <div className="w-14 h-14 bg-white/10 rounded-2xl"></div>
+                  <div className="h-6 w-16 bg-white/5 rounded-full"></div>
                 </div>
-                <div className="h-6 w-3/4 bg-gray-200 rounded-lg mb-3"></div>
-                <div className="h-4 w-full bg-gray-100 rounded mb-2"></div>
-                <div className="h-4 w-2/3 bg-gray-100 rounded mb-6"></div>
+                <div className="h-6 w-3/4 bg-white/10 rounded-lg mb-3"></div>
+                <div className="h-4 w-full bg-white/5 rounded mb-2"></div>
+                <div className="h-4 w-2/3 bg-white/5 rounded mb-6"></div>
                 <div className="flex gap-2 mb-6">
-                  <div className="h-6 w-20 bg-purple-100 rounded-full"></div>
-                  <div className="h-6 w-24 bg-purple-100 rounded-full"></div>
+                  <div className="h-6 w-20 bg-purple-500/20 rounded-full"></div>
+                  <div className="h-6 w-24 bg-purple-500/20 rounded-full"></div>
                 </div>
-                <div className="flex items-center justify-between pt-6 border-t border-gray-100">
-                  <div className="h-8 w-20 bg-gray-200 rounded-lg"></div>
-                  <div className="h-10 w-28 bg-purple-200 rounded-full"></div>
+                <div className="flex items-center justify-between pt-6 border-t border-white/10">
+                  <div className="h-8 w-20 bg-white/10 rounded-lg"></div>
+                  <div className="h-10 w-28 bg-purple-500/20 rounded-full"></div>
                 </div>
               </div>
             ))}
@@ -589,18 +593,18 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
 
   if (loadError) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-6">
-          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg className="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/30">
+            <svg className="w-10 h-10 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-3">Oops! Something went wrong</h2>
-          <p className="text-gray-500 mb-6">{loadError}</p>
+          <h2 className="text-2xl font-bold text-white mb-3">Oops! Something went wrong</h2>
+          <p className="text-gray-400 mb-6">{loadError}</p>
           <button
             onClick={retryLoadCourses}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold rounded-full hover:shadow-lg transition-all hover:scale-105"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold rounded-full hover:shadow-lg hover:shadow-purple-500/30 transition-all hover:scale-105"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -613,12 +617,12 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
   }
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="bg-black min-h-screen">
       {/* Hero Header Section */}
-      <div className="relative w-full min-h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-[#fff5fd] via-[#fffbfd] to-white pt-36 pb-32">
+      <div className="relative w-full min-h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-black pt-36 pb-32">
         <div className="absolute inset-0 z-0">
-          <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#FFC1F2] rounded-full mix-blend-multiply filter blur-[100px] opacity-30 animate-pulse-slow"></div>
-          <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-[#AB8FFF] rounded-full mix-blend-multiply filter blur-[100px] opacity-20 animate-pulse-slow delay-1000"></div>
+          <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#FFC1F2] rounded-full mix-blend-screen filter blur-[100px] opacity-20 animate-pulse-slow"></div>
+          <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-[#AB8FFF] rounded-full mix-blend-screen filter blur-[100px] opacity-15 animate-pulse-slow delay-1000"></div>
           <canvas ref={canvasRef} className="absolute inset-0 z-0 opacity-60 pointer-events-none" />
         </div>
 
@@ -627,12 +631,12 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
           
           <div className="flex items-center gap-4 mb-8 sm:mb-12 opacity-80 animate-reveal">
             <div className="h-[1px] w-8 bg-[#AB8FFF]"></div>
-            <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-gray-800">Premium Learning Path</span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-gray-300">Premium Learning Path</span>
             <div className="h-[1px] w-8 bg-[#AB8FFF]"></div>
           </div>
 
           <div className="relative flex flex-col items-center mb-10 w-full">
-            <h1 className="text-4xl sm:text-7xl md:text-9xl font-black text-[#1a1c2d] tracking-tighter leading-[0.9] animate-reveal transition-transform duration-500 flex flex-wrap justify-center gap-x-2 sm:gap-x-6"
+            <h1 className="text-4xl sm:text-7xl md:text-9xl font-black text-white tracking-tighter leading-[0.9] animate-reveal transition-transform duration-500 flex flex-wrap justify-center gap-x-2 sm:gap-x-6"
                 style={{ transform: `translate(${mousePos.x * 0.3}px, ${mousePos.y * 0.3}px)` }}>
               <span>EXPLORE</span> 
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-[#AB8FFF] to-pink-500 ">COURSES</span>
@@ -640,15 +644,15 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
           </div>
 
           <div className="max-w-3xl animate-reveal stagger-1 flex flex-col items-center" style={{ transform: `translate(${mousePos.x * 0.1}px, ${mousePos.y * 0.1}px)` }}>
-             <p className="text-lg sm:text-xl md:text-3xl font-medium text-gray-600 text-center uppercase tracking-tight leading-snug mb-10">
+             <p className="text-lg sm:text-xl md:text-3xl font-medium text-gray-300 text-center uppercase tracking-tight leading-snug mb-10">
                Scientifically designed for the <span className="text-[#AB8FFF] font-bold">dyslexic mind</span>.
                <br/>
-               <span className="text-base sm:text-lg md:text-xl text-gray-500 normal-case mt-4 block">Visual, multisensory, and inclusive learning approach.</span>
+               <span className="text-base sm:text-lg md:text-xl text-gray-400 normal-case mt-4 block">Visual, multisensory, and inclusive learning approach.</span>
              </p>
 
             <button 
               onClick={() => { const el = document.getElementById('courses-grid'); if(el) el.scrollIntoView({behavior: 'smooth'}) }}
-              className="flex items-center gap-3 bg-[#AB8FFF] text-white px-10 py-5 rounded-full font-black text-xs uppercase tracking-widest hover:bg-[#9a7eef] shadow-xl shadow-purple-200 transition-all hover:scale-105 active:scale-95"
+              className="flex items-center gap-3 bg-[#AB8FFF] text-white px-10 py-5 rounded-full font-black text-xs uppercase tracking-widest hover:bg-[#9a7eef] shadow-xl shadow-purple-500/30 transition-all hover:scale-105 active:scale-95"
             >
               CHOOSE A COURSE
               <ChevronRight size={16} />
@@ -656,7 +660,7 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
           </div>
         </div>
 
-        <WaveSeparator />
+        <WaveSeparator color="fill-black" />
       </div>
 
       {/* Course Listing */}
@@ -678,16 +682,16 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
             <div className="text-center mb-16">
               <div className="flex items-center justify-center gap-4 mb-6">
                 <div className="h-[1px] w-16 bg-gradient-to-r from-transparent to-violet-400"></div>
-                <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-violet-500/10 to-amber-500/10 border border-violet-500/20">
-                  <Briefcase size={14} className="text-violet-500" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-violet-600">Live Programs</span>
+                <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-violet-500/20 to-amber-500/20 border border-violet-500/30">
+                  <Briefcase size={14} className="text-violet-400" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-violet-400">Live Programs</span>
                 </div>
                 <div className="h-[1px] w-16 bg-gradient-to-l from-transparent to-amber-400"></div>
               </div>
-              <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">
-                Live Online <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-amber-500">Learning Programs</span>
+              <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
+                Live Online <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-amber-400">Learning Programs</span>
               </h2>
-              <p className="text-gray-500 text-lg max-w-2xl mx-auto">
+              <p className="text-gray-400 text-lg max-w-2xl mx-auto">
                 Our most comprehensive programs combining individual lessons, group workshops, and full support for transformative English learning.
               </p>
             </div>
@@ -707,12 +711,12 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
                 ))}
               </div>
             ) : (
-              <div className="text-center py-20 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
-                <div className="w-16 h-16 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-4 text-violet-400">
+              <div className="text-center py-20 bg-white/5 rounded-3xl border border-dashed border-white/10">
+                <div className="w-16 h-16 bg-violet-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-violet-400">
                   <Users size={24} />
                 </div>
-                <h3 className="text-xl font-bold text-gray-700 mb-2">Online Courses Coming Soon!</h3>
-                <p className="text-gray-500 font-medium max-w-md mx-auto">
+                <h3 className="text-xl font-bold text-white mb-2">Online Courses Coming Soon!</h3>
+                <p className="text-gray-400 font-medium max-w-md mx-auto">
                   Our Premium and Golden programs are being prepared. Check back soon!
                 </p>
               </div>
@@ -729,16 +733,16 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
             <div className="text-center mb-16">
               <div className="flex items-center justify-center gap-4 mb-6">
                 <div className="h-[1px] w-16 bg-gradient-to-r from-transparent to-[#AB8FFF]"></div>
-                <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#AB8FFF]/10 border border-[#AB8FFF]/20">
+                <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#AB8FFF]/20 border border-[#AB8FFF]/30">
                   <MonitorPlay size={14} className="text-[#AB8FFF]" />
                   <span className="text-[10px] font-black uppercase tracking-widest text-[#AB8FFF]">Interactive Learning</span>
                 </div>
                 <div className="h-[1px] w-16 bg-gradient-to-l from-transparent to-[#AB8FFF]"></div>
               </div>
-              <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">
+              <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
                 Interactive <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#AB8FFF] to-pink-500">Video Courses</span>
               </h2>
-              <p className="text-gray-500 text-lg max-w-2xl mx-auto">
+              <p className="text-gray-400 text-lg max-w-2xl mx-auto">
                 Self-paced video lessons, quizzes, and exercises designed for the dyslexic mind. Learn at your own pace with our engaging content.
               </p>
             </div>
@@ -749,7 +753,7 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
                 <div className="flex items-center gap-6 mb-6">
                   <div className="flex items-center gap-3">
                     <MonitorPlay size={20} className="text-[#AB8FFF]" />
-                    <h3 className="text-2xl font-black text-gray-900 whitespace-nowrap">Adults & Teens</h3>
+                    <h3 className="text-2xl font-black text-white whitespace-nowrap">Adults & Teens</h3>
                   </div>
                   <div className="h-[2px] flex-grow bg-gradient-to-r from-[#AB8FFF] to-transparent rounded-full"></div>
                 </div>
@@ -785,8 +789,8 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
               <div className="mb-16">
                 <div className="flex items-center gap-6 mb-6">
                   <div className="flex items-center gap-3">
-                    <MonitorPlay size={20} className="text-pink-500" />
-                    <h3 className="text-2xl font-black text-gray-900 whitespace-nowrap">Kids</h3>
+                    <MonitorPlay size={20} className="text-pink-400" />
+                    <h3 className="text-2xl font-black text-white whitespace-nowrap">Kids</h3>
                   </div>
                   <div className="h-[2px] flex-grow bg-gradient-to-r from-pink-400 to-transparent rounded-full"></div>
                 </div>
@@ -819,12 +823,12 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
 
             {/* Empty State */}
             {adultLearndash.length === 0 && kidsLearndash.length === 0 && (
-              <div className="text-center py-20 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
-                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 text-purple-400">
+              <div className="text-center py-20 bg-white/5 rounded-3xl border border-dashed border-white/10">
+                <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-purple-400">
                   <MonitorPlay size={24} />
                 </div>
-                <h3 className="text-xl font-bold text-gray-700 mb-2">Interactive Courses Coming Soon!</h3>
-                <p className="text-gray-500 font-medium max-w-md mx-auto">
+                <h3 className="text-xl font-bold text-white mb-2">Interactive Courses Coming Soon!</h3>
+                <p className="text-gray-400 font-medium max-w-md mx-auto">
                   We're preparing our interactive video courses. Check back soon!
                 </p>
               </div>
@@ -841,16 +845,16 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
             <div className="text-center mb-16">
               <div className="flex items-center justify-center gap-4 mb-6">
                 <div className="h-[1px] w-16 bg-gradient-to-r from-transparent to-[#AB8FFF]"></div>
-                <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#AB8FFF]/10 border border-[#AB8FFF]/20">
+                <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#AB8FFF]/20 border border-[#AB8FFF]/30">
                   <FileText size={14} className="text-[#AB8FFF]" />
                   <span className="text-[10px] font-black uppercase tracking-widest text-[#AB8FFF]">Digital Books</span>
                 </div>
                 <div className="h-[1px] w-16 bg-gradient-to-l from-transparent to-[#AB8FFF]"></div>
               </div>
-              <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">
+              <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
                 Comprehensive <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#AB8FFF] to-pink-500">E-books</span>
               </h2>
-              <p className="text-gray-500 text-lg max-w-2xl mx-auto">
+              <p className="text-gray-400 text-lg max-w-2xl mx-auto">
                 Downloadable PDF guides with vocabulary, grammar, and exercises. Perfect for offline study and reference.
               </p>
             </div>
@@ -861,7 +865,7 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
                 <div className="flex items-center gap-6 mb-8">
                   <div className="flex items-center gap-3">
                     <FileText size={20} className="text-[#AB8FFF]" />
-                    <h3 className="text-2xl font-black text-gray-900 whitespace-nowrap">Adults & Teens</h3>
+                    <h3 className="text-2xl font-black text-white whitespace-nowrap">Adults & Teens</h3>
                   </div>
                   <div className="h-[2px] flex-grow bg-gradient-to-r from-[#AB8FFF] to-transparent rounded-full"></div>
                 </div>
@@ -885,8 +889,8 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
               <div className="mb-16">
                 <div className="flex items-center gap-6 mb-8">
                   <div className="flex items-center gap-3">
-                    <FileText size={20} className="text-pink-500" />
-                    <h3 className="text-2xl font-black text-gray-900 whitespace-nowrap">Kids</h3>
+                    <FileText size={20} className="text-pink-400" />
+                    <h3 className="text-2xl font-black text-white whitespace-nowrap">Kids</h3>
                   </div>
                   <div className="h-[2px] flex-grow bg-gradient-to-r from-pink-400 to-transparent rounded-full"></div>
                 </div>
@@ -907,12 +911,12 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
 
             {/* Empty State */}
             {adultEbooks.length === 0 && kidsEbooks.length === 0 && (
-              <div className="text-center py-20 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
-                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 text-purple-400">
+              <div className="text-center py-20 bg-white/5 rounded-3xl border border-dashed border-white/10">
+                <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-purple-400">
                   <FileText size={24} />
                 </div>
-                <h3 className="text-xl font-bold text-gray-700 mb-2">E-books Coming Soon!</h3>
-                <p className="text-gray-500 font-medium max-w-md mx-auto">
+                <h3 className="text-xl font-bold text-white mb-2">E-books Coming Soon!</h3>
+                <p className="text-gray-400 font-medium max-w-md mx-auto">
                   We're preparing our comprehensive e-books. Check back soon!
                 </p>
               </div>
@@ -922,12 +926,12 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
 
         {/* Global Empty State - No courses at all */}
         {courses.length === 0 && !loading && (
-           <div className="text-center py-20 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
-             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
+           <div className="text-center py-20 bg-white/5 rounded-3xl border border-dashed border-white/10">
+             <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
                <BookOpen size={24} />
              </div>
-             <h3 className="text-xl font-bold text-gray-700 mb-2">Courses Coming Soon!</h3>
-             <p className="text-gray-500 font-medium max-w-md mx-auto">
+             <h3 className="text-xl font-bold text-white mb-2">Courses Coming Soon!</h3>
+             <p className="text-gray-400 font-medium max-w-md mx-auto">
                We're preparing our courses for you. Check back soon for our complete learning paths designed for all levels.
              </p>
            </div>

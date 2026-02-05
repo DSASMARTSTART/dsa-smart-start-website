@@ -102,7 +102,7 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-white pt-32 pb-20 relative overflow-hidden">
+    <div className="min-h-screen bg-black pt-32 pb-20 relative overflow-hidden">
       {/* Confetti container */}
       <div id="confetti-container" className="fixed inset-0 pointer-events-none z-10" />
 
@@ -123,8 +123,8 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
       <div className="max-w-3xl mx-auto px-6 text-center relative z-20">
         {/* Success Icon */}
         <div className="mb-8 animate-reveal">
-          <div className="w-28 h-28 bg-emerald-100 rounded-full flex items-center justify-center mx-auto shadow-xl shadow-emerald-200/50 relative">
-            <CheckCircle2 size={56} className="text-emerald-500" />
+          <div className="w-28 h-28 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto shadow-xl shadow-emerald-500/20 relative border border-emerald-500/20">
+            <CheckCircle2 size={56} className="text-emerald-400" />
             <div className="absolute -top-2 -right-2">
               <Sparkles size={24} className="text-amber-400 animate-pulse" />
             </div>
@@ -133,11 +133,11 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
 
         {/* Success Message */}
         <div className="mb-12 animate-reveal stagger-1">
-          <h1 className="text-4xl md:text-5xl font-black text-gray-900 uppercase tracking-tight mb-4">
+          <h1 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tight mb-4">
             Payment Received!
           </h1>
-          <p className="text-xl text-gray-600 font-medium">
-            Thank you for your purchase, <span className="text-purple-600 font-bold">{userName}</span>!
+          <p className="text-xl text-gray-300 font-medium">
+            Thank you for your purchase, <span className="text-purple-400 font-bold">{userName}</span>!
           </p>
           <p className="text-gray-500 mt-2">
             Your payment is being verified. Your content will be available shortly.
@@ -145,23 +145,23 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
         </div>
 
         {/* Confirmation Details */}
-        <div className="bg-white rounded-[2rem] border border-gray-100 p-8 mb-8 shadow-lg shadow-purple-500/5 animate-reveal stagger-2">
+        <div className="bg-white/5 rounded-[2rem] border border-white/10 p-8 mb-8 shadow-lg shadow-purple-500/10 animate-reveal stagger-2">
           {/* Guest User - Set Password Notice */}
           {isNewGuestCheckout && (
-            <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-6 mb-6">
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-6 mb-6">
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Key size={24} className="text-amber-600" />
+                <div className="w-12 h-12 bg-amber-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Key size={24} className="text-amber-400" />
                 </div>
                 <div className="text-left">
-                  <h3 className="font-black text-amber-900 uppercase tracking-wide text-sm mb-2">
+                  <h3 className="font-black text-amber-400 uppercase tracking-wide text-sm mb-2">
                     Check Your Email
                   </h3>
-                  <p className="text-amber-800 text-sm mb-3">
+                  <p className="text-amber-300/80 text-sm mb-3">
                     We've sent you a magic link to access your account! Click the link in your email to log in instantly.
                     You can also set a password for easier future access.
                   </p>
-                  <div className="flex items-center gap-2 text-xs text-amber-600 font-semibold">
+                  <div className="flex items-center gap-2 text-xs text-amber-400 font-semibold">
                     <Mail size={14} />
                     <span>Magic login link sent to your email</span>
                   </div>
@@ -172,20 +172,20 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
 
           {/* Existing User - Magic Link Notice */}
           {isExistingUserCheckout && (
-            <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-2xl p-6 mb-6">
+            <div className="bg-purple-500/10 border border-purple-500/30 rounded-2xl p-6 mb-6">
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Mail size={24} className="text-purple-600" />
+                <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Mail size={24} className="text-purple-400" />
                 </div>
                 <div className="text-left">
-                  <h3 className="font-black text-purple-900 uppercase tracking-wide text-sm mb-2">
+                  <h3 className="font-black text-purple-400 uppercase tracking-wide text-sm mb-2">
                     Welcome Back!
                   </h3>
-                  <p className="text-purple-800 text-sm mb-3">
+                  <p className="text-purple-300/80 text-sm mb-3">
                     We found your existing account! Check your email for a magic link to log in and access your new purchase.
                     Your course has been added to your account.
                   </p>
-                  <div className="flex items-center gap-2 text-xs text-purple-600 font-semibold">
+                  <div className="flex items-center gap-2 text-xs text-purple-400 font-semibold">
                     <Mail size={14} />
                     <span>Magic login link sent to your email</span>
                   </div>
@@ -195,8 +195,8 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
           )}
 
           <div className="flex items-center justify-center gap-3 mb-6">
-            <Mail size={20} className="text-purple-500" />
-            <p className="text-sm text-gray-600">
+            <Mail size={20} className="text-purple-400" />
+            <p className="text-sm text-gray-400">
               A confirmation email will be sent to your registered email address.
             </p>
           </div>
@@ -204,17 +204,17 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
           {/* Recent Purchases */}
           {loading ? (
             <div className="py-8">
-              <div className="w-8 h-8 border-3 border-purple-200 border-t-purple-600 rounded-full animate-spin mx-auto"></div>
+              <div className="w-8 h-8 border-3 border-purple-500/20 border-t-purple-500 rounded-full animate-spin mx-auto"></div>
             </div>
           ) : recentPurchases.length > 0 ? (
             <div className="space-y-4">
-              <h3 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-4">
+              <h3 className="text-sm font-black uppercase tracking-widest text-gray-500 mb-4">
                 Your Purchase{recentPurchases.length > 1 ? 's' : ''}
               </h3>
               {recentPurchases.map(purchase => (
                 <div 
                   key={purchase.id} 
-                  className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl"
+                  className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/10"
                 >
                   <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0">
                     {purchase.course?.thumbnailUrl ? (
@@ -224,13 +224,13 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full bg-purple-100 flex items-center justify-center">
+                      <div className="w-full h-full bg-purple-500/10 flex items-center justify-center">
                         <BookOpen size={24} className="text-purple-400" />
                       </div>
                     )}
                   </div>
                   <div className="flex-1 text-left">
-                    <h4 className="font-bold text-gray-900">{purchase.course?.title || 'Course'}</h4>
+                    <h4 className="font-bold text-white">{purchase.course?.title || 'Course'}</h4>
                     <p className="text-xs text-gray-500 uppercase tracking-wider">
                       {purchase.course?.productType === 'ebook' ? 'E-book' : 
                        purchase.course?.productType === 'service' ? 'Service Program' : 'Interactive Course'}
@@ -238,17 +238,17 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
                   </div>
                   {/* Status badge */}
                   {purchase.status === 'pending' ? (
-                    <span className="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full flex items-center gap-1">
+                    <span className="px-3 py-1 bg-amber-500/20 text-amber-400 text-xs font-bold rounded-full flex items-center gap-1">
                       <Loader2 size={12} className="animate-spin" />
                       Verifying
                     </span>
                   ) : purchase.status === 'completed' ? (
-                    <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full flex items-center gap-1">
+                    <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-xs font-bold rounded-full flex items-center gap-1">
                       <CheckCircle2 size={12} />
                       Ready
                     </span>
                   ) : (
-                    <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-bold rounded-full">
+                    <span className="px-3 py-1 bg-white/10 text-gray-400 text-xs font-bold rounded-full">
                       {purchase.status}
                     </span>
                   )}
@@ -257,9 +257,9 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
               
               {/* Pending notice */}
               {recentPurchases.some(p => p.status === 'pending') && (
-                <div className="flex items-center gap-3 p-4 bg-amber-50 rounded-xl border border-amber-200 mt-4">
-                  <Clock size={20} className="text-amber-500" />
-                  <p className="text-sm text-amber-800">
+                <div className="flex items-center gap-3 p-4 bg-amber-500/10 rounded-xl border border-amber-500/30 mt-4">
+                  <Clock size={20} className="text-amber-400" />
+                  <p className="text-sm text-amber-300/80">
                     Payment verification usually takes a few moments. Your course will appear in your dashboard automatically once confirmed.
                   </p>
                 </div>
@@ -279,7 +279,7 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
             <>
               <button
                 onClick={() => onNavigate('login')}
-                className="px-10 py-5 bg-purple-600 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-all shadow-xl shadow-purple-200 flex items-center justify-center gap-3"
+                className="px-10 py-5 bg-purple-600 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-all shadow-xl shadow-purple-500/20 flex items-center justify-center gap-3"
               >
                 <User size={18} />
                 Log In After Setting Password
@@ -288,7 +288,7 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
               
               <button
                 onClick={() => onNavigate('courses')}
-                className="px-10 py-5 bg-white text-gray-900 rounded-full font-black text-xs uppercase tracking-widest hover:bg-gray-50 transition-all border-2 border-gray-200 flex items-center justify-center gap-3"
+                className="px-10 py-5 bg-white/5 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all border-2 border-white/10 flex items-center justify-center gap-3"
               >
                 Browse More Courses
               </button>
@@ -298,7 +298,7 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
             <>
               <button
                 onClick={() => onNavigate('dashboard')}
-                className="px-10 py-5 bg-purple-600 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-all shadow-xl shadow-purple-200 flex items-center justify-center gap-3"
+                className="px-10 py-5 bg-purple-600 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-all shadow-xl shadow-purple-500/20 flex items-center justify-center gap-3"
               >
                 <BookOpen size={18} />
                 Go to My Dashboard
@@ -307,7 +307,7 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
               
               <button
                 onClick={() => onNavigate('courses')}
-                className="px-10 py-5 bg-white text-gray-900 rounded-full font-black text-xs uppercase tracking-widest hover:bg-gray-50 transition-all border-2 border-gray-200 flex items-center justify-center gap-3"
+                className="px-10 py-5 bg-white/5 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all border-2 border-white/10 flex items-center justify-center gap-3"
               >
                 Browse More Courses
               </button>
@@ -316,8 +316,8 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
         </div>
 
         {/* Support Link */}
-        <p className="mt-12 text-sm text-gray-400 animate-reveal stagger-4">
-          Need help? <button onClick={() => onNavigate('contact')} className="text-purple-600 hover:underline font-semibold">Contact our support team</button>
+        <p className="mt-12 text-sm text-gray-500 animate-reveal stagger-4">
+          Need help? <button onClick={() => onNavigate('contact')} className="text-purple-400 hover:underline font-semibold">Contact our support team</button>
         </p>
       </div>
     </div>

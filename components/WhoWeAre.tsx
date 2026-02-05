@@ -75,12 +75,12 @@ const WhoWeAre: React.FC = () => {
   ];
 
   return (
-    <div className="bg-white">
+    <div className="bg-black">
       {/* Hero Section */}
-      <div className="relative w-full h-[70vh] min-h-[600px] flex flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-[#fff5fd] via-[#fffbfd] to-white">
+      <div className="relative w-full h-[70vh] min-h-[600px] flex flex-col items-center justify-center overflow-hidden bg-black">
         <div className="absolute inset-0 z-0">
-          <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#FFC1F2] rounded-full mix-blend-multiply filter blur-[100px] opacity-30 animate-pulse-slow"></div>
-          <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-[#AB8FFF] rounded-full mix-blend-multiply filter blur-[100px] opacity-20 animate-pulse-slow delay-1000"></div>
+          <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#FFC1F2] rounded-full mix-blend-screen filter blur-[100px] opacity-20 animate-pulse-slow"></div>
+          <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-[#AB8FFF] rounded-full mix-blend-screen filter blur-[100px] opacity-15 animate-pulse-slow delay-1000"></div>
           <canvas ref={canvasRef} className="absolute inset-0 z-0 opacity-60 pointer-events-none" />
         </div>
 
@@ -88,44 +88,41 @@ const WhoWeAre: React.FC = () => {
              style={{ transform: `translate(${mousePos.x * 0.1}px, ${mousePos.y * 0.1}px)` }}>
           <div className="flex items-center gap-4 mb-6 sm:mb-8 opacity-60 animate-reveal">
             <div className="h-[1px] w-8 bg-[#AB8FFF]"></div>
-            <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-gray-800">Who we are</span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-gray-300">Who we are</span>
             <div className="h-[1px] w-8 bg-[#AB8FFF]"></div>
           </div>
 
           <div className="relative flex flex-col items-center mb-10 group cursor-default w-full">
-            <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-[10rem] font-black text-[#1a1c2d] tracking-tighter leading-none animate-reveal transition-transform duration-500 flex flex-wrap justify-center gap-x-4"
+            <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-[10rem] font-black text-white tracking-tighter leading-none animate-reveal transition-transform duration-500 flex flex-wrap justify-center gap-x-4"
                 style={{ transform: `translate(${mousePos.x * 0.4}px, ${mousePos.y * 0.4}px)` }}>
-              <span>DSA</span> <span className="text-[#AB8FFF]">SMART</span>
+              <span>EDU</span> <span className="text-[#AB8FFF]">WAY</span>
             </h1>
-            <h2 className="text-5xl sm:text-7xl md:text-8xl lg:text-[10rem] font-black text-[#1a1c2d] tracking-tighter leading-none animate-reveal stagger-1 -mt-2 sm:-mt-4 uppercase transition-colors group-hover:text-[#AB8FFF]">
-              START
-            </h2>
           </div>
 
           <div className="max-w-3xl animate-reveal stagger-2 mt-4 px-4" style={{ transform: `translate(${mousePos.x * 0.2}px, ${mousePos.y * 0.2}px)` }}>
-            <p className="text-xl sm:text-2xl md:text-4xl font-light text-gray-600 tracking-tight leading-tight">
+            <p className="text-xl sm:text-2xl md:text-4xl font-light text-gray-300 tracking-tight leading-tight">
               “ Whatever it is, the way you tell your story can make all the difference! ”
             </p>
           </div>
         </div>
 
-        <WaveSeparator />
+        <WaveSeparator color="fill-black" />
       </div>
 
       {/* Main Intro Section */}
-      <section className="py-24 sm:py-32 px-6 overflow-hidden">
+      <section className="py-24 sm:py-32 px-6 overflow-hidden bg-black">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
           <div className="animate-reveal" style={{ animationName: 'fadeInLeft' }}>
-            <div className="inline-block px-4 py-1 bg-purple-50 text-purple-600 rounded-full text-[10px] font-black uppercase tracking-widest mb-6 border border-purple-100">
+            <div className="inline-block px-4 py-1 bg-purple-500/20 text-purple-400 rounded-full text-[10px] font-black uppercase tracking-widest mb-6 border border-purple-500/30">
               Expertise since 2008
             </div>
-            <h3 className="text-4xl sm:text-5xl md:text-7xl font-black text-gray-900 mb-8 tracking-tighter leading-none uppercase">
+            <h3 className="text-4xl sm:text-5xl md:text-7xl font-black text-white mb-8 tracking-tighter leading-none uppercase">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#9b4dff] via-[#8a3ffc] to-[#ff2d85]">23 Years</span> of <br />Experience
             </h3>
-            <p className="text-xl md:text-2xl text-gray-900 font-bold mb-8 leading-tight">
-              DSA SMART START is a group of highly qualified language professionals, supported by psychology experts.
+            <p className="text-xl md:text-2xl text-white font-bold mb-8 leading-tight">
+              Eduway is a group of highly qualified language professionals, supported by psychology experts.
             </p>
-            <p className="text-gray-600 text-lg leading-relaxed mb-10">
+            <p className="text-gray-400 text-lg leading-relaxed mb-10">
               Since 2008, our team has supported children and adults with dyslexia in their English language studies, offering targeted tools and strategies. For over a decade, we have been passionately dedicated to helping those struggling with English learning, transforming challenges into real opportunities for growth.
             </p>
             <div className="flex flex-col sm:flex-row gap-6">
@@ -136,47 +133,47 @@ const WhoWeAre: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 gap-6 animate-reveal stagger-1" style={{ animationName: 'fadeInRight' }}>
-            <div className="group bg-purple-50 p-8 sm:p-10 rounded-[3rem] border border-purple-100 flex flex-col gap-4 hover:shadow-2xl hover:shadow-purple-200 transition-all duration-500 hover:-translate-y-2">
-              <span className="text-4xl sm:text-5xl font-black text-purple-600 group-hover:scale-110 transition-transform inline-block origin-left uppercase tracking-tighter">23+</span>
-              <p className="text-lg font-bold text-gray-900 uppercase tracking-tight leading-none">Years of experience supporting DSA students</p>
+            <div className="group bg-purple-500/10 p-8 sm:p-10 rounded-[3rem] border border-purple-500/20 flex flex-col gap-4 hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 hover:-translate-y-2">
+              <span className="text-4xl sm:text-5xl font-black text-purple-400 group-hover:scale-110 transition-transform inline-block origin-left uppercase tracking-tighter">23+</span>
+              <p className="text-lg font-bold text-white uppercase tracking-tight leading-none">Years of experience supporting DSA students</p>
             </div>
-            <div className="group bg-pink-50 p-8 sm:p-10 rounded-[3rem] border border-pink-100 flex flex-col gap-4 hover:shadow-2xl hover:shadow-pink-200 transition-all duration-500 hover:-translate-y-2">
-              <span className="text-4xl sm:text-5xl font-black text-pink-500 group-hover:scale-110 transition-transform inline-block origin-left uppercase tracking-tighter">3000+</span>
-              <p className="text-lg font-bold text-gray-900 uppercase tracking-tight leading-none">Very satisfied DSA customers worldwide</p>
+            <div className="group bg-pink-500/10 p-8 sm:p-10 rounded-[3rem] border border-pink-500/20 flex flex-col gap-4 hover:shadow-2xl hover:shadow-pink-500/10 transition-all duration-500 hover:-translate-y-2">
+              <span className="text-4xl sm:text-5xl font-black text-pink-400 group-hover:scale-110 transition-transform inline-block origin-left uppercase tracking-tighter">3000+</span>
+              <p className="text-lg font-bold text-white uppercase tracking-tight leading-none">Very satisfied DSA customers worldwide</p>
             </div>
-            <div className="group bg-indigo-50 p-8 sm:p-10 rounded-[3rem] border border-indigo-100 flex flex-col gap-4 hover:shadow-2xl hover:shadow-indigo-200 transition-all duration-500 hover:-translate-y-2">
-              <span className="text-4xl sm:text-5xl font-black text-indigo-600 group-hover:scale-110 transition-transform inline-block origin-left uppercase tracking-tighter">15+</span>
-              <p className="text-lg font-bold text-gray-900 uppercase tracking-tight leading-none">Award-winning educational courses and programs</p>
+            <div className="group bg-indigo-500/10 p-8 sm:p-10 rounded-[3rem] border border-indigo-500/20 flex flex-col gap-4 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-500 hover:-translate-y-2">
+              <span className="text-4xl sm:text-5xl font-black text-indigo-400 group-hover:scale-110 transition-transform inline-block origin-left uppercase tracking-tighter">15+</span>
+              <p className="text-lg font-bold text-white uppercase tracking-tight leading-none">Award-winning educational courses and programs</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Team Section */}
-      <section className="py-24 sm:py-32 px-6 bg-gray-50/30">
+      <section className="py-24 sm:py-32 px-6 bg-black">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col lg:flex-row justify-between items-end mb-20 gap-8 animate-reveal">
             <div>
-              <span className="text-[10px] font-black text-purple-600 uppercase tracking-[0.4em] mb-4 block">Professional Excellence</span>
-              <h3 className="text-3xl sm:text-4xl md:text-7xl font-black text-gray-900 tracking-tighter uppercase">
+              <span className="text-[10px] font-black text-purple-400 uppercase tracking-[0.4em] mb-4 block">Professional Excellence</span>
+              <h3 className="text-3xl sm:text-4xl md:text-7xl font-black text-white tracking-tighter uppercase">
                 The DSA <span className="text-[#8a3ffc]">Team</span>
               </h3>
             </div>
-            <p className="text-gray-500 lg:max-w-md text-lg font-medium leading-relaxed">
+            <p className="text-gray-400 lg:max-w-md text-lg font-medium leading-relaxed">
               Our vision is based on the belief that every individual deserves to be understood, supported and guided towards success.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {team.map((member, idx) => (
-              <div key={idx} className="group relative bg-white p-6 rounded-[3rem] border border-gray-100 shadow-sm hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 animate-reveal hover:-translate-y-3" style={{ animationDelay: `${idx * 0.1}s` }}>
-                <div className="relative w-full aspect-square rounded-[2rem] overflow-hidden mb-8 bg-purple-50">
+              <div key={idx} className="group relative bg-white/5 p-6 rounded-[3rem] border border-white/10 shadow-sm hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 animate-reveal hover:-translate-y-3" style={{ animationDelay: `${idx * 0.1}s` }}>
+                <div className="relative w-full aspect-square rounded-[2rem] overflow-hidden mb-8 bg-purple-500/10">
                   <img src={member.image} alt={member.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700" />
                   <div className="absolute inset-0 bg-gradient-to-t from-purple-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </div>
                 <div className="px-4 pb-4">
-                  <h5 className="text-2xl font-black text-gray-900 mb-1">{member.name}</h5>
-                  <span className="text-xs font-bold text-purple-600 uppercase tracking-widest">{member.role}</span>
+                  <h5 className="text-2xl font-black text-white mb-1">{member.name}</h5>
+                  <span className="text-xs font-bold text-purple-400 uppercase tracking-widest">{member.role}</span>
                 </div>
               </div>
             ))}
@@ -185,8 +182,8 @@ const WhoWeAre: React.FC = () => {
       </section>
 
       {/* Our Mission Section with Image */}
-      <section className="py-24 sm:py-32 bg-[#0f172a] text-white overflow-hidden relative">
-        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-purple-600/10 rounded-full blur-[150px] translate-x-1/2 -translate-y-1/2 opacity-30"></div>
+      <section className="py-24 sm:py-32 bg-black text-white overflow-hidden relative">
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-purple-600/20 rounded-full blur-[150px] translate-x-1/2 -translate-y-1/2 opacity-30"></div>
         
         <div className="max-w-7xl mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-16 sm:gap-24 items-center">
           <div className="animate-reveal" style={{ animationName: 'fadeInLeft' }}>
@@ -226,17 +223,17 @@ const WhoWeAre: React.FC = () => {
       </section>
 
       {/* Free Consultation CTA */}
-      <section className="pt-16 pb-32 px-6">
+      <section className="pt-16 pb-32 px-6 bg-black">
         <div className="max-w-7xl mx-auto">
-          <div className="bg-gradient-to-br from-[#f3e8ff] to-[#fef2f2] p-10 sm:p-12 md:p-24 rounded-[3.5rem] sm:rounded-[5rem] text-center animate-reveal relative overflow-hidden group">
-             <div className="absolute top-0 left-0 w-64 h-64 bg-white/40 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 group-hover:scale-150 transition-transform duration-1000"></div>
+          <div className="bg-white/5 p-10 sm:p-12 md:p-24 rounded-[3.5rem] sm:rounded-[5rem] text-center animate-reveal relative overflow-hidden group border border-white/10">
+             <div className="absolute top-0 left-0 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 group-hover:scale-150 transition-transform duration-1000"></div>
              
              <div className="relative z-10">
-               <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white rounded-[2rem] sm:rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 shadow-xl group-hover:rotate-12 transition-transform duration-500">
-                  <Heart size={40} className="text-purple-600 animate-pulse" />
+               <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/10 rounded-[2rem] sm:rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 shadow-xl border border-white/10 group-hover:rotate-12 transition-transform duration-500">
+                  <Heart size={40} className="text-purple-400 animate-pulse" />
                </div>
-               <h4 className="text-3xl sm:text-4xl md:text-6xl font-black text-gray-900 mb-8 tracking-tight uppercase">Do you need our help?</h4>
-               <p className="text-lg sm:text-xl text-gray-600 mb-12 font-medium max-w-xl mx-auto">Book a free 15-minute consultation and let's start your journey today.</p>
+               <h4 className="text-3xl sm:text-4xl md:text-6xl font-black text-white mb-8 tracking-tight uppercase">Do you need our help?</h4>
+               <p className="text-lg sm:text-xl text-gray-400 mb-12 font-medium max-w-xl mx-auto">Book a free 15-minute consultation and let's start your journey today.</p>
                <a 
                  href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ0qY73eSZNjDKlM_CQETEMDZFNGB5SONV3eJl2rbRFfK6hT6uNAwz_X4L7Jo0lIbuw-zerkbJWu"
                  target="_blank"
