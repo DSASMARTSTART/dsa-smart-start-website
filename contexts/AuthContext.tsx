@@ -77,6 +77,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     const initAuth = async () => {
       try {
+        // Handle PKCE auth callback: exchange code for session after email confirmation/password reset
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get('code');
+        if (code) {
+          const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+          if (exchangeError) {
+            console.error('Error exchanging auth code for session:', exchangeError);
+          }
+          // Clean up the URL query parameters, keep the hash for routing
+          const cleanUrl = window.location.origin + window.location.pathname + (window.location.hash || '#dashboard');
+          window.history.replaceState({}, '', cleanUrl);
+        }
+
         const { data: { session } } = await supabase.auth.getSession();
         
         if (!isMounted) return;
@@ -98,7 +111,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      async (event, session) => {
         if (!isMounted) return;
         
         setSession(session);
@@ -107,6 +120,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           fetchProfile(session.user.id); // Don't await - let it run in background
         } else {
           setProfile(null);
+        }
+
+        // Handle password recovery redirect
+        if (event === 'PASSWORD_RECOVERY') {
+          window.location.hash = '#reset-password';
         }
       }
     );
@@ -154,7 +172,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       password,
       options: {
         data: { name },
-        emailRedirectTo: `${window.location.origin}/#login`
+        emailRedirectTo: `${window.location.origin}`
       }
     });
     
@@ -187,7 +205,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const resetPassword = async (email: string) => {
     if (!supabase) return { error: new Error('Supabase not configured') };
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/#reset-password`,
+      redirectTo: `${window.location.origin}`,
     });
     return { error };
   };

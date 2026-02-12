@@ -21,7 +21,14 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 // Create typed client (will fail gracefully if credentials missing)
 const typedSupabase = supabaseUrl && supabaseAnonKey 
-  ? createClient<Database>(supabaseUrl, supabaseAnonKey)
+  ? createClient<Database>(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true,
+        flowType: 'pkce',
+      }
+    })
   : null;
 
 // Export with relaxed typing for flexibility during development
