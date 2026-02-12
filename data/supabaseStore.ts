@@ -155,7 +155,7 @@ export const authApi = {
         const { error: magicLinkError } = await supabase.auth.signInWithOtp({
           email,
           options: {
-            emailRedirectTo: `${window.location.origin}/#/dashboard?login=magic`,
+            emailRedirectTo: `${window.location.origin}`,
             shouldCreateUser: false // Don't create new user, just send login link
           }
         });
@@ -187,7 +187,7 @@ export const authApi = {
         options: {
           data: { name },
           // Don't send confirmation email - we'll send magic link instead
-          emailRedirectTo: `${window.location.origin}/#/dashboard?login=magic&newuser=true`
+          emailRedirectTo: `${window.location.origin}`
         }
       });
 
@@ -228,7 +228,7 @@ export const authApi = {
       const { error: magicLinkError } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/#/dashboard?login=magic&newuser=true`,
+          emailRedirectTo: `${window.location.origin}`,
           shouldCreateUser: false // User already created above
         }
       });
@@ -237,7 +237,7 @@ export const authApi = {
         console.error('Magic link email error:', magicLinkError);
         // Fall back to password reset if magic link fails
         await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/#/reset-password`
+          redirectTo: `${window.location.origin}`
         });
       }
 

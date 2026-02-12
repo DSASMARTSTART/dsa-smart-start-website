@@ -85,8 +85,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (exchangeError) {
             console.error('Error exchanging auth code for session:', exchangeError);
           }
-          // Clean up the URL query parameters, keep the hash for routing
-          const cleanUrl = window.location.origin + window.location.pathname + (window.location.hash || '#dashboard');
+          
+          // Clean up the URL: go back to root, navigate to dashboard
+          const cleanUrl = window.location.origin + '/' + '#dashboard';
           window.history.replaceState({}, '', cleanUrl);
         }
 
