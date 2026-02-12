@@ -46,6 +46,19 @@ export interface PaymentRequest {
   returnUrl: string;
   cancelUrl: string;
   metadata?: Record<string, string>;
+  // Server-side purchase creation fields (for RaiAccept race condition fix)
+  userId?: string;
+  purchaseItems?: Array<{
+    courseId: string;
+    amount: number;
+    originalAmount: number;
+    discountAmount?: number;
+    discountCodeId?: string;
+    teachingMaterialsIncluded?: boolean;
+    teachingMaterialsPrice?: number;
+  }>;
+  paymentMethod?: string;
+  guestEmail?: string;
 }
 
 export interface PaymentResult {
@@ -151,6 +164,11 @@ export class RaiAcceptPayment {
           successUrl: request.returnUrl,
           failureUrl: request.cancelUrl,
           cancelUrl: request.cancelUrl,
+          // Server-side purchase creation (race condition fix)
+          userId: request.userId,
+          purchaseItems: request.purchaseItems,
+          paymentMethod: request.paymentMethod || 'card',
+          guestEmail: request.guestEmail,
         }),
       }
     );

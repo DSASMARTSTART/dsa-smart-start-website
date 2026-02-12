@@ -76,6 +76,8 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
   const { user: authUser, profile } = useAuth();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const paypalContainerRef = useRef<HTMLDivElement>(null);
+  const isProcessingRef = useRef(false); // Prevent double-execution of handlePaymentSuccess
+  const raiAcceptOrderIdRef = useRef<string | null>(null); // Store orderId for iframe handler
   
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -187,8 +189,26 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
       setPaymentIframeUrl(null);
 
       if (status === 'success') {
-        setPaymentSuccess(true);
-        announce('Payment successful! Your purchase is confirmed.');
+        // CRITICAL FIX: Call handlePaymentSuccess to create purchase record
+        // The orderId was stored in raiAcceptOrderIdRef when the payment was initiated
+        const orderId = raiAcceptOrderIdRef.current;
+        if (orderId) {
+          handlePaymentSuccess(orderId, 'card').then(() => {
+            setPaymentSuccess(true);
+            announce('Payment successful! Your purchase is confirmed.');
+          }).catch((err) => {
+            console.error('Error processing RaiAccept payment success:', err);
+            // Payment was successful but purchase record failed - redirect to success anyway
+            // The webhook will handle enrollment creation
+            setPaymentSuccess(true);
+            announce('Payment successful! Your courses will be available shortly.');
+          });
+        } else {
+          // Fallback: no orderId stored, just show success
+          // Webhook should still handle it via merchantOrderReference
+          setPaymentSuccess(true);
+          announce('Payment successful! Your courses will be available shortly.');
+        }
       } else if (status === 'cancel') {
         setLoading(false);
         setError('Payment was cancelled. You can try again.');
@@ -359,11 +379,19 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
 
   // Handle successful payment
   const handlePaymentSuccess = useCallback(async (transactionId: string, method: PaymentMethod) => {
+    // Idempotency guard: prevent double-execution
+    if (isProcessingRef.current) {
+      console.warn('handlePaymentSuccess already in progress, skipping duplicate call');
+      return;
+    }
+    isProcessingRef.current = true;
+
     try {
       // Re-validate discount code before processing
       const discountValid = await revalidateDiscountCode();
       if (!discountValid) {
         setLoading(false);
+        isProcessingRef.current = false;
         return;
       }
 
@@ -385,6 +413,56 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
         const guestResult = await authApi.createGuestCheckout(customerEmail.trim(), customerName || customerEmail.split('@')[0]);
         
         if (!guestResult.success) {
+          // For existing users, use the server-side RPC function to create purchase
+          // since the user isn't signed in and RLS would block client-side INSERT
+          if (guestResult.isExistingUser) {
+            isGuestPurchase = true;
+            isExistingUser = true;
+            
+            // Use server-side RPC to create purchases for existing guest users
+            for (const item of cartItems) {
+              const includeTeachingMaterials = !!(teachingMaterialsSelections[item.id] && item.teachingMaterialsPrice);
+              const teachingMaterialsCost = includeTeachingMaterials ? item.teachingMaterialsPrice! : 0;
+              const itemTotalPrice = item.price + teachingMaterialsCost;
+              const orderTotal = subtotal + teachingMaterialsTotal;
+              const itemDiscountAmount = appliedDiscount 
+                ? (itemTotalPrice / orderTotal) * appliedDiscount.amount 
+                : 0;
+              const finalAmount = itemTotalPrice - itemDiscountAmount;
+
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const { data, error } = await (supabase as any).rpc('create_guest_purchase', {
+                p_email: customerEmail.trim().toLowerCase(),
+                p_course_id: item.id,
+                p_amount: finalAmount,
+                p_original_amount: item.price,
+                p_discount_amount: itemDiscountAmount,
+                p_discount_code_id: appliedDiscount?.discountCodeId || null,
+                p_currency: 'EUR',
+                p_payment_method: method,
+                p_transaction_id: transactionId,
+                p_teaching_materials_included: includeTeachingMaterials,
+                p_teaching_materials_price: teachingMaterialsCost,
+              });
+
+              if (error) {
+                console.error('Guest purchase RPC error:', error);
+                throw new Error('Failed to create purchase. Please contact support.');
+              }
+              
+              const result = data as { success: boolean; error?: string; already_enrolled?: boolean };
+              if (!result.success && !result.already_enrolled) {
+                throw new Error(result.error || 'Failed to create purchase');
+              }
+            }
+
+            // Clear cart and redirect
+            onClearCart();
+            window.location.hash = `#checkout-success?guest=existing`;
+            isProcessingRef.current = false;
+            return;
+          }
+          
           throw new Error(guestResult.error || 'Failed to create account. Please try again or log in.');
         }
         
@@ -398,7 +476,6 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
       }
 
       // CRITICAL: Check for duplicate purchases before processing
-      // This prevents users from paying for courses they already own
       const alreadyOwnedItems: string[] = [];
       const itemsToPurchase: typeof cartItems = [];
       
@@ -423,12 +500,10 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
 
       // Create purchase records for each NEW item only
       for (const item of itemsToPurchase) {
-        // Include teaching materials price if selected
         const includeTeachingMaterials = !!(teachingMaterialsSelections[item.id] && item.teachingMaterialsPrice);
         const teachingMaterialsCost = includeTeachingMaterials ? item.teachingMaterialsPrice! : 0;
         const itemTotalPrice = item.price + teachingMaterialsCost;
         
-        // Calculate per-item discount (proportionally distributed based on total)
         const orderTotal = subtotal + teachingMaterialsTotal;
         const itemDiscountAmount = appliedDiscount 
           ? (itemTotalPrice / orderTotal) * appliedDiscount.amount 
@@ -455,7 +530,6 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
       // Clear cart and redirect to success page
       onClearCart();
       
-      // Pass guest flag to success page via hash
       if (isGuestPurchase) {
         const guestParam = isExistingUser ? 'existing' : 'true';
         window.location.hash = `#checkout-success?guest=${guestParam}`;
@@ -465,6 +539,8 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
     } catch (err) {
       console.error('Error recording purchase:', err);
       setError(err instanceof Error ? err.message : 'Failed to complete purchase');
+    } finally {
+      isProcessingRef.current = false;
     }
   }, [authUser, profile, cartItems, appliedDiscount, onClearCart, subtotal, teachingMaterialsSelections, teachingMaterialsTotal, customerEmail, customerName, revalidateDiscountCode]);
 
@@ -759,6 +835,31 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
       }
 
       const orderId = generateOrderId();
+      // Store orderId in ref so the iframe message handler can access it
+      raiAcceptOrderIdRef.current = orderId;
+      
+      // Build purchase items for server-side creation (eliminates race condition)
+      const orderTotal = subtotal + teachingMaterialsTotal;
+      const purchaseItems = cartItems.map(item => {
+        const includeTeachingMaterials = !!(teachingMaterialsSelections[item.id] && item.teachingMaterialsPrice);
+        const teachingMaterialsCost = includeTeachingMaterials ? item.teachingMaterialsPrice! : 0;
+        const itemTotalPrice = item.price + teachingMaterialsCost;
+        const itemDiscountAmount = appliedDiscount 
+          ? (itemTotalPrice / orderTotal) * appliedDiscount.amount 
+          : 0;
+        return {
+          courseId: item.id,
+          amount: itemTotalPrice - itemDiscountAmount,
+          originalAmount: item.price,
+          discountAmount: itemDiscountAmount,
+          discountCodeId: appliedDiscount?.discountCodeId,
+          teachingMaterialsIncluded: includeTeachingMaterials,
+          teachingMaterialsPrice: teachingMaterialsCost,
+        };
+      });
+
+      const userId = authUser?.id || profile?.id;
+
       const request: PaymentRequest = {
         orderId,
         amount: total,
@@ -774,6 +875,11 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
         })),
         returnUrl: `${window.location.origin}/#checkout-success?orderId=${orderId}`,
         cancelUrl: `${window.location.origin}/#checkout`,
+        // Server-side purchase creation fields
+        userId: userId || undefined,
+        purchaseItems,
+        paymentMethod: 'card',
+        guestEmail: !userId ? customerEmail.trim().toLowerCase() : undefined,
       };
 
       // Store order info for callback verification

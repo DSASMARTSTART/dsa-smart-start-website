@@ -5,6 +5,7 @@ import { enrollmentsApi, purchasesApi, coursesApi } from '../data/supabaseStore'
 import { Course, Enrollment, Purchase } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { useUserProgress } from '../hooks/useUserProgress';
+import { supabase } from '../lib/supabase';
 
 // Level-based icons and colors
 const LEVEL_CONFIG: Record<string, { icon: React.ReactNode; color: string }> = {
@@ -94,6 +95,21 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
       if (!isCancelled) setLoading(true);
 
       try {
+        // SELF-HEALING: Repair any completed purchases that are missing enrollments
+        // This handles edge cases where webhook confirmed payment but enrollment wasn't created
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const { data: repairResult } = await (supabase as any).rpc('ensure_enrollment_exists', {
+            p_user_id: userId
+          });
+          if (repairResult && repairResult.repaired_count > 0) {
+            console.log(`Self-healing: repaired ${repairResult.repaired_count} missing enrollment(s)`);
+          }
+        } catch (repairErr) {
+          // Don't block dashboard loading if repair fails
+          console.warn('Enrollment repair check failed (non-critical):', repairErr);
+        }
+
         // Optimized: Get enrollments WITH course data in a single query (no N+1!)
         const enrollmentsWithCourses = await enrollmentsApi.getByUserWithCourses(userId);
         

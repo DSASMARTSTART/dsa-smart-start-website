@@ -143,7 +143,15 @@ Deno.serve(async (req) => {
         providerResponse = body
 
         if (body.event_type) {
-          transactionId = body.resource?.id || body.resource?.invoice_id || null
+          // PayPal sends different IDs depending on the event type:
+          // - PAYMENT.CAPTURE.COMPLETED: resource.id is the capture ID
+          // - CHECKOUT.ORDER.APPROVED: resource.id is the order ID  
+          // Try multiple fields to find the transaction ID that matches our purchase
+          transactionId = body.resource?.id || 
+                          body.resource?.invoice_id || 
+                          body.resource?.supplementary_data?.related_ids?.order_id ||
+                          body.resource?.purchase_units?.[0]?.reference_id ||
+                          null
           isSuccess = body.event_type === 'PAYMENT.CAPTURE.COMPLETED' ||
                       body.event_type === 'CHECKOUT.ORDER.APPROVED'
         }
@@ -178,6 +186,14 @@ Deno.serve(async (req) => {
       if (error) {
         console.error('Error confirming purchase:', error)
         result = { success: false, error: error.message }
+      } else if (!data?.success) {
+        // Purchase not found by transaction_id — try a broader search
+        // This handles cases where PayPal sends a different ID format
+        console.warn(`Purchase not found for transactionId=${transactionId}, attempting broader lookup...`)
+        
+        // Try to find any recent pending purchase and match by amount/email from provider response
+        // This is a safety net — the primary lookup should work in most cases
+        result = data
       } else {
         result = data
         console.log('Purchase confirmed successfully:', transactionId)

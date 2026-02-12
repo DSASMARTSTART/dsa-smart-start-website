@@ -32,6 +32,9 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
   const userName = profile?.name || 'there';
 
   useEffect(() => {
+    let isCancelled = false;
+    let pollInterval: ReturnType<typeof setInterval> | null = null;
+
     const loadRecentPurchases = async () => {
       if (!userId) {
         setLoading(false);
@@ -58,15 +61,59 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
           })
         );
         
-        setRecentPurchases(purchasesWithCourses);
+        if (!isCancelled) {
+          setRecentPurchases(purchasesWithCourses);
+          
+          // Check if any purchases are still pending — if so, start polling
+          const hasPending = purchasesWithCourses.some(p => p.status === 'pending');
+          if (hasPending && !pollInterval) {
+            pollInterval = setInterval(async () => {
+              try {
+                const refreshed = await purchasesApi.getByUser(userId);
+                const recentRefreshed = refreshed.filter(p => new Date(p.purchasedAt) > tenMinutesAgo);
+                const withCourses: PurchaseWithCourse[] = await Promise.all(
+                  recentRefreshed.map(async (purchase) => {
+                    try {
+                      const course = await coursesApi.getById(purchase.courseId);
+                      return { ...purchase, course: course || undefined };
+                    } catch {
+                      return { ...purchase };
+                    }
+                  })
+                );
+                
+                if (!isCancelled) {
+                  setRecentPurchases(withCourses);
+                  
+                  // Stop polling if all purchases are confirmed
+                  const stillPending = withCourses.some(p => p.status === 'pending');
+                  if (!stillPending && pollInterval) {
+                    clearInterval(pollInterval);
+                    pollInterval = null;
+                  }
+                }
+              } catch (err) {
+                console.error('Error polling purchases:', err);
+              }
+            }, 5000); // Poll every 5 seconds
+          }
+        }
       } catch (error) {
         console.error('Error loading recent purchases:', error);
       } finally {
-        setLoading(false);
+        if (!isCancelled) setLoading(false);
       }
     };
 
     loadRecentPurchases();
+
+    // Cleanup: stop polling on unmount
+    return () => {
+      isCancelled = true;
+      if (pollInterval) {
+        clearInterval(pollInterval);
+      }
+    };
   }, [userId]);
 
   // Confetti animation effect

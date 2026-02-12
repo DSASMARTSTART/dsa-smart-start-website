@@ -1,10 +1,13 @@
 // Supabase Edge Function: create-raiaccept-session
 // Creates a RaiAccept order and payment session, returns the payment form URL
+// ALSO creates pending purchase records server-side to eliminate race conditions
 // Deploy with: supabase functions deploy create-raiaccept-session
 //
 // IMPORTANT: Set these secrets in Supabase Dashboard → Edge Functions → Secrets:
 //   RAIACCEPT_API_USERNAME
 //   RAIACCEPT_API_PASSWORD
+
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -28,6 +31,19 @@ interface SessionRequest {
   failureUrl: string;
   cancelUrl: string;
   language?: string;
+  // Purchase creation fields (for server-side pending purchase)
+  userId?: string;
+  purchaseItems?: Array<{
+    courseId: string;
+    amount: number;
+    originalAmount: number;
+    discountAmount?: number;
+    discountCodeId?: string;
+    teachingMaterialsIncluded?: boolean;
+    teachingMaterialsPrice?: number;
+  }>;
+  paymentMethod?: string;
+  guestEmail?: string;
 }
 
 // Step 1: Authenticate with RaiAccept via Amazon Cognito
@@ -230,6 +246,69 @@ Deno.serve(async (req) => {
         JSON.stringify({ error: `Missing required fields: ${missingFields.join(', ')}`, success: false }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       );
+    }
+
+    // ── Create pending purchase records server-side (RACE CONDITION FIX) ──
+    // This ensures the purchase record exists BEFORE the webhook fires
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    
+    if (body.purchaseItems && body.purchaseItems.length > 0) {
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+      const userId = body.userId;
+      
+      for (const item of body.purchaseItems) {
+        try {
+          if (userId) {
+            // Logged-in user: use create_pending_purchase RPC
+            const { data, error } = await supabase.rpc('create_pending_purchase', {
+              p_user_id: userId,
+              p_course_id: item.courseId,
+              p_amount: item.amount,
+              p_original_amount: item.originalAmount,
+              p_discount_amount: item.discountAmount || 0,
+              p_discount_code_id: item.discountCodeId || null,
+              p_currency: body.currency,
+              p_payment_method: body.paymentMethod || 'card',
+              p_transaction_id: body.orderId,
+              p_teaching_materials_included: item.teachingMaterialsIncluded || false,
+              p_teaching_materials_price: item.teachingMaterialsPrice || 0,
+              p_guest_email: body.guestEmail || null,
+            });
+            
+            if (error) {
+              console.error('Error creating pending purchase for course', item.courseId, ':', error);
+            } else {
+              console.log('Pending purchase created for course', item.courseId, ':', data);
+            }
+          } else if (body.guestEmail) {
+            // Guest user (existing account): use create_guest_purchase RPC
+            const { data, error } = await supabase.rpc('create_guest_purchase', {
+              p_email: body.guestEmail,
+              p_course_id: item.courseId,
+              p_amount: item.amount,
+              p_original_amount: item.originalAmount,
+              p_discount_amount: item.discountAmount || 0,
+              p_discount_code_id: item.discountCodeId || null,
+              p_currency: body.currency,
+              p_payment_method: body.paymentMethod || 'card',
+              p_transaction_id: body.orderId,
+              p_teaching_materials_included: item.teachingMaterialsIncluded || false,
+              p_teaching_materials_price: item.teachingMaterialsPrice || 0,
+            });
+            
+            if (error) {
+              console.error('Error creating guest purchase for course', item.courseId, ':', error);
+            } else {
+              console.log('Guest pending purchase created for course', item.courseId, ':', data);
+            }
+          }
+        } catch (purchaseErr) {
+          // Log but don't fail - the payment should still proceed
+          // Client-side handlePaymentSuccess will also try to create the purchase
+          console.error('Failed to create server-side pending purchase:', purchaseErr);
+        }
+      }
     }
 
     // Step 1: Authenticate with RaiAccept
