@@ -10,7 +10,7 @@ import {
   isPaymentConfigured, 
   getAvailablePaymentMethods,
   paypalPayment,
-  raiffeisenPayment,
+  raiAcceptPayment,
   generateOrderId,
   PaymentMethod,
   PaymentRequest
@@ -109,6 +109,11 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
   } | null>(null);
   const [discountError, setDiscountError] = useState<string | null>(null);
   
+  // RaiAccept iframe state
+  const [showPaymentIframe, setShowPaymentIframe] = useState(false);
+  const [paymentIframeUrl, setPaymentIframeUrl] = useState<string | null>(null);
+  const [paymentOrderId, setPaymentOrderId] = useState<string | null>(null);
+  
   // Screen reader announcements
   const [announcement, setAnnouncement] = useState<string>('');
   
@@ -166,6 +171,39 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
   const [checkoutStartTime] = useState(() => Date.now());
   const CHECKOUT_TIMEOUT_MINUTES = 30; // Warn after 25 minutes, timeout at 30
   const WARNING_THRESHOLD_MINUTES = 5;
+
+  // Listen for RaiAccept iframe postMessage events (payment completion)
+  useEffect(() => {
+    const handleIframeMessage = (event: MessageEvent) => {
+      // RaiAccept sends: { name: "orderResult", payload: { status, orderIdentification, errorMessage } }
+      if (event.data?.name !== 'orderResult') return;
+      const payload = event.data.payload || {};
+      const status: string = payload.status || '';
+
+      console.log('RaiAccept iframe message:', status, payload);
+
+      // Close the iframe modal
+      setShowPaymentIframe(false);
+      setPaymentIframeUrl(null);
+
+      if (status === 'success') {
+        setPaymentSuccess(true);
+        announce('Payment successful! Your purchase is confirmed.');
+      } else if (status === 'cancel') {
+        setLoading(false);
+        setError('Payment was cancelled. You can try again.');
+        announce('Payment cancelled.');
+      } else {
+        // failure / exception
+        setLoading(false);
+        setError(payload.errorMessage || 'Payment failed. Please try again.');
+        announce('Payment failed.');
+      }
+    };
+
+    window.addEventListener('message', handleIframeMessage);
+    return () => window.removeEventListener('message', handleIframeMessage);
+  }, [announce]);
 
   // Session/checkout timeout monitoring
   useEffect(() => {
@@ -694,7 +732,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
     }
   };
 
-  // Handle Raiffeisen card payment
+  // Handle Raiffeisen card payment (RaiAccept iframe flow)
   const handleRaiffeisenPayment = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -746,24 +784,13 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
         discountCode: appliedDiscount?.code,
       }));
 
-      // Get payment form data and redirect
-      const { formData, actionUrl } = await raiffeisenPayment.createPaymentRequest(request);
+      // Create RaiAccept payment session via Edge Function
+      const { paymentFormUrl, orderIdentification } = await raiAcceptPayment.createPaymentSession(request);
 
-      // Create and submit form to Raiffeisen payment gateway
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = actionUrl;
-
-      Object.entries(formData).forEach(([key, value]) => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = key;
-        input.value = value;
-        form.appendChild(input);
-      });
-
-      document.body.appendChild(form);
-      form.submit();
+      // Store for reference & open iframe
+      setPaymentOrderId(orderIdentification);
+      setPaymentIframeUrl(paymentFormUrl);
+      setShowPaymentIframe(true);
     } catch (err) {
       console.error('Payment error:', err);
       setError(err instanceof Error ? err.message : 'Payment failed. Please try again.');
@@ -992,8 +1019,8 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                   </h3>
 
                   <div className="space-y-3 sm:space-y-4">
-                    {/* Card Payment Option (Raiffeisen) */}
-                    {paymentConfig.raiffeisen.isConfigured && (
+                    {/* Card Payment Option (RaiAccept) */}
+                    {paymentConfig.raiaccept.isConfigured && (
                       <button
                         type="button"
                         onClick={() => setSelectedPaymentMethod('card')}
@@ -1086,13 +1113,13 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                     </div>
                   )}
 
-                  {/* Card Payment Form - Redirects to Raiffeisen */}
+                  {/* Card Payment Form - RaiAccept iframe */}
                   {selectedPaymentMethod === 'card' && (
                     <div className="mt-8">
                       <div className="bg-blue-500/10 border border-blue-500/30 rounded-2xl p-4 mb-6">
                         <p className="text-sm text-blue-300">
                           <Building2 className="inline mr-2" size={16} />
-                          You will be redirected to Raiffeisen Bank's secure payment page to enter your card details.
+                          A secure payment form by Raiffeisen Bank will appear on this page for you to enter your card details.
                         </p>
                       </div>
 
@@ -1408,6 +1435,45 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
           </div>
         </div>
       </section>
+
+      {/* ── RaiAccept Payment Iframe Modal ───────────────────────────── */}
+      {showPaymentIframe && paymentIframeUrl && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+          <div className="relative w-full max-w-xl mx-4 bg-white rounded-2xl shadow-2xl overflow-hidden" style={{ height: '80vh' }}>
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
+              <div className="flex items-center gap-2">
+                <Lock size={18} />
+                <span className="font-semibold text-sm">Secure Payment – Raiffeisen Bank</span>
+              </div>
+              <button
+                onClick={() => {
+                  setShowPaymentIframe(false);
+                  setPaymentIframeUrl(null);
+                  setLoading(false);
+                  setError('Payment was cancelled.');
+                }}
+                className="p-1 rounded-full hover:bg-white/20 transition"
+                aria-label="Close payment"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            {/* Loading indicator while iframe loads */}
+            <div className="absolute inset-0 top-14 flex items-center justify-center pointer-events-none">
+              <Loader2 size={36} className="animate-spin text-blue-500 opacity-50" />
+            </div>
+            {/* Payment iframe */}
+            <iframe
+              src={paymentIframeUrl}
+              title="RaiAccept Payment"
+              className="w-full border-0 relative z-10"
+              style={{ height: 'calc(80vh - 56px)' }}
+              sandbox="allow-forms allow-modals allow-same-origin allow-scripts allow-popups allow-storage-access-by-user-activation allow-downloads"
+            />
+          </div>
+        </div>
+      )}
 
       <style dangerouslySetInnerHTML={{ __html: `
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }

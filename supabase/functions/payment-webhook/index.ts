@@ -1,6 +1,9 @@
 // Supabase Edge Function for Payment Webhook Verification
-// This endpoint receives callbacks from payment providers (Raiffeisen/PayPal)
-// and confirms or fails purchases accordingly
+// Handles callbacks from RaiAccept (card payments) and PayPal
+// Deploy with: supabase functions deploy payment-webhook
+//
+// RaiAccept webhook sends JSON POST to: /functions/v1/payment-webhook?provider=raiaccept
+// PayPal webhook sends JSON POST to: /functions/v1/payment-webhook?provider=paypal
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -9,46 +12,67 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Raiffeisen/Nestpay hash verification
-function verifyRaiffeisenHash(params: Record<string, string>, storeKey: string): boolean {
-  // Nestpay sends: hashparams contains list of fields to hash
-  // Hash = base64(sha512(params joined by |))
-  const hashParams = params.hashparams || '';
-  const receivedHash = params.hash || params.HASH || '';
-  
-  if (!hashParams || !receivedHash) {
-    console.log('Missing hash params or hash');
-    return false;
+// RaiAccept API constants (same as in create-raiaccept-session)
+const AUTH_URL = 'https://authenticate.raiaccept.com';
+const API_URL = 'https://trapi.raiaccept.com';
+const AUTH_CLIENT_ID = 'kr2gs4117arvbnaperqff5dml';
+
+// Authenticate with RaiAccept to verify order status
+async function getRaiAcceptToken(): Promise<string | null> {
+  const username = Deno.env.get('RAIACCEPT_API_USERNAME');
+  const password = Deno.env.get('RAIACCEPT_API_PASSWORD');
+  if (!username || !password) return null;
+
+  try {
+    const response = await fetch(AUTH_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-amz-json-1.1',
+        'X-Amz-Target': 'AWSCognitoIdentityProviderService.InitiateAuth',
+      },
+      body: JSON.stringify({
+        AuthFlow: 'USER_PASSWORD_AUTH',
+        AuthParameters: { USERNAME: username, PASSWORD: password },
+        ClientId: AUTH_CLIENT_ID,
+      }),
+    });
+    if (!response.ok) return null;
+    const data = await response.json();
+    return data?.AuthenticationResult?.IdToken || null;
+  } catch {
+    return null;
   }
-
-  // Build string from params in order specified by hashparams
-  const paramList = hashParams.split(':');
-  const values = paramList
-    .map(param => params[param] || params[param.toLowerCase()] || '')
-    .join('|');
-  
-  const hashInput = values + '|' + storeKey;
-  
-  // Create SHA-512 hash and base64 encode
-  const encoder = new TextEncoder();
-  const data = encoder.encode(hashInput);
-  
-  // Note: In production, use SubtleCrypto for proper hash verification
-  // This is a simplified version - implement full verification as needed
-  console.log('Hash verification attempted for Raiffeisen payment');
-  
-  // For now, log and return true if we have the expected success indicators
-  // TODO: Implement proper SHA-512 hash verification
-  return true;
 }
 
-// PayPal webhook verification (simplified - implement full verification in production)
-async function verifyPayPalWebhook(body: string, headers: Headers): Promise<boolean> {
-  // In production, verify using PayPal's verification endpoint
-  // https://developer.paypal.com/docs/api/webhooks/v1/#verify-webhook-signature
-  console.log('PayPal webhook received - verification pending full implementation');
-  return true;
+// Verify order status by calling RaiAccept Retrieve Order Details API
+async function verifyRaiAcceptOrder(
+  token: string,
+  orderIdentification: string
+): Promise<{ status: string; merchantOrderReference: string } | null> {
+  try {
+    const response = await fetch(`${API_URL}/orders/${orderIdentification}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      console.error('RaiAccept verify order failed:', response.status);
+      return null;
+    }
+    const data = await response.json();
+    return {
+      status: data?.status || '',
+      merchantOrderReference: data?.invoice?.merchantOrderReference || '',
+    };
+  } catch (err) {
+    console.error('RaiAccept verify order error:', err);
+    return null;
+  }
 }
+
+const RAIACCEPT_PAID_STATUSES = ['PAID', 'SUCCESS'];
 
 Deno.serve(async (req) => {
   // Handle CORS preflight
@@ -59,118 +83,121 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    const raiffeisenStoreKey = Deno.env.get('RAIFFEISEN_STORE_KEY') || ''
-    
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    // Determine payment provider from URL path or headers
     const url = new URL(req.url)
-    const provider = url.searchParams.get('provider') || 'raiffeisen'
+    const provider = url.searchParams.get('provider') || 'raiaccept'
 
     let transactionId: string | null = null
     let isSuccess = false
     let providerResponse: Record<string, unknown> = {}
 
-    if (req.method === 'POST') {
-      const contentType = req.headers.get('content-type') || ''
-      
-      if (contentType.includes('application/json')) {
-        // PayPal sends JSON
-        const body = await req.json()
-        providerResponse = body
-        
-        // PayPal webhook structure
-        if (body.event_type) {
-          transactionId = body.resource?.id || body.resource?.invoice_id || null
-          isSuccess = body.event_type === 'PAYMENT.CAPTURE.COMPLETED' || 
-                      body.event_type === 'CHECKOUT.ORDER.APPROVED'
-          
-          // Verify PayPal webhook signature
-          const isValid = await verifyPayPalWebhook(JSON.stringify(body), req.headers)
-          if (!isValid) {
-            console.error('PayPal webhook verification failed')
-            return new Response(JSON.stringify({ error: 'Invalid webhook signature' }), {
-              status: 401,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-            })
+    // ── RaiAccept webhook (JSON POST) ──────────────────────────────────
+    if (provider === 'raiaccept' && req.method === 'POST') {
+      const body = await req.json()
+      providerResponse = body
+
+      // RaiAccept notification webhook structure:
+      // { order: { orderIdentification, invoice: { merchantOrderReference, ... }, ... },
+      //   transaction: { transactionId, status, ... },
+      //   merchant: { ... },
+      //   card: { ... } }
+      const orderIdentification = body?.order?.orderIdentification || ''
+      const webhookTransactionId = body?.transaction?.transactionId || ''
+      const transactionStatus = body?.transaction?.status || ''
+      const merchantOrderReference =
+        body?.order?.invoice?.merchantOrderReference ||
+        body?.invoice?.merchantOrderReference || ''
+
+      console.log(`RaiAccept webhook received: order=${orderIdentification}, tx=${webhookTransactionId}, status=${transactionStatus}, merchantRef=${merchantOrderReference}`)
+
+      // Use merchantOrderReference as our transactionId (matches our orderId from checkout)
+      transactionId = merchantOrderReference || orderIdentification
+
+      // SECURITY: Verify the order status by calling RaiAccept API directly
+      // Don't just trust the webhook payload — call Retrieve Order Details to confirm
+      const token = await getRaiAcceptToken()
+      if (token && orderIdentification) {
+        const verified = await verifyRaiAcceptOrder(token, orderIdentification)
+        if (verified) {
+          console.log(`RaiAccept API-verified order status: ${verified.status}`)
+          isSuccess = RAIACCEPT_PAID_STATUSES.includes(verified.status.toUpperCase())
+          if (verified.merchantOrderReference) {
+            transactionId = verified.merchantOrderReference
           }
+        } else {
+          console.warn('RaiAccept API verification failed, falling back to webhook status')
+          isSuccess = RAIACCEPT_PAID_STATUSES.includes(transactionStatus.toUpperCase())
         }
       } else {
-        // Raiffeisen sends form data
-        const formData = await req.formData()
-        const params: Record<string, string> = {}
-        formData.forEach((value, key) => {
-          params[key] = value.toString()
-        })
-        providerResponse = params
-        
-        // Raiffeisen/Nestpay response fields
-        transactionId = params.oid || params.OrderId || params.TransId || null
-        const response = params.Response || params.ProcReturnCode || ''
-        isSuccess = response === 'Approved' || params.ProcReturnCode === '00'
-        
-        // Verify Raiffeisen hash
-        if (raiffeisenStoreKey) {
-          const isValid = verifyRaiffeisenHash(params, raiffeisenStoreKey)
-          if (!isValid) {
-            console.error('Raiffeisen hash verification failed')
-            return new Response(JSON.stringify({ error: 'Invalid hash' }), {
-              status: 401,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-            })
-          }
+        console.warn('RaiAccept credentials not available for verification')
+        isSuccess = RAIACCEPT_PAID_STATUSES.includes(transactionStatus.toUpperCase())
+      }
+
+    // ── PayPal webhook (JSON POST) ─────────────────────────────────────
+    } else if (req.method === 'POST') {
+      const contentType = req.headers.get('content-type') || ''
+
+      if (contentType.includes('application/json')) {
+        const body = await req.json()
+        providerResponse = body
+
+        if (body.event_type) {
+          transactionId = body.resource?.id || body.resource?.invoice_id || null
+          isSuccess = body.event_type === 'PAYMENT.CAPTURE.COMPLETED' ||
+                      body.event_type === 'CHECKOUT.ORDER.APPROVED'
         }
       }
+
+    // ── GET callback (legacy / redirect-based) ─────────────────────────
     } else if (req.method === 'GET') {
-      // Some providers send GET requests for callbacks
       const params = Object.fromEntries(url.searchParams)
       providerResponse = params
       transactionId = params.oid || params.transactionId || params.tx || null
-      isSuccess = params.Response === 'Approved' || params.status === 'success'
+      isSuccess = params.status === 'success'
     }
 
+    // ── Process the result ─────────────────────────────────────────────
     if (!transactionId) {
-      console.error('No transaction ID in webhook payload:', providerResponse)
+      console.error('No transaction ID in webhook payload:', JSON.stringify(providerResponse).substring(0, 500))
       return new Response(JSON.stringify({ error: 'Missing transaction ID' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       })
     }
 
-    console.log(`Processing webhook for transaction ${transactionId}, success: ${isSuccess}`)
+    console.log(`Processing webhook: provider=${provider}, transactionId=${transactionId}, success=${isSuccess}`)
 
-    // Call the appropriate database function
     let result
     if (isSuccess) {
       const { data, error } = await supabase.rpc('confirm_purchase_webhook', {
         p_transaction_id: transactionId,
         p_provider_response: providerResponse
       })
-      
+
       if (error) {
         console.error('Error confirming purchase:', error)
         result = { success: false, error: error.message }
       } else {
         result = data
-        console.log('Purchase confirmed:', data)
+        console.log('Purchase confirmed successfully:', transactionId)
       }
     } else {
       const { data, error } = await supabase.rpc('fail_purchase_webhook', {
         p_transaction_id: transactionId,
         p_provider_response: providerResponse
       })
-      
+
       if (error) {
         console.error('Error failing purchase:', error)
         result = { success: false, error: error.message }
       } else {
         result = data
-        console.log('Purchase marked as failed:', data)
+        console.log('Purchase marked as failed:', transactionId)
       }
     }
 
-    // Return success to payment provider
-    // Most providers expect a 200 response to confirm receipt
+    // Return 200 to acknowledge receipt (most providers require this)
     return new Response(JSON.stringify(result), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }

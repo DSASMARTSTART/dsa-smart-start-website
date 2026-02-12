@@ -1,27 +1,26 @@
 /**
  * Payment Service for DSA Smart Start
- * 
+ *
  * Supports two payment processors:
- * 1. Raiffeisen Bank (via Nestpay/ALLSECURE gateway) - Card payments
- * 2. PayPal - PayPal wallet payments
- * 
+ * 1. RaiAccept (Raiffeisen Bank) — Card payments via REST API + iframe
+ * 2. PayPal — PayPal wallet payments
+ *
  * Configuration required in .env:
- * - VITE_RAIFFEISEN_MERCHANT_ID
- * - VITE_RAIFFEISEN_TERMINAL_ID  
- * - VITE_RAIFFEISEN_STORE_KEY
- * - VITE_RAIFFEISEN_API_URL (sandbox or production)
+ * - VITE_RAIACCEPT_ENABLED=true   (enables RaiAccept card payments)
  * - VITE_PAYPAL_CLIENT_ID
  * - VITE_PAYPAL_MODE (sandbox or live)
+ *
+ * Server-side secrets (Supabase Edge Functions):
+ * - RAIACCEPT_API_USERNAME
+ * - RAIACCEPT_API_PASSWORD
  */
 
 export type PaymentMethod = 'card' | 'paypal';
 export type PaymentStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled' | 'refunded';
 
 export interface PaymentConfig {
-  raiffeisen: {
-    merchantId: string;
-    terminalId: string;
-    apiUrl: string;
+  raiaccept: {
+    enabled: boolean;
     isConfigured: boolean;
   };
   paypal: {
@@ -58,22 +57,23 @@ export interface PaymentResult {
   error?: string;
 }
 
-// Get payment configuration from environment
-// NOTE: Store key is NOT included here - it's only on server-side Edge Function
+/** Result returned by the create-raiaccept-session Edge Function */
+export interface RaiAcceptSessionResult {
+  paymentFormUrl: string;
+  orderIdentification: string;
+}
+
+// ── Configuration helpers ───────────────────────────────────────────
+
 export function getPaymentConfig(): PaymentConfig {
-  const raiffeisenMerchantId = import.meta.env.VITE_RAIFFEISEN_MERCHANT_ID || '';
-  const raiffeisenTerminalId = import.meta.env.VITE_RAIFFEISEN_TERMINAL_ID || '';
-  const raiffeisenApiUrl = import.meta.env.VITE_RAIFFEISEN_API_URL || 'https://entegrasyon.asseco-see.com.tr/fim/est3Dgate'; // Nestpay test URL
-  
+  const raiAcceptEnabled = import.meta.env.VITE_RAIACCEPT_ENABLED === 'true';
   const paypalClientId = import.meta.env.VITE_PAYPAL_CLIENT_ID || '';
   const paypalMode = (import.meta.env.VITE_PAYPAL_MODE as 'sandbox' | 'live') || 'sandbox';
 
   return {
-    raiffeisen: {
-      merchantId: raiffeisenMerchantId,
-      terminalId: raiffeisenTerminalId,
-      apiUrl: raiffeisenApiUrl,
-      isConfigured: !!(raiffeisenMerchantId && raiffeisenTerminalId),
+    raiaccept: {
+      enabled: raiAcceptEnabled,
+      isConfigured: raiAcceptEnabled,
     },
     paypal: {
       clientId: paypalClientId,
@@ -83,46 +83,48 @@ export function getPaymentConfig(): PaymentConfig {
   };
 }
 
-// Check which payment methods are available
 export function getAvailablePaymentMethods(): PaymentMethod[] {
   const config = getPaymentConfig();
   const methods: PaymentMethod[] = [];
-  
-  if (config.raiffeisen.isConfigured) {
-    methods.push('card');
-  }
-  if (config.paypal.isConfigured) {
-    methods.push('paypal');
-  }
-  
+  if (config.raiaccept.isConfigured) methods.push('card');
+  if (config.paypal.isConfigured) methods.push('paypal');
   return methods;
 }
 
-// Check if any payment method is configured
 export function isPaymentConfigured(): boolean {
   return getAvailablePaymentMethods().length > 0;
 }
 
+// ── RaiAccept Payment (REST API + iframe) ───────────────────────────
+
 /**
- * Raiffeisen/Nestpay Payment Integration
- * 
- * The Nestpay gateway uses 3D Secure authentication.
+ * RaiAccept (Raiffeisen Bank Serbia) Payment Integration
+ *
  * Flow:
- * 1. Generate hash via server-side Edge Function (store key never exposed to client)
- * 2. Redirect customer to Nestpay 3D Secure page
- * 3. Customer enters card details on bank's secure page
- * 4. Bank redirects back to our returnUrl with result
+ * 1. Client calls createPaymentSession() with order details
+ * 2. Edge Function authenticates with RaiAccept Cognito, creates order,
+ *    creates checkout session → returns paymentFormUrl
+ * 3. Client displays paymentFormUrl inside an iframe (mode=frameless)
+ * 4. Customer completes card entry inside the iframe
+ * 5. Iframe posts a `message` event with { name: "orderResult", payload }
+ * 6. Webhook also fires server-side to confirm/fail the purchase
  */
-export class RaiffeisenPayment {
-  private config: PaymentConfig['raiffeisen'];
+export class RaiAcceptPayment {
+  private config: PaymentConfig['raiaccept'];
 
   constructor() {
-    this.config = getPaymentConfig().raiffeisen;
+    this.config = getPaymentConfig().raiaccept;
   }
 
-  // Generate hash for Nestpay request via server-side Edge Function
-  // SECURITY: The store key is ONLY on the server - never exposed to client
-  private async generateHash(params: Record<string, string>): Promise<string> {
+  /**
+   * Call the Supabase Edge Function to create a RaiAccept payment session.
+   * Returns the iframe-ready payment URL and the RaiAccept orderIdentification.
+   */
+  async createPaymentSession(request: PaymentRequest): Promise<RaiAcceptSessionResult> {
+    if (!this.config.isConfigured) {
+      throw new Error('RaiAccept card payment is not enabled');
+    }
+
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
@@ -130,95 +132,44 @@ export class RaiffeisenPayment {
       throw new Error('Supabase configuration missing for payment processing');
     }
 
-    const response = await fetch(`${supabaseUrl}/functions/v1/generate-payment-hash`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${supabaseKey}`,
-      },
-      body: JSON.stringify({
-        clientid: params.clientid,
-        oid: params.oid,
-        amount: params.amount,
-        okUrl: params.okUrl,
-        failUrl: params.failUrl,
-        islemtipi: params.islemtipi,
-        taksit: params.taksit || '',
-        rnd: params.rnd,
-      }),
-    });
+    const response = await fetch(
+      `${supabaseUrl}/functions/v1/create-raiaccept-session`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${supabaseKey}`,
+        },
+        body: JSON.stringify({
+          orderId: request.orderId,
+          amount: request.amount,
+          currency: request.currency,
+          description: request.description,
+          customerEmail: request.customerEmail,
+          customerName: request.customerName,
+          items: request.items,
+          successUrl: request.returnUrl,
+          failureUrl: request.cancelUrl,
+          cancelUrl: request.cancelUrl,
+        }),
+      }
+    );
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-      throw new Error(errorData.error || 'Failed to generate payment hash');
+      const errBody = await response.json().catch(() => ({ error: 'Unknown error' }));
+      throw new Error(errBody.error || `RaiAccept session creation failed (${response.status})`);
     }
 
-    const { hash, success } = await response.json();
-    
-    if (!success || !hash) {
-      throw new Error('Invalid response from payment hash service');
+    const data = await response.json();
+
+    if (!data.paymentFormUrl || !data.orderIdentification) {
+      throw new Error('Invalid response from RaiAccept session service');
     }
-
-    return hash;
-  }
-
-  // Create payment form data for Nestpay 3D redirect
-  async createPaymentRequest(request: PaymentRequest): Promise<{ formData: Record<string, string>; actionUrl: string }> {
-    if (!this.config.isConfigured) {
-      throw new Error('Raiffeisen payment is not configured');
-    }
-
-    const rnd = Date.now().toString();
-    const amount = request.amount.toFixed(2);
-
-    const formData: Record<string, string> = {
-      clientid: this.config.merchantId,
-      storetype: '3D_PAY_HOSTING', // 3D Secure with hosted payment page
-      islemtipi: 'Auth', // Authorization
-      amount: amount,
-      currency: '978', // EUR currency code
-      oid: request.orderId,
-      okUrl: request.returnUrl,
-      failUrl: request.cancelUrl,
-      lang: 'en',
-      rnd: rnd,
-      encoding: 'UTF-8',
-      email: request.customerEmail,
-      BillToName: request.customerName,
-      // hash will be added after generation
-    };
-
-    formData.hash = await this.generateHash(formData);
 
     return {
-      formData,
-      actionUrl: this.config.apiUrl,
+      paymentFormUrl: data.paymentFormUrl,
+      orderIdentification: data.orderIdentification,
     };
-  }
-
-  // Verify callback from Nestpay
-  verifyCallback(params: Record<string, string>): PaymentResult {
-    // Response codes: Approved, Declined, Error
-    const response = params.Response;
-    const transactionId = params.TransId;
-    const errorMessage = params.ErrMsg;
-
-    if (response === 'Approved') {
-      return {
-        success: true,
-        transactionId,
-        status: 'completed',
-        message: 'Payment successful',
-      };
-    } else {
-      return {
-        success: false,
-        transactionId,
-        status: 'failed',
-        message: errorMessage || 'Payment failed',
-        error: errorMessage,
-      };
-    }
   }
 }
 
@@ -427,5 +378,8 @@ declare global {
 }
 
 // Export singleton instances
-export const raiffeisenPayment = new RaiffeisenPayment();
+export const raiAcceptPayment = new RaiAcceptPayment();
 export const paypalPayment = new PayPalPayment();
+
+// Backward-compatible alias so existing imports keep working
+export const raiffeisenPayment = raiAcceptPayment;
