@@ -193,7 +193,11 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
       setPaymentIframeUrl(null);
 
       if (status === 'success') {
-        // Payment succeeded in iframe — now confirm purchases server-side
+        // Payment succeeded in iframe — clear cart immediately since payment
+        // is already charged at the gateway level, regardless of enrollment state.
+        onClearCart();
+
+        // Now confirm purchases server-side.
         // The webhook may or may not fire (sandbox often doesn't), so we
         // call confirm_purchases_by_transaction as a client-side fallback.
         const orderId = raiAcceptOrderIdRef.current;
@@ -214,7 +218,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
             console.error('Client-side confirmation error:', err);
           });
           
-          // Also call handlePaymentSuccess to clear cart and redirect
+          // Also call handlePaymentSuccess to record purchase and redirect
           handlePaymentSuccess(orderId, 'card').then(() => {
             setPaymentSuccess(true);
             announce('Payment successful! Your purchase is confirmed.');
@@ -506,6 +510,8 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
       window.location.hash = '#checkout-success';
     } catch (err) {
       console.error('Error recording purchase:', err);
+      // Still clear cart — payment already succeeded at gateway level
+      onClearCart();
       setError(err instanceof Error ? err.message : 'Failed to complete purchase');
     } finally {
       isProcessingRef.current = false;

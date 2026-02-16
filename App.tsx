@@ -134,7 +134,12 @@ const App: React.FC = () => {
       else if (hash === '#login') setCurrentPath('login');
       else if (hash === '#courses') setCurrentPath('courses');
       else if (hash === '#checkout') setCurrentPath('checkout');
-      else if (hash === '#checkout-success' || hash.startsWith('#checkout-success?')) setCurrentPath('checkout-success');
+      else if (hash === '#checkout-success' || hash.startsWith('#checkout-success?')) {
+        setCurrentPath('checkout-success');
+        // Clear cart on success page navigation (covers redirect-based payment flows)
+        setCart([]);
+        setTeachingMaterialsCart({});
+      }
       else if (hash === '#dashboard') setCurrentPath('dashboard');
       // Policy pages
       else if (hash === '#privacy-policy') setCurrentPath('privacy-policy');
