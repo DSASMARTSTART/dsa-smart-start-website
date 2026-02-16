@@ -136,120 +136,12 @@ export const authApi = {
   },
 
   /**
-   * Create a guest user account for checkout
-   * Uses magic link for easy first login, then prompts to set password
-   * Returns the user ID to use for purchases
-   */
-  createGuestCheckout: async (email: string, name: string): Promise<{ success: boolean; userId?: string; error?: string; isExistingUser?: boolean }> => {
-    try {
-      // First check if user already exists in our users table
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: existingUser } = await (supabase as any)
-        .from('users')
-        .select('id')
-        .eq('email', email.toLowerCase())
-        .single();
-
-      if (existingUser) {
-        // User exists - send magic link so they can complete purchase easily
-        const { error: magicLinkError } = await supabase.auth.signInWithOtp({
-          email,
-          options: {
-            emailRedirectTo: `${window.location.origin}`,
-            shouldCreateUser: false // Don't create new user, just send login link
-          }
-        });
-
-        if (magicLinkError) {
-          console.error('Magic link error for existing user:', magicLinkError);
-          return { 
-            success: false, 
-            error: 'An account with this email already exists. Please log in to complete your purchase.',
-            isExistingUser: true
-          };
-        }
-
-        // Return success with existing user ID - they'll get a magic link email
-        return { 
-          success: true, 
-          userId: existingUser.id,
-          isExistingUser: true
-        };
-      }
-
-      // Generate a secure random password (user will set their own via prompt after magic link login)
-      const tempPassword = crypto.randomUUID() + '!' + Math.random().toString(36).substring(2);
-      
-      // Create the auth user
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
-        password: tempPassword,
-        options: {
-          data: { name },
-          // Don't send confirmation email - we'll send magic link instead
-          emailRedirectTo: `${window.location.origin}`
-        }
-      });
-
-      if (authError) {
-        console.error('Auth signup error:', authError);
-        return { success: false, error: authError.message };
-      }
-
-      if (!authData.user) {
-        return { success: false, error: 'Failed to create account' };
-      }
-
-      const userId = authData.user.id;
-
-      // Create user profile in users table with guest checkout flags
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error: profileError } = await (supabase as any)
-        .from('users')
-        .insert({
-          id: userId,
-          email: email.toLowerCase(),
-          name: name || email.split('@')[0],
-          role: 'student',
-          status: 'active',
-          created_via_guest_checkout: true,
-          password_set: false, // Will be set to true when user sets their password
-          created_at: now(),
-          updated_at: now(),
-          last_activity_at: now()
-        });
-
-      if (profileError) {
-        console.error('Profile creation error:', profileError);
-        // Continue anyway - auth user was created
-      }
-
-      // Send magic link email for easy first login
-      const { error: magicLinkError } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: `${window.location.origin}`,
-          shouldCreateUser: false // User already created above
-        }
-      });
-
-      if (magicLinkError) {
-        console.error('Magic link email error:', magicLinkError);
-        // Fall back to password reset if magic link fails
-        await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}`
-        });
-      }
-
-      return { success: true, userId };
-    } catch (err) {
-      console.error('Guest checkout error:', err);
-      return { success: false, error: 'Failed to create guest account' };
-    }
-  },
+  // Guest checkout has been removed — users must log in before purchasing.
+  // This ensures purchases are tied to authenticated accounts and
+  // purchased items appear on the user's dashboard.
 
   /**
-   * Find user by email (for guest checkout lookup)
+   * Find user by email
    */
   findUserByEmail: async (email: string): Promise<User | null> => {
     try {
@@ -1509,7 +1401,6 @@ export const purchasesApi = {
     discountCode?: string;
     includeTeachingMaterials?: boolean;
     teachingMaterialsAmount?: number;
-    guestEmail?: string; // For tracking guest discount code uses
   }): Promise<Purchase> => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase as any)
@@ -1544,7 +1435,6 @@ export const purchasesApi = {
           .insert({
             discount_code_id: purchaseData.discountCodeId,
             user_id: purchaseData.userId,
-            guest_email: purchaseData.guestEmail?.toLowerCase() || null,
             purchase_id: data.id
           });
       } catch (useError) {

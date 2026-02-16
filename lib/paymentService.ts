@@ -58,7 +58,6 @@ export interface PaymentRequest {
     teachingMaterialsPrice?: number;
   }>;
   paymentMethod?: string;
-  guestEmail?: string;
 }
 
 export interface PaymentResult {
@@ -168,7 +167,6 @@ export class RaiAcceptPayment {
           userId: request.userId,
           purchaseItems: request.purchaseItems,
           paymentMethod: request.paymentMethod || 'card',
-          guestEmail: request.guestEmail,
         }),
       }
     );
@@ -342,6 +340,8 @@ export class PayPalPayment {
           intent: 'CAPTURE',
           purchase_units: [{
             reference_id: request.orderId,
+            invoice_id: request.orderId,
+            custom_id: request.metadata?.userCourseKey || '',
             description: request.description,
             amount: {
               currency_code: request.currency,

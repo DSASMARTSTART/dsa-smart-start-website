@@ -31,7 +31,7 @@ interface SessionRequest {
   failureUrl: string;
   cancelUrl: string;
   language?: string;
-  // Purchase creation fields (for server-side pending purchase)
+  // Purchase creation fields (for server-side pending purchase — auth required)
   userId?: string;
   purchaseItems?: Array<{
     courseId: string;
@@ -43,7 +43,6 @@ interface SessionRequest {
     teachingMaterialsPrice?: number;
   }>;
   paymentMethod?: string;
-  guestEmail?: string;
 }
 
 // Step 1: Authenticate with RaiAccept via Amazon Cognito
@@ -250,6 +249,7 @@ Deno.serve(async (req) => {
 
     // ── Create pending purchase records server-side (RACE CONDITION FIX) ──
     // This ensures the purchase record exists BEFORE the webhook fires
+    // Requires authenticated user — no guest path
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     
@@ -257,51 +257,33 @@ Deno.serve(async (req) => {
       const supabase = createClient(supabaseUrl, supabaseServiceKey);
       const userId = body.userId;
       
+      if (!userId) {
+        return new Response(
+          JSON.stringify({ error: 'Authentication required. Please log in before purchasing.', success: false }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+        );
+      }
+
       for (const item of body.purchaseItems) {
         try {
-          if (userId) {
-            // Logged-in user: use create_pending_purchase RPC
-            const { data, error } = await supabase.rpc('create_pending_purchase', {
-              p_user_id: userId,
-              p_course_id: item.courseId,
-              p_amount: item.amount,
-              p_original_amount: item.originalAmount,
-              p_discount_amount: item.discountAmount || 0,
-              p_discount_code_id: item.discountCodeId || null,
-              p_currency: body.currency,
-              p_payment_method: body.paymentMethod || 'card',
-              p_transaction_id: body.orderId,
-              p_teaching_materials_included: item.teachingMaterialsIncluded || false,
-              p_teaching_materials_price: item.teachingMaterialsPrice || 0,
-              p_guest_email: body.guestEmail || null,
-            });
-            
-            if (error) {
-              console.error('Error creating pending purchase for course', item.courseId, ':', error);
-            } else {
-              console.log('Pending purchase created for course', item.courseId, ':', data);
-            }
-          } else if (body.guestEmail) {
-            // Guest user (existing account): use create_guest_purchase RPC
-            const { data, error } = await supabase.rpc('create_guest_purchase', {
-              p_email: body.guestEmail,
-              p_course_id: item.courseId,
-              p_amount: item.amount,
-              p_original_amount: item.originalAmount,
-              p_discount_amount: item.discountAmount || 0,
-              p_discount_code_id: item.discountCodeId || null,
-              p_currency: body.currency,
-              p_payment_method: body.paymentMethod || 'card',
-              p_transaction_id: body.orderId,
-              p_teaching_materials_included: item.teachingMaterialsIncluded || false,
-              p_teaching_materials_price: item.teachingMaterialsPrice || 0,
-            });
-            
-            if (error) {
-              console.error('Error creating guest purchase for course', item.courseId, ':', error);
-            } else {
-              console.log('Guest pending purchase created for course', item.courseId, ':', data);
-            }
+          const { data, error } = await supabase.rpc('create_pending_purchase', {
+            p_user_id: userId,
+            p_course_id: item.courseId,
+            p_amount: item.amount,
+            p_original_amount: item.originalAmount,
+            p_discount_amount: item.discountAmount || 0,
+            p_discount_code_id: item.discountCodeId || null,
+            p_currency: body.currency,
+            p_payment_method: body.paymentMethod || 'card',
+            p_transaction_id: body.orderId,
+            p_teaching_materials_included: item.teachingMaterialsIncluded || false,
+            p_teaching_materials_price: item.teachingMaterialsPrice || 0,
+          });
+          
+          if (error) {
+            console.error('Error creating pending purchase for course', item.courseId, ':', error);
+          } else {
+            console.log('Pending purchase created for course', item.courseId, ':', data);
           }
         } catch (purchaseErr) {
           // Log but don't fail - the payment should still proceed

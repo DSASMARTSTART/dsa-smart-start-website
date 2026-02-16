@@ -1,7 +1,8 @@
 
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
-import { ArrowLeft, ShieldCheck, Lock, CreditCard, CheckCircle2, ChevronRight, ShoppingCart, User, X, Tag, Ticket, AlertCircle, Loader2, Building2, Wallet, BookOpen, Plus, Minus, Mail, Check } from 'lucide-react';
-import { coursesApi, purchasesApi, authApi, enrollmentsApi } from '../data/supabaseStore';
+import { ArrowLeft, ShieldCheck, Lock, CreditCard, CheckCircle2, ChevronRight, ShoppingCart, User, X, Tag, Ticket, AlertCircle, Loader2, Building2, Wallet, BookOpen, Plus, Minus, Mail, Check, LogIn } from 'lucide-react';
+import { coursesApi, purchasesApi, enrollmentsApi } from '../data/supabaseStore';
+import AuthModal from './AuthModal';
 import { Course } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -101,6 +102,9 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
   const [emailTouched, setEmailTouched] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [termsError, setTermsError] = useState(false);
+  
+  // Auth modal state (shown when unauthenticated user tries to pay)
+  const [showAuthModal, setShowAuthModal] = useState(false);
   
   // Discount state
   const [discountInput, setDiscountInput] = useState('');
@@ -377,7 +381,25 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
     }
   }, [appliedDiscount]);
 
-  // Handle successful payment
+  // Handle auth modal success — update form fields from fresh auth state
+  const handleAuthModalSuccess = useCallback(() => {
+    setShowAuthModal(false);
+    // Form fields will auto-update from authUser/profile via effects
+  }, []);
+
+  // Update customer name/email when auth state changes (after login via modal)
+  useEffect(() => {
+    if (authUser || profile) {
+      if (!customerName && (profile?.name || authUser?.user_metadata?.name)) {
+        setCustomerName(profile?.name || authUser?.user_metadata?.name || '');
+      }
+      if (!customerEmail && (profile?.email || authUser?.email)) {
+        setCustomerEmail(profile?.email || authUser?.email || '');
+      }
+    }
+  }, [authUser, profile]);
+
+  // Handle successful payment (authenticated users only)
   const handlePaymentSuccess = useCallback(async (transactionId: string, method: PaymentMethod) => {
     // Idempotency guard: prevent double-execution
     if (isProcessingRef.current) {
@@ -395,84 +417,13 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
         return;
       }
 
-      // Get user ID from auth context OR create guest user
-      let userId = authUser?.id || profile?.id;
-      let isGuestPurchase = false;
-      let isExistingUser = false;
+      // User must be logged in — auth modal should have been shown already
+      const userId = authUser?.id || profile?.id;
       
       if (!userId) {
-        // No logged-in user - create a guest account with proper email validation
-        if (!customerEmail) {
-          throw new Error('Please enter your email address to complete your purchase.');
-        }
-        
-        if (!isValidEmail(customerEmail)) {
-          throw new Error('Please enter a valid email address (e.g., name@example.com).');
-        }
-        
-        const guestResult = await authApi.createGuestCheckout(customerEmail.trim(), customerName || customerEmail.split('@')[0]);
-        
-        if (!guestResult.success) {
-          // For existing users, use the server-side RPC function to create purchase
-          // since the user isn't signed in and RLS would block client-side INSERT
-          if (guestResult.isExistingUser) {
-            isGuestPurchase = true;
-            isExistingUser = true;
-            
-            // Use server-side RPC to create purchases for existing guest users
-            for (const item of cartItems) {
-              const includeTeachingMaterials = !!(teachingMaterialsSelections[item.id] && item.teachingMaterialsPrice);
-              const teachingMaterialsCost = includeTeachingMaterials ? item.teachingMaterialsPrice! : 0;
-              const itemTotalPrice = item.price + teachingMaterialsCost;
-              const orderTotal = subtotal + teachingMaterialsTotal;
-              const itemDiscountAmount = appliedDiscount 
-                ? (itemTotalPrice / orderTotal) * appliedDiscount.amount 
-                : 0;
-              const finalAmount = itemTotalPrice - itemDiscountAmount;
-
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const { data, error } = await (supabase as any).rpc('create_guest_purchase', {
-                p_email: customerEmail.trim().toLowerCase(),
-                p_course_id: item.id,
-                p_amount: finalAmount,
-                p_original_amount: item.price,
-                p_discount_amount: itemDiscountAmount,
-                p_discount_code_id: appliedDiscount?.discountCodeId || null,
-                p_currency: 'EUR',
-                p_payment_method: method,
-                p_transaction_id: transactionId,
-                p_teaching_materials_included: includeTeachingMaterials,
-                p_teaching_materials_price: teachingMaterialsCost,
-              });
-
-              if (error) {
-                console.error('Guest purchase RPC error:', error);
-                throw new Error('Failed to create purchase. Please contact support.');
-              }
-              
-              const result = data as { success: boolean; error?: string; already_enrolled?: boolean };
-              if (!result.success && !result.already_enrolled) {
-                throw new Error(result.error || 'Failed to create purchase');
-              }
-            }
-
-            // Clear cart and redirect
-            onClearCart();
-            window.location.hash = `#checkout-success?guest=existing`;
-            isProcessingRef.current = false;
-            return;
-          }
-          
-          throw new Error(guestResult.error || 'Failed to create account. Please try again or log in.');
-        }
-        
-        userId = guestResult.userId;
-        isGuestPurchase = true;
-        isExistingUser = guestResult.isExistingUser || false;
-      }
-
-      if (!userId) {
-        throw new Error('Failed to process payment. Please try again.');
+        setShowAuthModal(true);
+        isProcessingRef.current = false;
+        return;
       }
 
       // CRITICAL: Check for duplicate purchases before processing
@@ -498,56 +449,61 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
         console.warn(`User already owns: ${alreadyOwnedItems.join(', ')}. Processing only new items.`);
       }
 
-      // Create purchase records for each NEW item only
-      for (const item of itemsToPurchase) {
-        const includeTeachingMaterials = !!(teachingMaterialsSelections[item.id] && item.teachingMaterialsPrice);
-        const teachingMaterialsCost = includeTeachingMaterials ? item.teachingMaterialsPrice! : 0;
-        const itemTotalPrice = item.price + teachingMaterialsCost;
-        
-        const orderTotal = subtotal + teachingMaterialsTotal;
-        const itemDiscountAmount = appliedDiscount 
-          ? (itemTotalPrice / orderTotal) * appliedDiscount.amount 
-          : 0;
-        const finalAmount = itemTotalPrice - itemDiscountAmount;
-        
-        await purchasesApi.create({
-          userId,
-          courseId: item.id,
-          amount: finalAmount,
-          originalAmount: item.price,
-          discountAmount: itemDiscountAmount,
-          discountCodeId: appliedDiscount?.discountCodeId,
-          currency: 'EUR',
-          paymentMethod: method,
-          transactionId,
-          discountCode: appliedDiscount?.code,
-          includeTeachingMaterials,
-          teachingMaterialsAmount: teachingMaterialsCost,
-          guestEmail: isGuestPurchase ? customerEmail.trim().toLowerCase() : undefined,
-        });
+      // For CARD payments (RaiAccept): the Edge Function already created pending purchase
+      // records server-side via create_pending_purchase RPC. Do NOT create again here
+      // to avoid duplicate rows. The webhook will confirm the existing purchase.
+      //
+      // For PAYPAL payments: no server-side pre-creation exists, so we must create
+      // the pending purchase client-side here before the webhook fires.
+      if (method === 'paypal') {
+        for (const item of itemsToPurchase) {
+          const includeTeachingMaterials = !!(teachingMaterialsSelections[item.id] && item.teachingMaterialsPrice);
+          const teachingMaterialsCost = includeTeachingMaterials ? item.teachingMaterialsPrice! : 0;
+          const itemTotalPrice = item.price + teachingMaterialsCost;
+          
+          const orderTotal = subtotal + teachingMaterialsTotal;
+          const itemDiscountAmount = appliedDiscount 
+            ? (itemTotalPrice / orderTotal) * appliedDiscount.amount 
+            : 0;
+          const finalAmount = itemTotalPrice - itemDiscountAmount;
+          
+          await purchasesApi.create({
+            userId,
+            courseId: item.id,
+            amount: finalAmount,
+            originalAmount: item.price,
+            discountAmount: itemDiscountAmount,
+            discountCodeId: appliedDiscount?.discountCodeId,
+            currency: 'EUR',
+            paymentMethod: method,
+            transactionId,
+            discountCode: appliedDiscount?.code,
+            includeTeachingMaterials,
+            teachingMaterialsAmount: teachingMaterialsCost,
+          });
+        }
+      } else {
+        console.log('Card payment: skipping client-side purchase creation (Edge Function already created pending purchases server-side)');
       }
 
       // Clear cart and redirect to success page
       onClearCart();
-      
-      if (isGuestPurchase) {
-        const guestParam = isExistingUser ? 'existing' : 'true';
-        window.location.hash = `#checkout-success?guest=${guestParam}`;
-      } else {
-        window.location.hash = '#checkout-success';
-      }
+      window.location.hash = '#checkout-success';
     } catch (err) {
       console.error('Error recording purchase:', err);
       setError(err instanceof Error ? err.message : 'Failed to complete purchase');
     } finally {
       isProcessingRef.current = false;
     }
-  }, [authUser, profile, cartItems, appliedDiscount, onClearCart, subtotal, teachingMaterialsSelections, teachingMaterialsTotal, customerEmail, customerName, revalidateDiscountCode]);
+  }, [authUser, profile, cartItems, appliedDiscount, onClearCart, subtotal, teachingMaterialsSelections, teachingMaterialsTotal, revalidateDiscountCode]);
 
   // Memoize PayPal request to prevent unnecessary re-renders
   // Only rebuild when cart items or total actually change
   const paypalRequest = useMemo(() => {
     if (cartItems.length === 0) return null;
+    const userId = authUser?.id || profile?.id;
+    // Build userCourseKey for webhook fallback matching (first item only for now)
+    const firstItemId = cartItems[0]?.id || '';
     return {
       orderId: generateOrderId(),
       amount: total,
@@ -563,6 +519,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
       })),
       returnUrl: `${window.location.origin}/#checkout-success`,
       cancelUrl: `${window.location.origin}/#checkout`,
+      metadata: userId && firstItemId ? { userCourseKey: `${userId}|${firstItemId}` } : undefined,
     } as PaymentRequest;
   }, [cartItems, total]); // Only depend on cart items and total, not customer info
 
@@ -601,6 +558,12 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
       const buttonsConfig = {
         ...options,
         onClick: (data: any, actions: any) => {
+          // Auth gate: require login before PayPal payment
+          const userId = authUser?.id || profile?.id;
+          if (!userId) {
+            setShowAuthModal(true);
+            return actions.reject();
+          }
           if (!termsAccepted) {
             setTermsError(true);
             setError('Please accept the Terms & Conditions to proceed');
@@ -813,6 +776,13 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
     e.preventDefault();
     setError(null);
 
+    // Auth gate: require login before payment
+    const userId = authUser?.id || profile?.id;
+    if (!userId) {
+      setShowAuthModal(true);
+      return;
+    }
+
     if (!termsAccepted) {
       setTermsError(true);
       setError('Please accept the Terms & Conditions to proceed');
@@ -858,8 +828,6 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
         };
       });
 
-      const userId = authUser?.id || profile?.id;
-
       const request: PaymentRequest = {
         orderId,
         amount: total,
@@ -875,11 +843,10 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
         })),
         returnUrl: `${window.location.origin}/#checkout-success?orderId=${orderId}`,
         cancelUrl: `${window.location.origin}/#checkout`,
-        // Server-side purchase creation fields
-        userId: userId || undefined,
+        // Server-side purchase creation fields (auth-only, no guest path)
+        userId,
         purchaseItems,
         paymentMethod: 'card',
-        guestEmail: !userId ? customerEmail.trim().toLowerCase() : undefined,
       };
 
       // Store order info for callback verification
@@ -1063,6 +1030,29 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                       className="px-4 py-2 bg-amber-500 text-white rounded-xl text-xs font-bold uppercase tracking-wide hover:bg-amber-600 transition-all flex-shrink-0"
                     >
                       Dismiss
+                    </button>
+                  </div>
+                )}
+
+                {/* Login Banner — shown when not authenticated */}
+                {!authUser && !profile && (
+                  <div className="p-5 bg-purple-500/10 border border-purple-500/30 rounded-2xl flex items-center justify-between gap-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center flex-shrink-0">
+                        <LogIn size={20} className="text-purple-400" />
+                      </div>
+                      <div>
+                        <p className="text-purple-300 font-bold text-sm">Log in to complete your purchase</p>
+                        <p className="text-purple-400/70 text-xs mt-0.5">
+                          An account is required so your courses appear on your dashboard after purchase.
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setShowAuthModal(true)}
+                      className="px-5 py-2.5 bg-purple-600 text-white rounded-xl text-xs font-bold uppercase tracking-wide hover:bg-purple-700 transition-all flex-shrink-0 shadow-lg shadow-purple-500/20"
+                    >
+                      Log In / Register
                     </button>
                   </div>
                 )}
@@ -1580,6 +1570,13 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
           </div>
         </div>
       )}
+
+      {/* ── Auth Modal (inline login/register for checkout) ───────── */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onLoginSuccess={handleAuthModalSuccess}
+      />
 
       <style dangerouslySetInnerHTML={{ __html: `
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }

@@ -187,13 +187,72 @@ Deno.serve(async (req) => {
         console.error('Error confirming purchase:', error)
         result = { success: false, error: error.message }
       } else if (!data?.success) {
-        // Purchase not found by transaction_id — try a broader search
-        // This handles cases where PayPal sends a different ID format
-        console.warn(`Purchase not found for transactionId=${transactionId}, attempting broader lookup...`)
+        // Purchase not found by transaction_id — try broader lookup
+        // This handles PayPal where the webhook sends a different ID (capture ID)
+        // than our orderId stored in the purchase row
+        console.warn(`Purchase not found for transactionId=${transactionId}, attempting user+course fallback...`)
         
-        // Try to find any recent pending purchase and match by amount/email from provider response
-        // This is a safety net — the primary lookup should work in most cases
-        result = data
+        // Extract user/course info from provider response for fallback matching
+        // PayPal: reference_id in purchase_units contains our orderId
+        // RaiAccept: merchantOrderReference contains our orderId
+        let fallbackUserId: string | null = null
+        let fallbackCourseId: string | null = null
+        
+        if (provider === 'paypal' || !provider) {
+          // Try to find the pending purchase by PayPal's reference_id (our orderId)
+          const resource = providerResponse?.resource as Record<string, any> | undefined
+          const purchaseUnits = (resource?.purchase_units || []) as Array<Record<string, any>>
+          const referenceId = purchaseUnits[0]?.reference_id ||
+                              resource?.supplementary_data?.related_ids?.order_id ||
+                              resource?.invoice_id || null
+          
+          if (referenceId) {
+            // Try confirming with the reference_id instead
+            console.log(`PayPal fallback: trying reference_id=${referenceId} as transaction_id`)
+            const { data: refData, error: refError } = await supabase.rpc('confirm_purchase_webhook', {
+              p_transaction_id: referenceId,
+              p_provider_response: providerResponse
+            })
+            
+            if (!refError && refData?.success) {
+              console.log('PayPal fallback succeeded via reference_id:', referenceId)
+              result = refData
+            } else {
+              // Last resort: try to find by custom_id (we set this to userId|courseId)
+              const customId: string = purchaseUnits[0]?.custom_id || ''
+              if (customId && customId.includes('|')) {
+                const [uid, cid] = customId.split('|')
+                fallbackUserId = uid
+                fallbackCourseId = cid
+              }
+            }
+          }
+          
+          // If we have user+course from custom_id, do the broader match
+          if (!result && fallbackUserId && fallbackCourseId) {
+            console.log(`PayPal fallback: trying user_course match uid=${fallbackUserId}, cid=${fallbackCourseId}`)
+            const { data: ucData, error: ucError } = await supabase.rpc('confirm_purchase_by_user_course', {
+              p_user_id: fallbackUserId,
+              p_course_id: fallbackCourseId,
+              p_provider_transaction_id: transactionId,
+              p_provider_response: providerResponse
+            })
+            
+            if (!ucError && ucData?.success) {
+              console.log('PayPal fallback succeeded via user+course match')
+              result = ucData
+            } else {
+              console.error('All PayPal fallback attempts failed')
+              result = data // Return original "not found" response
+            }
+          }
+          
+          if (!result) {
+            result = data
+          }
+        } else {
+          result = data
+        }
       } else {
         result = data
         console.log('Purchase confirmed successfully:', transactionId)

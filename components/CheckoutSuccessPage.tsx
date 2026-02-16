@@ -21,12 +21,6 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
   const { user, profile } = useAuth();
   const [recentPurchases, setRecentPurchases] = useState<PurchaseWithCourse[]>([]);
   const [loading, setLoading] = useState(true);
-  
-  // Check checkout type from URL
-  const hash = window.location.hash;
-  const isNewGuestCheckout = hash.includes('guest=true');
-  const isExistingUserCheckout = hash.includes('guest=existing');
-  const isGuestCheckout = isNewGuestCheckout || isExistingUserCheckout;
 
   const userId = user?.id || profile?.id;
   const userName = profile?.name || 'there';
@@ -193,54 +187,6 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
 
         {/* Confirmation Details */}
         <div className="bg-white/5 rounded-[2rem] border border-white/10 p-8 mb-8 shadow-lg shadow-purple-500/10 animate-reveal stagger-2">
-          {/* Guest User - Set Password Notice */}
-          {isNewGuestCheckout && (
-            <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-6 mb-6">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-amber-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Key size={24} className="text-amber-400" />
-                </div>
-                <div className="text-left">
-                  <h3 className="font-black text-amber-400 uppercase tracking-wide text-sm mb-2">
-                    Check Your Email
-                  </h3>
-                  <p className="text-amber-300/80 text-sm mb-3">
-                    We've sent you a magic link to access your account! Click the link in your email to log in instantly.
-                    You can also set a password for easier future access.
-                  </p>
-                  <div className="flex items-center gap-2 text-xs text-amber-400 font-semibold">
-                    <Mail size={14} />
-                    <span>Magic login link sent to your email</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Existing User - Magic Link Notice */}
-          {isExistingUserCheckout && (
-            <div className="bg-purple-500/10 border border-purple-500/30 rounded-2xl p-6 mb-6">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Mail size={24} className="text-purple-400" />
-                </div>
-                <div className="text-left">
-                  <h3 className="font-black text-purple-400 uppercase tracking-wide text-sm mb-2">
-                    Welcome Back!
-                  </h3>
-                  <p className="text-purple-300/80 text-sm mb-3">
-                    We found your existing account! Check your email for a magic link to log in and access your new purchase.
-                    Your course has been added to your account.
-                  </p>
-                  <div className="flex items-center gap-2 text-xs text-purple-400 font-semibold">
-                    <Mail size={14} />
-                    <span>Magic login link sent to your email</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
           <div className="flex items-center justify-center gap-3 mb-6">
             <Mail size={20} className="text-purple-400" />
             <p className="text-sm text-gray-400">
@@ -319,47 +265,23 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
           )}
         </div>
 
-        {/* Action Buttons */}
+        {/* Action Buttons — user is always logged in */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center animate-reveal stagger-3">
-          {isGuestCheckout ? (
-            // Guest user - prompt to check email
-            <>
-              <button
-                onClick={() => onNavigate('login')}
-                className="px-10 py-5 bg-purple-600 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-all shadow-xl shadow-purple-500/20 flex items-center justify-center gap-3"
-              >
-                <User size={18} />
-                Log In After Setting Password
-                <ArrowRight size={16} />
-              </button>
-              
-              <button
-                onClick={() => onNavigate('courses')}
-                className="px-10 py-5 bg-white/5 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all border-2 border-white/10 flex items-center justify-center gap-3"
-              >
-                Browse More Courses
-              </button>
-            </>
-          ) : (
-            // Logged-in user - go to dashboard
-            <>
-              <button
-                onClick={() => onNavigate('dashboard')}
-                className="px-10 py-5 bg-purple-600 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-all shadow-xl shadow-purple-500/20 flex items-center justify-center gap-3"
-              >
-                <BookOpen size={18} />
-                Go to My Dashboard
-                <ArrowRight size={16} />
-              </button>
-              
-              <button
-                onClick={() => onNavigate('courses')}
-                className="px-10 py-5 bg-white/5 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all border-2 border-white/10 flex items-center justify-center gap-3"
-              >
-                Browse More Courses
-              </button>
-            </>
-          )}
+          <button
+            onClick={() => onNavigate('dashboard')}
+            className="px-10 py-5 bg-purple-600 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-all shadow-xl shadow-purple-500/20 flex items-center justify-center gap-3"
+          >
+            <BookOpen size={18} />
+            Go to My Dashboard
+            <ArrowRight size={16} />
+          </button>
+          
+          <button
+            onClick={() => onNavigate('courses')}
+            className="px-10 py-5 bg-white/5 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all border-2 border-white/10 flex items-center justify-center gap-3"
+          >
+            Browse More Courses
+          </button>
         </div>
 
         {/* Support Link */}
