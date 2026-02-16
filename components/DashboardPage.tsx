@@ -78,8 +78,11 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
   useEffect(() => {
     // Track if component is still mounted to prevent state updates after unmount
     let isCancelled = false;
+    let pollInterval: ReturnType<typeof setInterval> | null = null;
+    let pollCount = 0;
+    const MAX_POLLS = 24; // Poll for up to 2 minutes (24 × 5s)
 
-    const loadEnrolledCourses = async () => {
+    const loadEnrolledCourses = async (isPolling = false) => {
       // Still waiting for auth - keep showing loading
       if (authLoading) {
         return;
@@ -92,7 +95,8 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
       }
 
       // Reset loading to true for fresh fetch (important for remounts!)
-      if (!isCancelled) setLoading(true);
+      // Only show loading spinner on initial load, not on poll refreshes
+      if (!isPolling && !isCancelled) setLoading(true);
 
       try {
         // SELF-HEALING: Repair any completed purchases that are missing enrollments
@@ -162,6 +166,28 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
           setEnrolledCourses(courses);
           setPurchasedEbooks(ebooks);
           setPendingPurchases(pendingWithCourses);
+
+          // AUTO-POLL: If there are pending purchases, start polling every 5s
+          // so the dashboard auto-updates when webhook confirms payment
+          if (pendingWithCourses.length > 0 && !pollInterval) {
+            console.log(`Dashboard: ${pendingWithCourses.length} pending purchase(s), starting auto-refresh...`);
+            pollInterval = setInterval(() => {
+              pollCount++;
+              if (pollCount >= MAX_POLLS) {
+                console.log('Dashboard: stopping auto-refresh (max polls reached)');
+                if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+                return;
+              }
+              loadEnrolledCourses(true);
+            }, 5000);
+          }
+
+          // Stop polling if no more pending purchases
+          if (pendingWithCourses.length === 0 && pollInterval) {
+            console.log('Dashboard: no more pending purchases, stopping auto-refresh');
+            clearInterval(pollInterval);
+            pollInterval = null;
+          }
         }
       } catch (error) {
         console.error('Error loading enrolled courses:', error);
@@ -173,7 +199,10 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
     loadEnrolledCourses();
     
     // Cleanup to prevent state updates on unmounted component
-    return () => { isCancelled = true; };
+    return () => { 
+      isCancelled = true; 
+      if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+    };
   }, [userId, authLoading]);
 
   const calculateProgress = (courseId: string, totalItems: number) => {
