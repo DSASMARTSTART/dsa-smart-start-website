@@ -193,23 +193,38 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
       setPaymentIframeUrl(null);
 
       if (status === 'success') {
-        // CRITICAL FIX: Call handlePaymentSuccess to create purchase record
-        // The orderId was stored in raiAcceptOrderIdRef when the payment was initiated
+        // Payment succeeded in iframe — now confirm purchases server-side
+        // The webhook may or may not fire (sandbox often doesn't), so we
+        // call confirm_purchases_by_transaction as a client-side fallback.
         const orderId = raiAcceptOrderIdRef.current;
-        if (orderId) {
+        const userId = authUser?.id || profile?.id;
+        
+        if (orderId && userId) {
+          // Client-side confirmation: confirm ALL pending purchases for this transaction
+          supabase.rpc('confirm_purchases_by_transaction', {
+            p_transaction_id: orderId,
+            p_user_id: userId,
+          }).then(({ data, error }) => {
+            if (error) {
+              console.error('Client-side confirmation failed:', error);
+            } else {
+              console.log('Client-side confirmation result:', data);
+            }
+          }).catch((err) => {
+            console.error('Client-side confirmation error:', err);
+          });
+          
+          // Also call handlePaymentSuccess to clear cart and redirect
           handlePaymentSuccess(orderId, 'card').then(() => {
             setPaymentSuccess(true);
             announce('Payment successful! Your purchase is confirmed.');
           }).catch((err) => {
             console.error('Error processing RaiAccept payment success:', err);
-            // Payment was successful but purchase record failed - redirect to success anyway
-            // The webhook will handle enrollment creation
             setPaymentSuccess(true);
             announce('Payment successful! Your courses will be available shortly.');
           });
         } else {
           // Fallback: no orderId stored, just show success
-          // Webhook should still handle it via merchantOrderReference
           setPaymentSuccess(true);
           announce('Payment successful! Your courses will be available shortly.');
         }
