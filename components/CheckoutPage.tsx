@@ -13,6 +13,9 @@ import {
   paypalPayment,
   raiAcceptPayment,
   generateOrderId,
+  eurToRsd,
+  formatRsdAmount,
+  EUR_TO_RSD_RATE,
   PaymentMethod,
   PaymentRequest
 } from '../lib/paymentService';
@@ -849,24 +852,35 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
         };
       });
 
+      // Convert EUR amounts to RSD for RaiAccept (bank account accepts RSD only)
+      // Display prices stay in EUR; only the gateway charge is in RSD
+      const rsdTotal = eurToRsd(total);
+      const rsdPurchaseItems = purchaseItems.map(item => ({
+        ...item,
+        amount: eurToRsd(item.amount),
+        originalAmount: eurToRsd(item.originalAmount),
+        discountAmount: item.discountAmount ? eurToRsd(item.discountAmount) : 0,
+        teachingMaterialsPrice: item.teachingMaterialsPrice ? eurToRsd(item.teachingMaterialsPrice) : 0,
+      }));
+
       const request: PaymentRequest = {
         orderId,
-        amount: total,
-        currency: 'EUR',
+        amount: rsdTotal,
+        currency: 'RSD',
         description: `DSA Smart Start - ${cartItems.length} course(s)`,
         customerEmail,
         customerName,
         items: cartItems.map(item => ({
           id: item.id,
           name: item.name,
-          price: item.price,
+          price: eurToRsd(item.price),
           quantity: 1,
         })),
         returnUrl: `${window.location.origin}/#checkout-success?orderId=${orderId}`,
         cancelUrl: `${window.location.origin}/#checkout`,
         // Server-side purchase creation fields (auth-only, no guest path)
         userId,
-        purchaseItems,
+        purchaseItems: rsdPurchaseItems,
         paymentMethod: 'card',
       };
 
@@ -1516,7 +1530,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                   {/* Currency conversion notice */}
                   <div className="mt-4 p-3 bg-blue-500/5 rounded-xl border border-blue-500/10">
                     <p className="text-[9px] text-gray-500 leading-relaxed">
-                      <strong className="text-gray-400">Currency notice:</strong> All prices are in EUR. For payments by card issued in the Republic of Serbia, the amount will be converted to RSD by your card-issuing bank at their exchange rate on the date of processing.
+                      <strong className="text-gray-400">Currency notice:</strong> All prices are shown in EUR. Card payments are processed in RSD (Serbian Dinars) at a fixed rate of 1 EUR = {EUR_TO_RSD_RATE} RSD. Your card will be charged approximately <strong className="text-gray-400">{formatRsdAmount(total)}</strong> for this order.
                     </p>
                   </div>
                 </div>

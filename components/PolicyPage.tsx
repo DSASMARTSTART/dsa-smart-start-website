@@ -138,7 +138,7 @@ All products are delivered digitally. No physical goods are shipped.`
 
 Payment is accepted via:\n• Credit/Debit cards (Visa, MasterCard, DinaCard) — processed securely through Raiffeisen Banka a.d. Beograd\n• PayPal
 
-Currency Conversion Notice: For payments made by cards issued in the Republic of Serbia, the transaction amount is converted into RSD (Serbian Dinars) by your card-issuing bank at their applicable exchange rate on the date the transaction is processed. EDUWAY has no influence over the exchange rate applied.
+Currency Conversion Notice: All prices on the Website are displayed in EUR. Card payments (Visa, MasterCard, DinaCard) are processed in RSD (Serbian Dinars) at a fixed exchange rate displayed at checkout. The exact RSD amount is shown before you confirm payment. PayPal payments are processed directly in EUR.
 
 All prices displayed are final. The seller is not currently registered for VAT (PDV) — the prices shown are not subject to VAT. Should this status change, these Terms will be updated accordingly.`
         },

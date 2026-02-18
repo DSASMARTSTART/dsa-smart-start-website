@@ -107,6 +107,29 @@ export function isPaymentConfigured(): boolean {
   return getAvailablePaymentMethods().length > 0;
 }
 
+// ── EUR → RSD Conversion for RaiAccept (bank account accepts RSD only) ──
+
+/**
+ * Fixed EUR→RSD exchange rate for card payments via RaiAccept.
+ * RaiAccept merchant account is configured for RSD only.
+ * Prices are displayed in EUR throughout the site; converted to RSD at payment time.
+ *
+ * Update this rate periodically based on the NBS middle exchange rate.
+ * Current NBS middle rate as of 2026-02-18: ~117.15 RSD/EUR
+ */
+export const EUR_TO_RSD_RATE = 117.15;
+
+/** Convert EUR amount to RSD (rounded to 2 decimal places) */
+export function eurToRsd(eurAmount: number): number {
+  return Math.round(eurAmount * EUR_TO_RSD_RATE * 100) / 100;
+}
+
+/** Format RSD amount for display */
+export function formatRsdAmount(eurAmount: number): string {
+  const rsd = eurToRsd(eurAmount);
+  return `${rsd.toLocaleString('sr-RS', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} RSD`;
+}
+
 // ── RaiAccept Payment (REST API + iframe) ───────────────────────────
 
 /**
