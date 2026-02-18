@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 80" width="280" height="80">
+  <rect width="280" height="80" rx="8" fill="transparent"/>
+  <!-- MC circles -->
+  <circle cx="30" cy="35" r="18" fill="#eb001b"/>
+  <circle cx="48" cy="35" r="18" fill="#f79e1b"/>
+  <path d="M39 20.7a17.94 17.94 0 00-6.7 14.3A17.94 17.94 0 0039 49.3 17.94 17.94 0 0045.7 35 17.94 17.94 0 0039 20.7z" fill="#ff5f00"/>
+  <!-- Text -->
+  <text x="74" y="28" font-family="Arial, sans-serif" font-weight="bold" font-size="13" fill="#231f20">mastercard</text>
+  <text x="74" y="44" font-family="Arial, sans-serif" font-weight="bold" font-size="10" fill="#231f20">ID Check</text>
+  <text x="74" y="58" font-family="Arial, sans-serif" font-size="8" fill="#666">™</text>
+</svg>

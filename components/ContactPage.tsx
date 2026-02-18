@@ -195,7 +195,7 @@ const ContactPage: React.FC = () => {
                 </div>
                 <div>
                   <p className="text-[11px] font-black uppercase tracking-widest text-gray-500 mb-1">Call Us</p>
-                  <a href="tel:+393518459607" className="text-xl font-black text-white hover:text-[#AB8FFF] transition-colors tracking-tight">+39 351 8459607</a>
+                  <a href="tel:+381658869930" className="text-xl font-black text-white hover:text-[#AB8FFF] transition-colors tracking-tight">+381 65 886 9930</a>
                 </div>
               </div>
 
@@ -217,9 +217,11 @@ const ContactPage: React.FC = () => {
                   <MapPin size={24} />
                 </div>
                 <div>
-                  <p className="text-[11px] font-black uppercase tracking-widest text-gray-500 mb-1">Visit Us</p>
-                  <p className="text-lg font-black text-white">Viale Bonaria, 90</p>
-                  <p className="text-base font-bold text-gray-400">09125 Cagliari, Italy</p>
+                  <p className="text-[11px] font-black uppercase tracking-widest text-gray-500 mb-1">Our Address</p>
+                  <p className="text-lg font-black text-white">Vladana Desnice 28</p>
+                  <p className="text-base font-bold text-gray-400">Beograd, Srbija</p>
+                  <p className="text-xs text-gray-500 mt-2">ANA MILATOVIĆ PR CENTAR ZA EDUKACIJE EDUWAY</p>
+                  <p className="text-xs text-gray-600">MB: 68375720 | PIB: 115450214</p>
                 </div>
               </div>
             </div>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 60" width="240" height="60">
+  <rect width="240" height="60" rx="6" fill="transparent"/>
+  <!-- Yellow gable roof -->
+  <polygon points="15,35 30,10 45,35" fill="#FFE600"/>
+  <!-- Text -->
+  <text x="55" y="30" font-family="Arial, sans-serif" font-weight="bold" font-size="14" fill="#000">Raiffeisen</text>
+  <text x="55" y="46" font-family="Arial, sans-serif" font-weight="normal" font-size="10" fill="#666">BANK</text>
+</svg>

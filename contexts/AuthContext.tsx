@@ -86,9 +86,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             console.error('Error exchanging auth code for session:', exchangeError);
           }
           
-          // Clean up the URL: go back to root, navigate to dashboard
-          const cleanUrl = window.location.origin + '/' + '#dashboard';
-          window.history.replaceState({}, '', cleanUrl);
+          // Clean up query string, then navigate to dashboard
+          // Use window.location.href so the hash actually changes and triggers routing
+          window.history.replaceState({}, '', window.location.pathname);
+          window.location.hash = '#dashboard';
         }
 
         const { data: { session } } = await supabase.auth.getSession();

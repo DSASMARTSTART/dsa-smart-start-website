@@ -1158,8 +1158,9 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                           <p className="text-[10px] sm:text-xs text-gray-400 mt-0.5 sm:mt-1 truncate">Secure payment via Raiffeisen Bank</p>
                         </div>
                         <div className="hidden sm:flex items-center gap-2 shrink-0">
-                          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/200px-Visa_Inc._logo.svg.png" alt="Visa" className="h-5 sm:h-6 object-contain" />
-                          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/200px-Mastercard-logo.svg.png" alt="Mastercard" className="h-5 sm:h-6 object-contain" />
+                          <img src="/assets/images/visa-logo.jpg" alt="Visa" className="h-5 sm:h-6 object-contain" />
+                          <img src="/assets/images/mastercard-logo.png" alt="Mastercard" className="h-5 sm:h-6 object-contain" />
+                          <img src="/assets/images/dinacard-logo.jpg" alt="DinaCard" className="h-5 sm:h-6 object-contain" />
                         </div>
                       </button>
                     )}
@@ -1213,7 +1214,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                             className="sr-only"
                           />
                           <div className="text-sm text-gray-400 leading-relaxed max-w-[90%]">
-                            I accept the <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-purple-400 font-bold hover:underline" onClick={(e) => e.stopPropagation()}>Terms & Conditions</a> and <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-purple-400 font-bold hover:underline" onClick={(e) => e.stopPropagation()}>Privacy Policy</a>
+                            I accept the <a href="#terms" target="_blank" rel="noopener noreferrer" className="text-purple-400 font-bold hover:underline" onClick={(e) => e.stopPropagation()}>Terms & Conditions</a> and <a href="#privacy-policy" target="_blank" rel="noopener noreferrer" className="text-purple-400 font-bold hover:underline" onClick={(e) => e.stopPropagation()}>Privacy Policy</a>
                           </div>
                         </label>
                         {termsError && <p className="text-red-400 text-xs font-bold mt-2 ml-2">You must accept the terms to continue</p>}
@@ -1260,7 +1261,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                             className="sr-only"
                           />
                           <div className="text-sm text-gray-400 leading-relaxed max-w-[90%]">
-                            I accept the <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-purple-400 font-bold hover:underline" onClick={(e) => e.stopPropagation()}>Terms & Conditions</a> and <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-purple-400 font-bold hover:underline" onClick={(e) => e.stopPropagation()}>Privacy Policy</a>
+                            I accept the <a href="#terms" target="_blank" rel="noopener noreferrer" className="text-purple-400 font-bold hover:underline" onClick={(e) => e.stopPropagation()}>Terms & Conditions</a> and <a href="#privacy-policy" target="_blank" rel="noopener noreferrer" className="text-purple-400 font-bold hover:underline" onClick={(e) => e.stopPropagation()}>Privacy Policy</a>
                           </div>
                         </label>
                         {termsError && <p className="text-red-400 text-xs font-bold mt-2 ml-2">You must accept the terms to continue</p>}
@@ -1506,10 +1507,34 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                       {total.toFixed(2)}€
                     </span>
                   </div>
+
+                  {/* Digital delivery note */}
+                  <p className="text-[9px] text-gray-500 uppercase tracking-widest mt-3">
+                    📦 Digital product — instant access upon payment confirmation
+                  </p>
+
+                  {/* Currency conversion notice */}
+                  <div className="mt-4 p-3 bg-blue-500/5 rounded-xl border border-blue-500/10">
+                    <p className="text-[9px] text-gray-500 leading-relaxed">
+                      <strong className="text-gray-400">Currency notice:</strong> All prices are in EUR. For payments by card issued in the Republic of Serbia, the amount will be converted to RSD by your card-issuing bank at their exchange rate on the date of processing.
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              <div className="bg-white/5 p-8 rounded-[3rem] border border-white/10 shadow-xl">
+              {/* Pre-contractual information */}
+              <div className="bg-white/5 p-6 rounded-[2.5rem] border border-white/10 shadow-lg">
+                <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 mb-3">Seller Information</h4>
+                <div className="space-y-1.5 text-[10px] text-gray-500">
+                  <p><span className="text-gray-400 font-bold">Seller:</span> ANA MILATOVIĆ PR CENTAR ZA EDUKACIJE EDUWAY</p>
+                  <p><span className="text-gray-400 font-bold">PIB:</span> 115450214 &nbsp;|&nbsp; <span className="text-gray-400 font-bold">MB:</span> 68375720</p>
+                  <p><span className="text-gray-400 font-bold">Product type:</span> Digital educational content</p>
+                  <p><span className="text-gray-400 font-bold">Delivery:</span> Instant digital access upon payment</p>
+                  <p><span className="text-gray-400 font-bold">Right to withdraw:</span> 14 days (<a href="#terms" className="text-purple-400 hover:underline">see conditions</a>)</p>
+                </div>
+                <a href="#terms" className="inline-block mt-3 text-[9px] text-purple-400 font-bold uppercase tracking-widest hover:underline">
+                  Full Terms & Conditions →
+                </a>
                 <div className="space-y-4">
                   {[
                     "Lifetime course updates",
@@ -1538,14 +1563,29 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
               </div>
 
               {/* Security badges */}
-              <div className="flex items-center justify-center gap-6 text-gray-400">
-                <div className="flex items-center gap-2">
-                  <Lock size={14} />
-                  <span className="text-[10px] font-bold uppercase tracking-widest">SSL Secured</span>
+              <div className="flex flex-col items-center gap-4 text-gray-400">
+                <div className="flex items-center justify-center gap-6">
+                  <div className="flex items-center gap-2">
+                    <Lock size={14} />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">SSL Secured</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck size={14} />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">3D Secure</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <ShieldCheck size={14} />
-                  <span className="text-[10px] font-bold uppercase tracking-widest">3D Secure</span>
+                {/* Card brand & 3D Secure logos */}
+                <div className="flex items-center justify-center gap-3 flex-wrap">
+                  <img src="/assets/images/visa-secure-logo.jpg" alt="Visa Secure" className="h-7 opacity-60" />
+                  <img src="/assets/images/mastercard-id-check-logo.jpg" alt="Mastercard ID Check" className="h-7 opacity-60" />
+                  <img src="/assets/images/visa-logo.jpg" alt="Visa" className="h-5 opacity-50" />
+                  <img src="/assets/images/mastercard-logo.png" alt="Mastercard" className="h-5 opacity-50" />
+                  <img src="/assets/images/dinacard-logo.jpg" alt="DinaCard" className="h-5 opacity-50" />
+                </div>
+                {/* Raiffeisen Bank badge */}
+                <div className="flex items-center gap-2 mt-1">
+                  <img src="/assets/images/raiffeisen-logo.png" alt="Raiffeisen Bank" className="h-5 opacity-50" />
+                  <span className="text-[9px] text-gray-500 uppercase tracking-widest">Payment processing by Raiffeisen Bank</span>
                 </div>
               </div>
             </div>

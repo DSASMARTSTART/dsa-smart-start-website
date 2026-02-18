@@ -301,7 +301,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           <ul className="space-y-4 text-sm">
             <li className="flex items-center gap-3">
               <Phone size={16} className="text-purple-500" />
-              +39 351 8459607
+              +381 65 886 9930
             </li>
             <li className="flex items-center gap-3">
               <Mail size={16} className="text-purple-500" />
@@ -309,7 +309,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             </li>
             <li className="flex items-start gap-3">
               <MapPin size={16} className="text-purple-500 shrink-0" />
-              Viale Bonaria, 90, 09125 Cagliari
+              Vladana Desnice 28, Beograd, Srbija
             </li>
             <li className="pt-4">
               <button onClick={() => handleLinkClick('faq')} className="hover:text-purple-400 transition-colors">
@@ -317,15 +317,34 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </button>
             </li>
           </ul>
+
+          {/* Legal Entity Info */}
+          <div className="mt-6 pt-4 border-t border-white/10">
+            <p className="text-[10px] text-gray-500 leading-relaxed font-medium">
+              ANA MILATOVIĆ PR CENTAR ZA EDUKACIJE EDUWAY BEOGRAD (ZVEZDARA)
+            </p>
+            <p className="text-[10px] text-gray-600 mt-1 leading-relaxed">
+              MB: 68375720 &nbsp;|&nbsp; PIB: 115450214<br />
+              Šifra delatnosti: 8559
+            </p>
+          </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-medium text-gray-500">
-        <p>Copyright © 2026 EDUWAY | All rights reserved</p>
+        <p>Copyright © 2026 ANA MILATOVIĆ PR CENTAR ZA EDUKACIJE EDUWAY | All rights reserved</p>
         <div className="flex gap-6 flex-wrap justify-center">
+          <button onClick={() => handleLinkClick('terms')} className="hover:text-white">Terms & Conditions</button>
           <button onClick={() => handleLinkClick('cookie-policy')} className="hover:text-white">Cookie Policy</button>
           <button onClick={() => handleLinkClick('privacy-policy')} className="hover:text-white">Privacy Policy</button>
           <button onClick={() => handleLinkClick('refund-policy')} className="hover:text-white">Refund and Return Policy</button>
+        </div>
+        {/* Accepted Payment Methods */}
+        <div className="flex items-center gap-4 mt-4">
+          <span className="text-[9px] uppercase tracking-widest text-gray-600">We accept:</span>
+          <img src="/assets/images/visa-logo.jpg" alt="Visa" className="h-6 opacity-50 hover:opacity-80 transition-opacity" />
+          <img src="/assets/images/mastercard-logo.png" alt="Mastercard" className="h-6 opacity-50 hover:opacity-80 transition-opacity" />
+          <img src="/assets/images/dinacard-logo.jpg" alt="DinaCard" className="h-6 opacity-50 hover:opacity-80 transition-opacity" />
         </div>
       </div>
     </footer>

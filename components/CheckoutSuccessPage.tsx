@@ -181,7 +181,10 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
             Thank you for your purchase, <span className="text-purple-400 font-bold">{userName}</span>!
           </p>
           <p className="text-gray-500 mt-2">
-            Your payment is being verified. Your content will be available shortly.
+            Your payment is being verified. Your digital content will be available in your Dashboard shortly.
+          </p>
+          <p className="text-gray-600 text-sm mt-1">
+            All purchased courses and materials are delivered digitally — no shipping required.
           </p>
         </div>
 

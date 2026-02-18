@@ -142,6 +142,7 @@ const App: React.FC = () => {
       }
       else if (hash === '#dashboard') setCurrentPath('dashboard');
       // Policy pages
+      else if (hash === '#terms') setCurrentPath('terms');
       else if (hash === '#privacy-policy') setCurrentPath('privacy-policy');
       else if (hash === '#cookie-policy') setCurrentPath('cookie-policy');
       else if (hash === '#refund-policy') setCurrentPath('refund-policy');
@@ -409,6 +410,9 @@ const App: React.FC = () => {
       )}
 
       {/* Policy Pages */}
+      {currentPath === 'terms' && (
+        <PolicyPage type="terms" onBack={() => navigateTo('home')} />
+      )}
       {currentPath === 'privacy-policy' && (
         <PolicyPage type="privacy" onBack={() => navigateTo('home')} />
       )}

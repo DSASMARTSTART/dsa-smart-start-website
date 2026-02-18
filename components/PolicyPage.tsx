@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { ArrowLeft, Shield, Cookie, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Shield, Cookie, RefreshCw, FileText } from 'lucide-react';
 
 interface PolicyPageProps {
-  type: 'privacy' | 'cookie' | 'refund';
+  type: 'privacy' | 'cookie' | 'refund' | 'terms';
   onBack: () => void;
 }
 
@@ -36,7 +36,7 @@ const PolicyPage: React.FC<PolicyPageProps> = ({ type, onBack }) => {
         },
         {
           heading: '6. Contact Us',
-          text: `If you have any questions about this Privacy Policy, please contact us at dsa.smart.start@gmail.com or via WhatsApp at +39 351 8459607.`
+          text: `If you have any questions about this Privacy Policy, please contact us at dsa.smart.start@gmail.com or by phone at +381 65 886 9930.`
         }
       ]
     },
@@ -94,7 +94,147 @@ const PolicyPage: React.FC<PolicyPageProps> = ({ type, onBack }) => {
         },
         {
           heading: '6. Contact Us',
-          text: `If you have any questions about our refund policy, please contact us at dsa.smart.start@gmail.com or via WhatsApp at +39 351 8459607.`
+          text: `If you have any questions about our refund policy, please contact us at dsa.smart.start@gmail.com or by phone at +381 65 886 9930.`
+        }
+      ]
+    },
+    terms: {
+      title: 'Terms & Conditions',
+      icon: FileText,
+      lastUpdated: 'February 2026',
+      content: [
+        {
+          heading: '1. General Provisions',
+          text: `These Terms & Conditions ("Terms") govern the purchase and use of digital educational products and services offered through the website www.dsasmartstart.com (the "Website").
+
+Seller:
+ANA MILATOVIĆ PR CENTAR ZA EDUKACIJE EDUWAY BEOGRAD (ZVEZDARA)
+Address: Vladana Desnice 28, Beograd, Republic of Serbia
+Company Registration Number (Matični broj): 68375720
+Tax Identification Number (PIB): 115450214
+Business Activity Code (Šifra delatnosti): 8559
+Email: dsa.smart.start@gmail.com
+Phone: +381 65 886 9930
+
+By placing an order on the Website, you confirm that you have read, understood, and accepted these Terms in full.`
+        },
+        {
+          heading: '2. Subject of Sale',
+          text: `The Website offers digital educational content, including but not limited to:
+
+• Online courses (service-based programs with specialist support)
+• Interactive self-paced courses (e-learning modules)
+• E-books and digital teaching materials
+
+All products are delivered digitally. No physical goods are shipped.`
+        },
+        {
+          heading: '3. Ordering and Purchase Process',
+          text: `To purchase a product:\n\n1. Browse the course catalog and select products to add to your Cart.\n2. Review the items in your Cart, including any teaching material add-ons.\n3. Proceed to Checkout, where you will provide your name and email address.\n4. Select your preferred payment method (credit/debit card or PayPal).\n5. Accept these Terms & Conditions and our Privacy Policy.\n6. Complete payment through the secure payment gateway.\n7. Upon successful payment, you will receive immediate digital access to the purchased content via your Dashboard.\n\nYou must create an account or log in before completing your purchase.`
+        },
+        {
+          heading: '4. Prices and Payment',
+          text: `All prices on the Website are displayed in EUR (Euros).
+
+Payment is accepted via:\n• Credit/Debit cards (Visa, MasterCard, DinaCard) — processed securely through Raiffeisen Banka a.d. Beograd\n• PayPal
+
+Currency Conversion Notice: For payments made by cards issued in the Republic of Serbia, the transaction amount is converted into RSD (Serbian Dinars) by your card-issuing bank at their applicable exchange rate on the date the transaction is processed. EDUWAY has no influence over the exchange rate applied.
+
+All prices displayed are final. The seller is not currently registered for VAT (PDV) — the prices shown are not subject to VAT. Should this status change, these Terms will be updated accordingly.`
+        },
+        {
+          heading: '5. Digital Delivery',
+          text: `All products are delivered digitally. Upon successful payment confirmation, the purchased content becomes immediately accessible through your personal Dashboard on the Website.
+
+No physical delivery or shipping is involved. Access is granted for the duration specified in the product description (typically lifetime access for purchased courses).`
+        },
+        {
+          heading: '6. Right of Withdrawal (Pravo na odustanak)',
+          text: `In accordance with the Law on Consumer Protection of the Republic of Serbia (Zakon o zaštiti potrošača, Službeni glasnik RS), you have the right to withdraw from the purchase within 14 days from the date of purchase, without providing a reason.
+
+To exercise this right, you must notify us in writing at dsa.smart.start@gmail.com with your order number and a clear statement of your intention to withdraw.
+
+Important exception for digital content: In accordance with Article 37 of the Consumer Protection Law, the right of withdrawal does not apply if the delivery of digital content has begun with your explicit prior consent and your acknowledgment that you thereby lose the right of withdrawal. By accessing the purchased digital content, you consent to immediate delivery and acknowledge the loss of withdrawal rights.
+
+If you have not accessed more than 20% of the purchased content, you remain eligible for a full refund within the 14-day period.`
+        },
+        {
+          heading: '7. Complaints Procedure (Reklamacije)',
+          text: `If you are dissatisfied with your purchase or experience any issues, you have the right to file a complaint.
+
+How to submit a complaint:
+• Send an email to: dsa.smart.start@gmail.com
+• Include: your full name, order number, email address used for purchase, and a detailed description of the issue
+
+Response timeline: In accordance with the Consumer Protection Law of the Republic of Serbia, we will acknowledge your complaint within 8 days of receipt and provide a resolution or a reasoned response within 15 days.
+
+Resolution options may include:
+• Technical support to resolve access issues
+• Full or partial refund
+• Replacement access or credit
+
+If you are not satisfied with our resolution, you may contact:
+• The Ministry of Trade, Tourism and Telecommunications of the Republic of Serbia
+• The relevant trade inspection authority (Tržišna inspekcija)
+• An alternative dispute resolution body
+
+All complaints are recorded and treated confidentially.`
+        },
+        {
+          heading: '8. Refund Policy',
+          text: `Refunds are processed in accordance with our Refund and Return Policy. Key terms:
+
+• Refund requests must be submitted within 14 days of purchase
+• You must not have accessed more than 20% of the course content
+• Approved refunds are processed within 5–10 business days to the original payment method
+• Promotional or heavily discounted purchases may not be eligible for refunds (unless required by law)
+
+For full details, please refer to our Refund and Return Policy page.`
+        },
+        {
+          heading: '9. Intellectual Property',
+          text: `All content on the Website — including courses, e-books, video materials, text, images, and software — is the intellectual property of EDUWAY or its licensors and is protected by copyright and intellectual property laws.
+
+Purchasing a product grants you a personal, non-transferable, non-exclusive license to access and use the content for your own educational purposes. You may not:
+
+• Copy, reproduce, distribute, or share purchased content with third parties
+• Modify, create derivative works from, or reverse-engineer any content
+• Use the content for commercial purposes or resale
+• Share your account credentials with others`
+        },
+        {
+          heading: '10. Limitation of Liability',
+          text: `EDUWAY provides educational content on an "as is" basis. While we strive for accuracy and quality, we do not guarantee specific learning outcomes or results.
+
+To the maximum extent permitted by law, EDUWAY shall not be liable for any indirect, incidental, special, or consequential damages arising from the use of our products or services.`
+        },
+        {
+          heading: '11. Privacy and Data Protection',
+          text: `We are committed to protecting your personal data in accordance with applicable data protection laws. For complete details on how we collect, use, and protect your information, please refer to our Privacy Policy.
+
+Payment data is processed directly by the payment service provider (Raiffeisen Banka a.d. Beograd / PayPal) and is not stored on our servers.`
+        },
+        {
+          heading: '12. Governing Law and Disputes',
+          text: `These Terms are governed by the laws of the Republic of Serbia. Any disputes arising from or related to these Terms shall be resolved by the competent court in Belgrade, Republic of Serbia.
+
+Before initiating legal proceedings, the parties agree to attempt to resolve any dispute amicably through direct communication.`
+        },
+        {
+          heading: '13. Changes to These Terms',
+          text: `We reserve the right to update these Terms at any time. Changes take effect upon publication on the Website. Continued use of the Website after changes constitutes acceptance of the updated Terms.
+
+The date of the last update is indicated at the top of this page.`
+        },
+        {
+          heading: '14. Contact Information',
+          text: `For any questions regarding these Terms & Conditions, please contact us:
+
+ANA MILATOVIĆ PR CENTAR ZA EDUKACIJE EDUWAY
+Address: Vladana Desnice 28, Beograd, Srbija
+Email: dsa.smart.start@gmail.com
+Phone: +381 65 886 9930
+Website: www.dsasmartstart.com`
         }
       ]
     }

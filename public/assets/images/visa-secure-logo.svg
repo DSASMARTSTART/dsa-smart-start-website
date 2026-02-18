@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 80" width="240" height="80">
+  <rect width="240" height="80" rx="8" fill="transparent"/>
+  <!-- Visa Secure shield -->
+  <path d="M30 10 L50 5 L70 10 L70 40 C70 55 50 65 50 65 C50 65 30 55 30 40Z" fill="#1a1f71" stroke="#1a1f71" stroke-width="1"/>
+  <path d="M42 32 L47 37 L58 26" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Text -->
+  <text x="80" y="30" font-family="Arial, sans-serif" font-weight="bold" font-size="18" fill="#1a1f71">VISA</text>
+  <text x="80" y="52" font-family="Arial, sans-serif" font-weight="600" font-size="14" fill="#1a1f71">Secure</text>
+</svg>
