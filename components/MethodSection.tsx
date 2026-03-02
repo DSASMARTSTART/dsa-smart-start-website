@@ -63,7 +63,7 @@ const MethodSection: React.FC<MethodSectionProps> = ({ onNavigate }) => {
                 </p>
                 <div className="space-y-4">
                   {['Scientifically Validated', 'Multisensory Design', 'Success Guarantee'].map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-3 text-sm font-bold text-white">
+                    <div key={idx} className="flex items-center gap-3 text-base font-bold text-white">
                       <CheckCircle size={18} className="text-green-500" />
                       {item}
                     </div>
@@ -89,7 +89,7 @@ const MethodSection: React.FC<MethodSectionProps> = ({ onNavigate }) => {
                 onClick={() => onNavigate?.('courses')}
                 className="bg-[#25D366] text-white px-12 py-5 rounded-full font-black uppercase tracking-widest hover:bg-[#1ebe5d] transition-all shadow-xl shadow-[#25D366]/30 hover:-translate-y-1 active:scale-95"
               >
-                Explore Courses
+                Explore
               </button>
             </div>
           </div>

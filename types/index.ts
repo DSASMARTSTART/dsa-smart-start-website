@@ -24,7 +24,7 @@ export interface User {
 export type CourseLevel = 
   | 'A1' | 'A2' | 'B1' | 'B2'  // Adults & Teens levels
   | 'kids-basic' | 'kids-medium' | 'kids-advanced'  // Kids levels
-  | 'premium' | 'golden'  // Service programs
+  | 'language-lab' | 'starter-path' | 'language-lab-pro' | 'hybrid-pack'  // Live courses
   | string;  // Allow custom categories
 
 // Product type distinguishes e-books, interactive courses, and services

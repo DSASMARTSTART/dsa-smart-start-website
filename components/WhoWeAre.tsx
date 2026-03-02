@@ -67,11 +67,11 @@ const WhoWeAre: React.FC = () => {
 
   const team = [
     { name: "Shanty Sage", role: "Language Advisor", image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400" },
-    { name: "Pamela Smith", role: "Head Teacher", image: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=400" },
-    { name: "Nora Miller", role: "Head Teacher", image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400" },
-    { name: "James Evans", role: "Designer", image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400" },
-    { name: "Mary Johnson", role: "ESL Teacher", image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=400" },
-    { name: "Michael Thompson", role: "Customers Services Specialist", image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400" },
+    { name: "Pamela Smith", role: "Head Teacher", image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400" },
+    { name: "Nora Miller", role: "Teacher", image: "https://images.unsplash.com/photo-1607746882042-944635dfe10e?auto=format&fit=crop&q=80&w=400" },
+    { name: "James Evans", role: "Teacher", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400" },
+    { name: "Mary Johnson", role: "Teacher", image: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&q=80&w=400" },
+    { name: "Michael Thompson", role: "Customer Service Specialist", image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400" },
   ];
 
   return (
@@ -123,10 +123,10 @@ const WhoWeAre: React.FC = () => {
               Eduway is a group of highly qualified language professionals, supported by psychology experts.
             </p>
             <p className="text-gray-400 text-lg leading-relaxed mb-10">
-              Since 2008, our team has supported children and adults with dyslexia in their English language studies, offering targeted tools and strategies. For over a decade, we have been passionately dedicated to helping those struggling with English learning, transforming challenges into real opportunities for growth.
+              For 23 years, our team has supported children and adults with dyslexia in their English language studies, offering targeted tools and strategies. For over a decade, we have been passionately dedicated to helping those struggling with English learning, transforming challenges into real opportunities for growth.
             </p>
             <div className="flex flex-col sm:flex-row gap-6">
-              <button className="bg-[#25D366] text-white px-10 py-5 rounded-full font-black text-xs uppercase tracking-widest hover:scale-110 hover:-rotate-1 transition-all shadow-xl shadow-[#25D366]/30">
+              <button onClick={() => { window.location.hash = '#courses'; }} className="bg-[#25D366] text-white px-10 py-5 rounded-full font-black text-xs uppercase tracking-widest hover:scale-110 hover:-rotate-1 transition-all shadow-xl shadow-[#25D366]/30">
                 START NOW
               </button>
             </div>
@@ -201,9 +201,9 @@ const WhoWeAre: React.FC = () => {
               </p>
             </div>
             <div className="mt-12 sm:mt-16">
-              <button className="bg-[#25D366] text-white px-12 py-5 rounded-full font-black uppercase tracking-widest hover:scale-110 transition-all shadow-2xl shadow-[#25D366]/30 active:scale-95">
+              <a href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ0qY73eSZNjDKlM_CQETEMDZFNGB5SONV3eJl2rbRFfK6hT6uNAwz_X4L7Jo0lIbuw-zerkbJWu" target="_blank" rel="noopener noreferrer" className="inline-block bg-[#25D366] text-white px-12 py-5 rounded-full font-black uppercase tracking-widest hover:scale-110 transition-all shadow-2xl shadow-[#25D366]/30 active:scale-95">
                 BOOK NOW
-              </button>
+              </a>
             </div>
           </div>
 

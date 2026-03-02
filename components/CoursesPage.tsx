@@ -1,38 +1,47 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Layers, Compass, Zap, Music, Play, Award, Star, ChevronRight, CheckCircle2, Clock, Sparkles, BookOpen, ShoppingCart, Check, Rocket, Shield, ArrowDown, Filter, Search, BarChart3, Globe, ArrowRight, Plus, Crown, Diamond, Users, Video, Brain, Headphones, FileCheck, MessageCircle, GraduationCap, FileText, MonitorPlay, Package, Briefcase, Eye, Baby } from 'lucide-react';
+import { Layers, Compass, Zap, Music, Play, Award, Star, ChevronRight, CheckCircle2, Clock, Sparkles, BookOpen, ShoppingCart, Check, Rocket, Shield, ArrowDown, Filter, Search, BarChart3, Globe, ArrowRight, Plus, Crown, Diamond, Users, Video, FileCheck, GraduationCap, FileText, MonitorPlay, Package, Briefcase, Eye, Baby } from 'lucide-react';
 import { coursesApi, catalogApi } from '../data/supabaseStore';
 import { Course, ProductType, TargetAudience } from '../types';
 import WaveSeparator from './WaveSeparator';
 import AssessmentPopup from './AssessmentPopup';
 
 // Tab type for navigation
-type CatalogTab = 'services' | 'interactive' | 'ebooks';
+type CatalogTab = 'live' | 'ebooks';
 
-// Pill Tab Navigation Component
-const TabNavigation: React.FC<{ activeTab: CatalogTab; onTabChange: (tab: CatalogTab) => void }> = ({ activeTab, onTabChange }) => {
-  const tabs: { id: CatalogTab; label: string; icon: React.ReactNode }[] = [
-    { id: 'services', label: 'Online Courses', icon: <Users size={18} /> },
-    { id: 'interactive', label: 'Interactive Courses', icon: <MonitorPlay size={18} /> },
-    { id: 'ebooks', label: 'E-books', icon: <FileText size={18} /> },
-  ];
-
+// Category Selector Component — Two large visual cards matching the design
+const CategorySelector: React.FC<{ activeTab: CatalogTab; onTabChange: (tab: CatalogTab) => void }> = ({ activeTab, onTabChange }) => {
   return (
-    <div className="flex items-center justify-center gap-2 p-2 bg-white/10 backdrop-blur-sm rounded-full shadow-inner border border-white/10">
-      {tabs.map((tab) => (
-        <button
-          key={tab.id}
-          onClick={() => onTabChange(tab.id)}
-          className={`flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm transition-all duration-300 ${
-            activeTab === tab.id
-              ? 'bg-gradient-to-r from-[#AB8FFF] to-purple-600 text-white shadow-lg shadow-purple-500/30 scale-105'
-              : 'text-gray-400 hover:text-white hover:bg-white/10'
-          }`}
-        >
-          {tab.icon}
-          <span className="hidden sm:inline">{tab.label}</span>
-        </button>
-      ))}
+    <div className="grid grid-cols-2 gap-4 sm:gap-6 max-w-xl mx-auto">
+      {/* Live Courses Card */}
+      <button
+        onClick={() => onTabChange('live')}
+        className={`group relative flex flex-col items-center justify-center p-6 sm:p-8 rounded-3xl border-2 transition-all duration-300 ${
+          activeTab === 'live'
+            ? 'border-[#25D366] bg-[#25D366]/10 shadow-lg shadow-[#25D366]/20 scale-[1.02]'
+            : 'border-white/20 bg-white/5 hover:border-[#25D366]/50 hover:bg-white/10'
+        }`}
+      >
+        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center mb-4 shadow-lg group-hover:scale-105 transition-transform">
+          <Users size={36} className="text-white" />
+        </div>
+        <span className="text-sm sm:text-base font-black text-white uppercase tracking-widest leading-tight text-center">Live<br/>Courses</span>
+      </button>
+
+      {/* Ebook Card */}
+      <button
+        onClick={() => onTabChange('ebooks')}
+        className={`group relative flex flex-col items-center justify-center p-6 sm:p-8 rounded-3xl border-2 transition-all duration-300 ${
+          activeTab === 'ebooks'
+            ? 'border-[#25D366] bg-[#25D366]/10 shadow-lg shadow-[#25D366]/20 scale-[1.02]'
+            : 'border-white/20 bg-white/5 hover:border-[#25D366]/50 hover:bg-white/10'
+        }`}
+      >
+        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-[#AB8FFF] to-pink-500 flex items-center justify-center mb-4 shadow-lg group-hover:scale-105 transition-transform">
+          <FileText size={36} className="text-white" />
+        </div>
+        <span className="text-sm sm:text-base font-black text-white uppercase tracking-widest leading-tight text-center">Ebook</span>
+      </button>
     </div>
   );
 };
@@ -47,10 +56,10 @@ const LEVEL_CONFIG: Record<string, { icon: React.ReactNode; color: string; isPin
   'kids-medium': { icon: <Play size={28} />, color: 'from-orange-400 to-pink-400', isPink: true },
   'kids-advanced': { icon: <Star size={28} />, color: 'from-purple-400 to-pink-500', isPink: true },
   'Kids': { icon: <Music size={28} />, color: 'from-pink-400 to-rose-400', isPink: true },
-  'premium': { icon: <Crown size={28} />, color: 'from-violet-600 to-purple-700', isPremium: true },
-  'golden': { icon: <Diamond size={28} />, color: 'from-amber-500 to-yellow-600', isGold: true },
-  'Premium': { icon: <Crown size={28} />, color: 'from-violet-600 to-purple-700', isPremium: true },
-  'Gold': { icon: <Diamond size={28} />, color: 'from-amber-500 to-yellow-600', isGold: true },
+  'language-lab': { icon: <Users size={28} />, color: 'from-violet-600 to-purple-700' },
+  'starter-path': { icon: <Compass size={28} />, color: 'from-sky-500 to-blue-600' },
+  'language-lab-pro': { icon: <Crown size={28} />, color: 'from-emerald-500 to-teal-600' },
+  'hybrid-pack': { icon: <Diamond size={28} />, color: 'from-amber-500 to-yellow-600' },
 };
 
 // Product type icons
@@ -60,26 +69,79 @@ const PRODUCT_TYPE_ICONS: Record<ProductType, React.ReactNode> = {
   'service': <Users size={16} />,
 };
 
-// Premium course features data
-const PREMIUM_FEATURES = [
-  { icon: <Users size={18} />, text: '7 individual lessons of 50 minutes' },
-  { icon: <Video size={18} />, text: '32 workshops of 50 minutes' },
-  { icon: <Brain size={18} />, text: '525 mind maps + 15 learning units designed specifically for SLD students' },
-  { icon: <Headphones size={18} />, text: 'Over 100 interactive video lessons to boost concentration, listening, and vocabulary' },
-  { icon: <FileCheck size={18} />, text: '"Stop & Check" worksheets and periodic tests to monitor progress' },
-  { icon: <BookOpen size={18} />, text: 'School tutoring for homework and test preparation' },
-  { icon: <MessageCircle size={18} />, text: 'Dedicated assistance 6 days a week' },
-  { icon: <GraduationCap size={18} />, text: 'Final level certification upon completion' },
-];
+// Live course features data — keyed by level slug
+const COURSE_FEATURES: Record<string, { icon: React.ReactNode; text: string }[]> = {
+  'language-lab': [
+    { icon: <Users size={18} />, text: '8 lab sessions with 3-4 students' },
+    { icon: <Clock size={18} />, text: '50 minute classes' },
+    { icon: <FileCheck size={18} />, text: 'No material included' },
+  ],
+  'starter-path': [
+    { icon: <Video size={18} />, text: '5 one-to-one lessons' },
+    { icon: <Clock size={18} />, text: '30 minute classes' },
+    { icon: <FileCheck size={18} />, text: 'No material included' },
+  ],
+  'language-lab-pro': [
+    { icon: <Users size={18} />, text: '30 lab sessions with 3-4 students' },
+    { icon: <Clock size={18} />, text: '50 minute classes' },
+    { icon: <BookOpen size={18} />, text: 'Material included' },
+  ],
+  'hybrid-pack': [
+    { icon: <Users size={18} />, text: '25 lab sessions with 3-4 students' },
+    { icon: <Video size={18} />, text: '5 one-to-one lessons' },
+    { icon: <Clock size={18} />, text: '30 min one-to-one / 50 min lab classes' },
+    { icon: <BookOpen size={18} />, text: 'Material included' },
+  ],
+};
 
-const GOLD_FEATURES = [
-  { icon: <Video size={18} />, text: '52 workshops of 50 minutes with twice-weekly attendance' },
-  { icon: <Brain size={18} />, text: '525 mind maps + 15 learning units developed specifically for SLD' },
-  { icon: <Headphones size={18} />, text: 'Over 100 interactive video lessons for concentration, listening, and vocabulary' },
-  { icon: <FileCheck size={18} />, text: '"Stop & Check" worksheets to constantly monitor and adapt the pathway' },
-  { icon: <MessageCircle size={18} />, text: 'Dedicated tutoring and assistance 6 days a week' },
-  { icon: <GraduationCap size={18} />, text: 'Final level certification' },
-];
+// Style config per live course level
+const SERVICE_STYLES: Record<string, {
+  bg: string; glow1: string; glow2: string;
+  badgeGradient: string; badgeText: string; badgeShadow: string;
+  iconGradient: string; iconText: string; iconShadow: string;
+  priceText: string; featureBg: string; featureText: string;
+  ctaGradient: string; ctaText: string; ctaShadow: string;
+  label: string; icon: React.ReactNode;
+}> = {
+  'language-lab': {
+    bg: 'bg-gradient-to-br from-violet-950 via-purple-900 to-indigo-950',
+    glow1: 'bg-violet-400', glow2: 'bg-purple-500',
+    badgeGradient: 'bg-gradient-to-r from-violet-500 to-purple-600', badgeText: 'text-white', badgeShadow: 'shadow-violet-500/30',
+    iconGradient: 'bg-gradient-to-br from-violet-400 to-purple-600', iconText: 'text-white', iconShadow: 'shadow-violet-500/30',
+    priceText: 'text-violet-300', featureBg: 'bg-violet-500/20', featureText: 'text-violet-400',
+    ctaGradient: 'bg-gradient-to-r from-violet-500 to-purple-600', ctaText: 'text-white', ctaShadow: 'shadow-violet-500/30 hover:shadow-violet-500/50',
+    label: 'Language Lab', icon: <Users size={14} />,
+  },
+  'starter-path': {
+    bg: 'bg-gradient-to-br from-sky-950 via-blue-900 to-indigo-950',
+    glow1: 'bg-sky-400', glow2: 'bg-blue-500',
+    badgeGradient: 'bg-gradient-to-r from-sky-500 to-blue-600', badgeText: 'text-white', badgeShadow: 'shadow-sky-500/30',
+    iconGradient: 'bg-gradient-to-br from-sky-400 to-blue-600', iconText: 'text-white', iconShadow: 'shadow-sky-500/30',
+    priceText: 'text-sky-300', featureBg: 'bg-sky-500/20', featureText: 'text-sky-400',
+    ctaGradient: 'bg-gradient-to-r from-sky-500 to-blue-600', ctaText: 'text-white', ctaShadow: 'shadow-sky-500/30 hover:shadow-sky-500/50',
+    label: 'Starter Path', icon: <Compass size={14} />,
+  },
+  'language-lab-pro': {
+    bg: 'bg-gradient-to-br from-emerald-950 via-teal-900 to-cyan-950',
+    glow1: 'bg-emerald-400', glow2: 'bg-teal-500',
+    badgeGradient: 'bg-gradient-to-r from-emerald-500 to-teal-600', badgeText: 'text-white', badgeShadow: 'shadow-emerald-500/30',
+    iconGradient: 'bg-gradient-to-br from-emerald-400 to-teal-600', iconText: 'text-white', iconShadow: 'shadow-emerald-500/30',
+    priceText: 'text-emerald-300', featureBg: 'bg-emerald-500/20', featureText: 'text-emerald-400',
+    ctaGradient: 'bg-gradient-to-r from-emerald-500 to-teal-600', ctaText: 'text-white', ctaShadow: 'shadow-emerald-500/30 hover:shadow-emerald-500/50',
+    label: 'Language Lab Pro', icon: <Crown size={14} />,
+  },
+  'hybrid-pack': {
+    bg: 'bg-gradient-to-br from-amber-950 via-yellow-900 to-orange-950',
+    glow1: 'bg-amber-400', glow2: 'bg-yellow-500',
+    badgeGradient: 'bg-gradient-to-r from-amber-400 to-yellow-500', badgeText: 'text-amber-950', badgeShadow: 'shadow-amber-500/30',
+    iconGradient: 'bg-gradient-to-br from-amber-400 to-yellow-500', iconText: 'text-amber-950', iconShadow: 'shadow-amber-500/30',
+    priceText: 'text-amber-300', featureBg: 'bg-amber-500/20', featureText: 'text-amber-400',
+    ctaGradient: 'bg-gradient-to-r from-amber-400 to-yellow-500', ctaText: 'text-amber-950', ctaShadow: 'shadow-amber-500/30 hover:shadow-amber-500/50',
+    label: 'Hybrid Pack', icon: <Diamond size={14} />,
+  },
+};
+
+const DEFAULT_SERVICE_STYLE = SERVICE_STYLES['language-lab'];
 
 interface CourseCardProps {
   course: Course;
@@ -89,15 +151,13 @@ interface CourseCardProps {
   onRemoveFromCart: (courseId: string) => void;
 }
 
-// Premium/Gold Exclusive Card Component
+// Live Course Card Component — data-driven for all service levels
 const PremiumCourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, onAddToCart, onRemoveFromCart }) => {
-  const isPremium = course.level === 'Premium' || course.level === 'premium';
-  const isGold = course.level === 'Gold' || course.level === 'golden';
-  const features = isPremium ? PREMIUM_FEATURES : GOLD_FEATURES;
+  const s = SERVICE_STYLES[course.level] || DEFAULT_SERVICE_STYLE;
+  const features = COURSE_FEATURES[course.level] || [];
   
   const coursePrice = course.pricing?.price;
   const discountPrice = course.pricing?.discountPrice;
-  const teachingMaterialsPrice = course.teachingMaterialsPrice;
   
   const price = discountPrice !== undefined 
     ? `€${discountPrice.toFixed(0)}` 
@@ -111,146 +171,120 @@ const PremiumCourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, o
     ? coursePrice - discountPrice
     : 0;
 
+  const navigateToDetail = () => {
+    window.location.hash = `#live-course-${course.id}`;
+  };
+
   return (
-    <div className="pt-6"> {/* Wrapper to give space for the badge */}
-      <div className={`group relative overflow-visible rounded-[2rem] transition-all duration-700 hover:-translate-y-3 ${
-        isPremium 
-          ? 'bg-gradient-to-br from-violet-950 via-purple-900 to-indigo-950' 
-          : 'bg-gradient-to-br from-amber-950 via-yellow-900 to-orange-950'
-      }`}>
+    <div className="pt-6">
+      <div 
+        onClick={navigateToDetail}
+        className={`group relative overflow-visible rounded-[2rem] transition-all duration-700 hover:-translate-y-3 cursor-pointer ${s.bg}`}
+      >
         {/* Animated Background Effects */}
         <div className="absolute inset-0 overflow-hidden rounded-[2rem]">
-          <div className={`absolute -top-1/2 -right-1/2 w-full h-full rounded-full blur-3xl opacity-20 animate-pulse ${
-            isPremium ? 'bg-violet-400' : 'bg-amber-400'
-          }`}></div>
-          <div className={`absolute -bottom-1/2 -left-1/2 w-full h-full rounded-full blur-3xl opacity-10 animate-pulse delay-1000 ${
-            isPremium ? 'bg-purple-500' : 'bg-yellow-500'
-          }`}></div>
-          {/* Shimmer Effect */}
+          <div className={`absolute -top-1/2 -right-1/2 w-full h-full rounded-full blur-3xl opacity-20 animate-pulse ${s.glow1}`}></div>
+          <div className={`absolute -bottom-1/2 -left-1/2 w-full h-full rounded-full blur-3xl opacity-10 animate-pulse delay-1000 ${s.glow2}`}></div>
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
         </div>
 
         {/* Top Badge */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-          <div className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-[11px] font-black uppercase tracking-widest shadow-2xl ${
-            isPremium 
-              ? 'bg-gradient-to-r from-violet-500 to-purple-600 text-white shadow-violet-500/30' 
-              : 'bg-gradient-to-r from-amber-400 to-yellow-500 text-amber-950 shadow-amber-500/30'
-          }`}>
-            {isPremium ? <Crown size={14} /> : <Diamond size={14} />}
-            {isPremium ? 'Premium Pathway' : 'Gold Pathway'}
+          <div className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-[11px] font-black uppercase tracking-widest shadow-2xl ${s.badgeGradient} ${s.badgeText} ${s.badgeShadow}`}>
+            {s.icon}
+            {s.label}
           </div>
         </div>
 
         <div className="relative z-10 p-10 pt-14">
           {/* Header */}
           <div className="flex items-start justify-between mb-8">
-          <div className={`w-20 h-20 rounded-2xl flex items-center justify-center transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 ${
-            isPremium 
-              ? 'bg-gradient-to-br from-violet-400 to-purple-600 text-white shadow-lg shadow-violet-500/30' 
-              : 'bg-gradient-to-br from-amber-400 to-yellow-500 text-amber-950 shadow-lg shadow-amber-500/30'
-          }`}>
-            {isPremium ? <Crown size={36} /> : <Diamond size={36} />}
-          </div>
-          {originalPrice && (
-            <div className={`px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-wider ${
-              isPremium ? 'bg-violet-500/20 text-violet-300' : 'bg-amber-500/20 text-amber-300'
-            }`}>
-              Save €{savings}
+            <div className={`w-20 h-20 rounded-2xl flex items-center justify-center transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 ${s.iconGradient} ${s.iconText} shadow-lg ${s.iconShadow}`}>
+              {(SERVICE_STYLES[course.level] || DEFAULT_SERVICE_STYLE).icon ? React.cloneElement(s.icon as React.ReactElement, { size: 36 }) : <Users size={36} />}
             </div>
-          )}
-        </div>
-
-        {/* Title & Price */}
-        <div className="mb-8">
-          <h3 className="text-2xl md:text-3xl font-black text-white mb-4 leading-tight">
-            {course.title}
-          </h3>
-          
-          <div className="flex items-end gap-4 mb-4">
-            <span className={`text-5xl md:text-6xl font-black ${
-              isPremium ? 'text-violet-300' : 'text-amber-300'
-            }`}>{price}</span>
             {originalPrice && (
-              <span className="text-xl font-bold text-white/40 line-through mb-2">{originalPrice}</span>
+              <div className={`px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-wider ${s.featureBg} ${s.priceText}`}>
+                Save €{savings}
+              </div>
             )}
           </div>
-          
-          <p className="text-white/60 leading-relaxed text-sm line-clamp-3">
-            {course.description}
-          </p>
-        </div>
 
-        {/* Features List */}
-        <div className="mb-10">
-          <div className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-4">What's Included</div>
-          <div className="space-y-3">
-            {features.map((feature, i) => (
-              <div key={i} className="flex items-start gap-3 group/item">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all group-hover/item:scale-110 ${
-                  isPremium ? 'bg-violet-500/20 text-violet-400' : 'bg-amber-500/20 text-amber-400'
-                }`}>
-                  {feature.icon}
+          {/* Title & Price */}
+          <div className="mb-8">
+            <h3 className="text-2xl md:text-3xl font-black text-white mb-4 leading-tight">
+              {course.title}
+            </h3>
+            
+            <div className="flex items-end gap-4 mb-4">
+              <span className={`text-5xl md:text-6xl font-black ${s.priceText}`}>{price}</span>
+              {originalPrice && (
+                <span className="text-xl font-bold text-white/40 line-through mb-2">{originalPrice}</span>
+              )}
+            </div>
+            
+            <p className="text-white/60 leading-relaxed text-sm line-clamp-3">
+              {course.description}
+            </p>
+          </div>
+
+          {/* Features List */}
+          <div className="mb-10">
+            <div className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-4">What's Included</div>
+            <div className="space-y-3">
+              {features.map((feature, i) => (
+                <div key={i} className="flex items-start gap-3 group/item">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all group-hover/item:scale-110 ${s.featureBg} ${s.featureText}`}>
+                    {feature.icon}
+                  </div>
+                  <span className="text-white/80 text-sm font-medium leading-relaxed">{feature.text}</span>
                 </div>
-                <span className="text-white/80 text-sm font-medium leading-relaxed">{feature.text}</span>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* CTA Buttons */}
-        <div className="space-y-3">
-          <button 
-            onClick={() => {
-              onAddToCart(course);
-              window.location.hash = '#checkout';
-            }}
-            className={`w-full flex items-center justify-center gap-3 py-5 rounded-2xl text-sm font-black uppercase tracking-widest transition-all transform hover:scale-[1.02] active:scale-[0.98] ${
-              isPremium 
-                ? 'bg-gradient-to-r from-violet-500 to-purple-600 text-white shadow-xl shadow-violet-500/30 hover:shadow-violet-500/50' 
-                : 'bg-gradient-to-r from-amber-400 to-yellow-500 text-amber-950 shadow-xl shadow-amber-500/30 hover:shadow-amber-500/50'
-            }`}
-          >
-            Enroll Now
-            <ArrowRight size={18} />
-          </button>
-          
-          <div className="flex gap-3">
-            <button 
-              onClick={() => window.location.hash = `#syllabus-${course.id}`}
-              className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${
-                isPremium 
-                  ? 'bg-white/5 text-white/70 hover:bg-white/10 border border-white/10' 
-                  : 'bg-white/5 text-white/70 hover:bg-white/10 border border-white/10'
-              }`}
-            >
-              View Details
-            </button>
-            <button 
-              onClick={() => isInCart ? onRemoveFromCart(course.id) : onAddToCart(course)}
-              className={`flex items-center justify-center gap-2 px-6 py-4 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${
-                isInCart
-                  ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                  : 'bg-white/5 text-white/70 hover:bg-white/10 border border-white/10'
-              }`}
-            >
-              {isInCart ? <Check size={16} /> : <ShoppingCart size={16} />}
-            </button>
+          {/* CTA Buttons */}
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              {/* Add to Cart */}
+              <button 
+                onClick={(e) => { e.stopPropagation(); isInCart ? onRemoveFromCart(course.id) : onAddToCart(course); }}
+                className={`flex items-center justify-center gap-2 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${
+                  isInCart
+                    ? 'bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30'
+                    : 'bg-white/5 text-white/70 hover:bg-white/10 border border-white/10'
+                }`}
+              >
+                {isInCart ? <Check size={16} /> : <ShoppingCart size={16} />}
+                {isInCart ? 'In Cart' : 'Add to Cart'}
+              </button>
+              
+              {/* Buy Now */}
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAddToCart(course);
+                  window.location.hash = '#checkout';
+                }}
+                className={`flex items-center justify-center gap-2 py-4 rounded-2xl text-sm font-black uppercase tracking-widest transition-all transform hover:scale-[1.02] active:scale-[0.98] ${s.ctaGradient} ${s.ctaText} shadow-xl ${s.ctaShadow}`}
+              >
+                Buy Now
+                <ArrowRight size={16} />
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* Trust Badge */}
-        <div className="mt-8 pt-6 border-t border-white/10 flex items-center justify-center gap-6">
-          <div className="flex items-center gap-2 text-white/40 text-[10px] font-bold uppercase tracking-wider">
-            <Shield size={14} />
-            Secure Payment
-          </div>
-          <div className="flex items-center gap-2 text-white/40 text-[10px] font-bold uppercase tracking-wider">
-            <Award size={14} />
-            Certificate Included
+          {/* Trust Badge */}
+          <div className="mt-8 pt-6 border-t border-white/10 flex items-center justify-center gap-6">
+            <div className="flex items-center gap-2 text-white/40 text-[10px] font-bold uppercase tracking-wider">
+              <Shield size={14} />
+              Secure Payment
+            </div>
+            <div className="flex items-center gap-2 text-white/40 text-[10px] font-bold uppercase tracking-wider">
+              <Award size={14} />
+              Certificate Included
+            </div>
           </div>
         </div>
-      </div>
       </div>
     </div>
   );
@@ -261,6 +295,9 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, onAddToC
   const isPink = config.isPink;
   const features = (course as any).features ? JSON.parse((course as any).features) : [];
   
+  // Coming Soon: only B2 ebook is "coming soon" (no PDF yet)
+  const isComingSoon = course.productType === 'ebook' && course.level === 'B2' && !course.ebookPdfUrl;
+
   // Calculate price with discount logic for display
   const coursePrice = course.pricing?.price;
   const discountPrice = course.pricing?.discountPrice;
@@ -273,8 +310,12 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, onAddToC
     ? `€${coursePrice.toFixed(2)}`
     : null;
 
+  const navigateToDetail = () => {
+    window.location.hash = `#ebook-${course.id}`;
+  };
+
   return (
-    <div className={`group relative bg-white/5 rounded-[2.5rem] p-8 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl flex flex-col h-full border border-white/10 ${isPink ? 'hover:shadow-pink-500/20 hover:border-pink-500/30' : 'hover:shadow-purple-500/20 hover:border-purple-500/30'}`}>
+    <div className={`group relative bg-white/5 rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl flex flex-col h-full border border-white/10 ${isPink ? 'hover:shadow-pink-500/20 hover:border-pink-500/30' : 'hover:shadow-purple-500/20 hover:border-purple-500/30'}`}>
       
       {/* Popular Badge */}
       {idx === 1 && (
@@ -284,101 +325,90 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, onAddToC
         </div>
       )}
 
-      {/* Header */}
-      <div className="flex items-start justify-between mb-8">
-        <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${config.color} flex items-center justify-center text-white shadow-lg transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
-          {config.icon}
-        </div>
-        <div className={`px-4 py-1.5 rounded-full border text-[11px] font-black uppercase tracking-widest ${isPink ? 'bg-pink-500/20 text-pink-400 border-pink-500/30' : 'bg-blue-500/20 text-blue-400 border-blue-500/30'}`}>
+      {/* Clickable Thumbnail Photo (vertical/portrait) */}
+      <div 
+        className="relative w-full aspect-[3/4] bg-white/5 cursor-pointer"
+        onClick={navigateToDetail}
+      >
+        {course.thumbnailUrl ? (
+          <img 
+            src={course.thumbnailUrl} 
+            alt={course.title}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className={`w-full h-full bg-gradient-to-br ${config.color} flex flex-col items-center justify-center text-white`}>
+            <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mb-3">
+              {config.icon}
+            </div>
+            <p className="text-sm font-bold text-white/80">Digital E-book</p>
+          </div>
+        )}
+        {/* Level Badge */}
+        <div className={`absolute top-4 right-4 px-4 py-1.5 rounded-full border text-[11px] font-black uppercase tracking-widest backdrop-blur-sm ${isPink ? 'bg-pink-500/80 text-white border-pink-400/50' : 'bg-indigo-500/80 text-white border-indigo-400/50'}`}>
           Level {course.level}
         </div>
+        {/* Coming Soon overlay */}
+        {isComingSoon && (
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+            <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-black/60 backdrop-blur-sm rounded-full border border-[#AB8FFF]/40 animate-pulse">
+              <Clock size={14} className="text-[#AB8FFF]" />
+              <span className="text-sm font-black text-[#AB8FFF] uppercase tracking-widest">Coming Soon</span>
+            </div>
+          </div>
+        )}
       </div>
 
-      <div className="mb-6">
-        <h3 className="text-2xl font-black text-white mb-2 leading-tight group-hover:text-[#AB8FFF] transition-colors">
-          {course.title}
-        </h3>
-        
-        {/* Price Tag */}
-        <div className="flex items-center gap-3 mb-4">
-          <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-black text-white">{price}</span>
-            {originalPrice && (
-              <span className="text-sm font-bold text-gray-500 line-through decoration-pink-500">{originalPrice}</span>
-            )}
-          </div>
-          {originalPrice && <span className="text-[10px] font-black text-[#AB8FFF] uppercase tracking-widest">Limited Time Offer</span>}
-        </div>
-
-        <p className="text-gray-400 leading-relaxed mb-8 text-sm flex-grow font-medium line-clamp-4">
-          {course.description || 'Scientifically designed for the dyslexic mind. Visual, multisensory, and inclusive learning approach.'}
-        </p>
-
-        <div className="space-y-3 mb-10">
-          {features.slice(0, 3).map((f: string, i: number) => (
-            <div key={i} className="flex items-center gap-3">
-              <CheckCircle2 size={16} className={isPink ? 'text-pink-400' : 'text-[#AB8FFF]'} />
-              <span className="text-sm font-bold text-gray-300">{f}</span>
-            </div>
-          ))}
-          {features.length > 3 && (
-             <div className="flex items-center gap-3">
-              <CheckCircle2 size={16} className={isPink ? 'text-pink-400' : 'text-[#AB8FFF]'} />
-              <span className="text-sm font-bold text-gray-500 italic">...and {features.length - 3} more</span>
+      {/* Card Body */}
+      <div className="p-6 flex flex-col flex-grow">
+        <div className="cursor-pointer" onClick={navigateToDetail}>
+          <h3 className="text-xl font-black text-white mb-3 leading-tight group-hover:text-[#AB8FFF] transition-colors">
+            {course.title}
+          </h3>
+          
+          {!isComingSoon && (
+            <div className="flex items-baseline gap-2 mb-4">
+              <span className="text-2xl font-black text-white">{price}</span>
+              {originalPrice && (
+                <span className="text-sm font-bold text-gray-500 line-through decoration-pink-500">{originalPrice}</span>
+              )}
             </div>
           )}
         </div>
-      </div>
 
-      <div className="mt-auto pt-6 border-t border-white/10 flex flex-col gap-3">
-        {/* Three Action Buttons */}
-        <div className="grid grid-cols-3 gap-2">
-          {/* See More Button */}
-          <button 
-            onClick={() => {
-              // Navigate to appropriate detail page based on product type
-              const detailRoute = course.productType === 'ebook' 
-                ? `#ebook-${course.id}` 
-                : `#syllabus-${course.id}`;
-              window.location.hash = detailRoute;
-            }}
-            className={`flex items-center justify-center gap-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${
-              isPink 
-                ? 'bg-pink-500/20 text-pink-400 hover:bg-pink-500/30' 
-                : 'bg-[#AB8FFF]/20 text-[#AB8FFF] hover:bg-[#AB8FFF]/30'
-            }`}>
-            <Eye size={12} />
-            <span className="hidden lg:inline">See More</span>
-          </button>
-          
-          {/* Add to Cart Button */}
-          <button 
-            onClick={() => isInCart ? onRemoveFromCart(course.id) : onAddToCart(course)}
-            className={`flex items-center justify-center gap-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${
-              isInCart
-                ? 'bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30'
-                : 'bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10'
-            }`}
-          >
-            {isInCart ? <Check size={12} /> : <ShoppingCart size={12} />}
-            <span className="hidden lg:inline">{isInCart ? 'In Cart' : 'Add'}</span>
-          </button>
-          
-          {/* Enroll Now Button */}
-          <button 
-            onClick={() => {
-              onAddToCart(course);
-              window.location.hash = '#checkout';
-            }}
-            className={`flex items-center justify-center gap-1 py-3 rounded-xl text-white text-[10px] font-black uppercase tracking-wider shadow-lg transition-all transform active:scale-95 ${
-              isPink
-                ? 'bg-gradient-to-r from-pink-500 to-rose-500 hover:shadow-pink-500/30'
-                : 'bg-[#AB8FFF] hover:bg-[#9a7eef] hover:shadow-purple-500/30'
-            }`}>
-            <span className="hidden lg:inline">Enroll</span>
-            <ArrowRight size={12} />
-          </button>
-        </div>
+        {/* Buttons */}
+        {!isComingSoon && (
+          <div className="grid grid-cols-2 gap-2 mt-auto">
+            {/* Add to Cart */}
+            <button 
+              onClick={(e) => { e.stopPropagation(); isInCart ? onRemoveFromCart(course.id) : onAddToCart(course); }}
+              className={`flex items-center justify-center gap-1.5 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${
+                isInCart
+                  ? 'bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30'
+                  : 'bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10'
+              }`}
+            >
+              {isInCart ? <Check size={12} /> : <ShoppingCart size={12} />}
+              {isInCart ? 'In Cart' : 'Add to Cart'}
+            </button>
+            
+            {/* Buy Now */}
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                onAddToCart(course);
+                window.location.hash = '#checkout';
+              }}
+              className={`flex items-center justify-center gap-1.5 py-3 rounded-xl text-white text-[10px] font-black uppercase tracking-wider shadow-lg transition-all transform active:scale-95 ${
+                isPink
+                  ? 'bg-gradient-to-r from-pink-500 to-rose-500 hover:shadow-pink-500/30'
+                  : 'bg-[#AB8FFF] hover:bg-[#9a7eef] hover:shadow-purple-500/30'
+              }`}>
+              Buy Now
+              <ArrowRight size={12} />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -390,6 +420,7 @@ interface CoursesPageProps {
   onEnroll?: (id: string) => void;
   cart?: string[];
   onAddToCart?: (id: string) => void;
+  defaultTab?: CatalogTab;
 }
 
 const CoursesPage: React.FC<CoursesPageProps> = ({ 
@@ -397,7 +428,8 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
   onSelectCourse, 
   onEnroll, 
   cart: externalCart = [], 
-  onAddToCart: externalAddToCart 
+  onAddToCart: externalAddToCart,
+  defaultTab 
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [courses, setCourses] = useState<Course[]>([]);
@@ -405,13 +437,41 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
   const [loadError, setLoadError] = useState<string | null>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [internalCart, setInternalCart] = useState<Course[]>([]);
-  const [activeTab, setActiveTab] = useState<CatalogTab>('interactive'); // Default to Interactive Courses
+  const [activeTab, setActiveTab] = useState<CatalogTab>(defaultTab || 'live');
   const [showAssessment, setShowAssessment] = useState(false);
   const [assessmentType, setAssessmentType] = useState<'teens_adults' | 'kids'>('teens_adults');
+  const [showEbookAssessment, setShowEbookAssessment] = useState(false);
+  const [ebookAssessmentType, setEbookAssessmentType] = useState<'teens_adults' | 'kids'>('teens_adults');
 
   const handleOpenAssessment = (type: 'teens_adults' | 'kids') => {
     setAssessmentType(type);
     setShowAssessment(true);
+  };
+
+  // Sync activeTab when defaultTab prop changes
+  useEffect(() => {
+    if (defaultTab) {
+      setActiveTab(defaultTab);
+    }
+  }, [defaultTab]);
+
+  const handleOpenEbookAssessment = (type: 'teens_adults' | 'kids') => {
+    setEbookAssessmentType(type);
+    setShowEbookAssessment(true);
+  };
+
+  // Navigate to a specific ebook by matching level + audience
+  const handleRecommendEbook = (level: string) => {
+    const audience = ebookAssessmentType === 'kids' ? 'kids' : 'adults_teens';
+    const match = courses.find(
+      (c) => c.productType === 'ebook' && c.level === level && c.targetAudience === audience
+    );
+    if (match) {
+      window.location.hash = `#ebook-${match.id}`;
+    } else {
+      // Fallback: just go to ebooks tab
+      setActiveTab('ebooks');
+    }
   };
 
   // Use external cart if provided, otherwise internal
@@ -439,9 +499,15 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
   const ebookCourses = courses.filter(c => c.productType === 'ebook');
   const learndashCourses = courses.filter(c => c.productType === 'learndash');
   
-  // Split by audience
-  const adultEbooks = ebookCourses.filter(c => c.targetAudience === 'adults_teens');
-  const kidsEbooks = ebookCourses.filter(c => c.targetAudience === 'kids');
+  // Split by audience and sort by level
+  const LEVEL_ORDER: Record<string, number> = {
+    'A1': 1, 'A2': 2, 'B1': 3, 'B2': 4,
+    'kids-basic': 1, 'kids-medium': 2, 'kids-advanced': 3,
+  };
+  const sortByLevel = (a: Course, b: Course) => (LEVEL_ORDER[a.level] ?? 99) - (LEVEL_ORDER[b.level] ?? 99);
+  
+  const adultEbooks = ebookCourses.filter(c => c.targetAudience === 'adults_teens').sort(sortByLevel);
+  const kidsEbooks = ebookCourses.filter(c => c.targetAudience === 'kids').sort(sortByLevel);
   const adultLearndash = learndashCourses.filter(c => c.targetAudience === 'adults_teens');
   const kidsLearndash = learndashCourses.filter(c => c.targetAudience === 'kids');
   
@@ -650,13 +716,7 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
                <span className="text-base sm:text-lg md:text-xl text-gray-400 normal-case mt-4 block">Visual, multisensory, and inclusive learning approach.</span>
              </p>
 
-            <button 
-              onClick={() => { const el = document.getElementById('courses-grid'); if(el) el.scrollIntoView({behavior: 'smooth'}) }}
-              className="flex items-center gap-3 bg-[#AB8FFF] text-white px-10 py-5 rounded-full font-black text-xs uppercase tracking-widest hover:bg-[#9a7eef] shadow-xl shadow-purple-500/30 transition-all hover:scale-105 active:scale-95"
-            >
-              CHOOSE A COURSE
-              <ChevronRight size={16} />
-            </button>
+
           </div>
         </div>
 
@@ -669,14 +729,14 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
         {/* ============================================ */}
         {/* PILL TAB NAVIGATION                          */}
         {/* ============================================ */}
-        <div className="flex justify-center mb-16 sticky top-4 z-40">
-          <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+        <div className="flex justify-center mb-16">
+          <CategorySelector activeTab={activeTab} onTabChange={setActiveTab} />
         </div>
 
         {/* ============================================ */}
-        {/* SERVICES TAB - Premium & Golden Programs    */}
+        {/* LIVE COURSES TAB                             */}
         {/* ============================================ */}
-        {activeTab === 'services' && (
+        {activeTab === 'live' && (
           <div className="animate-fadeIn">
             {/* Section Header */}
             <div className="text-center mb-16">
@@ -698,7 +758,7 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
             
             {/* Premium Cards Grid */}
             {premiumCourses.length > 0 ? (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-reveal stagger-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-reveal stagger-1">
                 {premiumCourses.map((course, idx) => (
                   <PremiumCourseCard 
                     key={course.id || idx} 
@@ -715,122 +775,104 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
                 <div className="w-16 h-16 bg-violet-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-violet-400">
                   <Users size={24} />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">Online Courses Coming Soon!</h3>
+                <h3 className="text-xl font-bold text-white mb-2">Live Courses Coming Soon!</h3>
                 <p className="text-gray-400 font-medium max-w-md mx-auto">
-                  Our Premium and Golden programs are being prepared. Check back soon!
+                  Our live courses are being prepared. Check back soon!
                 </p>
               </div>
             )}
-          </div>
-        )}
 
-        {/* ============================================ */}
-        {/* INTERACTIVE COURSES TAB - LearnDash         */}
-        {/* ============================================ */}
-        {activeTab === 'interactive' && (
-          <div className="animate-fadeIn">
-            {/* Section Header */}
-            <div className="text-center mb-16">
-              <div className="flex items-center justify-center gap-4 mb-6">
-                <div className="h-[1px] w-16 bg-gradient-to-r from-transparent to-[#AB8FFF]"></div>
-                <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#AB8FFF]/20 border border-[#AB8FFF]/30">
-                  <MonitorPlay size={14} className="text-[#AB8FFF]" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-[#AB8FFF]">Interactive Learning</span>
-                </div>
-                <div className="h-[1px] w-16 bg-gradient-to-l from-transparent to-[#AB8FFF]"></div>
-              </div>
-              <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
-                Interactive <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#AB8FFF] to-pink-500">Video Courses</span>
-              </h2>
-              <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-                Self-paced video lessons, quizzes, and exercises designed for the dyslexic mind. Learn at your own pace with our engaging content.
-              </p>
-            </div>
-
-            {/* Adults & Teens Interactive Courses */}
-            {adultLearndash.length > 0 && (
-              <div className="mb-16">
-                <div className="flex items-center gap-6 mb-6">
-                  <div className="flex items-center gap-3">
-                    <MonitorPlay size={20} className="text-[#AB8FFF]" />
-                    <h3 className="text-2xl font-black text-white whitespace-nowrap">Adults & Teens</h3>
+            {/* Interactive Courses Sub-section */}
+            {(adultLearndash.length > 0 || kidsLearndash.length > 0) && (
+              <div className="mt-24">
+                <div className="text-center mb-16">
+                  <div className="flex items-center justify-center gap-4 mb-6">
+                    <div className="h-[1px] w-16 bg-gradient-to-r from-transparent to-[#AB8FFF]"></div>
+                    <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#AB8FFF]/20 border border-[#AB8FFF]/30">
+                      <MonitorPlay size={14} className="text-[#AB8FFF]" />
+                      <span className="text-[10px] font-black uppercase tracking-widest text-[#AB8FFF]">Interactive Learning</span>
+                    </div>
+                    <div className="h-[1px] w-16 bg-gradient-to-l from-transparent to-[#AB8FFF]"></div>
                   </div>
-                  <div className="h-[2px] flex-grow bg-gradient-to-r from-[#AB8FFF] to-transparent rounded-full"></div>
+                  <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
+                    Interactive <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#AB8FFF] to-pink-500">Video Courses</span>
+                  </h2>
+                  <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+                    Self-paced video lessons, quizzes, and exercises designed for the dyslexic mind.
+                  </p>
                 </div>
 
-                {/* Adults Assessment Test Button - On Top */}
-                <div className="mb-8 flex justify-center">
-                  <button 
-                    onClick={() => handleOpenAssessment('teens_adults')}
-                    className="inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
-                  >
-                    <GraduationCap size={20} />
-                    Take the Test — Teens & Adults
-                  </button>
-                </div>
+                {/* Adults & Teens Interactive */}
+                {adultLearndash.length > 0 && (
+                  <div className="mb-16">
+                    <div className="flex items-center gap-6 mb-6">
+                      <div className="flex items-center gap-3">
+                        <MonitorPlay size={20} className="text-[#AB8FFF]" />
+                        <h3 className="text-2xl font-black text-white whitespace-nowrap">Adults & Teens</h3>
+                      </div>
+                      <div className="h-[2px] flex-grow bg-gradient-to-r from-[#AB8FFF] to-transparent rounded-full"></div>
+                    </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-reveal stagger-1">
-                  {adultLearndash.map((course, idx) => (
-                    <CourseCard 
-                      key={course.id || idx} 
-                      course={course} 
-                      idx={idx}
-                      isInCart={cartIds.includes(course.id)}
-                      onAddToCart={addToCart}
-                      onRemoveFromCart={removeFromCart}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
+                    <div className="mb-8 flex justify-center">
+                      <button 
+                        onClick={() => handleOpenAssessment('teens_adults')}
+                        className="inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
+                      >
+                        <GraduationCap size={20} />
+                        Take the Test — Teens & Adults
+                      </button>
+                    </div>
 
-            {/* Kids Interactive Courses */}
-            {kidsLearndash.length > 0 && (
-              <div className="mb-16">
-                <div className="flex items-center gap-6 mb-6">
-                  <div className="flex items-center gap-3">
-                    <MonitorPlay size={20} className="text-pink-400" />
-                    <h3 className="text-2xl font-black text-white whitespace-nowrap">Kids</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-reveal stagger-1">
+                      {adultLearndash.map((course, idx) => (
+                        <CourseCard 
+                          key={course.id || idx} 
+                          course={course} 
+                          idx={idx}
+                          isInCart={cartIds.includes(course.id)}
+                          onAddToCart={addToCart}
+                          onRemoveFromCart={removeFromCart}
+                        />
+                      ))}
+                    </div>
                   </div>
-                  <div className="h-[2px] flex-grow bg-gradient-to-r from-pink-400 to-transparent rounded-full"></div>
-                </div>
+                )}
 
-                {/* Kids Assessment Test Button - On Top */}
-                <div className="mb-8 flex justify-center">
-                  <button 
-                    onClick={() => handleOpenAssessment('kids')}
-                    className="inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
-                  >
-                    <Baby size={20} />
-                    Take the Test — Kids
-                  </button>
-                </div>
+                {/* Kids Interactive */}
+                {kidsLearndash.length > 0 && (
+                  <div className="mb-16">
+                    <div className="flex items-center gap-6 mb-6">
+                      <div className="flex items-center gap-3">
+                        <MonitorPlay size={20} className="text-pink-400" />
+                        <h3 className="text-2xl font-black text-white whitespace-nowrap">Kids</h3>
+                      </div>
+                      <div className="h-[2px] flex-grow bg-gradient-to-r from-pink-400 to-transparent rounded-full"></div>
+                    </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-reveal stagger-1">
-                  {kidsLearndash.map((course, idx) => (
-                    <CourseCard 
-                      key={course.id || idx} 
-                      course={course} 
-                      idx={idx}
-                      isInCart={cartIds.includes(course.id)}
-                      onAddToCart={addToCart}
-                      onRemoveFromCart={removeFromCart}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
+                    <div className="mb-8 flex justify-center">
+                      <button 
+                        onClick={() => handleOpenAssessment('kids')}
+                        className="inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
+                      >
+                        <Baby size={20} />
+                        Take the Test — Kids
+                      </button>
+                    </div>
 
-            {/* Empty State */}
-            {adultLearndash.length === 0 && kidsLearndash.length === 0 && (
-              <div className="text-center py-20 bg-white/5 rounded-3xl border border-dashed border-white/10">
-                <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-purple-400">
-                  <MonitorPlay size={24} />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-2">Interactive Courses Coming Soon!</h3>
-                <p className="text-gray-400 font-medium max-w-md mx-auto">
-                  We're preparing our interactive video courses. Check back soon!
-                </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-reveal stagger-1">
+                      {kidsLearndash.map((course, idx) => (
+                        <CourseCard 
+                          key={course.id || idx} 
+                          course={course} 
+                          idx={idx}
+                          isInCart={cartIds.includes(course.id)}
+                          onAddToCart={addToCart}
+                          onRemoveFromCart={removeFromCart}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -862,13 +904,25 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
             {/* Adults & Teens E-books */}
             {adultEbooks.length > 0 && (
               <div className="mb-16">
-                <div className="flex items-center gap-6 mb-8">
+                <div className="flex items-center gap-6 mb-6">
                   <div className="flex items-center gap-3">
                     <FileText size={20} className="text-[#AB8FFF]" />
                     <h3 className="text-2xl font-black text-white whitespace-nowrap">Adults & Teens</h3>
                   </div>
                   <div className="h-[2px] flex-grow bg-gradient-to-r from-[#AB8FFF] to-transparent rounded-full"></div>
                 </div>
+
+                {/* Adults Assessment Test Button */}
+                <div className="mb-8 flex justify-center">
+                  <button 
+                    onClick={() => handleOpenEbookAssessment('teens_adults')}
+                    className="inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
+                  >
+                    <GraduationCap size={20} />
+                    Find Your Level — Teens & Adults
+                  </button>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-reveal stagger-1">
                   {adultEbooks.map((course, idx) => (
                     <CourseCard 
@@ -887,13 +941,25 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
             {/* Kids E-books */}
             {kidsEbooks.length > 0 && (
               <div className="mb-16">
-                <div className="flex items-center gap-6 mb-8">
+                <div className="flex items-center gap-6 mb-6">
                   <div className="flex items-center gap-3">
                     <FileText size={20} className="text-pink-400" />
                     <h3 className="text-2xl font-black text-white whitespace-nowrap">Kids</h3>
                   </div>
                   <div className="h-[2px] flex-grow bg-gradient-to-r from-pink-400 to-transparent rounded-full"></div>
                 </div>
+
+                {/* Kids Assessment Test Button */}
+                <div className="mb-8 flex justify-center">
+                  <button 
+                    onClick={() => handleOpenEbookAssessment('kids')}
+                    className="inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
+                  >
+                    <Baby size={20} />
+                    Find Your Level — Kids
+                  </button>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-reveal stagger-1">
                   {kidsEbooks.map((course, idx) => (
                     <CourseCard 
@@ -938,12 +1004,22 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
         )}
       </div>
 
-      {/* Assessment Popup */}
+      {/* Assessment Popup (Interactive Courses) */}
       <AssessmentPopup
         isOpen={showAssessment}
         onClose={() => setShowAssessment(false)}
         testType={assessmentType}
         onNavigate={onNavigate}
+      />
+
+      {/* Assessment Popup (E-books — recommends next level) */}
+      <AssessmentPopup
+        isOpen={showEbookAssessment}
+        onClose={() => setShowEbookAssessment(false)}
+        testType={ebookAssessmentType}
+        onNavigate={onNavigate}
+        recommendNextLevel
+        onRecommendEbook={handleRecommendEbook}
       />
     </div>
   );

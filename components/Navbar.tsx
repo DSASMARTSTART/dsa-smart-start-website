@@ -28,14 +28,14 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPath, cartCount, isL
   const navLinks = isLoggedIn 
     ? [
         { name: 'Dashboard', path: 'dashboard' },
-        { name: 'Browse Courses', path: 'courses' },
+        { name: 'Browse Products', path: 'courses' },
         { name: 'FAQ', path: 'faq' },
         { name: 'Contacts', path: 'contact' },
       ]
     : [
         { name: 'Home', path: 'home' },
         { name: 'Who We Are', path: 'who-we-are' },
-        { name: 'Courses', path: 'courses' },
+        { name: 'Products', path: 'courses' },
         { name: 'FAQ', path: 'faq' },
         { name: 'Contacts', path: 'contact' },
         { name: 'Login/Register', path: 'login' },

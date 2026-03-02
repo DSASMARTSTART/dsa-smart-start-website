@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Star, Zap, Award, BookOpen, Music, Play, Layers, Compass, ChevronRight, Sparkles, GraduationCap, Baby, ClipboardCheck } from 'lucide-react';
+import { BookOpen, ChevronRight, Sparkles, GraduationCap, ClipboardCheck } from 'lucide-react';
 import AssessmentPopup from './AssessmentPopup';
 import { AssessmentTestType } from '../types';
 
@@ -10,23 +10,24 @@ interface RootsSectionProps {
 
 const RootsSection: React.FC<RootsSectionProps> = ({ onNavigate }) => {
   const [showAssessment, setShowAssessment] = useState(false);
-  const [assessmentType, setAssessmentType] = useState<AssessmentTestType>('teens_adults');
 
-  const handleOpenAssessment = (type: AssessmentTestType) => {
-    setAssessmentType(type);
-    setShowAssessment(true);
-  };
-
-  const adultCourses = [
-    { name: "A1 LEVEL", level: "Beginner", icon: <Layers size={22} />, color: "from-blue-500 to-indigo-600", desc: "Foundation strategies for complete beginners with dyslexia." },
-    { name: "A2 LEVEL", level: "Elementary", icon: <Compass size={22} />, color: "from-indigo-500 to-purple-600", desc: "Developing confidence in daily communication and basic structures." },
-    { name: "B1 LEVEL", level: "Intermediate", icon: <Zap size={22} />, color: "from-purple-600 to-pink-600", desc: "Independent usage with specialized DSA tools for advanced reasoning." },
-  ];
-
-  const kidsCourses = [
-    { name: "BASIC", level: "Early Years", icon: <Music size={22} />, color: "from-pink-500 to-rose-500", desc: "Introduction through songs, visuals, and sensory exploration." },
-    { name: "MEDIUM", level: "Primary", icon: <Play size={22} />, color: "from-rose-500 to-orange-500", desc: "Interactive storytelling and vocabulary games for active focus." },
-    { name: "ADVANCED", level: "Pre-Teen", icon: <Award size={22} />, color: "from-orange-500 to-amber-500", desc: "Preparing for school success with advanced visual mnemonics." },
+  const categories = [
+    {
+      label: 'Live Courses',
+      icon: <GraduationCap size={28} />,
+      color: 'from-purple-500 to-pink-600',
+      shadow: 'shadow-purple-500/20',
+      accent: 'text-purple-400',
+      tab: 'courses-live',
+    },
+    {
+      label: 'E-books',
+      icon: <BookOpen size={28} />,
+      color: 'from-blue-500 to-indigo-600',
+      shadow: 'shadow-blue-500/20',
+      accent: 'text-blue-400',
+      tab: 'courses-ebooks',
+    },
   ];
 
   return (
@@ -38,7 +39,8 @@ const RootsSection: React.FC<RootsSectionProps> = ({ onNavigate }) => {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <div className="text-center mb-24 animate-reveal">
+        {/* Section Header */}
+        <div className="text-center mb-16 animate-reveal">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/30 mb-6">
             <Sparkles size={14} className="text-purple-400" />
             <span className="text-[10px] uppercase tracking-widest text-purple-400 font-bold">Comprehensive Curriculum</span>
@@ -51,106 +53,45 @@ const RootsSection: React.FC<RootsSectionProps> = ({ onNavigate }) => {
           </p>
         </div>
 
-        {/* Teens & Adults Section */}
-        <div className="mb-32">
-          <div className="flex items-center gap-6 mb-8 animate-reveal stagger-1">
-            <div className="flex items-center gap-3">
-              <GraduationCap className="text-indigo-400" size={24} />
-              <h4 className="text-2xl font-black text-white tracking-tight">Teens & Adults</h4>
-            </div>
-            <div className="h-[1px] flex-grow bg-gradient-to-r from-indigo-500/50 to-transparent"></div>
-          </div>
-
-          {/* Teens & Adults Assessment Test CTA */}
-          <div className="flex justify-center mb-10 animate-reveal stagger-1">
-            <button 
-              onClick={() => handleOpenAssessment('teens_adults')}
-              className="inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
-            >
-              <ClipboardCheck size={20} />
-              Take the Test — Teens & Adults
-            </button>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {adultCourses.map((course, i) => (
-              <div key={i} className="group relative bg-white/5 rounded-[2.5rem] p-10 border border-white/10 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-500 animate-reveal" style={{ animationDelay: `${0.1 + (i * 0.1)}s` }}>
-                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${course.color} text-white flex items-center justify-center mb-8 shadow-lg shadow-indigo-500/20 transform group-hover:-translate-y-2 transition-transform duration-500`}>
-                  {course.icon}
-                </div>
-                <div className="mb-6">
-                  <span className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-1 block">{course.level}</span>
-                  <h5 className="text-2xl font-black text-white tracking-tight">SMART START {course.name}</h5>
-                </div>
-                <p className="text-gray-400 leading-relaxed mb-8 text-sm">
-                  {course.desc}
-                </p>
-                <div className="pt-8 border-t border-white/10 flex items-center justify-between">
-                   <button 
-                     onClick={() => onNavigate?.('courses')}
-                     className="text-[11px] font-black uppercase tracking-widest text-indigo-400 flex items-center gap-2 group-hover:gap-4 transition-all"
-                   >
-                     View Details
-                     <ChevronRight size={14} />
-                   </button>
-                   <Star size={16} className="text-white/20" />
-                </div>
-              </div>
-            ))}
-          </div>
+        {/* Single Placement Test Button */}
+        <div className="flex justify-center mb-20 animate-reveal stagger-1">
+          <button
+            onClick={() => setShowAssessment(true)}
+            className="inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-10 py-5 rounded-full font-black uppercase tracking-widest text-lg hover:scale-105 transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
+          >
+            <ClipboardCheck size={24} />
+            Take the Placement Test
+          </button>
         </div>
 
-        {/* Kids Section */}
-        <div>
-          <div className="flex items-center gap-6 mb-8 animate-reveal stagger-2">
-            <div className="flex items-center gap-3">
-              <Baby className="text-pink-400" size={24} />
-              <h4 className="text-2xl font-black text-white tracking-tight">Kids</h4>
-            </div>
-            <div className="h-[1px] flex-grow bg-gradient-to-r from-pink-500/50 to-transparent"></div>
-          </div>
-
-          {/* Kids Assessment Test CTA */}
-          <div className="flex justify-center mb-10 animate-reveal stagger-2">
-            <button 
-              onClick={() => handleOpenAssessment('kids')}
-              className="inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
+        {/* Three Category Boxes */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20 max-w-3xl mx-auto">
+          {categories.map((cat, i) => (
+            <button
+              key={cat.label}
+              onClick={() => onNavigate?.(cat.tab)}
+              className="group relative bg-white/5 rounded-[2.5rem] p-10 border border-white/10 shadow-sm hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 animate-reveal text-left"
+              style={{ animationDelay: `${0.15 + i * 0.1}s` }}
             >
-              <ClipboardCheck size={20} />
-              Take the Test — Kids
-            </button>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {kidsCourses.map((course, i) => (
-              <div key={i} className="group relative bg-white/5 rounded-[2.5rem] p-10 border border-white/10 shadow-sm hover:shadow-2xl hover:shadow-pink-500/10 transition-all duration-500 animate-reveal" style={{ animationDelay: `${0.2 + (i * 0.1)}s` }}>
-                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${course.color} text-white flex items-center justify-center mb-8 shadow-lg shadow-pink-500/20 transform group-hover:-translate-y-2 transition-transform duration-500`}>
-                  {course.icon}
-                </div>
-                <div className="mb-6">
-                  <span className="text-[10px] font-black text-pink-400 uppercase tracking-[0.2em] mb-1 block">{course.level}</span>
-                  <h5 className="text-2xl font-black text-white tracking-tight">KIDS {course.name}</h5>
-                </div>
-                <p className="text-gray-400 leading-relaxed mb-8 text-sm">
-                  {course.desc}
-                </p>
-                <div className="pt-8 border-t border-white/10 flex items-center justify-between">
-                   <button 
-                     onClick={() => onNavigate?.('courses')}
-                     className="text-[11px] font-black uppercase tracking-widest text-pink-400 flex items-center gap-2 group-hover:gap-4 transition-all"
-                   >
-                     View Details
-                     <ChevronRight size={14} />
-                   </button>
-                   <Star size={16} className="text-white/20" />
-                </div>
+
+              <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${cat.color} text-white flex items-center justify-center mb-8 shadow-lg ${cat.shadow} transform group-hover:-translate-y-2 transition-transform duration-500`}>
+                {cat.icon}
               </div>
-            ))}
-          </div>
+
+              <h5 className="text-2xl font-black text-white tracking-tight mb-2">{cat.label}</h5>
+
+              <div className="pt-4 flex items-center">
+                <span className={`text-[11px] font-black uppercase tracking-widest ${cat.accent} flex items-center gap-2 group-hover:gap-4 transition-all`}>
+                  Explore
+                  <ChevronRight size={14} />
+                </span>
+              </div>
+            </button>
+          ))}
         </div>
 
         {/* Still Not Sure CTA */}
-        <div className="mt-20 text-center animate-reveal stagger-3">
+        <div className="text-center animate-reveal stagger-3">
           <div className="bg-white/5 p-10 sm:p-12 rounded-[3rem] shadow-lg border border-white/10 max-w-2xl mx-auto">
             <h5 className="text-2xl sm:text-3xl font-black text-white mb-4 tracking-tight">
               Still not sure which level is right for you?
@@ -171,11 +112,12 @@ const RootsSection: React.FC<RootsSectionProps> = ({ onNavigate }) => {
         </div>
       </div>
 
-      {/* Assessment Popup */}
+      {/* Assessment Popup — auto-detects age group */}
       <AssessmentPopup
         isOpen={showAssessment}
         onClose={() => setShowAssessment(false)}
-        testType={assessmentType}
+        testType="teens_adults"
+        autoDetectAge={true}
         onNavigate={onNavigate}
       />
     </section>

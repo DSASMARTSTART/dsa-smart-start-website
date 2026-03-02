@@ -116,14 +116,14 @@ INSERT INTO courses (
   NOW()
 );
 
--- Kids Medium E-book
+-- Kids Medium E-book (Movers)
 INSERT INTO courses (
   id, title, description, level, product_type, target_audience, content_format,
   thumbnail_url, pricing, modules, is_published, is_draft, created_at, updated_at
 ) VALUES (
   uuid_generate_v4(),
-  'Kids Medium E-book',
-  'Continue the English adventure! This e-book builds vocabulary and introduces more complex sentences through fun activities and games.',
+  'DSA SMART START KIDS – MOVERS EBOOK',
+  'The DSA Smart Start Kids Medium e-book builds on the basics, designed for young learners aged 7-10 who are ready to expand their English skills. Through story-based learning, creative activities, and interactive exercises, children develop reading, writing, and speaking confidence. Every page incorporates dyslexia-friendly methods to support all learning styles.',
   'kids-medium',
   'ebook',
   'kids',

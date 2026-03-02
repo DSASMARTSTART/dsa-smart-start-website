@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { X, ChevronRight, ChevronLeft, CheckCircle2, RotateCcw, Sparkles, Clock, Trophy, Target } from 'lucide-react';
+import { X, ChevronRight, ChevronLeft, CheckCircle2, RotateCcw, Sparkles, Clock, Trophy, Target, GraduationCap, Baby } from 'lucide-react';
 import {
   AssessmentTestType,
   AssessmentQuestion,
@@ -21,23 +21,44 @@ import {
   ASSESSMENT_STORAGE_KEY,
 } from '../data/assessmentData';
 
+// Maps a passed level to the next level up (for ebook recommendations)
+const NEXT_LEVEL_MAP: Record<string, string> = {
+  'A1': 'A2',
+  'A2': 'B1',
+  'B1': 'B2',
+  'B2': 'B2',
+  'kids-basic': 'kids-medium',
+  'kids-medium': 'kids-advanced',
+  'kids-advanced': 'kids-advanced',
+};
+
 interface AssessmentPopupProps {
   isOpen: boolean;
   onClose: () => void;
   testType: AssessmentTestType;
   onNavigate?: (path: string) => void;
+  /** When true, recommend the NEXT level ebook instead of the current level */
+  recommendNextLevel?: boolean;
+  /** Called with the recommended level string when user clicks "View Recommended E-book" */
+  onRecommendEbook?: (level: string) => void;
+  /** When true, show age selection screen before the intro so the correct test is auto-selected */
+  autoDetectAge?: boolean;
 }
 
-type PopupStage = 'intro' | 'quiz' | 'results';
+type PopupStage = 'age-select' | 'intro' | 'quiz' | 'results';
 
 const AssessmentPopup: React.FC<AssessmentPopupProps> = ({
   isOpen,
   onClose,
   testType,
   onNavigate,
+  recommendNextLevel = false,
+  onRecommendEbook,
+  autoDetectAge = false,
 }) => {
   const [mounted, setMounted] = useState(false);
-  const [stage, setStage] = useState<PopupStage>('intro');
+  const [stage, setStage] = useState<PopupStage>(autoDetectAge ? 'age-select' : 'intro');
+  const [internalTestType, setInternalTestType] = useState<AssessmentTestType>(testType);
   const [questions, setQuestions] = useState<AssessmentQuestion[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<AssessmentAnswer[]>([]);
@@ -51,13 +72,20 @@ const AssessmentPopup: React.FC<AssessmentPopupProps> = ({
     return () => setMounted(false);
   }, []);
 
-  // Load questions when test type changes
+  // Sync internal test type from prop
+  useEffect(() => {
+    if (isOpen && !autoDetectAge) {
+      setInternalTestType(testType);
+    }
+  }, [isOpen, testType, autoDetectAge]);
+
+  // Load questions when internal test type changes
   useEffect(() => {
     if (isOpen) {
-      const loadedQuestions = getQuestionsForTest(testType);
+      const loadedQuestions = getQuestionsForTest(internalTestType);
       setQuestions(loadedQuestions);
     }
-  }, [isOpen, testType]);
+  }, [isOpen, internalTestType]);
 
   // Handle escape key
   useEffect(() => {
@@ -81,14 +109,17 @@ const AssessmentPopup: React.FC<AssessmentPopupProps> = ({
   // Reset state when popup opens
   useEffect(() => {
     if (isOpen) {
-      setStage('intro');
+      setStage(autoDetectAge ? 'age-select' : 'intro');
       setCurrentQuestionIndex(0);
       setAnswers([]);
       setSelectedAnswer(null);
       setResult(null);
       setShowConfetti(false);
+      if (!autoDetectAge) {
+        setInternalTestType(testType);
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, autoDetectAge, testType]);
 
   // Start the test
   const handleStartTest = () => {
@@ -130,7 +161,7 @@ const AssessmentPopup: React.FC<AssessmentPopupProps> = ({
       const totalCorrect = newAnswers.filter((a) => a.isCorrect).length;
 
       const assessmentResult: AssessmentResult = {
-        testType,
+        testType: internalTestType,
         answers: newAnswers,
         levelScores,
         recommendedLevel,
@@ -164,9 +195,15 @@ const AssessmentPopup: React.FC<AssessmentPopupProps> = ({
     }
   };
 
+  // Handle age selection
+  const handleAgeSelect = (type: AssessmentTestType) => {
+    setInternalTestType(type);
+    setStage('intro');
+  };
+
   // Retake the test
   const handleRetake = () => {
-    setStage('intro');
+    setStage(autoDetectAge ? 'age-select' : 'intro');
     setCurrentQuestionIndex(0);
     setAnswers([]);
     setSelectedAnswer(null);
@@ -174,10 +211,16 @@ const AssessmentPopup: React.FC<AssessmentPopupProps> = ({
     setShowConfetti(false);
   };
 
-  // Navigate to courses
+  // Navigate to courses or recommended ebook
   const handleViewCourse = () => {
-    onClose();
-    onNavigate?.('courses');
+    if (recommendNextLevel && result && onRecommendEbook) {
+      const nextLevel = NEXT_LEVEL_MAP[result.recommendedLevel] || result.recommendedLevel;
+      onRecommendEbook(nextLevel);
+      onClose();
+    } else {
+      onClose();
+      onNavigate?.('courses');
+    }
   };
 
   // Get current level for progress indicator
@@ -221,7 +264,7 @@ const AssessmentPopup: React.FC<AssessmentPopupProps> = ({
         role="dialog"
         aria-modal="true"
       >
-        {/* Close button - only show on intro and results */}
+        {/* Close button - only show on intro, age-select and results */}
         {stage !== 'quiz' && (
           <button
             onClick={onClose}
@@ -232,8 +275,12 @@ const AssessmentPopup: React.FC<AssessmentPopupProps> = ({
         )}
 
         {/* Content based on stage */}
+        {stage === 'age-select' && (
+          <AgeSelectStage onSelect={handleAgeSelect} />
+        )}
+
         {stage === 'intro' && (
-          <IntroStage testType={testType} onStart={handleStartTest} />
+          <IntroStage testType={internalTestType} onStart={handleStartTest} />
         )}
 
         {stage === 'quiz' && questions.length > 0 && (
@@ -257,11 +304,61 @@ const AssessmentPopup: React.FC<AssessmentPopupProps> = ({
             result={result}
             onRetake={handleRetake}
             onViewCourse={handleViewCourse}
+            recommendNextLevel={recommendNextLevel}
           />
         )}
       </div>
     </div>,
     document.body
+  );
+};
+
+// ---------- Age Select Stage ----------
+interface AgeSelectStageProps {
+  onSelect: (type: AssessmentTestType) => void;
+}
+
+const AgeSelectStage: React.FC<AgeSelectStageProps> = ({ onSelect }) => {
+  return (
+    <div className="p-8 text-center">
+      <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        <Target className="w-10 h-10 text-purple-600" />
+      </div>
+
+      <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-3">
+        Who is taking the test?
+      </h2>
+
+      <p className="text-gray-600 mb-10 max-w-md mx-auto">
+        Select the learner's age group so we can show the right placement test.
+      </p>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md mx-auto">
+        <button
+          onClick={() => onSelect('teens_adults')}
+          className="group flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-gray-200 hover:border-purple-400 hover:bg-purple-50 transition-all duration-200"
+        >
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+            <GraduationCap size={24} />
+          </div>
+          <span className="text-lg font-black text-gray-900">12 or older</span>
+          <span className="text-xs text-gray-500 uppercase tracking-wide">Teens & Adults</span>
+        </button>
+
+        <button
+          onClick={() => onSelect('kids')}
+          className="group flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-gray-200 hover:border-pink-400 hover:bg-pink-50 transition-all duration-200"
+        >
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-pink-500 to-rose-500 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+            <Baby size={24} />
+          </div>
+          <span className="text-lg font-black text-gray-900">Under 12</span>
+          <span className="text-xs text-gray-500 uppercase tracking-wide">Kids</span>
+        </button>
+      </div>
+
+      <p className="text-xs text-gray-400 mt-6">No login required • Free assessment</p>
+    </div>
   );
 };
 
@@ -502,10 +599,15 @@ interface ResultsStageProps {
   result: AssessmentResult;
   onRetake: () => void;
   onViewCourse: () => void;
+  recommendNextLevel?: boolean;
 }
 
-const ResultsStage: React.FC<ResultsStageProps> = ({ result, onRetake, onViewCourse }) => {
-  const levelInfo = getLevelInfo(result.recommendedLevel);
+const ResultsStage: React.FC<ResultsStageProps> = ({ result, onRetake, onViewCourse, recommendNextLevel = false }) => {
+  const passedLevel = result.recommendedLevel;
+  const displayLevel = recommendNextLevel
+    ? (NEXT_LEVEL_MAP[passedLevel] || passedLevel)
+    : passedLevel;
+  const levelInfo = getLevelInfo(displayLevel as CourseLevel);
   const percentage = Math.round((result.totalCorrect / result.totalQuestions) * 100);
 
   return (
@@ -529,13 +631,17 @@ const ResultsStage: React.FC<ResultsStageProps> = ({ result, onRetake, onViewCou
         className={`${levelInfo.bgColor} rounded-3xl p-6 md:p-8 mb-6 text-center border-2 border-white shadow-xl`}
       >
         <p className="text-sm uppercase tracking-wide font-semibold text-gray-600 mb-2">
-          Your Recommended Level
+          {recommendNextLevel ? 'Recommended E-book Level' : 'Your Recommended Level'}
         </p>
         <div className={`text-4xl md:text-5xl font-black ${levelInfo.color} mb-3`}>
-          {levelInfo.emoji} {result.recommendedLevel}
+          {levelInfo.emoji} {displayLevel}
         </div>
         <h3 className={`text-xl font-bold ${levelInfo.color} mb-2`}>{levelInfo.name}</h3>
-        <p className="text-gray-600 text-sm max-w-md mx-auto">{levelInfo.description}</p>
+        <p className="text-gray-600 text-sm max-w-md mx-auto">
+          {recommendNextLevel
+            ? `Based on your results, we recommend the ${levelInfo.name} e-book as your next step.`
+            : levelInfo.description}
+        </p>
       </div>
 
       {/* Level Breakdown */}
@@ -590,7 +696,7 @@ const ResultsStage: React.FC<ResultsStageProps> = ({ result, onRetake, onViewCou
           onClick={onViewCourse}
           className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl font-bold hover:scale-105 transition-transform shadow-xl shadow-purple-200"
         >
-          View Recommended Course
+          {recommendNextLevel ? 'View Recommended E-book' : 'View Recommended Course'}
           <ChevronRight size={20} />
         </button>
       </div>

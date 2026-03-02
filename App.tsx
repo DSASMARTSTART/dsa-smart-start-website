@@ -17,6 +17,7 @@ import LoginRegisterPage from './components/LoginRegisterPage';
 import CoursesPage from './components/CoursesPage';
 import CourseSyllabusPage from './components/CourseSyllabusPage';
 import EbookDetailPage from './components/EbookDetailPage';
+import LiveCourseDetailPage from './components/LiveCourseDetailPage';
 import CheckoutPage from './components/CheckoutPage';
 import CheckoutSuccessPage from './components/CheckoutSuccessPage';
 import WhatsAppButton from './components/WhatsAppButton';
@@ -52,6 +53,7 @@ const App: React.FC = () => {
   // This prevents unnecessary API calls on every page load
   const [currentPath, setCurrentPath] = useState('home');
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
+  const [coursesDefaultTab, setCoursesDefaultTab] = useState<'live' | 'ebooks' | undefined>(undefined);
   
   // Initialize cart from localStorage
   const [cart, setCart] = useState<string[]>(() => {
@@ -132,7 +134,10 @@ const App: React.FC = () => {
       else if (hash === '#who-we-are') setCurrentPath('who-we-are');
       else if (hash === '#contact') setCurrentPath('contact');
       else if (hash === '#login') setCurrentPath('login');
-      else if (hash === '#courses') setCurrentPath('courses');
+      else if (hash === '#courses') { setCurrentPath('courses'); setCoursesDefaultTab(undefined); }
+      else if (hash === '#courses-ebooks') { setCurrentPath('courses'); setCoursesDefaultTab('ebooks'); }
+      else if (hash === '#courses-services' || hash === '#courses-live') { setCurrentPath('courses'); setCoursesDefaultTab('live'); }
+      else if (hash === '#courses-interactive') { setCurrentPath('courses'); setCoursesDefaultTab('live'); }
       else if (hash === '#checkout') setCurrentPath('checkout');
       else if (hash === '#checkout-success' || hash.startsWith('#checkout-success?')) {
         setCurrentPath('checkout-success');
@@ -167,6 +172,10 @@ const App: React.FC = () => {
         setCurrentPath('ebook');
         setSelectedCourseId(hash.replace('#ebook-', ''));
       }
+      else if (hash.startsWith('#live-course-')) {
+        setCurrentPath('live-course');
+        setSelectedCourseId(hash.replace('#live-course-', ''));
+      }
       else if (hash.startsWith('#viewer-')) {
         setCurrentPath('viewer');
         setSelectedCourseId(hash.replace('#viewer-', ''));
@@ -184,12 +193,16 @@ const App: React.FC = () => {
       window.location.hash = `#syllabus-${params}`;
     } else if (path === 'ebook' && params) {
       window.location.hash = `#ebook-${params}`;
+    } else if (path === 'live-course' && params) {
+      window.location.hash = `#live-course-${params}`;
     } else if (path === 'viewer' && params) {
       window.location.hash = `#viewer-${params}`;
     } else if (path === 'admin-course-edit' && params) {
       window.location.hash = `#admin-course-edit-${params}`;
     } else if (path === 'home') {
       window.location.hash = '#home';
+    } else if (path.startsWith('courses-')) {
+      window.location.hash = `#${path}`;
     } else {
       window.location.hash = `#${path}`;
     }
@@ -325,7 +338,7 @@ const App: React.FC = () => {
             <div id="roots"><RootsSection onNavigate={navigateTo} /></div>
             <div id="methods"><MethodSection onNavigate={navigateTo} /></div>
             <PathwaysDetail />
-            <CareerSection />
+            <CareerSection onNavigate={navigateTo} />
             <TestimonialsSection />
           </>
         )}
@@ -342,6 +355,7 @@ const App: React.FC = () => {
             onEnroll={enrollNow}
             cart={cart}
             onAddToCart={addToCart}
+            defaultTab={coursesDefaultTab}
           />
         )}
 
@@ -362,6 +376,17 @@ const App: React.FC = () => {
         <EbookDetailPage 
           courseId={selectedCourseId} 
           onBack={() => navigateTo('courses')} 
+          onEnroll={enrollNow}
+          onAddToCart={addToCart}
+          isInCart={cart.includes(selectedCourseId)}
+          isAddingToCart={addingToCart === selectedCourseId}
+        />
+      )}
+
+      {currentPath === 'live-course' && selectedCourseId && (
+        <LiveCourseDetailPage
+          courseId={selectedCourseId}
+          onBack={() => navigateTo('courses')}
           onEnroll={enrollNow}
           onAddToCart={addToCart}
           isInCart={cart.includes(selectedCourseId)}

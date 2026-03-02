@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { Star, Zap, Award, Music, Play, Layers, Compass, ChevronRight, Crown, Diamond, Loader2, GraduationCap, Baby } from 'lucide-react';
+import { Star, Zap, Award, Music, Play, Layers, Compass, ChevronRight, Crown, Diamond, Loader2, GraduationCap, Baby, Users } from 'lucide-react';
 import { coursesApi } from '../data/supabaseStore';
 import { Course, CourseLevel } from '../types';
 import AssessmentPopup from './AssessmentPopup';
@@ -15,10 +15,10 @@ const LEVEL_CONFIG: Record<string, { icon: React.ReactNode; color: string; label
   'kids-basic': { icon: <Music size={22} />, color: 'from-[#FFC1F2] to-[#ffdaeb]', label: 'Kids Basic', category: 'kids' },
   'kids-medium': { icon: <Play size={22} />, color: 'from-[#fface0] to-[#fbcfe8]', label: 'Kids Medium', category: 'kids' },
   'kids-advanced': { icon: <Award size={22} />, color: 'from-[#FFC1F2] to-[#AB8FFF]', label: 'Kids Advanced', category: 'kids' },
-  'premium': { icon: <Crown size={22} />, color: 'from-violet-600 to-purple-700', label: 'Premium Program', category: 'pathway' },
-  'golden': { icon: <Diamond size={22} />, color: 'from-amber-500 to-yellow-600', label: 'Golden Program', category: 'pathway' },
-  'Premium': { icon: <Crown size={22} />, color: 'from-violet-600 to-purple-700', label: 'Premium Pathway', category: 'pathway' },
-  'Gold': { icon: <Diamond size={22} />, color: 'from-amber-500 to-yellow-600', label: 'Gold Pathway', category: 'pathway' },
+  'language-lab': { icon: <Users size={22} />, color: 'from-violet-600 to-purple-700', label: 'Language Lab', category: 'pathway' },
+  'starter-path': { icon: <Compass size={22} />, color: 'from-sky-500 to-blue-600', label: 'Starter Path', category: 'pathway' },
+  'language-lab-pro': { icon: <Crown size={22} />, color: 'from-emerald-500 to-teal-600', label: 'Language Lab Pro', category: 'pathway' },
+  'hybrid-pack': { icon: <Diamond size={22} />, color: 'from-amber-500 to-yellow-600', label: 'Hybrid Pack', category: 'pathway' },
 };
 
 // Fallback static courses for when database is empty
@@ -79,7 +79,6 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus, o
     (c.targetAudience === 'kids' && c.productType === 'learndash')
   );
   const pathwayCourses = courses.filter(c => 
-    ['Premium', 'Gold', 'premium', 'golden'].includes(c.level) ||
     c.productType === 'service'
   );
 
@@ -308,7 +307,7 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus, o
             {pathwayCourses.length > 0 && (
               <div>
                 <div className="flex items-center gap-6 mb-12">
-                  <h4 className="text-sm font-black text-gray-300 uppercase tracking-widest whitespace-nowrap">Premium Pathways</h4>
+                  <h4 className="text-sm font-black text-gray-300 uppercase tracking-widest whitespace-nowrap">Live Courses</h4>
                   <div className="h-[1px] flex-grow bg-gradient-to-r from-white/20 to-transparent"></div>
                 </div>
                 

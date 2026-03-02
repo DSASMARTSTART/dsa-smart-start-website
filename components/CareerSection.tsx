@@ -1,23 +1,36 @@
 
-import React from 'react';
-import { Search, Map, Rocket } from 'lucide-react';
+import React, { useState } from 'react';
+import { Search, Map, Rocket, ChevronRight } from 'lucide-react';
+import AssessmentPopup from './AssessmentPopup';
 
-const CareerSection: React.FC = () => {
+interface CareerSectionProps {
+  onNavigate?: (path: string) => void;
+}
+
+const CareerSection: React.FC<CareerSectionProps> = ({ onNavigate }) => {
+  const [showAssessment, setShowAssessment] = useState(false);
+
   const steps = [
     {
       icon: <Search className="text-purple-400" />,
       title: "1. Discover your abilities",
-      desc: "Take our Career Advisor Test and get an accurate assessment of your knowledge"
+      desc: "Take our Career Advisor Test and get an accurate assessment of your knowledge",
+      cta: "Take the Test",
+      action: () => setShowAssessment(true),
     },
     {
       icon: <Map className="text-blue-400" />,
       title: "2. Get your plan",
-      desc: "Our team, supported by scientific research, will calculate your ideal study plan to guarantee your success."
+      desc: "Our team, supported by scientific research, will calculate your ideal study plan to guarantee your success.",
+      cta: "Browse Courses",
+      action: () => onNavigate?.('courses'),
     },
     {
       icon: <Rocket className="text-pink-400" />,
       title: "3. Start the Journey",
-      desc: "With the Satisfaction Guarantee you start your journey and if you are not satisfied after 60 days, we will refund you"
+      desc: "With the Satisfaction Guarantee you start your journey and if you are not satisfied after 60 days, we will refund you",
+      cta: "Take the Test",
+      action: () => setShowAssessment(true),
     }
   ];
 
@@ -47,11 +60,27 @@ const CareerSection: React.FC = () => {
                 {step.icon}
               </div>
               <h4 className="text-2xl font-bold mb-4 tracking-tight">{step.title}</h4>
-              <p className="text-gray-400 leading-relaxed font-medium">{step.desc}</p>
+              <p className="text-gray-400 leading-relaxed font-medium mb-6">{step.desc}</p>
+              <button
+                onClick={step.action}
+                className="inline-flex items-center gap-2 text-sm font-black uppercase tracking-widest text-purple-400 hover:text-white transition-colors group/btn"
+              >
+                {step.cta}
+                <ChevronRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
+              </button>
             </div>
           ))}
         </div>
       </div>
+
+      {/* Assessment Popup */}
+      <AssessmentPopup
+        isOpen={showAssessment}
+        onClose={() => setShowAssessment(false)}
+        testType="teens_adults"
+        autoDetectAge={true}
+        onNavigate={onNavigate}
+      />
     </section>
   );
 };

@@ -124,7 +124,7 @@ const HeroSection: React.FC<HeroProps> = ({ onNavigate }) => {
             onClick={() => onNavigate?.('courses')}
             className="group relative inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-10 sm:px-12 py-4 sm:py-5 rounded-full font-bold text-sm sm:text-base tracking-widest shadow-xl shadow-[#25D366]/30 transition-all duration-300 transform hover:-translate-y-1 active:scale-95 uppercase"
           >
-            Explore Our Courses
+            Explore
             <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
           </button>
         </div>

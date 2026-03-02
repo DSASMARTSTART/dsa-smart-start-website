@@ -18,7 +18,11 @@ const LEVEL_CONFIG: Record<string, { color: string; bgColor: string; label: stri
   'Premium': { color: 'from-violet-600 to-purple-700', bgColor: 'bg-violet-600', label: 'Premium Pathway', icon: <Crown size={20} /> },
   'premium': { color: 'from-violet-600 to-purple-700', bgColor: 'bg-violet-600', label: 'Premium Program', icon: <Crown size={20} /> },
   'Gold': { color: 'from-amber-500 to-yellow-600', bgColor: 'bg-amber-500', label: 'Gold Pathway', icon: <Diamond size={20} /> },
-  'golden': { color: 'from-amber-500 to-yellow-600', bgColor: 'bg-amber-500', label: 'Golden Program', icon: <Diamond size={20} /> }
+  'golden': { color: 'from-amber-500 to-yellow-600', bgColor: 'bg-amber-500', label: 'Golden Program', icon: <Diamond size={20} /> },
+  'language-lab': { color: 'from-violet-600 to-purple-700', bgColor: 'bg-violet-600', label: 'Language Lab', icon: <Users size={20} /> },
+  'starter-path': { color: 'from-sky-500 to-blue-600', bgColor: 'bg-sky-500', label: 'Starter Path', icon: <Layers size={20} /> },
+  'language-lab-pro': { color: 'from-emerald-500 to-teal-600', bgColor: 'bg-emerald-500', label: 'Language Lab Pro', icon: <Crown size={20} /> },
+  'hybrid-pack': { color: 'from-amber-500 to-yellow-600', bgColor: 'bg-amber-500', label: 'Hybrid Pack', icon: <Diamond size={20} /> }
 };
 
 // ============================================
@@ -353,12 +357,11 @@ const COURSE_CONTENT: Record<string, CourseContentData> = {
       "Expand vocabulary to 500+ words"
     ],
     whatYoullFind: [
-      "Illustrated storybooks and readers",
-      "Creative writing prompts with templates",
-      "Vocabulary building games",
-      "Grammar introduced through stories",
-      "Interactive speaking activities",
-      "Progress tracking with fun rewards"
+      "Illustrated e-books",
+      "Creative writing prompts with structured templates",
+      "Vocabulary-building games",
+      "Grammar introduced through practical examples",
+      "A progress quiz at the end of each unit"
     ],
     targetAudience: [
       "Children aged 7-10 with basic English",
@@ -366,20 +369,23 @@ const COURSE_CONTENT: Record<string, CourseContentData> = {
       "Kids who enjoy stories and creative activities",
       "Students preparing for Cambridge A1 Movers"
     ],
-    examPrep: "Cambridge English A1 Movers Preparation",
+    examPrep: "Cambridge English A1 Movers",
     units: [
-      { title: "Story Time: The Magic Garden", topics: ["Reading comprehension", "Story vocabulary", "Retelling"] },
-      { title: "Present Simple - I Do", topics: ["Daily routines", "Habits", "Negatives"] },
-      { title: "Questions & Answers", topics: ["What, where, when", "Do you...?", "Yes/No answers"] },
-      { title: "Describing People", topics: ["Appearance", "Personality", "My friend is..."] },
-      { title: "Places in Town", topics: ["Shops and buildings", "Directions", "Let's go to..."] },
-      { title: "Story Time: Adventure Island", topics: ["Action vocabulary", "Sequence words", "What happens next?"] },
-      { title: "Can & Can't", topics: ["Abilities", "Animals can...", "I can/can't"] },
-      { title: "Past Simple Introduction", topics: ["Yesterday", "Regular -ed verbs", "Simple past stories"] },
-      { title: "Prepositions of Place", topics: ["In, on, under", "Next to, between", "Where is...?"] },
-      { title: "Story Time: The Friendly Monster", topics: ["Feelings vocabulary", "Dialogue reading", "Character description"] },
-      { title: "Comparatives", topics: ["Bigger, smaller", "Faster, slower", "Comparing animals"] },
-      { title: "My Hobbies", topics: ["Free time activities", "I like -ing", "Sports and games"] }
+      { title: "Present Continuous (Affirmative, Negative, Question Form)", topics: [] },
+      { title: "Present Continuous vs Present Simple", topics: [] },
+      { title: "Modals: Can & Could", topics: [] },
+      { title: "Countable & Uncountable Nouns (Much / Many)", topics: [] },
+      { title: "Quantifiers (Some / Any / A lot of)", topics: [] },
+      { title: "Past Simple – Regular Verbs", topics: [] },
+      { title: "Past Simple – Irregular Verbs (Affirmative Form)", topics: [] },
+      { title: "Past Simple – Irregular Verbs (Negative & Question Form)", topics: [] },
+      { title: "Modal Verbs: Have to & Must", topics: [] },
+      { title: "Modal Verb: Should", topics: [] },
+      { title: "Comparatives", topics: [] },
+      { title: "Superlatives", topics: [] },
+      { title: "Past Continuous – Affirmative Form", topics: [] },
+      { title: "Past Continuous – Negative & Question Form", topics: [] },
+      { title: "Imperatives", topics: [] }
     ]
   },
   'kids-advanced': {
@@ -473,6 +479,104 @@ const COURSE_CONTENT: Record<string, CourseContentData> = {
       "Professionals needing flexible, personalized scheduling",
       "Students who want the fastest path to fluency",
       "Anyone committed to premium, VIP learning experience"
+    ],
+    units: []
+  },
+  'language-lab': {
+    description: "Small group live sessions designed for focused, interactive learning. Join a class of 3-4 students for 8 dynamic lab sessions, each lasting 50 minutes. Perfect for learners who thrive in collaborative environments with personalised attention from expert instructors.",
+    learningOutcomes: [
+      "Build conversational confidence in small group settings",
+      "Develop real-time communication skills with peer interaction",
+      "Receive personalised feedback from expert instructors",
+      "Practice speaking, listening and responding naturally",
+      "Gain exposure to diverse communication styles"
+    ],
+    whatYoullFind: [
+      "8 live lab sessions with 3-4 students",
+      "50 minute interactive classes",
+      "Expert instructor guidance throughout",
+      "Collaborative learning activities",
+      "Real-time feedback and corrections"
+    ],
+    targetAudience: [
+      "Learners who thrive in collaborative settings",
+      "Students wanting real-time speaking practice",
+      "Anyone looking for an affordable group learning option",
+      "Those who enjoy interactive, social learning"
+    ],
+    units: []
+  },
+  'starter-path': {
+    description: "Begin your English journey with personalised one-to-one attention. This starter programme includes 5 individual lessons of 30 minutes each, tailored entirely to your needs and learning pace. Ideal for beginners or anyone looking for a focused introduction with a dedicated instructor.",
+    learningOutcomes: [
+      "Receive a personalised learning assessment",
+      "Build foundational English skills one-to-one",
+      "Gain confidence speaking with individual attention",
+      "Develop a customised learning roadmap",
+      "Get targeted feedback on your specific challenges"
+    ],
+    whatYoullFind: [
+      "5 one-to-one lessons with a dedicated instructor",
+      "30 minute focused sessions",
+      "Personalised curriculum based on your level",
+      "Flexible scheduling options",
+      "Individual progress tracking"
+    ],
+    targetAudience: [
+      "Beginners wanting a personal start to English",
+      "Learners who prefer one-to-one attention",
+      "Those needing a flexible, short-term programme",
+      "Anyone wanting to assess their level and build a plan"
+    ],
+    units: []
+  },
+  'language-lab-pro': {
+    description: "Our most intensive small-group programme with 30 live lab sessions. Join a class of 3-4 students for 50-minute sessions packed with interactive exercises, real conversation practice, and progressive skill building. All teaching materials are included for a complete learning experience.",
+    learningOutcomes: [
+      "Achieve significant fluency improvement over 30 sessions",
+      "Master complex conversation patterns and responses",
+      "Build advanced vocabulary through immersive practice",
+      "Develop natural pronunciation and intonation",
+      "Gain confidence for professional and social English use"
+    ],
+    whatYoullFind: [
+      "30 live lab sessions with 3-4 students",
+      "50 minute intensive classes",
+      "All teaching materials included",
+      "Progressive skill building curriculum",
+      "Regular progress assessments",
+      "Expert instructor with personalised attention"
+    ],
+    targetAudience: [
+      "Committed learners seeking intensive group practice",
+      "Students wanting long-term structured progression",
+      "Those who benefit from peer learning and collaboration",
+      "Learners aiming for significant fluency improvement"
+    ],
+    units: []
+  },
+  'hybrid-pack': {
+    description: "The best of both worlds — combining the energy of small-group labs with the personalised focus of one-to-one lessons. Includes 25 lab sessions (50 minutes, 3-4 students) plus 5 individual lessons (30 minutes). All teaching materials are included for the most comprehensive learning experience.",
+    learningOutcomes: [
+      "Combine group interaction with personalised attention",
+      "Master both social and academic English skills",
+      "Receive tailored feedback in one-to-one sessions",
+      "Practice real conversation in small group labs",
+      "Achieve comprehensive language development"
+    ],
+    whatYoullFind: [
+      "25 lab sessions with 3-4 students (50 min each)",
+      "5 one-to-one lessons (30 min each)",
+      "All teaching materials included",
+      "Blended learning approach",
+      "Regular progress tracking and assessments",
+      "Dedicated instructor support throughout"
+    ],
+    targetAudience: [
+      "Learners wanting the most comprehensive programme",
+      "Students who benefit from both group and individual learning",
+      "Those seeking maximum progress in a structured format",
+      "Anyone committed to achieving English fluency"
     ],
     units: []
   }
@@ -784,7 +888,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
         </div>
 
         {/* Content */}
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 pt-20 pb-20">
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 pt-32 pb-20">
           {/* Back Button */}
           <button 
             onClick={onBack}
@@ -968,19 +1072,19 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                     <div className="p-1 rounded-full bg-green-500/20 text-green-400">
                       <CheckCircle2 size={14} />
                     </div>
-                    <span className="text-sm font-bold text-gray-300">Lifetime access to all materials</span>
+                    <span className="text-base font-bold text-gray-300">Lifetime access to all materials</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="p-1 rounded-full bg-green-500/20 text-green-400">
-                      <CheckCircle2 size={14} />
+                      <CheckCircle2 size={16} />
                     </div>
-                    <span className="text-sm font-bold text-gray-300">Certificate of completion</span>
+                    <span className="text-base font-bold text-gray-300">Certificate of completion</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="p-1 rounded-full bg-green-500/20 text-green-400">
-                      <CheckCircle2 size={14} />
+                      <CheckCircle2 size={16} />
                     </div>
-                    <span className="text-sm font-bold text-gray-300">Dyslexia-friendly design</span>
+                    <span className="text-base font-bold text-gray-300">Dyslexia-friendly design</span>
                   </div>
                 </div>
               </div>
@@ -1012,10 +1116,14 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                 <div className="p-3 bg-purple-500/20 rounded-2xl text-purple-400 border border-purple-500/30">
                   <Target size={28} />
                 </div>
-                <h3 className="text-3xl font-black text-white tracking-tight uppercase">What You'll Achieve</h3>
+                <h3 className="text-3xl font-black text-white tracking-tight uppercase">
+                  {course.level.startsWith('kids') ? "What Your Child Will Achieve by the End of the Course" : "What You'll Achieve"}
+                </h3>
               </div>
               <p className="text-gray-400 text-lg mb-8 font-medium">
-                By the end of this course, you'll be able to confidently:
+                {course.level.startsWith('kids')
+                  ? "By the end of this course, your child will be able to confidently:"
+                  : "By the end of this course, you'll be able to confidently:"}
               </p>
               <div className="space-y-4">
                 {outcomes.slice(0, 4).map((item, i) => (
@@ -1023,7 +1131,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                     <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
                       <CheckCircle2 className="text-green-400" size={18} />
                     </div>
-                    <span className="text-sm font-bold text-gray-300">{item}</span>
+                    <span className="text-base font-bold text-gray-300">{item}</span>
                   </div>
                 ))}
               </div>
@@ -1033,12 +1141,13 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
               <div className="absolute top-0 right-0 w-32 h-32 bg-purple-600/30 rounded-full blur-[60px] translate-x-1/2 -translate-y-1/2"></div>
               <div className="relative z-10">
                 <Sparkles className="text-purple-400 mb-6" size={32} />
-                <h4 className="text-2xl font-black mb-4 uppercase tracking-tight">The DSA Advantage</h4>
-                <p className="text-gray-400 text-sm leading-loose mb-8">
-                  Unlike traditional courses, we don't just list grammar points. We teach you <span className="text-white italic underline underline-offset-4 decoration-purple-500 decoration-2">how to learn</span> through visual pegs and sensory triggers.
+                <h4 className="text-2xl font-black mb-4 uppercase tracking-tight">DSA Smart Start Advantage</h4>
+                <p className="text-gray-400 text-sm leading-loose mb-6">
+                  Unlike traditional methods, we don't overload students with abstract grammar explanations. We teach students to understand through <span className="text-white italic underline underline-offset-4 decoration-purple-500 decoration-2">visual learning paths</span> and sensory triggers that make English clear, structured, and memorable.
                 </p>
+                <p className="text-white text-sm font-bold mb-4 uppercase tracking-wide">What makes the difference:</p>
                 <div className="space-y-2">
-                   {["Visual Mind Mapping", "Audio Memory Pegs", "Kinesthetic Learning Blocks"].map((tag, i) => (
+                   {["Visual Mind Mapping", "Multisensory Learning Approach", "Structured Step-by-Step System", "Confidence-Building Method"].map((tag, i) => (
                      <div key={i} className="inline-block px-4 py-2 bg-white/5 rounded-full border border-white/10 text-[10px] font-black uppercase tracking-widest mr-2 mb-2">{tag}</div>
                    ))}
                 </div>
@@ -1058,7 +1167,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                   {whatYoullFind.map((item, i) => (
                     <div key={i} className="flex items-start gap-3 p-3 bg-white/5 rounded-xl hover:bg-blue-500/10 transition-colors">
                       <CheckCircle2 size={18} className="text-blue-400 mt-0.5 flex-shrink-0" />
-                      <span className="text-sm font-medium text-gray-300">{item}</span>
+                      <span className="text-base font-medium text-gray-300">{item}</span>
                     </div>
                   ))}
                 </div>
@@ -1133,7 +1242,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                 {course.level === 'Premium' || course.level === 'premium' || course.level === 'Gold' || course.level === 'golden'
                   ? 'Program Includes' 
                   : grammarUnits.length > 0 
-                    ? 'Grammar Units' 
+                    ? 'Unit Content' 
                     : 'Course Modules'}
               </h3>
             </div>
@@ -1276,10 +1385,12 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                 </div>
               </div>
             ) : grammarUnits.length > 0 ? (
-              /* Grammar Units Display for A1, A2, B1, Kids */
+              /* Unit Content Display for A1, A2, B1, Kids */
               <div className="space-y-4">
                 <p className="text-gray-400 text-sm mb-6">
-                  This course covers <span className="font-bold text-white">{grammarUnits.length} comprehensive units</span>, each designed with visual learning techniques and dyslexia-friendly materials.
+                  {course.level === 'kids-basic' || course.level === 'kids-medium'
+                    ? <>This course includes <span className="font-bold text-white">{grammarUnits.length} comprehensive units</span> designed to build structure, clarity, and confidence step by step.</>
+                    : <>This course covers <span className="font-bold text-white">{grammarUnits.length} comprehensive units</span>, each designed with visual learning techniques and dyslexia-friendly materials.</>}
                 </p>
                 
                 {grammarUnits.map((unit, i) => {
@@ -1314,7 +1425,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                             {(unit.topics || []).map((topic, j) => (
                               <div key={j} className="flex items-center gap-3 p-3 bg-white/5 rounded-xl">
                                 <CheckCircle2 size={16} className="text-green-400 flex-shrink-0" />
-                                <span className="text-sm font-medium text-gray-300">{topic}</span>
+                                <span className="text-base font-medium text-gray-300">{topic}</span>
                               </div>
                             ))}
                           </div>
@@ -1423,6 +1534,36 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                     </div>
                   );
                 })}
+              </div>
+            )}
+
+            {/* ---- Vocabulary Topics (Kids Basic & Medium) ---- */}
+            {(course.level === 'kids-basic' || course.level === 'kids-medium') && (
+              <div className="mt-12">
+                <div className="flex items-center gap-3 mb-8">
+                  <div className="p-3 bg-pink-500/20 rounded-2xl text-pink-400 border border-pink-500/30">
+                    <BookOpen size={28} />
+                  </div>
+                  <h3 className="text-3xl font-black text-white tracking-tight uppercase">Vocabulary Topics</h3>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {(course.level === 'kids-medium' ? [
+                    "Emotions and feelings", "Family", "Daily routines", "School",
+                    "Friends & relationships", "Describing your home", "Weather", "Food & drinks",
+                    "Numbers", "Days of the week", "Months of the year", "Hobbies and free time",
+                    "Sports", "Clothing", "Cities", "Adjectives"
+                  ] : [
+                    "Emotions and feelings", "Family", "Daily routines", "School",
+                    "Home", "Colors", "Nations", "Countries",
+                    "Numbers", "Days of the week", "Months of the year", "Hobbies and free time",
+                    "Sports", "Clothing", "Cities", "Adjectives"
+                  ]).map((topic, i) => (
+                    <div key={i} className="flex items-center gap-3 p-4 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 hover:border-pink-500/30 transition-all">
+                      <CheckCircle2 size={16} className="text-pink-400 flex-shrink-0" />
+                      <span className="text-sm font-bold text-gray-300">{topic}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
