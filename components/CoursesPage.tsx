@@ -75,6 +75,15 @@ const EBOOK_COVERS: Record<string, string> = {
   'kids-advanced': '/assets/ebooks/kids-advanced-cover.jpg',
 };
 
+// Returns the best available cover image for an ebook
+const getEbookCover = (course: { thumbnailUrl?: string; level: string }): string | undefined => {
+  // Use DB thumbnail only if it's a real URL (not a placeholder path that doesn't exist)
+  if (course.thumbnailUrl && !course.thumbnailUrl.startsWith('/assets/courses/')) {
+    return course.thumbnailUrl;
+  }
+  return EBOOK_COVERS[course.level];
+};
+
 // Product type icons
 const PRODUCT_TYPE_ICONS: Record<ProductType, React.ReactNode> = {
   'ebook': <FileText size={16} />,
@@ -329,9 +338,9 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, onAddToC
         className="relative w-full aspect-[3/4] bg-white/5 cursor-pointer"
         onClick={navigateToDetail}
       >
-        {(course.thumbnailUrl || EBOOK_COVERS[course.level]) ? (
+        {getEbookCover(course) ? (
           <img 
-            src={course.thumbnailUrl || EBOOK_COVERS[course.level]} 
+            src={getEbookCover(course)} 
             alt={course.title}
             className="w-full h-full object-cover"
           />

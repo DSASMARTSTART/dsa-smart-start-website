@@ -15,6 +15,15 @@ const EBOOK_COVERS: Record<string, string> = {
   'kids-advanced': '/assets/ebooks/kids-advanced-cover.jpg',
 };
 
+// Returns the best available cover image for an ebook
+const getEbookCover = (course: { thumbnailUrl?: string; level: string }): string | undefined => {
+  // Use DB thumbnail only if it's a real URL (not a placeholder path that doesn't exist)
+  if (course.thumbnailUrl && !course.thumbnailUrl.startsWith('/assets/courses/')) {
+    return course.thumbnailUrl;
+  }
+  return EBOOK_COVERS[course.level];
+};
+
 // Level colors and configs for e-books
 const LEVEL_CONFIG: Record<string, { color: string; bgColor: string; label: string; icon: React.ReactNode }> = {
   'A1': { color: 'from-blue-500 to-indigo-600', bgColor: 'bg-blue-500', label: 'Beginner', icon: <Layers size={20} /> },
@@ -409,10 +418,10 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
             <div className="relative animate-reveal stagger-1">
               <div className="relative bg-white/5 rounded-[3rem] p-6 border border-white/10 shadow-2xl shadow-purple-500/10">
                 {/* Cover Photo */}
-                {(course.thumbnailUrl || EBOOK_COVERS[course.level]) ? (
+                {getEbookCover(course) ? (
                   <div className="relative w-full aspect-[3/4] rounded-3xl overflow-hidden mb-4 shadow-lg">
                     <img 
-                      src={course.thumbnailUrl || EBOOK_COVERS[course.level]} 
+                      src={getEbookCover(course)} 
                       alt={course.title}
                       className="w-full h-full object-cover"
                     />
