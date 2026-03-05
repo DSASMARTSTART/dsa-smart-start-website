@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
+import { sendWelcomeEmail } from '../lib/emailService';
 import type { Database } from '../lib/database.types';
 
 type UserRow = Database['public']['Tables']['users']['Row'];
@@ -191,6 +192,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     // Note: User profile is automatically created by database trigger (handle_new_user)
     // The trigger runs on auth.users INSERT and creates the public.users record
+    
+    // Send welcome email (fire-and-forget — don't block signup flow)
+    if (!error && data?.user?.email) {
+      sendWelcomeEmail({ email: data.user.email, name });
+    }
     
     return { error };
   };

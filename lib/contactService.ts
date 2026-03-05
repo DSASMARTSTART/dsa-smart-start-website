@@ -43,7 +43,12 @@ export function getContactConfig(): ContactConfig {
   let provider: ContactConfig['provider'] = 'none';
   let isConfigured = false;
 
-  if (resendKey && emailTo) {
+  // Resend via Edge Function is always available when Supabase is connected
+  // No client-side API key needed — the Edge Function holds the secret
+  if (supabase) {
+    provider = 'resend';
+    isConfigured = true;
+  } else if (resendKey && emailTo) {
     provider = 'resend';
     isConfigured = true;
   } else if (emailjsKey) {
@@ -124,21 +129,37 @@ export async function sendContactEmail(message: ContactMessage): Promise<{ succe
   }
 }
 
-// Resend.com integration
-async function sendViaResend(message: ContactMessage, config: ContactConfig): Promise<{ success: boolean; error?: string }> {
-  const apiKey = import.meta.env.VITE_RESEND_API_KEY;
-  
-  // Note: Resend requires server-side API calls for security
-  // This would typically be done via a Supabase Edge Function
-  // For now, we'll log that it needs server-side implementation
-  console.warn('Resend requires server-side implementation. Configure a Supabase Edge Function.');
-  
-  // Example Edge Function call:
-  // const { data, error } = await supabase.functions.invoke('send-contact-email', {
-  //   body: { message, to: config.emailTo }
-  // });
-  
-  return { success: true };
+// Resend.com integration via Supabase Edge Function
+async function sendViaResend(message: ContactMessage, _config: ContactConfig): Promise<{ success: boolean; error?: string }> {
+  if (!supabase) {
+    console.warn('Supabase not configured, cannot send email via Edge Function');
+    return { success: true }; // Don't fail — message is already saved to DB
+  }
+
+  try {
+    const { data, error } = await supabase.functions.invoke('send-contact-email', {
+      body: {
+        firstName: message.firstName,
+        lastName: message.lastName,
+        email: message.email,
+        message: message.message,
+      }
+    });
+
+    if (error) {
+      console.error('Edge Function error (send-contact-email):', error);
+      return { success: false, error: error.message || 'Failed to send email' };
+    }
+
+    if (data && !data.success) {
+      return { success: false, error: data.error || 'Email sending failed' };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error('Error invoking send-contact-email:', err);
+    return { success: false, error: err instanceof Error ? err.message : 'Failed to send email' };
+  }
 }
 
 // EmailJS integration (client-side)

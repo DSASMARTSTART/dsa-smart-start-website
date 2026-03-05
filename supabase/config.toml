@@ -213,14 +213,20 @@ otp_length = 6
 otp_expiry = 3600
 
 # Use a production-ready SMTP server
+# To enable branded emails (password reset, confirmation), configure Resend SMTP:
+# 1. Sign up at resend.com and verify your domain
+# 2. Go to Resend Dashboard → SMTP → get credentials
+# 3. Set these in Supabase Dashboard → Authentication → SMTP Settings
+#    (NOT in this file — use the dashboard for production)
+#
 # [auth.email.smtp]
 # enabled = true
-# host = "smtp.sendgrid.net"
-# port = 587
-# user = "apikey"
-# pass = "env(SENDGRID_API_KEY)"
-# admin_email = "admin@email.com"
-# sender_name = "Admin"
+# host = "smtp.resend.com"
+# port = 465
+# user = "resend"
+# pass = "env(RESEND_API_KEY)"
+# admin_email = "noreply@eduway.academy"
+# sender_name = "DSA Smart Start"
 
 # Uncomment to customize email template
 # [auth.email.template.invite]

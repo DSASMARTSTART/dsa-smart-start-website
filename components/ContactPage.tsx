@@ -208,8 +208,7 @@ const ContactPage: React.FC = () => {
                 </div>
                 <div className="overflow-hidden">
                   <p className="text-[11px] font-black uppercase tracking-widest text-gray-500 mb-1">{t('info.emailUs')}</p>
-                  <p className="text-lg font-black text-white leading-tight mb-1 truncate">dsa.smart.start@gmail.com</p>
-                  <p className="text-base font-bold text-gray-400 leading-tight truncate">smartstart.dsa@gmail.com</p>
+                  <p className="text-lg font-black text-white leading-tight mb-1 truncate">office@eduway.academy</p>
                 </div>
               </div>
 

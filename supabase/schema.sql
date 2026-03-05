@@ -432,7 +432,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 INSERT INTO users (id, email, name, role, status)
 VALUES (
   'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-  'admin@dsasmartstart.com',
+  'admin@eduway.academy',
   'Admin User',
   'admin',
   'active'
@@ -442,7 +442,7 @@ VALUES (
 INSERT INTO users (id, email, name, role, status)
 VALUES (
   'b2c3d4e5-f6a7-8901-bcde-f12345678901',
-  'editor@dsasmartstart.com',
+  'editor@eduway.academy',
   'Editor User',
   'editor',
   'active'

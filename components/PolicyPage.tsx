@@ -68,7 +68,7 @@ const PolicyPage: React.FC<PolicyPageProps> = ({ type, onBack }) => {
         <div className="mt-12 text-center">
           <p className="text-gray-500 mb-4">{t('ctaQuestion')}</p>
           <a
-            href="mailto:dsa.smart.start@gmail.com"
+            href="mailto:office@eduway.academy"
             className="inline-flex items-center gap-2 text-purple-400 font-bold hover:text-purple-300 transition-colors"
           >
             {t('ctaContact')}

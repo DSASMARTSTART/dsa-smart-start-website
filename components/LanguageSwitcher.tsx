@@ -25,8 +25,8 @@ const LanguageSwitcher: React.FC = () => {
 
   const handleChange = async (lng: SupportedLanguage) => {
     setOpen(false);
-    await preloadLanguage(lng);
-    i18n.changeLanguage(lng);
+    await preloadLanguage(lng);          // load bundles first
+    await i18n.changeLanguage(lng);      // then switch (also persists to localStorage)
   };
 
   return (

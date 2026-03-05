@@ -11,7 +11,7 @@ import {
 const generateId = () => Math.random().toString(36).substring(2, 11);
 
 // Admin email from environment variable
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || 'admin@dsasmartstart.com';
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || 'admin@eduway.academy';
 
 // ---------- USERS ----------
 export const SEED_USERS: User[] = [

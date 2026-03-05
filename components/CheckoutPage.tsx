@@ -21,6 +21,7 @@ import {
   PaymentMethod,
   PaymentRequest
 } from '../lib/paymentService';
+import { sendPurchaseConfirmationEmail } from '../lib/emailService';
 
 // Level-based color gradients
 const LEVEL_COLORS: Record<string, string> = {
@@ -510,6 +511,19 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
         }
       } else {
         console.log('Card payment: skipping client-side purchase creation (Edge Function already created pending purchases server-side)');
+      }
+
+      // Send purchase confirmation email (fire-and-forget — don't block checkout)
+      if (userId) {
+        sendPurchaseConfirmationEmail({
+          userId,
+          transactionId,
+          customerEmail,
+          customerName,
+          paymentMethod: method,
+          discountCode: appliedDiscount?.code,
+          discountAmount: appliedDiscount?.amount,
+        });
       }
 
       // Clear cart and redirect to success page

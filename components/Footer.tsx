@@ -155,7 +155,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           </p>
           <div className="flex gap-4">
             <a 
-              href="https://www.instagram.com/dsasmartstart/" 
+              href="https://www.instagram.com/eduway.academy/" 
               target="_blank" 
               rel="noopener noreferrer" 
               className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-purple-600 transition-colors" 
@@ -307,7 +307,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             </li>
             <li className="flex items-center gap-3">
               <Mail size={16} className="text-purple-500" />
-              dsa.smart.start@gmail.com
+              office@eduway.academy
             </li>
             <li className="flex items-start gap-3">
               <MapPin size={16} className="text-purple-500 shrink-0" />

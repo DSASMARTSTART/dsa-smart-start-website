@@ -1,5 +1,5 @@
-# DSA Smart Start - robots.txt
-# https://www.dsasmartstart.com
+# Eduway Academy - robots.txt
+# https://eduway.academy
 # Note: This is a Single Page Application with hash-based routing.
 # Search engines may have limited visibility of hash-based URLs.
 
@@ -7,7 +7,7 @@ User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: https://www.dsasmartstart.com/sitemap.xml
+Sitemap: https://eduway.academy/sitemap.xml
 
 # Disallow admin and user-specific areas
 # Note: Hash fragments (#) are not sent to servers, but we include for documentation
@@ -23,9 +23,3 @@ Allow: /#contact
 Allow: /#privacy-policy
 Allow: /#cookie-policy
 Allow: /#refund-policy
-
-# Sitemap location
-Sitemap: https://www.dsasmartstart.com/sitemap.xml
-
-# Crawl-delay for polite crawling
-Crawl-delay: 1

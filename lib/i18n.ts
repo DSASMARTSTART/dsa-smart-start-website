@@ -118,6 +118,7 @@ i18n
     interpolation: {
       escapeValue: false, // React already escapes
     },
+    load: 'languageOnly',
     detection: {
       order: ['localStorage', 'navigator'],
       lookupLocalStorage: 'i18nextLng',
@@ -133,9 +134,16 @@ const updateHtmlLang = (lng: string) => {
   document.documentElement.lang = lng;
 };
 updateHtmlLang(i18n.language);
-i18n.on('languageChanged', async (lng) => {
+i18n.on('languageChanged', (lng) => {
   updateHtmlLang(lng);
-  await preloadLanguage(lng);
+  // Bundles are preloaded BEFORE changeLanguage is called, so no async work here.
 });
+
+/**
+ * Promise that resolves once the initially-detected language bundles are loaded.
+ * Await (or suspend on) this before rendering the app so the UI never flashes
+ * English when the user previously chose a different language.
+ */
+export const i18nReady: Promise<void> = preloadLanguage(i18n.language);
 
 export default i18n;
