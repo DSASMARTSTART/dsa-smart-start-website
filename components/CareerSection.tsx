@@ -2,34 +2,36 @@
 import React, { useState } from 'react';
 import { Search, Map, Rocket, ChevronRight } from 'lucide-react';
 import AssessmentPopup from './AssessmentPopup';
+import { useTranslation } from 'react-i18next';
 
 interface CareerSectionProps {
   onNavigate?: (path: string) => void;
 }
 
 const CareerSection: React.FC<CareerSectionProps> = ({ onNavigate }) => {
+  const { t } = useTranslation('home');
   const [showAssessment, setShowAssessment] = useState(false);
 
   const steps = [
     {
       icon: <Search className="text-purple-400" />,
-      title: "1. Discover your abilities",
-      desc: "Take our Career Advisor Test and get an accurate assessment of your knowledge",
-      cta: "Take the Test",
+      title: t('career.step1Title'),
+      desc: t('career.step1Desc'),
+      cta: t('career.step1Cta'),
       action: () => setShowAssessment(true),
     },
     {
       icon: <Map className="text-blue-400" />,
-      title: "2. Get your plan",
-      desc: "Our team, supported by scientific research, will calculate your ideal study plan to guarantee your success.",
-      cta: "Browse Courses",
+      title: t('career.step2Title'),
+      desc: t('career.step2Desc'),
+      cta: t('career.step2Cta'),
       action: () => onNavigate?.('courses'),
     },
     {
       icon: <Rocket className="text-pink-400" />,
-      title: "3. Start the Journey",
-      desc: "With the Satisfaction Guarantee you start your journey and if you are not satisfied after 60 days, we will refund you",
-      cta: "Take the Test",
+      title: t('career.step3Title'),
+      desc: t('career.step3Desc'),
+      cta: t('career.step3Cta'),
       action: () => setShowAssessment(true),
     }
   ];
@@ -43,13 +45,13 @@ const CareerSection: React.FC<CareerSectionProps> = ({ onNavigate }) => {
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="text-center mb-24 animate-reveal">
           <h2 className="text-4xl md:text-6xl font-black mb-8 tracking-tighter leading-tight">
-            Your future deserves a <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">confident guide.</span>
+            {t('career.title', { defaultValue: '' }).split('<1>')[0]}<span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">{t('career.title', { defaultValue: '' }).match(/<1>(.*?)<\/1>/)?.[1]}</span>{t('career.title', { defaultValue: '' }).split('</1>')[1]}
           </h2>
           <p className="text-gray-400 text-xl max-w-2xl mx-auto mb-12 font-medium">
-            Discover our Career Advisor service and turn your dreams into concrete results with expert mentorship.
+            {t('career.subtitle')}
           </p>
           <button className="bg-[#25D366] hover:bg-[#1ebe5d] text-white px-14 py-5 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-2xl shadow-[#25D366]/30 active:scale-95">
-            BOOK NOW
+            {t('career.bookNow')}
           </button>
         </div>
 

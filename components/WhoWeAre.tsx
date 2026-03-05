@@ -2,8 +2,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Star, ShieldCheck, Heart, ChevronRight, User, Users, Search, ShoppingBag, Rocket, Quote, Camera } from 'lucide-react';
 import WaveSeparator from './WaveSeparator';
+import { useTranslation } from 'react-i18next';
 
 const WhoWeAre: React.FC = () => {
+  const { t } = useTranslation('home');
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
@@ -66,12 +68,12 @@ const WhoWeAre: React.FC = () => {
   }, []);
 
   const team = [
-    { name: "Shanty Sage", role: "Language Advisor", image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400" },
-    { name: "Pamela Smith", role: "Head Teacher", image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400" },
-    { name: "Nora Miller", role: "Teacher", image: "https://images.unsplash.com/photo-1607746882042-944635dfe10e?auto=format&fit=crop&q=80&w=400" },
-    { name: "James Evans", role: "Teacher", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400" },
-    { name: "Mary Johnson", role: "Teacher", image: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&q=80&w=400" },
-    { name: "Michael Thompson", role: "Customer Service Specialist", image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400" },
+    { name: t('whoWeAre.team1Name'), role: t('whoWeAre.team1Role'), image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400" },
+    { name: t('whoWeAre.team2Name'), role: t('whoWeAre.team2Role'), image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400" },
+    { name: t('whoWeAre.team3Name'), role: t('whoWeAre.team3Role'), image: "https://images.unsplash.com/photo-1607746882042-944635dfe10e?auto=format&fit=crop&q=80&w=400" },
+    { name: t('whoWeAre.team4Name'), role: t('whoWeAre.team4Role'), image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400" },
+    { name: t('whoWeAre.team5Name'), role: t('whoWeAre.team5Role'), image: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&q=80&w=400" },
+    { name: t('whoWeAre.team6Name'), role: t('whoWeAre.team6Role'), image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400" },
   ];
 
   return (
@@ -88,7 +90,7 @@ const WhoWeAre: React.FC = () => {
              style={{ transform: `translate(${mousePos.x * 0.1}px, ${mousePos.y * 0.1}px)` }}>
           <div className="flex items-center gap-4 mb-6 sm:mb-8 opacity-60 animate-reveal">
             <div className="h-[1px] w-8 bg-[#AB8FFF]"></div>
-            <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-gray-300">Who we are</span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-gray-300">{t('whoWeAre.badge')}</span>
             <div className="h-[1px] w-8 bg-[#AB8FFF]"></div>
           </div>
 
@@ -101,7 +103,7 @@ const WhoWeAre: React.FC = () => {
 
           <div className="max-w-3xl animate-reveal stagger-2 mt-4 px-4" style={{ transform: `translate(${mousePos.x * 0.2}px, ${mousePos.y * 0.2}px)` }}>
             <p className="text-xl sm:text-2xl md:text-4xl font-light text-gray-300 tracking-tight leading-tight">
-              “ Whatever it is, the way you tell your story can make all the difference! ”
+              {t('whoWeAre.quote')}
             </p>
           </div>
         </div>
@@ -114,36 +116,36 @@ const WhoWeAre: React.FC = () => {
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
           <div className="animate-reveal" style={{ animationName: 'fadeInLeft' }}>
             <div className="inline-block px-4 py-1 bg-purple-500/20 text-purple-400 rounded-full text-[10px] font-black uppercase tracking-widest mb-6 border border-purple-500/30">
-              Expertise since 2008
+              {t('whoWeAre.expertiseBadge')}
             </div>
             <h3 className="text-4xl sm:text-5xl md:text-7xl font-black text-white mb-8 tracking-tighter leading-none uppercase">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#9b4dff] via-[#8a3ffc] to-[#ff2d85]">23 Years</span> of <br />Experience
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#9b4dff] via-[#8a3ffc] to-[#ff2d85]">{t('whoWeAre.experienceTitle', { defaultValue: '' }).match(/<1>(.*?)<\/1>/)?.[1]}</span> {t('whoWeAre.experienceTitle', { defaultValue: '' }).split('</1>')[1]}
             </h3>
             <p className="text-xl md:text-2xl text-white font-bold mb-8 leading-tight">
-              Eduway is a group of highly qualified language professionals, supported by psychology experts.
+              {t('whoWeAre.intro1')}
             </p>
             <p className="text-gray-400 text-lg leading-relaxed mb-10">
-              For 23 years, our team has supported children and adults with dyslexia in their English language studies, offering targeted tools and strategies. For over a decade, we have been passionately dedicated to helping those struggling with English learning, transforming challenges into real opportunities for growth.
+              {t('whoWeAre.intro2')}
             </p>
             <div className="flex flex-col sm:flex-row gap-6">
               <button onClick={() => { window.location.hash = '#courses'; }} className="bg-[#25D366] text-white px-10 py-5 rounded-full font-black text-xs uppercase tracking-widest hover:scale-110 hover:-rotate-1 transition-all shadow-xl shadow-[#25D366]/30">
-                START NOW
+                {t('whoWeAre.startNow')}
               </button>
             </div>
           </div>
 
           <div className="grid grid-cols-1 gap-6 animate-reveal stagger-1" style={{ animationName: 'fadeInRight' }}>
             <div className="group bg-purple-500/10 p-8 sm:p-10 rounded-[3rem] border border-purple-500/20 flex flex-col gap-4 hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 hover:-translate-y-2">
-              <span className="text-4xl sm:text-5xl font-black text-purple-400 group-hover:scale-110 transition-transform inline-block origin-left uppercase tracking-tighter">23+</span>
-              <p className="text-lg font-bold text-white uppercase tracking-tight leading-none">Years of experience supporting DSA students</p>
+              <span className="text-4xl sm:text-5xl font-black text-purple-400 group-hover:scale-110 transition-transform inline-block origin-left uppercase tracking-tighter">{t('whoWeAre.stat1Value')}</span>
+              <p className="text-lg font-bold text-white uppercase tracking-tight leading-none">{t('whoWeAre.stat1Text')}</p>
             </div>
             <div className="group bg-pink-500/10 p-8 sm:p-10 rounded-[3rem] border border-pink-500/20 flex flex-col gap-4 hover:shadow-2xl hover:shadow-pink-500/10 transition-all duration-500 hover:-translate-y-2">
-              <span className="text-4xl sm:text-5xl font-black text-pink-400 group-hover:scale-110 transition-transform inline-block origin-left uppercase tracking-tighter">3000+</span>
-              <p className="text-lg font-bold text-white uppercase tracking-tight leading-none">Very satisfied DSA customers worldwide</p>
+              <span className="text-4xl sm:text-5xl font-black text-pink-400 group-hover:scale-110 transition-transform inline-block origin-left uppercase tracking-tighter">{t('whoWeAre.stat2Value')}</span>
+              <p className="text-lg font-bold text-white uppercase tracking-tight leading-none">{t('whoWeAre.stat2Text')}</p>
             </div>
             <div className="group bg-indigo-500/10 p-8 sm:p-10 rounded-[3rem] border border-indigo-500/20 flex flex-col gap-4 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-500 hover:-translate-y-2">
-              <span className="text-4xl sm:text-5xl font-black text-indigo-400 group-hover:scale-110 transition-transform inline-block origin-left uppercase tracking-tighter">15+</span>
-              <p className="text-lg font-bold text-white uppercase tracking-tight leading-none">Award-winning educational courses and programs</p>
+              <span className="text-4xl sm:text-5xl font-black text-indigo-400 group-hover:scale-110 transition-transform inline-block origin-left uppercase tracking-tighter">{t('whoWeAre.stat3Value')}</span>
+              <p className="text-lg font-bold text-white uppercase tracking-tight leading-none">{t('whoWeAre.stat3Text')}</p>
             </div>
           </div>
         </div>
@@ -154,13 +156,13 @@ const WhoWeAre: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col lg:flex-row justify-between items-end mb-20 gap-8 animate-reveal">
             <div>
-              <span className="text-[10px] font-black text-purple-400 uppercase tracking-[0.4em] mb-4 block">Professional Excellence</span>
+              <span className="text-[10px] font-black text-purple-400 uppercase tracking-[0.4em] mb-4 block">{t('whoWeAre.teamBadge')}</span>
               <h3 className="text-3xl sm:text-4xl md:text-7xl font-black text-white tracking-tighter uppercase">
-                The DSA <span className="text-[#8a3ffc]">Team</span>
+                {t('whoWeAre.teamTitle', { defaultValue: '' }).split('<1>')[0]}<span className="text-[#8a3ffc]">{t('whoWeAre.teamTitle', { defaultValue: '' }).match(/<1>(.*?)<\/1>/)?.[1]}</span>{t('whoWeAre.teamTitle', { defaultValue: '' }).split('</1>')[1]}
               </h3>
             </div>
             <p className="text-gray-400 lg:max-w-md text-lg font-medium leading-relaxed">
-              Our vision is based on the belief that every individual deserves to be understood, supported and guided towards success.
+              {t('whoWeAre.teamDesc')}
             </p>
           </div>
 
@@ -189,20 +191,20 @@ const WhoWeAre: React.FC = () => {
           <div className="animate-reveal" style={{ animationName: 'fadeInLeft' }}>
             <div className="inline-flex items-center gap-2 p-2 bg-white/5 rounded-full mb-8">
               <Star size={16} fill="white" className="text-white" />
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] px-2">Our Vision</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] px-2">{t('whoWeAre.visionBadge')}</span>
             </div>
-            <h3 className="text-4xl sm:text-5xl md:text-8xl font-black mb-8 sm:mb-12 tracking-tighter uppercase">Our Mission</h3>
+            <h3 className="text-4xl sm:text-5xl md:text-8xl font-black mb-8 sm:mb-12 tracking-tighter uppercase">{t('whoWeAre.missionTitle')}</h3>
             <div className="space-y-10 text-xl md:text-2xl font-medium leading-relaxed text-gray-300">
               <p>
-                Our vision is based on the belief that every individual deserves to be <span className="text-white font-black underline decoration-purple-500 decoration-2 underline-offset-8">understood, supported and guided</span> towards success, without being limited by labels or judgments.
+                {t('whoWeAre.missionText1', { defaultValue: '' }).split('<1>')[0]}<span className="text-white font-black underline decoration-purple-500 decoration-2 underline-offset-8">{t('whoWeAre.missionText1', { defaultValue: '' }).match(/<1>(.*?)<\/1>/)?.[1]}</span>{t('whoWeAre.missionText1', { defaultValue: '' }).split('</1>')[1]}
               </p>
               <p>
-                We believe in changing society's perception of learning difficulties, and we are committed to providing concrete tools for learning English and a positive environment for those who have not yet found the right support to achieve their personal goals.
+                {t('whoWeAre.missionText2')}
               </p>
             </div>
             <div className="mt-12 sm:mt-16">
               <a href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ0qY73eSZNjDKlM_CQETEMDZFNGB5SONV3eJl2rbRFfK6hT6uNAwz_X4L7Jo0lIbuw-zerkbJWu" target="_blank" rel="noopener noreferrer" className="inline-block bg-[#25D366] text-white px-12 py-5 rounded-full font-black uppercase tracking-widest hover:scale-110 transition-all shadow-2xl shadow-[#25D366]/30 active:scale-95">
-                BOOK NOW
+                {t('whoWeAre.bookNow')}
               </a>
             </div>
           </div>
@@ -214,7 +216,7 @@ const WhoWeAre: React.FC = () => {
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="p-8 bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 text-center">
                    <Heart size={48} className="text-pink-400 mx-auto mb-4 animate-bounce" />
-                   <p className="text-sm font-black uppercase tracking-widest">Inclusive Support</p>
+                   <p className="text-sm font-black uppercase tracking-widest">{t('whoWeAre.inclusiveSupport')}</p>
                 </div>
               </div>
             </div>
@@ -232,15 +234,15 @@ const WhoWeAre: React.FC = () => {
                <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/10 rounded-[2rem] sm:rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 shadow-xl border border-white/10 group-hover:rotate-12 transition-transform duration-500">
                   <Heart size={40} className="text-purple-400 animate-pulse" />
                </div>
-               <h4 className="text-3xl sm:text-4xl md:text-6xl font-black text-white mb-8 tracking-tight uppercase">Do you need our help?</h4>
-               <p className="text-lg sm:text-xl text-gray-400 mb-12 font-medium max-w-xl mx-auto">Book a free 15-minute consultation and let's start your journey today.</p>
+               <h4 className="text-3xl sm:text-4xl md:text-6xl font-black text-white mb-8 tracking-tight uppercase">{t('whoWeAre.helpTitle')}</h4>
+               <p className="text-lg sm:text-xl text-gray-400 mb-12 font-medium max-w-xl mx-auto">{t('whoWeAre.helpDesc')}</p>
                <a 
                  href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ0qY73eSZNjDKlM_CQETEMDZFNGB5SONV3eJl2rbRFfK6hT6uNAwz_X4L7Jo0lIbuw-zerkbJWu"
                  target="_blank"
                  rel="noopener noreferrer"
                  className="inline-block bg-[#25D366] text-white px-10 sm:px-16 py-5 sm:py-6 rounded-full font-black uppercase tracking-widest shadow-2xl shadow-[#25D366]/30 hover:scale-110 active:scale-95 transition-all text-xs sm:text-base"
                >
-                 BOOK FREE CONSULTATION
+                 {t('whoWeAre.helpCta')}
                </a>
              </div>
           </div>

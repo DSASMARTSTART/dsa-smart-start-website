@@ -1,0 +1,43 @@
+{
+  "hero": {
+    "badge": "Contact us",
+    "title1": "CONTACT",
+    "title2": "US",
+    "subtitle": "We're here to walk by your side, quite literally every step of the way."
+  },
+  "info": {
+    "badge": "Connections",
+    "headingLine1": "Available to",
+    "headingLine2": "Support You",
+    "description": "Our team of specialists is ready to provide guidance and answer any questions about our DSA English programs.",
+    "callUs": "Call Us",
+    "emailUs": "Email Us",
+    "ourAddress": "Our Address"
+  },
+  "form": {
+    "title": "Get In Touch!",
+    "firstNameLabel": "First Name *",
+    "firstNamePlaceholder": "First Name",
+    "lastNameLabel": "Last Name",
+    "lastNamePlaceholder": "Last Name",
+    "emailLabel": "Email *",
+    "emailPlaceholder": "hello@example.com",
+    "messageLabel": "Message *",
+    "messagePlaceholder": "How can we help you?",
+    "sendButton": "Send Message",
+    "sendingButton": "Sending..."
+  },
+  "success": {
+    "title": "Message Sent!",
+    "description": "Thank you for reaching out. We'll get back to you as soon as possible.",
+    "sendAnother": "Send Another Message"
+  },
+  "validation": {
+    "firstNameRequired": "First name is required",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Please enter a valid email",
+    "messageRequired": "Message is required",
+    "submitFailed": "Failed to send message. Please try again.",
+    "unexpectedError": "An unexpected error occurred. Please try again."
+  }
+}

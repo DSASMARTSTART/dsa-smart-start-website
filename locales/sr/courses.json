@@ -1,0 +1,1199 @@
+{
+  "coursesPage": {
+    "hero": {
+      "badge": "Premium put učenja",
+      "titleLine1": "ISTRAŽITE",
+      "titleLine2": "PROIZVODE",
+      "subtitle": "Naučno osmišljeno za <1>disleksični um</1>.",
+      "subtitleSecondary": "Vizuelni, multisenzorni i inkluzivni pristup učenju."
+    },
+    "tabs": {
+      "liveCourses": "Kursevi\nUživo",
+      "ebook": "E-knjiga"
+    },
+    "liveSection": {
+      "badge": "Programi uživo",
+      "title": "Programi <1>učenja uživo</1>",
+      "description": "Naši najsveobuhvatniji programi koji kombinuju individualne časove, grupne radionice i punu podršku za transformativno učenje engleskog jezika."
+    },
+    "interactiveSection": {
+      "badge": "Interaktivno učenje",
+      "title": "Interaktivni <1>video kursevi</1>",
+      "description": "Video lekcije, kvizovi i vežbe prilagođene vašem tempu, osmišljene za disleksični um."
+    },
+    "ebookSection": {
+      "badge": "Digitalne knjige",
+      "title": "Sveobuhvatne <1>e-knjige</1>",
+      "description": "PDF vodiči za preuzimanje sa vokabularom, gramatikom i vežbama. Savršeni za učenje van mreže i kao referentni materijal."
+    },
+    "audienceLabels": {
+      "adultsTeens": "Odrasli i tinejdžeri",
+      "kids": "Deca"
+    },
+    "assessmentButtons": {
+      "takeTestTeens": "Uradite test — Tinejdžeri i odrasli",
+      "takeTestKids": "Uradite test — Deca",
+      "findLevelTeens": "Otkrijte svoj nivo — Tinejdžeri i odrasli",
+      "findLevelKids": "Otkrijte svoj nivo — Deca"
+    },
+    "emptyStates": {
+      "liveComingSoonTitle": "Kursevi uživo uskoro!",
+      "liveComingSoonDesc": "Naši kursevi uživo se pripremaju. Vratite se uskoro!",
+      "ebooksComingSoonTitle": "E-knjige uskoro!",
+      "ebooksComingSoonDesc": "Pripremamo naše sveobuhvatne e-knjige. Vratite se uskoro!",
+      "coursesComingSoonTitle": "Kursevi uskoro!",
+      "coursesComingSoonDesc": "Pripremamo kurseve za vas. Vratite se uskoro po kompletne puteve učenja osmišljene za sve nivoe."
+    },
+    "error": {
+      "title": "Ups! Nešto je pošlo po zlu",
+      "retry": "Pokušajte ponovo"
+    },
+    "liveCard": {
+      "whatsIncluded": "Šta je uključeno",
+      "addToCart": "Dodaj u korpu",
+      "inCart": "U korpi",
+      "buyNow": "Kupi odmah",
+      "securePayment": "Sigurno plaćanje",
+      "certificateIncluded": "Sertifikat uključen",
+      "save": "Uštedite €{{amount}}"
+    },
+    "ebookCard": {
+      "mostPopular": "Najpopularnije",
+      "digitalEbook": "Digitalna e-knjiga",
+      "level": "Nivo {{level}}",
+      "comingSoon": "Uskoro",
+      "addToCart": "Dodaj u korpu",
+      "inCart": "U korpi",
+      "buyNow": "Kupi odmah",
+      "free": "Besplatno"
+    }
+  },
+  "courseViewer": {
+    "loading": "Učitavanje kursa...",
+    "accessDenied": "Pristup odbijen",
+    "noAccessLoggedIn": "Nemate pristup ovom kursu. Kupite ga da biste nastavili učenje.",
+    "noAccessLoggedOut": "Prijavite se i kupite ovaj kurs da biste pristupili sadržaju.",
+    "goBack": "Nazad",
+    "purchaseCourse": "Kupi kurs",
+    "logIn": "Prijavi se",
+    "courseNotAvailable": "Kurs nije dostupan",
+    "courseNotAvailableDesc": "Ovaj kurs još nema sadržaj ili ne postoji.",
+    "backToDashboard": "Nazad na kontrolnu tablu",
+    "classroomEnvironment": "Okruženje učionice",
+    "courseProgress": "Napredak kursa",
+    "continueNext": "Nastavi dalje",
+    "assignments": "Zadaci",
+    "learningCenter": "Centar za učenje",
+    "readingResource": "Materijal za čitanje",
+    "readingResourceDefault": "Pristupite vizuelnim materijalima. Preporučuje se režim prikaza visokog kontrasta.",
+    "practiceAssignment": "Zadatak za vežbu",
+    "practiceAssignmentDefault": "Završite ovaj zadatak da biste učvrstili svoje znanje.",
+    "lessonPdf": "PDF lekcije",
+    "pdfAttachment": "PDF prilog",
+    "homeworkPdf": "PDF domaćeg zadatka",
+    "downloadToComplete": "Preuzmite da biste završili ovaj zadatak",
+    "open": "Otvori",
+    "download": "Preuzmi",
+    "partOf": "Deo modula {{module}}",
+    "independentAssignment": "Samostalni zadatak",
+    "completed": "Završeno",
+    "markAsCompleted": "Označi kao završeno",
+    "comingUpNext": "Sledeće",
+    "goToNext": "IDI NA SLEDEĆE",
+    "nextItem": "Sledeće: {{title}}",
+    "nextModule": "Sledeći modul: {{title}}",
+    "courseComplete": "Kurs završen! Povratak na kontrolnu tablu",
+    "eduwayPlayer": "Eduway PLAYER",
+    "noVideoUploaded": "Video još nije otpremljen"
+  },
+  "shared": {
+    "backToProducts": "Nazad na proizvode",
+    "backToCourses": "Nazad na kurseve",
+    "loading": "Učitavanje detalja kursa...",
+    "loadingEbook": "Učitavanje detalja e-knjige...",
+    "courseNotFound": "Kurs nije pronađen",
+    "courseNotFoundDesc": "Kurs koji tražite ne postoji ili je uklonjen.",
+    "ebookNotFound": "E-knjiga nije pronađena",
+    "ebookNotFoundDesc": "E-knjiga koju tražite ne postoji ili je uklonjena.",
+    "buyNow": "Kupi odmah",
+    "addToCart": "Dodaj u korpu",
+    "added": "Dodato",
+    "adding": "Dodaje se...",
+    "addedToCart": "Dodato u korpu",
+    "saveForLater": "Sačuvaj za kasnije",
+    "limitedTimeOffer": "Ponuda ograničenog trajanja",
+    "liveCourse": "Kurs uživo",
+    "digitalEbook": "Digitalna e-knjiga",
+    "preparesFor": "Priprema za {{exam}}",
+    "duration": "Trajanje",
+    "sessions": "Sesije",
+    "total": "Ukupno",
+    "modules": "Moduli",
+    "lessons": "Lekcije",
+    "instant": "Trenutno",
+    "downloadLabel": "Preuzimanje",
+    "pdf": "PDF",
+    "format": "Format",
+    "lifetime": "Doživotno",
+    "access": "Pristup",
+    "topics": "{{count}} tema",
+    "whatsIncluded": "Šta je uključeno",
+    "whatYoullAchieve": "Šta ćete postići do kraja kursa",
+    "whatYoullAchieveKids": "Šta će vaše dete postići do kraja kursa",
+    "whatYoullAchieveShort": "Šta ćete postići",
+    "outcomesIntro": "Do kraja ovog kursa, moći ćete da:",
+    "outcomesIntroKids": "Do kraja ovog kursa, vaše dete će moći sa sigurnošću da:",
+    "outcomesIntroShort": "Do kraja ovog kursa, moći ćete sa sigurnošću da:",
+    "dsaAdvantageTitle": "DSA Smart Start prednost",
+    "dsaAdvantageDesc": "Za razliku od tradicionalnih metoda, ne opterećujemo učenike apstraktnim objašnjenjima gramatike. Učimo učenike da razumeju kroz <1>vizuelne puteve učenja</1> i senzorne okidače koji čine engleski jasnim, strukturiranim i zapamtljivim.",
+    "dsaWhatMakesTheDifference": "Šta čini razliku:",
+    "dsaTags": [
+      "Vizuelno mapiranje uma",
+      "Multisenzorni pristup učenju",
+      "Strukturirani sistem korak po korak",
+      "Metod izgradnje samopouzdanja"
+    ],
+    "whoIsThisFor": "Kome je ovo namenjeno?",
+    "ourPromise": "Naše obećanje",
+    "promise": {
+      "moneyBackTitle": "14 dana",
+      "moneyBackDesc": "Garancija povrata novca",
+      "dyslexiaTitle": "Disleksija",
+      "dyslexiaDesc": "Prilagođen dizajn",
+      "dyslexiaDescAlt": "Prilagođen pristup",
+      "certificateTitle": "Sertifikat",
+      "certificateDesc": "Po završetku",
+      "lifetimeTitle": "Doživotno",
+      "lifetimeDesc": "Besplatna ažuriranja",
+      "certifiedTitle": "Sertifikovani",
+      "certifiedDesc": "Izvorni predavači"
+    },
+    "trustBadges": {
+      "moneyBack": "Povrat novca u roku od 14 dana",
+      "secureCheckout": "Sigurna kupovina",
+      "securePayment": "Sigurno plaćanje",
+      "instantDownload": "Trenutno preuzimanje",
+      "certificateIncluded": "Sertifikat uključen",
+      "certifiedTutors": "Sertifikovani predavači",
+      "sixDaysSupport": "Podrška 6 dana"
+    },
+    "cta": {
+      "badge": "Započnite svoju transformaciju",
+      "title": "Spremni da počnete da učite?",
+      "titleAlt": "Spremni da otključate svoj potencijal?",
+      "descriptionEbook": "Dobijte trenutni pristup ovoj sveobuhvatnoj e-knjizi i započnite svoje putovanje učenja engleskog danas. Osmišljeno na način koji najbolje odgovara vašem mozgu.",
+      "descriptionLive": "Upišite se danas i započnite svoje putovanje učenja engleskog sa sertifikovanim predavačima kojima je engleski maternji jezik i koji razumeju način na koji vaš mozak najbolje funkcioniše.",
+      "descriptionSyllabus": "Pridružite se stotinama učenika koji su otkrili bolji način učenja. Vaše putovanje ka samopouzdanju počinje jednim korakom.",
+      "buyNowPrice": "Kupi odmah — {{price}}",
+      "enrollNow": "Upišite se odmah",
+      "enrollNowPrice": "Upišite se odmah — {{price}}",
+      "startFree": "Započnite besplatno",
+      "startLearningFree": "Počnite da učite besplatno"
+    },
+    "comingSoon": "Uskoro!",
+    "comingSoonEbookTitle": "Ova e-knjiga je na putu!",
+    "comingSoonEbookDesc": "Stavljamo poslednje detalje na ovu e-knjigu. Ostanite u toku — biće uskoro dostupna za kupovinu!",
+    "browseOtherEbooks": "Pregledajte druge e-knjige",
+    "contentComingSoonTitle": "Sadržaj uskoro",
+    "contentComingSoonDesc": "Detaljan sadržaj jedinica se priprema. Vratite se uskoro!",
+    "contentComingSoonAlt": "Ovaj kurs je u razvoju. Vratite se uskoro po kompletan nastavni plan!",
+    "unitContent": "Sadržaj jedinice",
+    "courseModules": "Moduli kursa",
+    "programIncludes": "Program uključuje",
+    "vocabularyTopics": "Teme vokabulara",
+    "notIncluded": "Nije uključeno",
+    "expandAll": "Proširi sve",
+    "collapseAll": "Skupi sve",
+    "unitCountMessage": "Ovaj kurs uključuje <1>{{count}} sveobuhvatnih jedinica</1> osmišljenih da grade strukturu, jasnoću i samopouzdanje korak po korak.",
+    "unitCountMessageAlt": "Ovaj kurs pokriva <1>{{count}} sveobuhvatnih jedinica</1>, od kojih je svaka osmišljena sa tehnikama vizuelnog učenja i materijalima prilagođenim disleksiji.",
+    "lessonsCount": "{{count}} lekcija",
+    "durationMinutes": "{{count}} min",
+    "practiceHomework": "Vežba i domaći zadatak",
+    "defaultDescription": "Sveobuhvatan PDF vodič osmišljen za disleksični um. Vizuelni, multisenzorni pristup učenju sa {{label}} sadržajem.",
+    "defaultSyllabusDescription": "Transformišite svoje veštine engleskog sa našim {{label}} kursom. Osmišljen posebno za vizuelne učenike i učenike sa disleksijom — učite sopstvenim tempom proverenim metodama prilagođenim mozgu.",
+    "free": "BESPLATNO",
+    "levelLabels": {
+      "A1": "Početni",
+      "A2": "Osnovni",
+      "B1": "Srednji",
+      "B2": "Viši srednji",
+      "Kids": "Napredni mladi učenici",
+      "kids-basic": "Deca Osnovno",
+      "kids-medium": "Deca Srednje",
+      "kids-advanced": "Deca Napredno",
+      "Premium": "Premium Program",
+      "premium": "Premium Program",
+      "Gold": "Gold Program",
+      "golden": "Golden Program",
+      "language-lab": "Language Lab",
+      "starter-path": "Starter Putanja",
+      "language-lab-pro": "Language Lab Pro",
+      "hybrid-pack": "Paket Hibrid"
+    }
+  },
+  "ebookDetail": {
+    "videoDescriptionKids": "Pogledajte naš video i otkrijte kako vaše dete konačno može da nauči engleski sa jasnoćom, samopouzdanjem i pravom metodom.",
+    "videoDescription": "Pogledajte naš video i otkrijte kako konačno možete da naučite engleski sa jasnoćom, samopouzdanjem i pravom metodom.",
+    "highlights": {
+      "lifetimeAccess": "Doživotni pristup — preuzmite bilo kada",
+      "dyslexiaFriendly": "Format prilagođen disleksiji",
+      "worksOnAnyDevice": "Radi na svakom uređaju"
+    },
+    "defaultOutcomes": [
+      "Savladajte osnovni vokabular kroz tehnike vizuelnog pamćenja",
+      "Izgradite samopouzdanje u čitanju u svakodnevnim situacijama",
+      "Razvijte razumevanje tekstova metodama prilagođenim disleksiji",
+      "Pratite svoj napredak vežbama za samoprocenu"
+    ],
+    "defaultWhatYoullFind": [
+      "Sveobuhvatan PDF vodič",
+      "Vizuelni pristup učenju",
+      "Vežbe za praksu uključene",
+      "Format prilagođen disleksiji",
+      "Trenutni pristup za preuzimanje",
+      "Kompatibilno sa svim uređajima"
+    ],
+    "defaultTargetAudience": [
+      "Vizuelni učenici koji se bore sa tradicionalnim udžbenicima",
+      "Učenici sa disleksijom ili teškoćama u učenju",
+      "Roditelji koji podržavaju učenje svoje dece",
+      "Svako ko želi podržavajući pristup bez osude"
+    ],
+    "defaultTargetAudienceDesc": "Savršeno za {{label}} učenike koji žele da izgrade snažne temelje"
+  },
+  "liveCourseDetail": {
+    "videoDescription": "Pogledajte naš video i otkrijte kako konačno možete da naučite engleski sa jasnoćom, samopouzdanjem i pravom metodom.",
+    "highlights": {
+      "certifiedTutors": "Sertifikovani predavači kojima je engleski maternji jezik",
+      "dsaMethod": "DSA Smart Start® metod",
+      "personalised": "Personalizovano iskustvo učenja"
+    },
+    "defaultDescription": "Kurs engleskog uživo sa sertifikovanim predavačima kojima je engleski maternji jezik, specijalizovanim za SLD.",
+    "defaultTargetAudienceDesc": "Savršeno za učenike koji žele personalizovanu nastavu engleskog koja gradi samopouzdanje."
+  },
+  "syllabusPage": {
+    "adminPreview": "ADMIN PREGLED - Ovaj kurs još nije objavljen",
+    "editCourse": "Uredi kurs",
+    "level": "Nivo {{level}}",
+    "teachingMaterialsBadge": "+ Nastavni materijali",
+    "materialsPrice": "({{price}} + €50 materijali)",
+    "highlights": {
+      "lifetimeAccess": "Doživotni pristup svim materijalima",
+      "certificate": "Sertifikat o završetku",
+      "dyslexiaFriendly": "Dizajn prilagođen disleksiji"
+    },
+    "teachingMaterials": {
+      "title": "Nastavni materijali",
+      "price": "+€50",
+      "priceNote": "(Opcioni dodatak)",
+      "description": "Unapredite svoje iskustvo učenja sa našim sveobuhvatnim paketom nastavnih materijala, uključujući radne sveske, vežbe za praksu, dopunske resurse i ekskluzivne vodiče za učenje osmišljene posebno za ovaj program.",
+      "added": "Dodato vašoj kupovini",
+      "clickToAdd": "Kliknite da dodate svojoj kupovini"
+    },
+    "completeLearningPackage": "Kompletan paket za učenje",
+    "everythingForSuccess": "Sve što vam je potrebno za uspeh",
+    "theEduwayMethod": "Eduway metod",
+    "eduwayMethodPremium": "Eduway metod je jedini koji integriše socijalizaciju, specifične alate za podršku i postepen pristup, kako bi vodio učenike korak po korak, sa samopouzdanjem i motivacijom.",
+    "eduwayMethodGold": "Eduway metod je jedini koji kombinuje socijalizaciju, specifične alate za podršku i pristup korak po korak, kako bi vodio učenike na njihovom putu učenja sa samopouzdanjem i motivacijom.",
+    "defaultOutcomes": [
+      "Savladajte osnovni vokabular kroz tehnike vizuelnog pamćenja",
+      "Izgradite samopouzdanje u govoru u svakodnevnim situacijama",
+      "Razvijte razumevanje čitanja metodama prilagođenim disleksiji",
+      "Pratite svoj napredak sa personalizovanim ciljevima"
+    ],
+    "defaultTargetAudience": [
+      "Potpuni početnici koji započinju svoje putovanje u engleskom",
+      "Vizuelni učenici koji se bore sa tradicionalnim udžbenicima",
+      "Učenici sa disleksijom ili teškoćama u učenju",
+      "Svako ko želi podržavajuće okruženje bez osude"
+    ],
+    "defaultTargetAudienceDesc": "Savršeno za {{label}} učenike koji žele da izgrade snažne temelje"
+  },
+  "courseFeatures": {
+    "language-lab": [
+      "8 lab sesija sa 3-4 učenika",
+      "Časovi od 50 minuta",
+      "Materijal nije uključen"
+    ],
+    "starter-path": [
+      "5 individualnih časova",
+      "Časovi od 30 minuta",
+      "Materijal nije uključen"
+    ],
+    "language-lab-pro": [
+      "30 lab sesija sa 3-4 učenika",
+      "Časovi od 50 minuta",
+      "Materijal uključen"
+    ],
+    "hybrid-pack": [
+      "25 lab sesija sa 3-4 učenika",
+      "5 individualnih časova",
+      "30 min individualni / 50 min lab časovi",
+      "Materijal uključen"
+    ]
+  },
+  "premiumFeatures": [
+    "7 individualnih časova od 50 minuta",
+    "32 radionice od 50 minuta",
+    "525 mentalnih mapa + 15 nastavnih jedinica osmišljenih posebno za učenike sa SLD",
+    "Preko 100 interaktivnih video lekcija za poboljšanje koncentracije, slušanja i vokabulara",
+    "\"Stop & Check\" radni listovi i periodični testovi za praćenje napretka",
+    "Školsko mentorstvo za domaće zadatke i pripremu testova",
+    "Posvećena pomoć 6 dana u nedelji",
+    "Završni sertifikat nivoa po završetku"
+  ],
+  "goldFeatures": [
+    "52 radionice od 50 minuta sa pohađanjem dva puta nedeljno",
+    "525 mentalnih mapa + 15 nastavnih jedinica razvijenih posebno za SLD",
+    "Preko 100 interaktivnih video lekcija za koncentraciju, slušanje i vokabular",
+    "\"Stop & Check\" radni listovi za stalno praćenje i prilagođavanje putanje",
+    "Posvećeno mentorstvo i pomoć 6 dana u nedelji",
+    "Završni sertifikat nivoa"
+  ],
+  "vocabularyTopics": {
+    "B1": [
+      "Lični identitet i životna iskustva",
+      "Odnosi i društveni život",
+      "Obrazovanje i izbor karijere",
+      "Posao i situacije na radnom mestu",
+      "Putovanja i kulturna iskustva",
+      "Zdravlje, životni stil i blagostanje",
+      "Tehnologija i digitalni život",
+      "Mediji i komunikacija",
+      "Životna sredina i globalni problemi",
+      "Novac, potrošačko društvo i reklame",
+      "Kriminal i društveni problemi",
+      "Nauka i inovacije",
+      "Osećanja, mišljenja i lična uverenja",
+      "Planovi za budućnost i ambicije",
+      "Društvo i moderni izazovi"
+    ],
+    "A2": [
+      "Svakodnevni život i rutine",
+      "Škola i obrazovanje",
+      "Slobodno vreme i hobiji",
+      "Mesta u gradu",
+      "Putovanja i prevoz",
+      "Hrana i zdrav život",
+      "Kupovina i novac",
+      "Tehnologija i komunikacija",
+      "Prirodni svet i životna sredina",
+      "Ljudi i odnosi",
+      "Poslovi i planovi za budućnost",
+      "Zdravlje i telo",
+      "Zabava i mediji",
+      "Opisivanje iskustava",
+      "Globalne teme i društvo"
+    ],
+    "A1": [
+      "Dnevne rutine i obaveze",
+      "Aktivnosti u slobodno vreme i interesovanja",
+      "Mesta u gradu",
+      "Pravci i davanje uputstava",
+      "Putovanja i odmori",
+      "Zdravlje i telo",
+      "Kupovina i novac",
+      "Poslovi i zanimanja",
+      "Tehnologija i komunikacija",
+      "Životna sredina",
+      "Festivali i proslave",
+      "Prijateljstvo i odnosi",
+      "Sportovi i takmičenja",
+      "Planovi za budućnost i ambicije"
+    ],
+    "kids-advanced": [
+      "Dnevne rutine i obaveze",
+      "Aktivnosti u slobodno vreme i interesovanja",
+      "Mesta u gradu",
+      "Pravci i davanje uputstava",
+      "Putovanja i odmori",
+      "Zdravlje i telo",
+      "Kupovina i novac",
+      "Poslovi i zanimanja",
+      "Tehnologija i komunikacija",
+      "Životna sredina",
+      "Festivali i proslave",
+      "Školski predmeti",
+      "Prijateljstvo i odnosi",
+      "Sportovi i takmičenja",
+      "Planovi za budućnost i ambicije"
+    ],
+    "kids-medium": [
+      "Emocije i osećanja",
+      "Porodica",
+      "Dnevne rutine",
+      "Škola",
+      "Prijatelji i odnosi",
+      "Opis svog doma",
+      "Vreme (meteorološko)",
+      "Hrana i piće",
+      "Brojevi",
+      "Dani u nedelji",
+      "Meseci u godini",
+      "Hobiji i slobodno vreme",
+      "Sportovi",
+      "Odeća",
+      "Gradovi",
+      "Pridevi"
+    ],
+    "kids-basic": [
+      "Emocije i osećanja",
+      "Porodica",
+      "Dnevne rutine",
+      "Škola",
+      "Dom",
+      "Boje",
+      "Nacije",
+      "Države",
+      "Brojevi",
+      "Dani u nedelji",
+      "Meseci u godini",
+      "Hobiji i slobodno vreme",
+      "Sportovi",
+      "Odeća",
+      "Gradovi",
+      "Pridevi"
+    ]
+  },
+  "ebookContent": {
+    "A1": {
+      "description": "Započnite svoje putovanje na engleskom sa našom interaktivnom A1 e-knjigom za početnike, koja sadrži vizuelne mentalne mape i strukturiranu praksu osmišljenu za potpune početnike.",
+      "learningOutcomes": [
+        "Savladajte osnovna glagolska vremena.",
+        "Razvijte jednostavne konverzacijske veštine.",
+        "Izražavajte prošle događaje i govorite o svojim preferencama u svakodnevnim situacijama.",
+        "Spelujte reči i izgradite osnovne veštine čitanja i pisanja sa sigurnošću."
+      ],
+      "whatYoullFind": [
+        "Ilustrovane e-knjige",
+        "Kreativni zadaci za pisanje sa strukturiranim šablonima",
+        "Igre za izgradnju vokabulara",
+        "Gramatika predstavljena kroz praktične primere",
+        "Kviz za proveru napretka na kraju svake jedinice"
+      ],
+      "targetAudience": [
+        "Učenici uzrasta 9 i više godina"
+      ],
+      "examPrep": "Cambridge English A1 Movers"
+    },
+    "A2": {
+      "description": "Nastavite da gradite svoj engleski sa našom strukturiranom A2 e-knjigom, osmišljenom da ojača gramatičke temelje, proširi vokabular i razvije komunikacijske veštine za svakodnevni život sa jasnoćom i samopouzdanjem.",
+      "learningOutcomes": [
+        "Koristite širi raspon glagolskih vremena sa većom preciznošću.",
+        "Komunicirajte sa sigurnošću u svakodnevnim situacijama.",
+        "Jasno opisujte prošla iskustva i planove za budućnost.",
+        "Poboljšajte veštine čitanja, pisanja, slušanja i govora uz strukturiranu podršku."
+      ],
+      "whatYoullFind": [
+        "Ilustrovane e-knjige",
+        "Kreativni zadaci za pisanje sa strukturiranim šablonima",
+        "Igre za izgradnju vokabulara",
+        "Gramatika predstavljena kroz praktične primere",
+        "Kviz za proveru napretka na kraju svake jedinice"
+      ],
+      "targetAudience": [
+        "Učenici uzrasta 9 i više godina"
+      ],
+      "examPrep": "Cambridge English A2 Key (KET)"
+    },
+    "B1": {
+      "description": "Ojačajte svoj engleski sa našom strukturiranom B1 e-knjigom za srednji nivo, osmišljenom da vam pomogne da komunicirate tečno, razmišljate na engleskom i sa sigurnošću upravljate svakodnevnim i profesionalnim situacijama.",
+      "learningOutcomes": [
+        "Koristite napredne gramatičke strukture sa sigurnošću.",
+        "Jasno izražavajte mišljenja, ideje i argumente.",
+        "Opisujte prošla iskustva, sadašnje situacije i planove za budućnost u detalje.",
+        "Efikasno komunicirajte u akademskim, društvenim i profesionalnim kontekstima."
+      ],
+      "whatYoullFind": [
+        "Ilustrovane e-knjige",
+        "Kreativni zadaci za pisanje sa strukturiranim šablonima",
+        "Igre za izgradnju vokabulara",
+        "Gramatika predstavljena kroz praktične primere",
+        "Kviz za proveru napretka na kraju svake jedinice"
+      ],
+      "targetAudience": [
+        "Učenici uzrasta 12 i više godina"
+      ],
+      "examPrep": "Cambridge English B1 Preliminary (PET)"
+    },
+    "B2": {
+      "description": "Eduway nivo B2 predstavlja vrhunac našeg strukturiranog puta učenja, osmišljen za učenike sa specifičnim teškoćama u učenju (SLD) koji su spremni da dostignu viši srednji nivo znanja. Ovaj napredni nivo se fokusira na nijansirano korišćenje jezika, akademski engleski i sofisticirane komunikacijske strategije koje pripremaju učenike za profesionalne i obrazovne kontekste.",
+      "learningOutcomes": [
+        "Savladajte sve oblike kondicionala uključujući mešovite kondicionalne rečenice",
+        "Koristite napredne pasivne strukture i kauzativne oblike",
+        "Izražavajte hipotetičke situacije sa lakoćom",
+        "Razumejte i produkujte složene relativne rečenice",
+        "Snalazite se u formalnim i neformalnim registrima na odgovarajući način",
+        "Pripremite se za Cambridge B2 First (FCE) ispit"
+      ],
+      "whatYoullFind": [
+        "Napredna objašnjenja gramatike sa vizuelnom podrškom",
+        "Vežbe za izgradnju akademskog vokabulara",
+        "Strategije za razumevanje složenih tekstova",
+        "Napredne tehnike pisanja i šabloni",
+        "Veoma čitljivi fontovi i strukturirani raspored",
+        "Integrisani digitalni materijali uključujući ispitnu praksu"
+      ],
+      "targetAudience": [
+        "Učenici uzrasta 12 i više godina na višem srednjem nivou",
+        "Učenici koji se pripremaju za Cambridge B2 First (FCE)",
+        "Oni koji traže akademske ili profesionalne veštine engleskog",
+        "Svako ko je spreman za komunikaciju blizu tečnog nivoa"
+      ],
+      "examPrep": "Cambridge English B2 First (FCE)"
+    },
+    "kids-basic": {
+      "description": "Eduway Kids Basic e-knjiga je posebno kreirana za mlade učenike uzrasta 5-8 godina koji tek započinju svoju avanturu sa engleskim jezikom. Koristeći razigrani, multisenzorni pristup sa šarenim vizuelnim sadržajima, pesmama i interaktivnim stranicama, ova e-knjiga čini učenje engleskog uzbudljivim putovanjem. Svaka stranica je osmišljena sa tehnikama prilagođenim disleksiji kako bi svako dete moglo da uspe.",
+      "learningOutcomes": [
+        "Prepoznajte i koristite osnovne pozdrave i predstavljanja",
+        "Identifikujte boje, brojeve 1-20 i uobičajene oblike",
+        "Imenujte članove porodice, kućne ljubimce i predmete u učionici",
+        "Pratite jednostavna uputstva na engleskom",
+        "Pevajte uz engleske pesme i rime",
+        "Izgradite samopouzdanje u izgovaranju prvih engleskih reči"
+      ],
+      "whatYoullFind": [
+        "Ilustrovane e-knjige",
+        "Kreativni zadaci za pisanje sa strukturiranim šablonima",
+        "Igre za izgradnju vokabulara",
+        "Gramatika predstavljena kroz praktične primere",
+        "Kviz za proveru napretka na kraju svake jedinice"
+      ],
+      "targetAudience": [
+        "Deca uzrasta 5-8 godina koja počinju engleski",
+        "Mladi učenici sa teškoćama u učenju",
+        "Deca koja najbolje uče kroz igru i vizuelne sadržaje",
+        "Roditelji koji traže engleski prilagođen disleksiji za decu"
+      ],
+      "examPrep": "Cambridge English A1 Starters"
+    },
+    "kids-medium": {
+      "description": "Eduway Kids Medium e-knjiga nadograđuje osnove, osmišljena za mlade učenike uzrasta 7-10 godina koji su spremni da prošire svoje veštine engleskog. Kroz učenje zasnovano na pričama, kreativne aktivnosti i interaktivne vežbe, deca razvijaju samopouzdanje u čitanju, pisanju i govoru. Svaka stranica uključuje metode prilagođene disleksiji kako bi podržala sve stilove učenja.",
+      "learningOutcomes": [
+        "Čitajte i razumejte jednostavne priče na engleskom",
+        "Pišite kratke rečenice o poznatim temama",
+        "Postavljajte i odgovarajte na jednostavna pitanja",
+        "Opisujte ljude, mesta i stvari",
+        "Koristite Present Simple za dnevne rutine",
+        "Proširite vokabular na 500+ reči"
+      ],
+      "whatYoullFind": [
+        "Ilustrovane e-knjige",
+        "Kreativni zadaci za pisanje sa strukturiranim šablonima",
+        "Igre za izgradnju vokabulara",
+        "Gramatika predstavljena kroz praktične primere",
+        "Kviz za proveru napretka na kraju svake jedinice"
+      ],
+      "targetAudience": [
+        "Deca uzrasta 7-10 godina sa osnovnim engleskim",
+        "Mladi učenici koji napreduju sa osnovnog nivoa",
+        "Deca koja uživaju u pričama i kreativnim aktivnostima",
+        "Učenici koji se pripremaju za Cambridge A1 Movers"
+      ],
+      "examPrep": "Cambridge English A1 Movers"
+    },
+    "kids-advanced": {
+      "description": "Eduway Kids Advanced e-knjiga je osmišljena za samouverene mlade učenike uzrasta 9-12 godina koji su spremni da savladaju engleski na višem nivou. Ovaj sveobuhvatni vodič priprema učenike za školske zahteve iz engleskog i Cambridge A2 Flyers ispit. Složena gramatika se predaje kroz zanimljive kontekste, a kreativno izražavanje se podstiče kroz ceo kurs.",
+      "learningOutcomes": [
+        "Čitajte i razumejte duže, složenije tekstove",
+        "Pišite pasuse i kratke kompozicije",
+        "Koristite Past Simple i Past Continuous sa sigurnošću",
+        "Formirajte i koristite Present Perfect",
+        "Razumejte i kreirajte rečenice prvog kondicionala",
+        "Dosegnite vokabular od 1000+ reči"
+      ],
+      "whatYoullFind": [
+        "Ilustrovane e-knjige",
+        "Kreativni zadaci za pisanje sa strukturiranim šablonima",
+        "Igre za izgradnju vokabulara",
+        "Gramatika predstavljena kroz praktične primere",
+        "Kviz za proveru napretka na kraju svake jedinice"
+      ],
+      "targetAudience": [
+        "Deca uzrasta 9-12 godina na srednjem nivou",
+        "Učenici koji se pripremaju za Cambridge A2 Flyers",
+        "Deca koja prelaze na engleski za srednju školu",
+        "Mladi učenici spremni za napredne izazove"
+      ],
+      "examPrep": "Cambridge English A2 Flyers"
+    }
+  },
+  "liveCourseContent": {
+    "starter-path": {
+      "description": "Započnite svoje putovanje na engleskom uz personalizovanu pažnju jedan na jedan. Ovaj starter program je u potpunosti prilagođen vašim potrebama koristeći DSA Smart Start® metod, savršen za svakoga ko traži fokusiran uvod sa posvećenim sertifikovanim predavačem kojem je engleski maternji jezik, specijalizovanim za SLD.",
+      "duration": "5 nedelja",
+      "lessons": "10 lekcija od 30 minuta",
+      "totalHours": "5 sati",
+      "includes": [
+        "Početna procena nivoa",
+        "DSA Smart Start® metod",
+        "Personalizovane sesije jedan na jedan",
+        "Kreiranje prilagođenih Mind Maps",
+        "Multisenzorni i vizuelni metod",
+        "Vođena konverzacija",
+        "Mini personalizovani plan učenja",
+        "Sertifikovani predavači kojima je engleski maternji jezik, specijalizovani za SLD",
+        "Osnovni digitalni materijal",
+        "Progresivno praćenje"
+      ],
+      "notIncluded": [
+        "Language Lab",
+        "DSA Smart Start nastavni materijal — neograničen pristup",
+        "Pristup 500+ Brain Mapping resursa",
+        "Pristup 700+ video lekcija",
+        "Priprema za testove i ispite",
+        "Pomoć sa domaćim zadacima",
+        "Direktan kontakt sa predstavnicima škole",
+        "Završni nastavni izveštaj o kompetencijama",
+        "Sertifikacija nivoa",
+        "Produženo trajanje do 9 meseci"
+      ],
+      "learningOutcomes": [
+        "Dobijte personalizovanu procenu učenja",
+        "Izgradite osnovne veštine engleskog jedan na jedan",
+        "Steknite samopouzdanje u govoru uz individualnu pažnju",
+        "Razvijte prilagođenu mapu puta za učenje",
+        "Dobijte ciljane povratne informacije o vašim specifičnim izazovima"
+      ],
+      "targetAudience": [
+        "Početnici koji žele lični početak učenja engleskog",
+        "Učenici koji preferiraju pažnju jedan na jedan",
+        "Oni kojima je potreban fleksibilan, kratkoročni program",
+        "Svako ko želi da proceni svoj nivo i napravi plan"
+      ]
+    },
+    "language-lab": {
+      "description": "Sesije uživo u malim grupama osmišljene za fokusirano, interaktivno učenje. Pridružite se grupi od 3–4 učenika na 8 dinamičnih radionica, od kojih svaka traje 50 minuta. Savršeno za učenike koji napreduju u kolaborativnim okruženjima uz personalizovanu pažnju sertifikovanih predavača kojima je engleski maternji jezik, specijalizovanih za SLD.",
+      "duration": "8 nedelja",
+      "lessons": "8 radionica od 50 minuta",
+      "totalHours": "6,5 sati",
+      "includes": [
+        "Početna procena nivoa",
+        "DSA Smart Start® metod",
+        "Language Lab — maks. 3–4 učenika",
+        "Circle Talk Lab",
+        "Role Play & Team Challenges",
+        "Multisenzorni i vizuelni metod",
+        "Sertifikovani predavači kojima je engleski maternji jezik, specijalizovani za SLD",
+        "Progresivno praćenje"
+      ],
+      "notIncluded": [
+        "Personalizovane sesije jedan na jedan",
+        "DSA Smart Start nastavni materijal — neograničen pristup",
+        "Pristup 500+ Brain Mapping resursa",
+        "Pristup 700+ video lekcija",
+        "Priprema za testove i ispite",
+        "Pomoć sa domaćim zadacima",
+        "Direktan kontakt sa predstavnicima škole",
+        "Završni nastavni izveštaj o kompetencijama",
+        "Sertifikacija nivoa",
+        "Produženo trajanje do 9 meseci"
+      ],
+      "learningOutcomes": [
+        "Izgradite konverzacijsko samopouzdanje u okruženju malih grupa",
+        "Razvijte komunikacijske veštine u realnom vremenu uz interakciju sa vršnjacima",
+        "Dobijte personalizovane povratne informacije od stručnih predavača",
+        "Vežbajte govor, slušanje i prirodno odgovaranje",
+        "Steknite izloženost raznolikim komunikacijskim stilovima"
+      ],
+      "targetAudience": [
+        "Učenici koji napreduju u kolaborativnim okruženjima",
+        "Učenici koji žele praksu govora u realnom vremenu",
+        "Svako ko traži pristupačnu opciju grupnog učenja",
+        "Oni koji uživaju u interaktivnom, društvenom učenju"
+      ]
+    },
+    "language-lab-pro": {
+      "description": "Naš najintenzivniji program u mikro-grupama sa 30 radionica uživo. Mikro-laboratorije sa maks. 3–4 učenika istog uzrasta i nivoa, sesije od 50 minuta pune interaktivnih vežbi, prave konverzacijske prakse i progresivne izgradnje veština. Svi nastavni materijali su uključeni za kompletno iskustvo učenja.",
+      "duration": "Do 9 meseci",
+      "lessons": "30 radionica od 50 minuta",
+      "totalHours": "25 sati",
+      "includes": [
+        "Početna procena nivoa",
+        "DSA Smart Start® metod",
+        "DSA Smart Start® nastavni materijal — Neograničen pristup",
+        "Multisenzorni i vizuelni metod",
+        "Pristup 500+ Brain Mapping resursa",
+        "Pristup 700+ video lekcija",
+        "Language Lab u mikro-grupi (maks. 3–4 učenika)",
+        "Circle Talk Lab",
+        "Role Play & Team Challenges",
+        "Sertifikovani predavači kojima je engleski maternji jezik, specijalizovani za SLD",
+        "Progresivno praćenje",
+        "Priprema za pismene testove i usmene ispite",
+        "Direktan kontakt sa predstavnicima škole",
+        "Završni nastavni izveštaj sa stečenim kompetencijama",
+        "Zvanična sertifikacija nivoa",
+        "Produženo trajanje do 9 meseci"
+      ],
+      "notIncluded": [
+        "Personalizovane sesije jedan na jedan",
+        "Personalizovani plan učenja",
+        "Kreiranje prilagođenih Mind Maps",
+        "Individualni Stop & Check",
+        "Individualna pomoć sa domaćim zadacima"
+      ],
+      "learningOutcomes": [
+        "Postignite značajno poboljšanje tečnosti tokom 30 sesija",
+        "Savladajte složene konverzacijske obrasce i odgovore",
+        "Izgradite napredni vokabular kroz imerzivnu praksu",
+        "Razvijte prirodan izgovor i intonaciju",
+        "Steknite samopouzdanje za profesionalnu i društvenu upotrebu engleskog"
+      ],
+      "targetAudience": [
+        "Posvećeni učenici koji traže intenzivnu grupnu praksu",
+        "Učenici koji žele dugoročnu strukturiranu progresiju",
+        "Oni koji imaju koristi od učenja sa vršnjacima i saradnje",
+        "Učenici koji ciljaju na značajno poboljšanje tečnosti"
+      ]
+    },
+    "hybrid-pack": {
+      "description": "Najbolje od oba sveta — kombinacija energije mikro-grupnih laboratorija sa personalizovanim fokusom sesija jedan na jedan. Uključuje 25 radionica (50 minuta, maks. 3–4 učenika) plus 5 individualnih sesija (30 minuta). Svi nastavni materijali su uključeni za najsveobuhvatnije iskustvo učenja.",
+      "duration": "Do 9 meseci",
+      "lessons": "25 radionica od 50 min + 5 individualnih sesija od 30 min",
+      "totalHours": "23,5 sati",
+      "includes": [
+        "Početna procena nivoa",
+        "DSA Smart Start® metod",
+        "DSA Smart Start® nastavni materijal — Neograničen pristup",
+        "Multisenzorni i vizuelni metod",
+        "Pristup 500+ Brain Mapping resursa",
+        "Pristup 700+ video lekcija",
+        "Personalizovane sesije jedan na jedan",
+        "Personalizovani plan učenja",
+        "Kreiranje prilagođenih Mind Maps",
+        "Language Lab maks. 3–4 učenika",
+        "Circle Talk Lab",
+        "Role Play & Team Challenges",
+        "Sertifikovani predavači kojima je engleski maternji jezik, specijalizovani za SLD",
+        "Progresivno praćenje",
+        "Personalizovani Stop & Check",
+        "Priprema za testove i ispite",
+        "Pomoć sa domaćim zadacima",
+        "Direktan kontakt sa predstavnicima škole",
+        "Završni nastavni izveštaj o kompetencijama",
+        "Sertifikacija nivoa",
+        "Produženo trajanje do 9 meseci"
+      ],
+      "notIncluded": [],
+      "learningOutcomes": [
+        "Kombinujte grupnu interakciju sa personalizovanom pažnjom",
+        "Savladajte i društvene i akademske veštine engleskog",
+        "Dobijte prilagođene povratne informacije u sesijama jedan na jedan",
+        "Vežbajte pravu konverzaciju u laboratorijama malih grupa",
+        "Postignite sveobuhvatni jezički razvoj"
+      ],
+      "targetAudience": [
+        "Učenici koji žele najsveobuhvatniji program",
+        "Učenici koji imaju koristi i od grupnog i od individualnog učenja",
+        "Oni koji traže maksimalan napredak u strukturiranom formatu",
+        "Svako ko je posvećen postizanju tečnosti u engleskom"
+      ]
+    }
+  },
+  "courseContent": {
+    "A1": {
+      "description": "Eduway nivo A1 je osmišljen da vodi učenike sa specifičnim teškoćama u učenju (SLD) u njihovim prvim koracima u učenju engleskog. Zahvaljujući vizuelnom, multisenzornom i inkluzivnom pristupu, svaka nastavna jedinica je osmišljena da olakša razumevanje, pamćenje i aktivnu upotrebu jezika, čineći iskustvo učenja pristupačnim i motivišućim.",
+      "learningOutcomes": [
+        "Savladajte lične zamenice i glagol TO BE u svim oblicima",
+        "Formirajte pitanja i odrične rečenice sa sigurnošću",
+        "Koristite Present Simple i Present Continuous pravilno",
+        "Izražavajte prošle događaje koristeći pravilne i nepravilne glagole",
+        "Razumejte i koristite modalne glagole CAN, COULD i WILL"
+      ],
+      "whatYoullFind": [
+        "Vođene vežbe i jednostavna objašnjenja",
+        "Ilustracije i simboli za podršku razumevanju",
+        "Praktične aktivnosti za učvršćivanje znanja",
+        "Prostori posvećeni metakognitivnoj refleksiji",
+        "Radni listovi sa veoma čitljivim fontovima",
+        "Pristup dodatnim digitalnim materijalima (audio i video)"
+      ],
+      "targetAudience": [
+        "Učenici uzrasta 8 i više godina koji započinju putovanje sa engleskim",
+        "Roditelji koji podržavaju učenje svoje dece",
+        "Nastavnici podrške i predavači za učenje",
+        "Svako ko želi da nauči engleski na vizuelan, postepen način"
+      ],
+      "examPrep": "Cambridge English A1 Movers"
+    },
+    "A2": {
+      "description": "Eduway nivo A2 je osmišljen da prati učenike sa specifičnim teškoćama u učenju (SLD) u učvršćivanju stečenih jezičkih veština i uvođenju složenijih gramatičkih struktura. Kroz vizuelan, multisenzoran i inkluzivan pristup, svaka nastavna jedinica je strukturirana da olakša razumevanje, pamćenje i aktivnu upotrebu jezika, čineći iskustvo učenja pristupačnim i motivišućim.",
+      "learningOutcomes": [
+        "Razlikujte Present Simple i Present Continuous",
+        "Koristite Past Continuous za opisivanje tekućih radnji u prošlosti",
+        "Savladajte komparativne i superlativne prideve",
+        "Izrazite mogućnost modalnim glagolima may i might",
+        "Formirajte i koristite Present Perfect",
+        "Kreirajte kondicionalne rečenice (nulti i prvi kondicional)"
+      ],
+      "whatYoullFind": [
+        "Vođene vežbe i detaljna objašnjenja",
+        "Ilustracije i simboli za podršku razumevanju",
+        "Praktične aktivnosti za učvršćivanje znanja",
+        "Prostori posvećeni metakognitivnoj refleksiji",
+        "Radni listovi sa veoma čitljivim fontovima",
+        "Pristup dodatnim digitalnim materijalima (audio i video)"
+      ],
+      "targetAudience": [
+        "Učenici uzrasta 9 i više godina koji grade temelje engleskog",
+        "Učenici koji se pripremaju za Cambridge A2 Key (KET) ispit",
+        "Roditelji i nastavnici podrške",
+        "Svako ko želi strukturiran, postepen pristup engleskom"
+      ],
+      "examPrep": "Cambridge English A2 Key (KET)"
+    },
+    "B1": {
+      "description": "Eduway nivo B1 je osmišljen da prati učenike sa specifičnim teškoćama u učenju (SLD) kroz srednji stupanj učenja engleskog, gde jezik postaje složeniji, artikulisaniji alat bliži upotrebi u stvarnom svetu. Ovaj nivo uvodi naprednije gramatičke strukture i promoviše razvoj svih 4 veština: slušanja, čitanja, pisanja i govora.",
+      "learningOutcomes": [
+        "Koristite Present Perfect Continuous za tekuće situacije",
+        "Savladajte Past Perfect za redosled događaja",
+        "Formirajte pasiv u sadašnjem, prošlom i budućem vremenu",
+        "Prenosite šta su drugi rekli koristeći neupravni govor",
+        "Izrazite zaključivanje modalnim glagolima must, might, can't",
+        "Kreirajte drugi i treći kondicional"
+      ],
+      "whatYoullFind": [
+        "Jasna i progresivna objašnjenja",
+        "Radni listovi sa vizuelnom strukturom i pojednostavljenim jezikom",
+        "Praktične aktivnosti i metakognitivne refleksije",
+        "Strategije za poboljšanje pisanog i usmenog razumevanja",
+        "Veoma čitljivi fontovi i vizuelni simboli podrške",
+        "Integrisani digitalni materijali (audio, video i interaktivne vežbe)"
+      ],
+      "targetAudience": [
+        "Učenici uzrasta 10 i više godina na srednjem nivou",
+        "Učenici koji se pripremaju za Cambridge B1 Preliminary (PET)",
+        "Nastavnici podrške i predavači za učenje",
+        "Svako ko teži samostalnoj komunikaciji u svakodnevnim kontekstima"
+      ],
+      "examPrep": "Cambridge English B1 Preliminary (PET)"
+    },
+    "Kids": {
+      "description": "Eduway napredni nivo je osmišljen da prati mlade učenike sa teškoćama u učenju korak po korak u učenju engleskog jezika. Učenici mogu da napreduju postepeno, počevši od A1 Starters ispita, preko Movers, do A2 Flyers. Ovaj napredni nivo kompletira program, nudeći esencijalni sadržaj za pripremu A2 Flyers ispita — trećeg nivoa Cambridge English Young Learners, osmišljenog za učenike osnovnih i nižih razreda srednje škole.",
+      "learningOutcomes": [
+        "Razumejte i koristite složenije rečenice o poznatim temama",
+        "Čitajte i slušajte kratke tekstove, priče i realistične dijaloge na engleskom",
+        "Komunicirajte i efikasno interagujte u svakodnevnim kontekstima",
+        "Izražavajte se artikulisanije i sa više samopouzdanja",
+        "Savladajte sve oblike kondicionala (prvi i drugi)",
+        "Koristite Present Perfect u različitim kontekstima"
+      ],
+      "whatYoullFind": [
+        "Objašnjenja prilagođena uzrastu sa vizuelnom podrškom",
+        "Interaktivne aktivnosti osmišljene za mlade učenike",
+        "Mind Maps za vizuelno pamćenje",
+        "Praćenje napretka sa 'Stop & Check' radnim listovima",
+        "Zanimljiv multimedijalni sadržaj",
+        "Materijali za pripremu Cambridge A2 Flyers ispita"
+      ],
+      "targetAudience": [
+        "Mladi učenici uzrasta 6-12 godina sa teškoćama u učenju",
+        "Učenici koji se pripremaju za Cambridge A2 Flyers",
+        "Deca koja napreduju uz vizuelno, multisenzorno učenje",
+        "Roditelji koji traže kurseve engleskog prilagođene disleksiji za decu"
+      ],
+      "examPrep": "Cambridge English A2 Flyers (Young Learners)"
+    },
+    "Premium": {
+      "description": "Premium Pathway Eduway je kompletan i inovativan program osmišljen za učenike sa SLD koji žele da nauče engleski na jasan, stimulativan način bez frustracije. Kroz multisenzorni metod i materijale visoke čitljivosti, program kombinuje individualne časove, grupne radionice, mentalne mape i video lekcije kako bi učenje učinio jednostavnijim i efikasnijim.",
+      "learningOutcomes": [
+        "Postignite personalizovani napredak kroz časove 1 na 1",
+        "Izgradite samopouzdanje u okruženju grupnih radionica",
+        "Savladajte vokabular kroz 525 vizuelnih mentalnih mapa",
+        "Razvijte koncentraciju i veštine slušanja",
+        "Pripremite se za školske testove i domaće zadatke samostalno",
+        "Zaradite završni sertifikat nivoa"
+      ],
+      "whatYoullFind": [
+        "7 individualnih časova od 50 minuta",
+        "32 grupne radionice od 50 minuta",
+        "525 mentalnih mapa + 15 nastavnih jedinica za učenike sa SLD",
+        "Preko 100 interaktivnih video lekcija",
+        "'Stop & Check' radni listovi i periodični testovi",
+        "Školsko mentorstvo za domaće zadatke i pripremu testova",
+        "Posvećena pomoć 6 dana u nedelji"
+      ],
+      "targetAudience": [
+        "Učenici koji traže intenzivnu, personalizovanu podršku",
+        "Učenici koji imaju koristi od kombiniranog učenja 1 na 1 i grupnog",
+        "Oni koji žele strukturirano praćenje napretka",
+        "Svako ko je spreman da se posveti sveobuhvatnoj transformaciji"
+      ]
+    },
+    "Gold": {
+      "description": "Gold Pathway Eduway je strukturiran i inovativan program osmišljen za učenike sa SLD koji žele da nauče engleski na jasan, zanimljiv način bez frustracije. Zahvaljujući multisenzornom metodu i metodu visoke čitljivosti, program kombinuje interaktivne grupne časove, mentalne mape, video lekcije i posvećene materijale kako bi učenje učinio jednostavnijim i efikasnijim.",
+      "learningOutcomes": [
+        "Izgradite samopouzdanje kroz radionice dva puta nedeljno",
+        "Savladajte vokabular sa 525 vizuelnih mentalnih mapa",
+        "Razvijte koncentraciju i veštine slušanja",
+        "Pratite napredak sa 'Stop & Check' radnim listovima",
+        "Dobijte posvećeno mentorstvo i podršku",
+        "Zaradite završni sertifikat nivoa"
+      ],
+      "whatYoullFind": [
+        "52 radionice od 50 minuta (dva puta nedeljno)",
+        "525 mentalnih mapa + 15 nastavnih jedinica za SLD",
+        "Preko 100 interaktivnih video lekcija",
+        "'Stop & Check' radni listovi za praćenje napretka",
+        "Posvećeno mentorstvo i pomoć 6 dana u nedelji",
+        "Završni sertifikat nivoa"
+      ],
+      "targetAudience": [
+        "Učenici koji napreduju u okruženjima grupnog učenja",
+        "Učenici koji traže dosledan, strukturiran napredak",
+        "Oni koji imaju koristi od interakcije i podrške vršnjaka",
+        "Svako ko je posvećen dugoročnom poboljšanju engleskog"
+      ]
+    },
+    "B2": {
+      "description": "Eduway nivo B2 predstavlja vrhunac našeg strukturiranog puta učenja, osmišljen za učenike sa specifičnim teškoćama u učenju (SLD) koji su spremni da dostignu viši srednji nivo znanja. Ovaj napredni nivo se fokusira na nijansirano korišćenje jezika, akademski engleski i sofisticirane komunikacijske strategije koje pripremaju učenike za profesionalne i obrazovne kontekste.",
+      "learningOutcomes": [
+        "Savladajte sve oblike kondicionala uključujući mešovite kondicionalne rečenice",
+        "Koristite napredne pasivne strukture i kauzativne oblike",
+        "Izražavajte hipotetičke situacije sa lakoćom",
+        "Razumejte i produkujte složene relativne rečenice",
+        "Snalazite se u formalnim i neformalnim registrima na odgovarajući način",
+        "Pripremite se za Cambridge B2 First (FCE) ispit"
+      ],
+      "whatYoullFind": [
+        "Napredna objašnjenja gramatike sa vizuelnom podrškom",
+        "Vežbe za izgradnju akademskog vokabulara",
+        "Strategije za razumevanje složenih tekstova",
+        "Napredne tehnike pisanja i šabloni",
+        "Veoma čitljivi fontovi i strukturirani raspored",
+        "Integrisani digitalni materijali uključujući ispitnu praksu"
+      ],
+      "targetAudience": [
+        "Učenici uzrasta 12 i više godina na višem srednjem nivou",
+        "Učenici koji se pripremaju za Cambridge B2 First (FCE)",
+        "Oni koji traže akademske ili profesionalne veštine engleskog",
+        "Svako ko je spreman za komunikaciju blizu tečnog nivoa"
+      ],
+      "examPrep": "Cambridge English B2 First (FCE)"
+    },
+    "kids-basic": {
+      "description": "Eduway Kids Basic program je posebno kreiran za mlade učenike uzrasta 5-8 godina koji tek započinju svoju avanturu sa engleskim jezikom. Koristeći razigrani, multisenzorni pristup sa šarenim vizuelnim sadržajima, pesmama i interaktivnim igrama, ovaj kurs čini učenje engleskog uzbudljivim putovanjem. Svaka lekcija je osmišljena sa tehnikama prilagođenim disleksiji kako bi svako dete moglo da uspe.",
+      "learningOutcomes": [
+        "Prepoznajte i koristite osnovne pozdrave i predstavljanja",
+        "Identifikujte boje, brojeve 1-20 i uobičajene oblike",
+        "Imenujte članove porodice, kućne ljubimce i predmete u učionici",
+        "Pratite jednostavna uputstva na engleskom",
+        "Pevajte uz engleske pesme i rime",
+        "Izgradite samopouzdanje u izgovaranju prvih engleskih reči"
+      ],
+      "whatYoullFind": [
+        "Šarene lekcije zasnovane na slikama",
+        "Zabavne pesme i dečje rime",
+        "Interaktivne igre i aktivnosti",
+        "Nagrade sa nalepnicama i grafikoni napretka",
+        "Beleške za roditelje za vežbu kod kuće",
+        "Audio materijali za vežbu izgovora"
+      ],
+      "targetAudience": [
+        "Deca uzrasta 5-8 godina koja počinju engleski",
+        "Mladi učenici sa teškoćama u učenju",
+        "Deca koja najbolje uče kroz igru i vizuelne sadržaje",
+        "Roditelji koji traže engleski prilagođen disleksiji za decu"
+      ],
+      "examPrep": "Cambridge English Pre A1 Starters Preparation"
+    },
+    "kids-medium": {
+      "description": "Eduway Kids Medium program nadograđuje osnove, osmišljen za mlade učenike uzrasta 7-10 godina koji su spremni da prošire svoje veštine engleskog. Kroz učenje zasnovano na pričama, kreativne aktivnosti i interaktivne vežbe, deca razvijaju samopouzdanje u čitanju, pisanju i govoru. Svaka lekcija uključuje metode prilagođene disleksiji kako bi podržala sve stilove učenja.",
+      "learningOutcomes": [
+        "Čitajte i razumejte jednostavne priče na engleskom",
+        "Pišite kratke rečenice o poznatim temama",
+        "Postavljajte i odgovarajte na jednostavna pitanja",
+        "Opisujte ljude, mesta i stvari",
+        "Koristite Present Simple za dnevne rutine",
+        "Proširite vokabular na 500+ reči"
+      ],
+      "whatYoullFind": [
+        "Ilustrovane e-knjige",
+        "Kreativni zadaci za pisanje sa strukturiranim šablonima",
+        "Igre za izgradnju vokabulara",
+        "Gramatika predstavljena kroz praktične primere",
+        "Kviz za proveru napretka na kraju svake jedinice"
+      ],
+      "targetAudience": [
+        "Deca uzrasta 7-10 godina sa osnovnim engleskim",
+        "Mladi učenici koji napreduju sa osnovnog nivoa",
+        "Deca koja uživaju u pričama i kreativnim aktivnostima",
+        "Učenici koji se pripremaju za Cambridge A1 Movers"
+      ],
+      "examPrep": "Cambridge English A1 Movers"
+    },
+    "kids-advanced": {
+      "description": "Eduway Kids Advanced program je osmišljen za samouverene mlade učenike uzrasta 9-12 godina koji su spremni da savladaju engleski na višem nivou. Ovaj sveobuhvatni kurs priprema učenike za školske zahteve iz engleskog i Cambridge A2 Flyers ispit. Složena gramatika se predaje kroz zanimljive kontekste, a kreativno izražavanje se podstiče kroz ceo kurs.",
+      "learningOutcomes": [
+        "Čitajte i razumejte duže, složenije tekstove",
+        "Pišite pasuse i kratke kompozicije",
+        "Koristite Past Simple i Past Continuous sa sigurnošću",
+        "Formirajte i koristite Present Perfect",
+        "Razumejte i kreirajte rečenice prvog kondicionala",
+        "Dosegnite vokabular od 1000+ reči"
+      ],
+      "whatYoullFind": [
+        "Knjige sa poglavljima i prošireno čitanje",
+        "Vodiči za pisanje pasusa i eseja",
+        "Napredna gramatika sa vizuelnim objašnjenjima",
+        "Projekti govora i prezentacije",
+        "Priprema za Cambridge A2 Flyers ispit",
+        "Digitalne interaktivne vežbe"
+      ],
+      "targetAudience": [
+        "Deca uzrasta 9-12 godina na srednjem nivou",
+        "Učenici koji se pripremaju za Cambridge A2 Flyers",
+        "Deca koja prelaze na engleski za srednju školu",
+        "Mladi učenici spremni za napredne izazove"
+      ],
+      "examPrep": "Cambridge English A2 Flyers"
+    },
+    "premium": {
+      "description": "Premium program je naš vodeći kurs engleskog uživo, koji kombinuje snagu personalizovane nastave jedan na jedan sa dinamičnim grupnim radionicama. Osmišljen posebno za učenike sa teškoćama u učenju, ovaj sveobuhvatni program uključuje 7 individualnih časova, 32 grupne radionice i neograničen pristup našoj kompletnoj biblioteci mentalnih mapa, video lekcija i interaktivnih materijala. Sa posvećenom podrškom 6 dana u nedelji, nikada se nećete osećati sami na svom putu učenja.",
+      "learningOutcomes": [
+        "Postignite personalizovani napredak kroz posvećene časove 1 na 1",
+        "Izgradite samopouzdanje kroz interaktivna iskustva grupnih radionica",
+        "Savladajte vokabular koristeći 525 vizuelnih mentalnih mapa",
+        "Razvijte veštine slušanja i koncentracije sa 100+ video lekcija",
+        "Pratite svoj napredak redovnim procenama i povratnim informacijama",
+        "Zaradite zvanični sertifikat nivoa po završetku"
+      ],
+      "whatYoullFind": [
+        "7 individualnih časova od 50 minuta sa stručnim predavačima",
+        "32 grupne radionice za kolaborativno učenje",
+        "525 mentalnih mapa koje pokrivaju svu gramatiku i vokabular",
+        "100+ interaktivnih video lekcija",
+        "Stop & Check procene tokom celog programa",
+        "Školska podrška za mentorstvo domaćih zadataka i testova",
+        "Posvećena pomoć 6 dana u nedelji"
+      ],
+      "targetAudience": [
+        "Učenici koji traže intenzivnu, personalizovanu podršku",
+        "Učenici koji imaju koristi i od okruženja 1 na 1 i grupnog",
+        "Oni koji žele strukturiran napredak sa odgovornošću",
+        "Svako ko je spreman za sveobuhvatnu transformaciju engleskog"
+      ]
+    },
+    "golden": {
+      "description": "Golden program nudi ekskluzivno iskustvo učenja jedan na jedan sa 30 personalizovanih privatnih časova. Ovo je naša najprestižnija ponuda, koja obezbeđuje nepodeljenu pažnju naših vrhunskih predavača, potpuno prilagođeni kurikulum prema vašim specifičnim ciljevima i VIP podršku tokom celog putovanja. Fleksibilan raspored znači da učite sopstvenim tempom, sa detaljnim izveštajima o napretku posle svake sesije.",
+      "learningOutcomes": [
+        "Dobijte potpuno personalizovani kurikulum zasnovan na vašim ciljevima",
+        "Savladajte engleski kroz 30 posvećenih privatnih časova",
+        "Uživajte u fleksibilnom rasporedu koji se uklapa u vaš životni stil",
+        "Uživajte u VIP prioritetnoj podršci i vremenima odgovora",
+        "Pratite detaljan napredak sa izveštajima sesija po sesija",
+        "Postignite sertifikaciju sa sveobuhvatnom procenom veština"
+      ],
+      "whatYoullFind": [
+        "30 privatnih časova jedan na jedan od 50 minuta",
+        "Posvećeni predavač dodeljen za celo vaše putovanje",
+        "Prilagođeni put učenja zasnovan na proceni",
+        "Svi premium materijali za učenje uključeni",
+        "VIP podrška sa prioritetnim vremenima odgovora",
+        "Detaljni izveštaji o napretku posle svake sesije",
+        "Završna sertifikacija sa procenom veština"
+      ],
+      "targetAudience": [
+        "Učenici koji traže ekskluzivnu pažnju jedan na jedan",
+        "Profesionalci kojima je potreban fleksibilan, personalizovan raspored",
+        "Učenici koji žele najbrži put do tečnosti",
+        "Svako ko je posvećen premium, VIP iskustvu učenja"
+      ]
+    },
+    "language-lab": {
+      "description": "Sesije uživo u malim grupama osmišljene za fokusirano, interaktivno učenje. Pridružite se grupi od 3-4 učenika na 8 dinamičnih lab sesija, od kojih svaka traje 50 minuta. Savršeno za učenike koji napreduju u kolaborativnim okruženjima uz personalizovanu pažnju stručnih predavača.",
+      "learningOutcomes": [
+        "Izgradite konverzacijsko samopouzdanje u okruženjima malih grupa",
+        "Razvijte komunikacijske veštine u realnom vremenu uz interakciju sa vršnjacima",
+        "Dobijte personalizovane povratne informacije od stručnih predavača",
+        "Vežbajte govor, slušanje i prirodno odgovaranje",
+        "Steknite izloženost raznolikim komunikacijskim stilovima"
+      ],
+      "whatYoullFind": [
+        "8 lab sesija uživo sa 3-4 učenika",
+        "Interaktivni časovi od 50 minuta",
+        "Vođstvo stručnog predavača tokom celog kursa",
+        "Kolaborativne aktivnosti učenja",
+        "Povratne informacije i ispravke u realnom vremenu"
+      ],
+      "targetAudience": [
+        "Učenici koji napreduju u kolaborativnim okruženjima",
+        "Učenici koji žele praksu govora u realnom vremenu",
+        "Svako ko traži pristupačnu opciju grupnog učenja",
+        "Oni koji uživaju u interaktivnom, društvenom učenju"
+      ]
+    },
+    "starter-path": {
+      "description": "Započnite svoje putovanje na engleskom uz personalizovanu pažnju jedan na jedan. Ovaj starter program uključuje 5 individualnih časova od 30 minuta, u potpunosti prilagođenih vašim potrebama i tempu učenja. Idealan za početnike ili svakoga ko traži fokusiran uvod sa posvećenim predavačem.",
+      "learningOutcomes": [
+        "Dobijte personalizovanu procenu učenja",
+        "Izgradite osnovne veštine engleskog jedan na jedan",
+        "Steknite samopouzdanje u govoru uz individualnu pažnju",
+        "Razvijte prilagođenu mapu puta za učenje",
+        "Dobijte ciljane povratne informacije o vašim specifičnim izazovima"
+      ],
+      "whatYoullFind": [
+        "5 časova jedan na jedan sa posvećenim predavačem",
+        "Fokusirane sesije od 30 minuta",
+        "Personalizovani kurikulum zasnovan na vašem nivou",
+        "Opcije fleksibilnog rasporeda",
+        "Individualno praćenje napretka"
+      ],
+      "targetAudience": [
+        "Početnici koji žele lični početak učenja engleskog",
+        "Učenici koji preferiraju pažnju jedan na jedan",
+        "Oni kojima je potreban fleksibilan, kratkoročni program",
+        "Svako ko želi da proceni svoj nivo i napravi plan"
+      ]
+    },
+    "language-lab-pro": {
+      "description": "Naš najintenzivniji program u malim grupama sa 30 lab sesija uživo. Pridružite se grupi od 3-4 učenika na sesijama od 50 minuta punim interaktivnih vežbi, prave konverzacijske prakse i progresivne izgradnje veština. Svi nastavni materijali su uključeni za kompletno iskustvo učenja.",
+      "learningOutcomes": [
+        "Postignite značajno poboljšanje tečnosti tokom 30 sesija",
+        "Savladajte složene konverzacijske obrasce i odgovore",
+        "Izgradite napredni vokabular kroz imerzivnu praksu",
+        "Razvijte prirodan izgovor i intonaciju",
+        "Steknite samopouzdanje za profesionalnu i društvenu upotrebu engleskog"
+      ],
+      "whatYoullFind": [
+        "30 lab sesija uživo sa 3-4 učenika",
+        "Intenzivni časovi od 50 minuta",
+        "Svi nastavni materijali uključeni",
+        "Kurikulum progresivne izgradnje veština",
+        "Redovne procene napretka",
+        "Stručni predavač sa personalizovanom pažnjom"
+      ],
+      "targetAudience": [
+        "Posvećeni učenici koji traže intenzivnu grupnu praksu",
+        "Učenici koji žele dugoročnu strukturiranu progresiju",
+        "Oni koji imaju koristi od učenja sa vršnjacima i saradnje",
+        "Učenici koji ciljaju na značajno poboljšanje tečnosti"
+      ]
+    },
+    "hybrid-pack": {
+      "description": "Najbolje od oba sveta — kombinacija energije laboratorija u malim grupama sa personalizovanim fokusom časova jedan na jedan. Uključuje 25 lab sesija (50 minuta, 3-4 učenika) plus 5 individualnih časova (30 minuta). Svi nastavni materijali su uključeni za najsveobuhvatnije iskustvo učenja.",
+      "learningOutcomes": [
+        "Kombinujte grupnu interakciju sa personalizovanom pažnjom",
+        "Savladajte i društvene i akademske veštine engleskog",
+        "Dobijte prilagođene povratne informacije u sesijama jedan na jedan",
+        "Vežbajte pravu konverzaciju u laboratorijama malih grupa",
+        "Postignite sveobuhvatni jezički razvoj"
+      ],
+      "whatYoullFind": [
+        "25 lab sesija sa 3-4 učenika (50 min svaka)",
+        "5 časova jedan na jedan (30 min svaki)",
+        "Svi nastavni materijali uključeni",
+        "Pristup kombinovanom učenju",
+        "Redovno praćenje napretka i procene",
+        "Posvećena podrška predavača tokom celog kursa"
+      ],
+      "targetAudience": [
+        "Učenici koji žele najsveobuhvatniji program",
+        "Učenici koji imaju koristi i od grupnog i od individualnog učenja",
+        "Oni koji traže maksimalan napredak u strukturiranom formatu",
+        "Svako ko je posvećen postizanju tečnosti u engleskom"
+      ]
+    }
+  }
+}

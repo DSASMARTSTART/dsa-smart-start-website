@@ -1,19 +1,22 @@
 
 import React from 'react';
 import { Zap, TrendingUp, Globe, Heart, Star, Layout, Users, Sparkles, CheckCircle, ShieldCheck } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface MethodSectionProps {
   onNavigate?: (path: string) => void;
 }
 
 const MethodSection: React.FC<MethodSectionProps> = ({ onNavigate }) => {
+  const { t } = useTranslation('home');
+
   const metrics = [
-    { label: 'CLEAR AND GUIDED LEARNING', value: '100%', suffix: 'STRUCTURED METHOD', color: 'text-purple-600' },
-    { label: 'NATURAL AND INTUITIVE PROCESS', value: '100%', suffix: 'EFFORTLESS LEARNING', color: 'text-pink-500' },
-    { label: 'FASTER RESULTS THAN TRADITIONAL METHODS', value: '6x', suffix: 'FASTER', color: 'text-blue-500' },
-    { label: 'INDEPENDENT LEARNING SKILLS', value: '90%', suffix: 'MORE AUTONOMY', color: 'text-indigo-600' },
-    { label: 'SPEAKING WITHOUT FEAR', value: '95%', suffix: 'HIGHER CONFIDENCE', color: 'text-orange-500' },
-    { label: 'IMPROVED ATTENTION SPAN', value: '80%', suffix: 'BETTER FOCUS', color: 'text-green-500' },
+    { label: t('method.metric1Label'), value: t('method.metric1Value'), suffix: t('method.metric1Suffix'), color: 'text-purple-600' },
+    { label: t('method.metric2Label'), value: t('method.metric2Value'), suffix: t('method.metric2Suffix'), color: 'text-pink-500' },
+    { label: t('method.metric3Label'), value: t('method.metric3Value'), suffix: t('method.metric3Suffix'), color: 'text-blue-500' },
+    { label: t('method.metric4Label'), value: t('method.metric4Value'), suffix: t('method.metric4Suffix'), color: 'text-indigo-600' },
+    { label: t('method.metric5Label'), value: t('method.metric5Value'), suffix: t('method.metric5Suffix'), color: 'text-orange-500' },
+    { label: t('method.metric6Label'), value: t('method.metric6Value'), suffix: t('method.metric6Suffix'), color: 'text-green-500' },
   ];
 
   return (
@@ -21,13 +24,13 @@ const MethodSection: React.FC<MethodSectionProps> = ({ onNavigate }) => {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-24 animate-reveal">
           <div className="inline-block px-4 py-1.5 rounded-full bg-purple-500/20 text-purple-400 text-[10px] font-bold tracking-[0.2em] mb-6 border border-purple-500/30 uppercase">
-            Innovative Methodology
+            {t('method.badge')}
           </div>
           <h3 className="text-4xl md:text-7xl font-black text-white mb-8 tracking-tight">
-            English with <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#9b4dff] via-[#8a3ffc] to-[#ff2d85]">DSA!</span>
+            {t('method.title', { defaultValue: '' }).split('<1>')[0]}<span className="text-transparent bg-clip-text bg-gradient-to-r from-[#9b4dff] via-[#8a3ffc] to-[#ff2d85]">{t('method.title', { defaultValue: '' }).match(/<1>(.*?)<\/1>/)?.[1]}</span>{t('method.title', { defaultValue: '' }).split('</1>')[1]}
           </h3>
           <p className="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto font-medium leading-relaxed">
-            "You deserve the best for yourself! Enough with traditional, boring and ineffective methods."
+            {t('method.subtitle')}
           </p>
         </div>
 
@@ -53,16 +56,16 @@ const MethodSection: React.FC<MethodSectionProps> = ({ onNavigate }) => {
               <div>
                 <div className="flex items-center gap-2 mb-6">
                   <ShieldCheck className="text-purple-400" size={20} />
-                  <span className="text-xs font-bold text-purple-400 uppercase tracking-widest">Premium Learning Experience</span>
+                  <span className="text-xs font-bold text-purple-400 uppercase tracking-widest">{t('method.premiumBadge')}</span>
                 </div>
                 <h4 className="text-4xl md:text-5xl font-black text-white mb-8 leading-[1.1]">
-                  It's a real <span className="italic font-medium">"Passport"</span> to the World!
+                  {t('method.passportTitle', { defaultValue: '' }).split('<1>')[0]}<span className="italic font-medium">{t('method.passportTitle', { defaultValue: '' }).match(/<1>(.*?)<\/1>/)?.[1]}</span>{t('method.passportTitle', { defaultValue: '' }).split('</1>')[1]}
                 </h4>
                 <p className="text-gray-400 text-lg mb-10 leading-loose">
-                  Eduway is the first program in the world specifically designed for the dyslexic mind, transforming obstacles into clear pathways.
+                  {t('method.passportDesc')}
                 </p>
                 <div className="space-y-4">
-                  {['Scientifically Validated', 'Multisensory Design', 'Success Guarantee'].map((item, idx) => (
+                  {[t('method.feature1'), t('method.feature2'), t('method.feature3')].map((item, idx) => (
                     <div key={idx} className="flex items-center gap-3 text-base font-bold text-white">
                       <CheckCircle size={18} className="text-green-500" />
                       {item}
@@ -74,7 +77,7 @@ const MethodSection: React.FC<MethodSectionProps> = ({ onNavigate }) => {
               <div className="flex items-center justify-center">
                 <div className="text-center">
                   <div className="text-8xl mb-4">🌍</div>
-                  <p className="text-gray-400 text-lg">Open doors worldwide with confidence</p>
+                  <p className="text-gray-400 text-lg">{t('method.worldEmoji')}</p>
                 </div>
               </div>
             </div>
@@ -82,14 +85,14 @@ const MethodSection: React.FC<MethodSectionProps> = ({ onNavigate }) => {
             {/* CTA Overlay */}
             <div className="mt-24 pt-16 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-8">
               <div className="text-center md:text-left">
-                <h5 className="text-2xl font-bold text-white mb-2">Ready to change your future?</h5>
-                <p className="text-gray-400">Join over 3,000 successful students every year.</p>
+                <h5 className="text-2xl font-bold text-white mb-2">{t('method.ctaTitle')}</h5>
+                <p className="text-gray-400">{t('method.ctaDesc')}</p>
               </div>
               <button 
                 onClick={() => onNavigate?.('courses')}
                 className="bg-[#25D366] text-white px-12 py-5 rounded-full font-black uppercase tracking-widest hover:bg-[#1ebe5d] transition-all shadow-xl shadow-[#25D366]/30 hover:-translate-y-1 active:scale-95"
               >
-                Explore
+                {t('method.explore')}
               </button>
             </div>
           </div>

@@ -1,0 +1,154 @@
+{
+  "backToHome": "Volver al Inicio",
+  "lastUpdatedLabel": "Última actualización: {{date}}",
+  "ctaQuestion": "¿Tienes preguntas sobre esta política?",
+  "ctaContact": "Contáctanos en dsa.smart.start@gmail.com",
+  "privacy": {
+    "title": "Política de Privacidad",
+    "lastUpdated": "Enero 2026",
+    "content": [
+      {
+        "heading": "1. Información que Recopilamos",
+        "text": "Recopilamos la información que nos proporcionas directamente, como cuando creas una cuenta, te inscribes en un curso, realizas una compra o nos contactas para obtener ayuda. Esta información puede incluir tu nombre, dirección de correo electrónico e información de pago."
+      },
+      {
+        "heading": "2. Cómo Utilizamos Tu Información",
+        "text": "Utilizamos la información que recopilamos para proporcionar, mantener y mejorar nuestros servicios, procesar transacciones, enviarte avisos técnicos y mensajes de soporte, y responder a tus comentarios y preguntas."
+      },
+      {
+        "heading": "3. Compartir Información",
+        "text": "No compartimos tu información personal con terceros excepto como se describe en esta política. Podemos compartir información con proveedores de servicios que nos ayudan a operar nuestra plataforma, procesar pagos o proporcionar atención al cliente."
+      },
+      {
+        "heading": "4. Seguridad de los Datos",
+        "text": "Tomamos medidas razonables para ayudar a proteger tu información personal contra pérdida, robo, uso indebido, acceso no autorizado, divulgación, alteración y destrucción. Toda la información de pago está encriptada y procesada a través de proveedores de pago seguros."
+      },
+      {
+        "heading": "5. Tus Derechos",
+        "text": "Tienes derecho a acceder, corregir o eliminar tu información personal. También puedes oponerte o restringir ciertos procesamientos de tu información. Para ejercer estos derechos, por favor contáctanos en dsa.smart.start@gmail.com."
+      },
+      {
+        "heading": "6. Contáctanos",
+        "text": "Si tienes alguna pregunta sobre esta Política de Privacidad, por favor contáctanos en dsa.smart.start@gmail.com o por teléfono al +381 65 886 9930."
+      }
+    ]
+  },
+  "cookie": {
+    "title": "Política de Cookies",
+    "lastUpdated": "Enero 2026",
+    "content": [
+      {
+        "heading": "1. ¿Qué son las Cookies?",
+        "text": "Las cookies son pequeños archivos de texto que se almacenan en tu dispositivo cuando visitas nuestro sitio web. Nos ayudan a brindarte una mejor experiencia al recordar tus preferencias y comprender cómo usas nuestro sitio."
+      },
+      {
+        "heading": "2. Tipos de Cookies que Utilizamos",
+        "text": "Cookies Esenciales: Necesarias para que el sitio web funcione correctamente, incluyendo autenticación y seguridad.\n\nCookies Funcionales: Recuerdan tus preferencias y configuraciones.\n\nCookies de Análisis: Nos ayudan a comprender cómo los visitantes interactúan con nuestro sitio web para mejorar nuestros servicios."
+      },
+      {
+        "heading": "3. Gestión de Cookies",
+        "text": "Puedes controlar y/o eliminar las cookies como desees. Puedes eliminar todas las cookies que ya están en tu ordenador y puedes configurar la mayoría de los navegadores para que impidan que se instalen. Sin embargo, si lo haces, es posible que debas ajustar manualmente algunas preferencias cada vez que visites nuestro sitio."
+      },
+      {
+        "heading": "4. Cookies de Terceros",
+        "text": "Podemos utilizar servicios de terceros como procesadores de pago y proveedores de análisis que pueden establecer sus propias cookies. No tenemos control sobre estas cookies, y debes consultar las respectivas políticas de privacidad de estos terceros."
+      },
+      {
+        "heading": "5. Actualizaciones de esta Política",
+        "text": "Podemos actualizar esta Política de Cookies de vez en cuando. Te notificaremos de cualquier cambio publicando la nueva política en esta página con una nueva fecha de \"Última actualización\"."
+      }
+    ]
+  },
+  "refund": {
+    "title": "Política de Devoluciones y Reembolsos",
+    "lastUpdated": "Enero 2026",
+    "content": [
+      {
+        "heading": "1. Productos Digitales",
+        "text": "Todos nuestros cursos son productos digitales entregados electrónicamente. Debido a la naturaleza de los productos digitales, gestionamos las solicitudes de reembolso caso por caso."
+      },
+      {
+        "heading": "2. Elegibilidad para Reembolso",
+        "text": "Puedes solicitar un reembolso dentro de los 14 días posteriores a la compra si:\n\n• No has accedido a más del 20% del contenido del curso\n• Experimentas problemas técnicos que te impiden acceder al curso\n• El contenido del curso no coincide con la descripción proporcionada"
+      },
+      {
+        "heading": "3. Cómo Solicitar un Reembolso",
+        "text": "Para solicitar un reembolso, por favor contáctanos en dsa.smart.start@gmail.com con:\n\n• Tu número de pedido\n• El motivo de tu solicitud de reembolso\n• Cualquier captura de pantalla o documentación relevante"
+      },
+      {
+        "heading": "4. Procesamiento del Reembolso",
+        "text": "Una vez aprobada tu solicitud de reembolso, procesaremos el reembolso dentro de 5 a 10 días hábiles. El reembolso se emitirá al método de pago original utilizado para la compra."
+      },
+      {
+        "heading": "5. Artículos No Reembolsables",
+        "text": "Los siguientes no son elegibles para reembolso:\n\n• Cursos donde se ha accedido a más del 20% del contenido\n• Compras promocionales o con descuento (salvo que lo exija la ley)\n• Cursos comprados hace más de 14 días"
+      },
+      {
+        "heading": "6. Contáctanos",
+        "text": "Si tienes alguna pregunta sobre nuestra política de reembolso, por favor contáctanos en dsa.smart.start@gmail.com o por teléfono al +381 65 886 9930."
+      }
+    ]
+  },
+  "terms": {
+    "title": "Términos y Condiciones",
+    "lastUpdated": "Febrero 2026",
+    "content": [
+      {
+        "heading": "1. Disposiciones Generales",
+        "text": "Estos Términos y Condiciones (\"Términos\") regulan la compra y el uso de productos y servicios educativos digitales ofrecidos a través del sitio web www.dsasmartstart.com (el \"Sitio Web\").\n\nVendedor:\nANA MILATOVIĆ PR CENTAR ZA EDUKACIJE EDUWAY BEOGRAD (ZVEZDARA)\nDirección: Vladana Desnice 28, Belgrado, República de Serbia\nNúmero de Registro de Empresa (Matični broj): 68375720\nNúmero de Identificación Fiscal (PIB): 115450214\nCódigo de Actividad Empresarial (Šifra delatnosti): 8559\nCorreo electrónico: dsa.smart.start@gmail.com\nTeléfono: +381 65 886 9930\n\nAl realizar un pedido en el Sitio Web, confirmas que has leído, comprendido y aceptado estos Términos en su totalidad."
+      },
+      {
+        "heading": "2. Objeto de la Venta",
+        "text": "El Sitio Web ofrece contenido educativo digital, que incluye, entre otros:\n\n• Cursos en línea (programas basados en servicios con soporte de especialistas)\n• Cursos interactivos a tu ritmo (módulos de e-learning)\n• E-books y materiales didácticos digitales\n\nTodos los productos se entregan digitalmente. No se envían productos físicos."
+      },
+      {
+        "heading": "3. Proceso de Pedido y Compra",
+        "text": "Para comprar un producto:\n\n1. Explora el catálogo de cursos y selecciona productos para añadir a tu Carrito.\n2. Revisa los artículos en tu Carrito, incluyendo cualquier complemento de material didáctico.\n3. Procede al Pago, donde proporcionarás tu nombre y dirección de correo electrónico.\n4. Selecciona tu método de pago preferido (tarjeta de crédito/débito o PayPal).\n5. Acepta estos Términos y Condiciones y nuestra Política de Privacidad.\n6. Completa el pago a través de la pasarela de pago segura.\n7. Tras el pago exitoso, recibirás acceso digital inmediato al contenido comprado a través de tu Panel.\n\nDebes crear una cuenta o iniciar sesión antes de completar tu compra."
+      },
+      {
+        "heading": "4. Precios y Pagos",
+        "text": "Todos los precios en el Sitio Web se muestran en EUR (Euros).\n\nSe aceptan pagos mediante:\n• Tarjetas de crédito/débito (Visa, MasterCard, DinaCard) — procesadas de forma segura a través de Raiffeisen Banka a.d. Beograd\n• PayPal\n\nAviso de Conversión de Moneda: Todos los precios en el Sitio Web se muestran en EUR. Los pagos con tarjeta (Visa, MasterCard, DinaCard) se procesan en RSD (dinares serbios) a un tipo de cambio fijo que se muestra en el proceso de pago. El monto exacto en RSD se muestra antes de confirmar el pago. Los pagos con PayPal se procesan directamente en EUR.\n\nTodos los precios mostrados son finales. El vendedor no está registrado actualmente para el IVA (PDV) — los precios mostrados no están sujetos al IVA. Si este estado cambia, estos Términos se actualizarán en consecuencia."
+      },
+      {
+        "heading": "5. Entrega Digital",
+        "text": "Todos los productos se entregan digitalmente. Tras la confirmación exitosa del pago, el contenido comprado se vuelve inmediatamente accesible a través de tu Panel personal en el Sitio Web.\n\nNo hay entrega física ni envío involucrado. El acceso se otorga por la duración especificada en la descripción del producto (generalmente acceso de por vida para los cursos comprados)."
+      },
+      {
+        "heading": "6. Derecho de Desistimiento (Pravo na odustanak)",
+        "text": "De acuerdo con la Ley de Protección al Consumidor de la República de Serbia (Zakon o zaštiti potrošača, Službeni glasnik RS), tienes derecho a desistir de la compra dentro de los 14 días siguientes a la fecha de compra, sin necesidad de dar motivo.\n\nPara ejercer este derecho, debes notificarnos por escrito a dsa.smart.start@gmail.com con tu número de pedido y una declaración clara de tu intención de desistir.\n\nExcepción importante para contenido digital: De acuerdo con el Artículo 37 de la Ley de Protección al Consumidor, el derecho de desistimiento no aplica si la entrega de contenido digital ha comenzado con tu consentimiento previo explícito y tu reconocimiento de que por ello pierdes el derecho de desistimiento. Al acceder al contenido digital comprado, consientes la entrega inmediata y reconoces la pérdida de los derechos de desistimiento.\n\nSi no has accedido a más del 20% del contenido comprado, sigues siendo elegible para un reembolso completo dentro del período de 14 días."
+      },
+      {
+        "heading": "7. Procedimiento de Reclamaciones (Reklamacije)",
+        "text": "Si no estás satisfecho/a con tu compra o experimentas algún problema, tienes derecho a presentar una reclamación.\n\nCómo enviar una reclamación:\n• Envía un correo electrónico a: dsa.smart.start@gmail.com\n• Incluye: tu nombre completo, número de pedido, dirección de correo electrónico utilizada para la compra y una descripción detallada del problema\n\nPlazo de respuesta: De acuerdo con la Ley de Protección al Consumidor de la República de Serbia, acusaremos recibo de tu reclamación dentro de los 8 días posteriores a su recepción y proporcionaremos una resolución o una respuesta razonada dentro de los 15 días.\n\nLas opciones de resolución pueden incluir:\n• Soporte técnico para resolver problemas de acceso\n• Reembolso total o parcial\n• Acceso de reemplazo o crédito\n\nSi no estás satisfecho/a con nuestra resolución, puedes contactar:\n• El Ministerio de Comercio, Turismo y Telecomunicaciones de la República de Serbia\n• La autoridad de inspección comercial competente (Tržišna inspekcija)\n• Un organismo de resolución alternativa de disputas\n\nTodas las reclamaciones se registran y tratan de manera confidencial."
+      },
+      {
+        "heading": "8. Política de Reembolso",
+        "text": "Los reembolsos se procesan de acuerdo con nuestra Política de Devoluciones y Reembolsos. Términos clave:\n\n• Las solicitudes de reembolso deben enviarse dentro de los 14 días posteriores a la compra\n• No debes haber accedido a más del 20% del contenido del curso\n• Los reembolsos aprobados se procesan dentro de 5 a 10 días hábiles al método de pago original\n• Las compras promocionales o con gran descuento pueden no ser elegibles para reembolso (salvo que lo exija la ley)\n\nPara más detalles, consulta nuestra página de Política de Devoluciones y Reembolsos."
+      },
+      {
+        "heading": "9. Propiedad Intelectual",
+        "text": "Todo el contenido del Sitio Web — incluyendo cursos, e-books, materiales de video, texto, imágenes y software — es propiedad intelectual de EDUWAY o sus licenciantes y está protegido por leyes de derechos de autor y propiedad intelectual.\n\nLa compra de un producto te otorga una licencia personal, intransferible y no exclusiva para acceder y usar el contenido para tus propios fines educativos. No puedes:\n\n• Copiar, reproducir, distribuir o compartir contenido comprado con terceros\n• Modificar, crear obras derivadas o realizar ingeniería inversa de cualquier contenido\n• Usar el contenido con fines comerciales o reventa\n• Compartir tus credenciales de cuenta con otros"
+      },
+      {
+        "heading": "10. Limitación de Responsabilidad",
+        "text": "EDUWAY proporciona contenido educativo \"tal cual\". Aunque nos esforzamos por la precisión y la calidad, no garantizamos resultados de aprendizaje específicos.\n\nEn la máxima medida permitida por la ley, EDUWAY no será responsable de ningún daño indirecto, incidental, especial o consecuente que surja del uso de nuestros productos o servicios."
+      },
+      {
+        "heading": "11. Privacidad y Protección de Datos",
+        "text": "Estamos comprometidos con la protección de tus datos personales de acuerdo con las leyes de protección de datos aplicables. Para obtener detalles completos sobre cómo recopilamos, usamos y protegemos tu información, por favor consulta nuestra Política de Privacidad.\n\nLos datos de pago son procesados directamente por el proveedor de servicios de pago (Raiffeisen Banka a.d. Beograd / PayPal) y no se almacenan en nuestros servidores."
+      },
+      {
+        "heading": "12. Ley Aplicable y Disputas",
+        "text": "Estos Términos se rigen por las leyes de la República de Serbia. Cualquier disputa que surja de o esté relacionada con estos Términos será resuelta por el tribunal competente en Belgrado, República de Serbia.\n\nAntes de iniciar procedimientos legales, las partes acuerdan intentar resolver cualquier disputa de manera amistosa a través de comunicación directa."
+      },
+      {
+        "heading": "13. Cambios en estos Términos",
+        "text": "Nos reservamos el derecho de actualizar estos Términos en cualquier momento. Los cambios entran en vigor tras su publicación en el Sitio Web. El uso continuado del Sitio Web después de los cambios constituye la aceptación de los Términos actualizados.\n\nLa fecha de la última actualización se indica en la parte superior de esta página."
+      },
+      {
+        "heading": "14. Información de Contacto",
+        "text": "Para cualquier pregunta sobre estos Términos y Condiciones, por favor contáctanos:\n\nANA MILATOVIĆ PR CENTAR ZA EDUKACIJE EDUWAY\nDirección: Vladana Desnice 28, Belgrado, Serbia\nCorreo electrónico: dsa.smart.start@gmail.com\nTeléfono: +381 65 886 9930\nSitio web: www.dsasmartstart.com"
+      }
+    ]
+  }
+}

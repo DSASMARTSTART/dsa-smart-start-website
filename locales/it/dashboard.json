@@ -1,0 +1,69 @@
+{
+  "loading": "Caricamento dei tuoi corsi...",
+
+  "loginRequired": {
+    "title": "Accesso richiesto",
+    "description": "Accedi per accedere alla tua dashboard e ai corsi iscritti.",
+    "button": "Accedi / Registrati"
+  },
+
+  "badge": "Dashboard studente",
+  "welcome": "Bentornato, <highlight>{{name}}</highlight>!",
+  "subtitle": "Continua a progredire. La tua neurodiversità è il tuo superpotere.",
+
+  "setPassword": {
+    "title": "Benvenuto! Imposta la tua password",
+    "sent": "Email di reimpostazione password inviata! Controlla la tua casella di posta per impostare la password.",
+    "description": "Hai effettuato l'accesso tramite magic link. Imposta una password per rendere i futuri accessi più semplici!",
+    "button": "Invia email di impostazione password"
+  },
+
+  "pendingPurchases": {
+    "title": "Elaborazione del pagamento",
+    "descriptionSingle": "Il tuo acquisto recente è in fase di verifica. Questo richiede generalmente pochi istanti.",
+    "descriptionMultiple": "Hai {{count}} acquisti in fase di verifica. Questo richiede generalmente pochi istanti.",
+    "verifying": "Verifica del pagamento in corso...",
+    "supportNote": "Il tuo corso apparirà qui sotto automaticamente una volta confermato il pagamento. Se questo richiede più tempo del previsto, contatta il supporto."
+  },
+
+  "courses": {
+    "title": "Il mio percorso di apprendimento",
+    "emptyTitle": "Nessun corso ancora",
+    "emptyDescription": "Non ti sei ancora iscritto a nessun corso. Sfoglia il nostro catalogo per trovare il percorso di apprendimento perfetto per te!",
+    "browseCourses": "Sfoglia i corsi",
+    "completed": "Completato",
+    "progress": "Progresso",
+    "reviewContent": "RIVEDI I CONTENUTI",
+    "continueLearning": "CONTINUA AD APPRENDERE",
+    "nextPath": "Prossimo percorso?",
+    "nextPathDescription": "Esplora altri corsi per continuare il tuo percorso di apprendimento.",
+    "browseCatalog": "Sfoglia il catalogo"
+  },
+
+  "levelLabels": {
+    "A1": "Principiante",
+    "A2": "Elementare",
+    "B1": "Intermedio",
+    "Kids": "Giovani studenti"
+  },
+
+  "ebooks": {
+    "title": "I miei e-book",
+    "count_one": "{{count}} e-book",
+    "count_other": "{{count}} e-book",
+    "pdf": "PDF",
+    "download": "Scarica e-book",
+    "comingSoon": "Prossimamente",
+    "purchased": "Acquistato il {{date}}"
+  },
+
+  "stats": {
+    "title": "Statistiche in tempo reale",
+    "itemsCompleted": "Elementi completati",
+    "total": "Totale",
+    "enrolledCourses": "Corsi iscritti",
+    "ebooksOwned": "E-book posseduti",
+    "currentStatus": "Stato attuale",
+    "activeLearner": "Studente attivo"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "ageSelect": {
+    "title": "Who is taking the test?",
+    "subtitle": "Select the learner's age group so we can show the right placement test.",
+    "teensAdults": "12 or older",
+    "teensAdultsLabel": "Teens & Adults",
+    "kids": "Under 12",
+    "kidsLabel": "Kids",
+    "footer": "No login required • Free assessment"
+  },
+  "intro": {
+    "titleKids": "Discover Your Kid's Level",
+    "titleAdults": "Discover Your English Level",
+    "subtitleKids": "A fun 30-question test designed for young learners! Find the perfect course for your child in about 10 minutes.",
+    "subtitleAdults": "Take our 40-question placement test to find the perfect course for your level. It only takes about 10-15 minutes!",
+    "questions": "Questions",
+    "levels": "Levels",
+    "startButton": "Start Assessment",
+    "footer": "No login required • Free assessment"
+  },
+  "quiz": {
+    "questionOf": "Question {{current}} of {{total}}",
+    "exitTest": "Exit Test",
+    "previous": "Previous",
+    "next": "Next",
+    "finish": "Finish"
+  },
+  "results": {
+    "title": "Assessment Complete! 🎉",
+    "score": "You answered {{correct}} out of {{total}} questions correctly ({{percentage}}%)",
+    "recommendedEbookLevel": "Recommended E-book Level",
+    "yourRecommendedLevel": "Your Recommended Level",
+    "ebookRecommendation": "Based on your results, we recommend the {{levelName}} e-book as your next step.",
+    "scoreBreakdown": "Score Breakdown by Level",
+    "passed": "✓ Passed",
+    "notPassed": "Not passed",
+    "retakeTest": "Retake Test",
+    "viewRecommendedEbook": "View Recommended E-book",
+    "viewRecommendedCourse": "View Recommended Course",
+    "savedLocally": "Your result has been saved locally. Create an account to track your progress!"
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "hero": {
+    "badge": "Baza znanja",
+    "title1": "Često postavljana",
+    "titleAnd": "&",
+    "title2": "Pitanja",
+    "supportLabel": "Podrška",
+    "findAnswers": "Pronađite odgovore",
+    "contactLabel": "Kontakt",
+    "alwaysAvailable": "Uvek dostupni",
+    "subtitleTop": "Sve što treba da",
+    "subtitleBottom": "Znate"
+  },
+  "sections": {
+    "section01": "Odeljak 01",
+    "section02": "Odeljak 02",
+    "section03": "Odeljak 03",
+    "section04": "Odeljak 04",
+    "section05": "Odeljak 05",
+    "heading01": "Pristup za učenike sa DSA",
+    "heading02": "Vizuelni i multisenzorni pristup",
+    "heading03": "Prilagođavanje za razumevanje jezika",
+    "heading04": "Tehnike za trajno pamćenje",
+    "heading05": "Prednosti i rezultati"
+  },
+  "general": [
+    {
+      "q": "Kako je Eduway program osmišljen da podrži učenike sa disleksijom u učenju engleskog jezika?",
+      "a": "Eduway program je osmišljen sa inkluzivnim pristupom, koristeći multisenzorne tehnike, vizuelne alate i prilagodljive strategije za olakšavanje učenja engleskog jezika. Svaki modul je dizajniran da bude pristupačan i zanimljiv, poštujući potrebe učenika sa disleksijom."
+    },
+    {
+      "q": "Koje su glavne karakteristike Eduway programa koje ga čine pogodnim za učenike sa disleksijom?",
+      "a": "Ključne karakteristike uključuju upotrebu živopisne grafike, interaktivnih aktivnosti, mentalnih mapa, kodiranja bojama za poboljšanje vizuelne organizacije i audio podrške za lakše razumevanje. Ovi elementi promovišu angažovano učenje koje smanjuje poteškoće sa čitanjem i pamćenjem."
+    },
+    {
+      "q": "Kako se program razlikuje od tradicionalnih metoda nastave u prilagođavanju potrebama učenika sa disleksijom?",
+      "a": "Eduway se razlikuje integracijom nastavnih tehnika koje koriste oblike, boje, vizuelne obrasce i audio materijale. Za razliku od tradicionalnih metoda, ovaj program naglašava vizuelno i praktično učenje kako bi se ojačalo razumevanje i pamćenje."
+    },
+    {
+      "q": "Koje vizuelne i nastavne tehnike se koriste u Eduway programu za podršku pamćenju i razumevanju?",
+      "a": "Mentalne mape, tabele u boji i ilustracije se koriste za vizuelno predstavljanje informacija. Ove tehnike pomažu učenicima da uoče veze između ideja i bolje organizuju svoje razmišljanje, poboljšavajući pamćenje i razumevanje."
+    },
+    {
+      "q": "Kako se oblici i boje koriste za poboljšanje učenja kod učenika sa disleksijom?",
+      "a": "Oblici i boje se koriste za isticanje važnih delova lekcija, razlikovanje kategorija reči i predstavljanje gramatičkih pojmova. Ova tehnika, nazvana SHAPE & COLOR CODING BRAIN PUZZLE, smanjuje vizuelnu složenost, pomažući učenicima da se fokusiraju na ključne informacije."
+    },
+    {
+      "q": "Kako su mentalne mape integrisane u program za olakšavanje organizacije informacija i učenja?",
+      "a": "Mentalne mape se koriste za sažimanje lekcija i vizuelno predstavljanje veza između pojmova. Ove mape pomažu učenicima sa disleksijom da strukturiraju informacije na logičniji i lakše pamtljiv način."
+    },
+    {
+      "q": "Kako program koristi vizuelne elemente za pomoć u razumevanju i pamćenju?",
+      "a": "Program integriše šarene slike, tabele i vizuelne dijagrame koji predstavljaju reči i fraze na intuitivan način. Ovaj vizuelni uticaj omogućava učenicima da lako povežu značenja sa slikama, čineći pamćenje prirodnijim."
+    }
+  ],
+  "visual": [
+    {
+      "q": "Koja je uloga slika i vizuelnih materijala u nastavi engleskog jezika za učenike sa SMART START DSA?",
+      "a": "Slike i vizuelni materijali su ključni za stvaranje jakih mentalnih asocijacija i olakšavanje razumevanja sadržaja. Služe za pretvaranje reči u vizuelne koncepte, koje učenici sa disleksijom lakše obrađuju i pamte."
+    },
+    {
+      "q": "Kako program koristi ilustracije za pojačavanje značenja reči i fraza?",
+      "a": "Ilustracije su integrisane u svaku lekciju kako bi pratile novi vokabular i ključne fraze. To pomaže učenicima da povežu slike sa rečima, jačajući razumevanje i olakšavajući vizuelno učenje."
+    },
+    {
+      "q": "Kako vizuelni pristup doprinosi ubrzavanju pamćenja i stvaranju trajnog utiska?",
+      "a": "Vizuelni pristup stvara jake veze između slika i jezičkih pojmova, ubrzavajući proces pamćenja. Ove vizuelne veze pomažu u stvaranju trajnog otiska u dugoročnom pamćenju, čineći učenje efikasnijim."
+    }
+  ],
+  "language": [
+    {
+      "q": "Kako program podržava razumevanje jezika kroz prilagodljive tehnike učenja za disleksičare?",
+      "a": "Program uključuje pojednostavljena čitanja, video podršku za poboljšanje razumevanja slušanjem i korišćenje dijagrama i mapa za sažimanje sadržaja. Ovaj pristup omogućava učenicima da uče sopstvenim tempom i prema svojim potrebama."
+    },
+    {
+      "q": "Koji specifični alati se koriste za poboljšanje veština slušanja i pisanja kod učenika sa disleksijom?",
+      "a": "Eduway koristi vođena video objašnjenja za poboljšanje razumevanja slušanjem. Za pisanje, obezbeđeni su vizuelni vodiči, šabloni rečenica i interaktivne vežbe koje podstiču praksu."
+    },
+    {
+      "q": "Kako Eduway čini govor i pisanje pristupačnijim za učenike sa disleksijom?",
+      "a": "Program uključuje praktične aktivnosti koje podstiču konverzaciju i pismeno izražavanje, koristeći vizuelne signale za olakšavanje razumevanja. Vežbe su osmišljene da budu ponavljajuće, ali raznovrsne, kako bi se održalo interesovanje i podstaklo učenje."
+    }
+  ],
+  "memorization": [
+    {
+      "q": "Koju strategiju Eduway koristi da osigura da učenje bude trajno i ukorenjeno?",
+      "a": "Program koristi tehnike raspodeljenog ponavljanja i interaktivnu praksu za učvršćivanje naučenih pojmova. Mentalne mape i aktivnosti zasnovane na slikama pomažu u konsolidaciji učenja i čine ga trajnim."
+    },
+    {
+      "q": "Kako se vizuelni elementi i multisenzorne tehnike koriste za stvaranje stabilnih mentalnih veza?",
+      "a": "Vizuelni elementi i multisenzorne tehnike, kao što je povezivanje reči sa zvukovima, slikama i bojama, stvaraju višestruke veze u umu, olakšavajući pamćenje i prisećanje informacija."
+    }
+  ],
+  "benefits": [
+    {
+      "q": "Koje su glavne prednosti za učenika sa disleksijom koji prati Eduway program?",
+      "a": "Učenici sa disleksijom poboljšavaju razumevanje i produkciju jezika zahvaljujući vizuelnom i multisenzornom pristupu koji čini učenje pristupačnijim i zanimljivijim."
+    },
+    {
+      "q": "Kako Eduway pomaže u prevazilaženju specifičnih poteškoća povezanih sa disleksijom prilikom učenja engleskog jezika?",
+      "a": "Program koristi vizuelne tehnike, audio podršku i interaktivne aktivnosti za smanjenje poteškoća sa čitanjem i pamćenjem, pomažući učenicima da prevaziđu svoje specifične izazove."
+    },
+    {
+      "q": "Koja poboljšanja mogu učenici sa disleksijom da očekuju u pogledu razumevanja i produkcije jezika?",
+      "a": "Učenici mogu da očekuju poboljšanje razumevanja slušanjem i čitanjem, obogaćivanje vokabulara i razvijanje većeg samopouzdanja u komunikaciji na engleskom jeziku, zahvaljujući strukturiranom pristupu podržanom vizuelnim tehnikama."
+    }
+  ],
+  "cta": {
+    "title": "Još uvek imate pitanja?",
+    "description": "Naš tim za podršku je spreman da vam pomogne da pronađete najbolji put za vaše obrazovno putovanje.",
+    "button": "Kontaktirajte podršku"
+  }
+}

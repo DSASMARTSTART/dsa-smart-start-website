@@ -1,43 +1,46 @@
 
 import React from 'react';
 import { Quote, Star } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const TestimonialsSection: React.FC = () => {
+  const { t } = useTranslation('home');
+
   const reviews = [
     {
-      name: "Marco",
-      role: "University student with DSA",
-      text: "Thanks to this method, I was able to pass an important English exam without any anxiety. I never thought I could do it so easily.",
+      name: t('testimonials.review1Name'),
+      role: t('testimonials.review1Role'),
+      text: t('testimonials.review1Text'),
       rating: 5
     },
     {
-      name: "Elena",
-      role: "Mother of a student with DSA",
-      text: "This method has made English fun and accessible for my son. Seeing his progress stress-free has been a real joy!",
+      name: t('testimonials.review2Name'),
+      role: t('testimonials.review2Role'),
+      text: t('testimonials.review2Text'),
       rating: 5
     },
     {
-      name: "Marta",
-      role: "High school student with DSA",
-      text: "I never imagined that an English language course could be so suited to my needs. Now I study without anxiety and with excellent results.",
+      name: t('testimonials.review3Name'),
+      role: t('testimonials.review3Role'),
+      text: t('testimonials.review3Text'),
       rating: 5
     },
     {
-      name: "Roberto",
-      role: "Father of a DSA student",
-      text: "I purchased Eduway for my dyslexic son and have seen a real change. The material is well-structured and easy to follow.",
+      name: t('testimonials.review4Name'),
+      role: t('testimonials.review4Role'),
+      text: t('testimonials.review4Text'),
       rating: 5
     },
     {
-      name: "Lucia",
-      role: "Mother of a student with SLD",
-      text: "The method has transformed my son's learning. He finally studies English without frustration and with incredible results!",
+      name: t('testimonials.review5Name'),
+      role: t('testimonials.review5Role'),
+      text: t('testimonials.review5Text'),
       rating: 5
     },
     {
-      name: "Francesco",
-      role: "DSA student",
-      text: "After years of struggling with English, I've finally found a program that accommodates my learning pace and makes me feel capable.",
+      name: t('testimonials.review6Name'),
+      role: t('testimonials.review6Role'),
+      text: t('testimonials.review6Text'),
       rating: 5
     }
   ];
@@ -46,8 +49,8 @@ const TestimonialsSection: React.FC = () => {
     <section className="py-32 px-6 bg-black">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-20">
-          <h2 className="text-sm font-bold text-purple-400 uppercase tracking-[0.3em] mb-4">Success Stories</h2>
-          <h3 className="text-4xl md:text-6xl font-black text-white tracking-tight">What They <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#9b4dff] via-[#8a3ffc] to-[#ff2d85]">Say About Us</span></h3>
+          <h2 className="text-sm font-bold text-purple-400 uppercase tracking-[0.3em] mb-4">{t('testimonials.badge')}</h2>
+          <h3 className="text-4xl md:text-6xl font-black text-white tracking-tight">{t('testimonials.title', { defaultValue: '' }).split('<1>')[0]}<span className="text-transparent bg-clip-text bg-gradient-to-r from-[#9b4dff] via-[#8a3ffc] to-[#ff2d85]">{t('testimonials.title', { defaultValue: '' }).match(/<1>(.*?)<\/1>/)?.[1]}</span>{t('testimonials.title', { defaultValue: '' }).split('</1>')[1]}</h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -80,7 +83,7 @@ const TestimonialsSection: React.FC = () => {
                 <div key={n} className="w-10 h-10 rounded-full border-2 border-black bg-gray-600"></div>
               ))}
             </div>
-            <p className="text-sm font-bold text-gray-300">Joined by <span className="text-purple-400">+3,000 successful students</span> every year</p>
+            <p className="text-sm font-bold text-gray-300">{t('testimonials.joinedBy', { defaultValue: '' }).split('<1>')[0]}<span className="text-purple-400">{t('testimonials.joinedBy', { defaultValue: '' }).match(/<1>(.*?)<\/1>/)?.[1]}</span>{t('testimonials.joinedBy', { defaultValue: '' }).split('</1>')[1]}</p>
           </div>
         </div>
       </div>

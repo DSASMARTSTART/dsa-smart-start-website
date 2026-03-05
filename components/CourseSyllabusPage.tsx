@@ -1,5 +1,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ArrowLeft, CheckCircle2, Star, Clock, Sparkles, BookOpen, Target, GraduationCap, ChevronRight, ChevronDown, Zap, Lock, ShoppingCart, Check, Rocket, Shield, FileText, Play, Users, Layers, Award, TrendingUp, Crown, Diamond, Video, Brain, Headphones, FileCheck, MessageCircle, Flame, BadgeCheck, Heart, RefreshCcw, UserCheck, Eye } from 'lucide-react';
 import { coursesApi } from '../data/supabaseStore';
 import { Course, Module } from '../types';
@@ -25,10 +26,6 @@ const LEVEL_CONFIG: Record<string, { color: string; bgColor: string; label: stri
   'hybrid-pack': { color: 'from-amber-500 to-yellow-600', bgColor: 'bg-amber-500', label: 'Hybrid Pack', icon: <Diamond size={20} /> }
 };
 
-// ============================================
-// COURSE CONTENT DATA - Full Syllabus Info
-// ============================================
-
 interface CourseContentData {
   description: string;
   learningOutcomes: string[];
@@ -38,569 +35,14 @@ interface CourseContentData {
   examPrep?: string;
 }
 
-const COURSE_CONTENT: Record<string, CourseContentData> = {
-  'A1': {
-    description: "The Eduway Level A1 volume is designed to guide students with Specific Learning Disabilities (SLD) in their first steps in learning English. Thanks to a visual, multisensory, and inclusive approach, each teaching unit is designed to facilitate comprehension, memorization, and active use of the language, making the learning experience accessible and motivating.",
-    learningOutcomes: [
-      "Master subject pronouns and the verb TO BE in all forms",
-      "Form questions and negatives with confidence",
-      "Use present simple and present continuous correctly",
-      "Express past events using regular and irregular verbs",
-      "Understand and use modal verbs CAN, COULD, and WILL"
-    ],
-    whatYoullFind: [
-      "Guided exercises and simple explanations",
-      "Illustrations and symbols to support understanding",
-      "Practical activities to reinforce learning",
-      "Spaces dedicated to metacognitive reflection",
-      "Worksheets with highly legible fonts",
-      "Access to additional digital materials (audio and video)"
-    ],
-    targetAudience: [
-      "Students aged 8 and up starting their English journey",
-      "Parents supporting their children's learning",
-      "Support teachers and learning tutors",
-      "Anyone who wants to learn English in a visual, gradual way"
-    ],
-    examPrep: "Cambridge English A1 Movers",
-    units: [
-      { title: "Subject Pronouns & Verb TO BE", topics: ["Affirmative form", "Negative form", "Question form"] },
-      { title: "Plural Nouns", topics: ["Regular plurals", "Irregular plurals"] },
-      { title: "Past Simple - Verb TO BE", topics: ["Affirmative form", "Negative form", "Question form"] },
-      { title: "Saxon Genitive", topics: ["Possessive 's", "Question word 'whose'"] },
-      { title: "Demonstratives", topics: ["This, that", "These, those"] },
-      { title: "There Is / There Are", topics: ["Affirmative form", "Negative form", "Question form"] },
-      { title: "Present Simple", topics: ["Affirmative, negative, question forms", "Adverbs of frequency"] },
-      { title: "Past Simple - Regular & Irregular", topics: ["Affirmative form", "Negative form", "Question form", "Past time expressions"] },
-      { title: "Imperative Forms", topics: ["Giving commands", "Instructions"] },
-      { title: "Modal Verb WILL", topics: ["Affirmative form", "Negative form", "Question form"] },
-      { title: "Modal Verbs CAN & COULD", topics: ["Present ability", "Past ability"] },
-      { title: "Object Pronouns", topics: ["Me, you, him, her, it, us, them"] },
-      { title: "Have & Have Got", topics: ["Affirmative form", "Negative form", "Question form"] },
-      { title: "Prepositions", topics: ["Prepositions of time", "Prepositions of place"] },
-      { title: "Present Continuous", topics: ["Affirmative form", "Negative form", "Question form"] }
-    ]
-  },
-  'A2': {
-    description: "The Eduway Level A2 volume is designed to accompany students with Specific Learning Disabilities (SLD) in consolidating acquired language skills and introducing more complex grammatical structures. Through a visual, multisensory, and inclusive approach, each teaching unit is structured to facilitate comprehension, memorization, and active use of the language, making the study experience accessible and motivating.",
-    learningOutcomes: [
-      "Distinguish between present simple and present continuous",
-      "Use past continuous to describe ongoing past actions",
-      "Master comparative and superlative adjectives",
-      "Express possibility with modal verbs may and might",
-      "Form and use the present perfect tense",
-      "Create conditional sentences (zero and first conditional)"
-    ],
-    whatYoullFind: [
-      "Guided exercises and detailed explanations",
-      "Illustrations and symbols to support understanding",
-      "Practical activities to reinforce learning",
-      "Spaces dedicated to metacognitive reflection",
-      "Worksheets with highly legible fonts",
-      "Access to additional digital materials (audio and video)"
-    ],
-    targetAudience: [
-      "Students aged 9 and up building on their English foundation",
-      "Learners preparing for Cambridge A2 Key (KET) exam",
-      "Parents and support teachers",
-      "Anyone wanting a structured, gradual approach to English"
-    ],
-    examPrep: "Cambridge English A2 Key (KET)",
-    units: [
-      { title: "Present Simple vs Present Continuous", topics: ["Affirmative form", "Negative form", "Question form"] },
-      { title: "Past Continuous", topics: ["Affirmative form", "Negative form", "Question form"] },
-      { title: "Past Continuous vs Past Simple", topics: ["When to use each", "Combining tenses"] },
-      { title: "Adverbs & Prepositions", topics: ["Prepositions of time", "Prepositions of place", "Prepositions of movement"] },
-      { title: "Articles & Nouns", topics: ["Definite and indefinite articles", "Countable nouns", "Uncountable nouns"] },
-      { title: "Some, Any & A Lot Of", topics: ["Introduction to quantifiers", "Usage rules"] },
-      { title: "Quantifiers", topics: ["Much, many", "A lot of", "A few, a little"] },
-      { title: "Comparative & Superlative", topics: ["Comparative adjectives", "Superlative adjectives"] },
-      { title: "Modal Verbs: May & Might", topics: ["Expressing possibility", "Making predictions"] },
-      { title: "Modal Verbs: Should, Must, Have To", topics: ["Giving advice", "Expressing obligation"] },
-      { title: "Verb Patterns", topics: ["Like, want, remember", "Would like"] },
-      { title: "Future Forms", topics: ["Will", "Be going to", "Present continuous for future"] },
-      { title: "Present Perfect", topics: ["Affirmative form", "Negative form", "Question form"] },
-      { title: "Present Perfect vs Past Simple", topics: ["When to use each", "Time expressions"] },
-      { title: "Zero & First Conditional", topics: ["Zero conditional", "First conditional", "Using 'unless'"] }
-    ]
-  },
-  'B1': {
-    description: "The Eduway Level B1 volume is designed to accompany students with Specific Learning Disabilities (SLD) through an intermediate stage of English learning, where language becomes a more complex, articulated tool closer to real-world use. This level introduces more advanced grammatical structures and promotes the development of all 4 skills: listening, reading, writing, and speaking.",
-    learningOutcomes: [
-      "Use present perfect continuous for ongoing situations",
-      "Master the past perfect for sequencing events",
-      "Form passive voice in present, past, and future",
-      "Report what others have said using reported speech",
-      "Express deduction with modal verbs must, might, can't",
-      "Create second and third conditional sentences"
-    ],
-    whatYoullFind: [
-      "Clear and progressive explanations",
-      "Worksheets with visual structure and simplified language",
-      "Practical activities and metacognitive reflections",
-      "Strategies to improve written and oral comprehension",
-      "Highly legible fonts and visual support symbols",
-      "Integrated digital materials (audio, video, and interactive exercises)"
-    ],
-    targetAudience: [
-      "Students aged 10 and up at intermediate level",
-      "Learners preparing for Cambridge B1 Preliminary (PET)",
-      "Support teachers and learning tutors",
-      "Anyone seeking autonomous communication in everyday contexts"
-    ],
-    examPrep: "Cambridge English B1 Preliminary (PET)",
-    units: [
-      { title: "Present Perfect Continuous", topics: ["Affirmative form", "Negative form", "Question form"] },
-      { title: "Present Perfect Simple vs Continuous", topics: ["When to use each", "Duration vs result"] },
-      { title: "Past Perfect Simple", topics: ["Affirmative form", "Negative form", "Question form"] },
-      { title: "Future Continuous", topics: ["Affirmative form", "Negative form", "Question form"] },
-      { title: "Passive Voice", topics: ["Present simple passive", "Past simple passive", "Future simple passive"] },
-      { title: "Causative Structures", topics: ["Have something done", "Get something done"] },
-      { title: "Modal Verbs Extended", topics: ["Ought to", "Shall", "Be able to", "Manage to"] },
-      { title: "Modals of Deduction (1)", topics: ["Can't for impossibility", "Must for certainty"] },
-      { title: "Modals of Deduction (2)", topics: ["Must, might, should", "Degrees of certainty"] },
-      { title: "Reported Speech", topics: ["Reporting statements", "Tense changes"] },
-      { title: "Indirect Questions", topics: ["Forming indirect questions", "Word order"] },
-      { title: "Second & Third Conditional", topics: ["Second conditional", "Third conditional", "Mixed conditionals"] },
-      { title: "Relative Clauses", topics: ["Relative pronouns", "Defining clauses", "Non-defining clauses"] },
-      { title: "Question Tags", topics: ["Forming question tags", "Intonation patterns"] },
-      { title: "Advanced Comparatives", topics: ["Comparative structures", "As...as", "The more...the more"] }
-    ]
-  },
-  'Kids': {
-    description: "The Eduway Advanced Level is designed to accompany young learners with learning difficulties step by step in their English language studies. Students can improve gradually, starting from A1 Starters exams, moving through Movers, and reaching A2 Flyers. This Advanced Level completes the program, offering essential content for A2 Flyers exam preparation — the third level of Cambridge English Young Learners, designed for primary and lower secondary school students.",
-    learningOutcomes: [
-      "Understand and use more complex sentences on familiar topics",
-      "Read and listen to short texts, stories, and realistic dialogues in English",
-      "Communicate and interact effectively in everyday contexts",
-      "Express themselves with more articulate and confident language",
-      "Master all conditional forms (first and second)",
-      "Use present perfect in various contexts"
-    ],
-    whatYoullFind: [
-      "Age-appropriate explanations with visual support",
-      "Interactive activities designed for young learners",
-      "Mind maps for visual memorization",
-      "Progress tracking with 'Stop & Check' worksheets",
-      "Engaging multimedia content",
-      "Cambridge A2 Flyers exam preparation materials"
-    ],
-    targetAudience: [
-      "Young learners aged 6-12 with learning differences",
-      "Students preparing for Cambridge A2 Flyers",
-      "Children who thrive with visual, multisensory learning",
-      "Parents seeking dyslexia-friendly English courses for kids"
-    ],
-    examPrep: "Cambridge English A2 Flyers (Young Learners)",
-    units: [
-      { title: "Past Simple vs Past Continuous", topics: ["Comparing tenses", "When and while"] },
-      { title: "Modal Verbs: May, Might, Shall", topics: ["Expressing possibility", "Making suggestions"] },
-      { title: "Will for Future", topics: ["Predictions", "Spontaneous decisions"] },
-      { title: "Be Going To", topics: ["Plans and intentions", "Predictions with evidence"] },
-      { title: "Will vs Be Going To", topics: ["Choosing the right form", "Context clues"] },
-      { title: "Present Perfect - Affirmative & Negative", topics: ["Form and usage", "Past participles"] },
-      { title: "Present Perfect - Questions", topics: ["Question formation", "Short answers"] },
-      { title: "Present Perfect with Expressions", topics: ["Ever, never, just", "Already, yet"] },
-      { title: "Comparatives", topics: ["Comparing things", "Than and as...as"] },
-      { title: "Possessive Pronouns", topics: ["Mine, yours, his, hers", "Ours, theirs"] },
-      { title: "Verbs of Preference", topics: ["Like + ing", "Love + ing", "Hate + ing"] },
-      { title: "Adverbs Ending in -ly", topics: ["Forming adverbs", "Position in sentences"] },
-      { title: "First Conditional", topics: ["If + present, will + infinitive", "Real possibilities"] },
-      { title: "Second Conditional", topics: ["If + past, would + infinitive", "Imaginary situations"] },
-      { title: "First vs Second Conditional", topics: ["Choosing the right conditional", "Real vs imaginary"] }
-    ]
-  },
-  'Premium': {
-    description: "The Premium Pathway Eduway is a complete and innovative program designed for students with SLD who want to learn English in a clear, stimulating way without frustration. Through a multisensory method and high-readability materials, the pathway combines individual lessons, group workshops, mind maps, and video lessons to make learning simpler and more effective.",
-    learningOutcomes: [
-      "Achieve personalized progress through 1-on-1 lessons",
-      "Build confidence in group workshop settings",
-      "Master vocabulary through 525 visual mind maps",
-      "Develop concentration and listening skills",
-      "Prepare for school tests and homework independently",
-      "Earn final level certification"
-    ],
-    whatYoullFind: [
-      "7 individual lessons of 50 minutes each",
-      "32 group workshops of 50 minutes",
-      "525 mind maps + 15 learning units for SLD students",
-      "Over 100 interactive video lessons",
-      "'Stop & Check' worksheets and periodic tests",
-      "School tutoring for homework and test prep",
-      "Dedicated assistance 6 days a week"
-    ],
-    targetAudience: [
-      "Students seeking intensive, personalized support",
-      "Learners who benefit from combined 1-on-1 and group learning",
-      "Those wanting structured progress tracking",
-      "Anyone ready to commit to comprehensive transformation"
-    ],
-    units: []
-  },
-  'Gold': {
-    description: "The Gold Pathway Eduway is a structured and innovative program designed for students with SLD who wish to learn English in a clear, engaging way without frustration. Thanks to a multisensory and high-readability method, the pathway combines interactive group lessons, mind maps, video lessons, and dedicated materials to make learning simpler and more effective.",
-    learningOutcomes: [
-      "Build confidence through twice-weekly group workshops",
-      "Master vocabulary with 525 visual mind maps",
-      "Develop concentration and listening skills",
-      "Track progress with 'Stop & Check' worksheets",
-      "Receive dedicated tutoring and support",
-      "Earn final level certification"
-    ],
-    whatYoullFind: [
-      "52 workshops of 50 minutes (twice weekly)",
-      "525 mind maps + 15 learning units for SLD",
-      "Over 100 interactive video lessons",
-      "'Stop & Check' worksheets for progress monitoring",
-      "Dedicated tutoring and assistance 6 days a week",
-      "Final level certification"
-    ],
-    targetAudience: [
-      "Students who thrive in group learning environments",
-      "Learners seeking consistent, structured progress",
-      "Those who benefit from peer interaction and support",
-      "Anyone committed to long-term English improvement"
-    ],
-    units: []
-  },
-  'B2': {
-    description: "The Eduway Level B2 volume represents the culmination of our structured learning pathway, designed for students with Specific Learning Disabilities (SLD) who are ready to achieve upper-intermediate proficiency. This advanced level focuses on nuanced language use, academic English, and sophisticated communication strategies that prepare learners for professional and educational contexts.",
-    learningOutcomes: [
-      "Master all conditional forms including mixed conditionals",
-      "Use advanced passive structures and causative forms",
-      "Express hypothetical situations with ease",
-      "Understand and produce complex relative clauses",
-      "Navigate formal and informal registers appropriately",
-      "Prepare for Cambridge B2 First (FCE) examination"
-    ],
-    whatYoullFind: [
-      "Advanced grammar explanations with visual support",
-      "Academic vocabulary building exercises",
-      "Complex text comprehension strategies",
-      "Advanced writing techniques and templates",
-      "Highly legible fonts and structured layouts",
-      "Integrated digital materials including exam practice"
-    ],
-    targetAudience: [
-      "Students aged 12 and up at upper-intermediate level",
-      "Learners preparing for Cambridge B2 First (FCE)",
-      "Those seeking academic or professional English skills",
-      "Anyone ready for near-fluency communication"
-    ],
-    examPrep: "Cambridge English B2 First (FCE)",
-    units: [
-      { title: "Mixed Conditionals", topics: ["Third + second conditional mix", "Second + third conditional mix", "Hypothetical past with present result"] },
-      { title: "Advanced Passive Voice", topics: ["Passive with modals", "Passive reporting verbs", "Have/Get something done"] },
-      { title: "Inversion", topics: ["Negative adverbials", "Only + time expressions", "Formal emphasis"] },
-      { title: "Cleft Sentences", topics: ["It clefts", "What clefts", "All clefts"] },
-      { title: "Advanced Relative Clauses", topics: ["Reduced relatives", "Preposition placement", "Relative clause position"] },
-      { title: "Subjunctive Mood", topics: ["Wish + past perfect", "If only structures", "It's time + past"] },
-      { title: "Discourse Markers", topics: ["Linking expressions", "Hedging language", "Emphasis markers"] },
-      { title: "Reported Speech Advanced", topics: ["Reporting verbs patterns", "Questions in reported speech", "Mixed tense reports"] },
-      { title: "Advanced Modal Verbs", topics: ["Modal perfects", "Degrees of certainty", "Speculating about past"] },
-      { title: "Participle Clauses", topics: ["Present participle clauses", "Past participle clauses", "Perfect participle clauses"] },
-      { title: "Noun Clauses", topics: ["Subject clauses", "Object clauses", "Complement clauses"] },
-      { title: "Advanced Comparisons", topics: ["Double comparatives", "Comparative idioms", "Superlative emphasis"] },
-      { title: "Formal vs Informal Register", topics: ["Academic vocabulary", "Colloquial expressions", "Register shifting"] },
-      { title: "Cohesion & Coherence", topics: ["Reference words", "Substitution", "Ellipsis"] },
-      { title: "Exam Preparation", topics: ["Reading strategies", "Writing formats", "Speaking frameworks"] }
-    ]
-  },
-  'kids-basic': {
-    description: "The Eduway Kids Basic program is specially crafted for young learners aged 5-8 who are just beginning their English adventure. Using a playful, multisensory approach with colorful visuals, songs, and interactive games, this course makes learning English an exciting journey. Every lesson is designed with dyslexia-friendly techniques to ensure every child can succeed.",
-    learningOutcomes: [
-      "Recognize and use basic greetings and introductions",
-      "Identify colors, numbers 1-20, and common shapes",
-      "Name family members, pets, and classroom objects",
-      "Follow simple instructions in English",
-      "Sing along to English songs and rhymes",
-      "Build confidence in speaking first English words"
-    ],
-    whatYoullFind: [
-      "Colorful picture-based lessons",
-      "Fun songs and nursery rhymes",
-      "Interactive games and activities",
-      "Sticker rewards and progress charts",
-      "Parent guidance notes for home practice",
-      "Audio materials for pronunciation practice"
-    ],
-    targetAudience: [
-      "Children aged 5-8 starting English",
-      "Young learners with learning differences",
-      "Kids who learn best through play and visuals",
-      "Parents seeking dyslexia-friendly English for children"
-    ],
-    examPrep: "Cambridge English Pre A1 Starters Preparation",
-    units: [
-      { title: "Hello & Goodbye", topics: ["Greetings", "Introductions", "Classroom phrases"] },
-      { title: "Colors Everywhere", topics: ["Primary colors", "Secondary colors", "Color games"] },
-      { title: "Numbers 1-10", topics: ["Counting", "Number songs", "Simple addition"] },
-      { title: "My Family", topics: ["Family members", "My pet", "Family activities"] },
-      { title: "Body Parts", topics: ["Head to toe", "Simon says game", "Body song"] },
-      { title: "Animals I Love", topics: ["Farm animals", "Pets", "Animal sounds"] },
-      { title: "Food & Drinks", topics: ["Fruits", "Snacks", "I like/don't like"] },
-      { title: "My Toys", topics: ["Toy names", "Big and small", "Colors of toys"] },
-      { title: "Numbers 11-20", topics: ["Counting on", "Number recognition", "How many?"] },
-      { title: "Weather & Seasons", topics: ["Sunny, rainy, cloudy", "Hot and cold", "Seasons song"] },
-      { title: "Clothes", topics: ["What I wear", "Colors of clothes", "Getting dressed"] },
-      { title: "My House", topics: ["Rooms in a house", "Furniture", "Where is it?"] }
-    ]
-  },
-  'kids-medium': {
-    description: "The Eduway Kids Medium program builds on the basics, designed for young learners aged 7-10 who are ready to expand their English skills. Through story-based learning, creative activities, and interactive exercises, children develop reading, writing, and speaking confidence. Every lesson incorporates dyslexia-friendly methods to support all learning styles.",
-    learningOutcomes: [
-      "Read and understand simple English stories",
-      "Write short sentences about familiar topics",
-      "Ask and answer simple questions",
-      "Describe people, places, and things",
-      "Use present simple for daily routines",
-      "Expand vocabulary to 500+ words"
-    ],
-    whatYoullFind: [
-      "Illustrated e-books",
-      "Creative writing prompts with structured templates",
-      "Vocabulary-building games",
-      "Grammar introduced through practical examples",
-      "A progress quiz at the end of each unit"
-    ],
-    targetAudience: [
-      "Children aged 7-10 with basic English",
-      "Young learners progressing from basic level",
-      "Kids who enjoy stories and creative activities",
-      "Students preparing for Cambridge A1 Movers"
-    ],
-    examPrep: "Cambridge English A1 Movers",
-    units: [
-      { title: "Present Continuous (Affirmative, Negative, Question Form)", topics: [] },
-      { title: "Present Continuous vs Present Simple", topics: [] },
-      { title: "Modals: Can & Could", topics: [] },
-      { title: "Countable & Uncountable Nouns (Much / Many)", topics: [] },
-      { title: "Quantifiers (Some / Any / A lot of)", topics: [] },
-      { title: "Past Simple – Regular Verbs", topics: [] },
-      { title: "Past Simple – Irregular Verbs (Affirmative Form)", topics: [] },
-      { title: "Past Simple – Irregular Verbs (Negative & Question Form)", topics: [] },
-      { title: "Modal Verbs: Have to & Must", topics: [] },
-      { title: "Modal Verb: Should", topics: [] },
-      { title: "Comparatives", topics: [] },
-      { title: "Superlatives", topics: [] },
-      { title: "Past Continuous – Affirmative Form", topics: [] },
-      { title: "Past Continuous – Negative & Question Form", topics: [] },
-      { title: "Imperatives", topics: [] }
-    ]
-  },
-  'kids-advanced': {
-    description: "The Eduway Kids Advanced program is designed for confident young learners aged 9-12 who are ready to master English at a higher level. This comprehensive course prepares students for school English requirements and Cambridge A2 Flyers exam. Complex grammar is taught through engaging contexts, and creative expression is encouraged throughout.",
-    learningOutcomes: [
-      "Read and comprehend longer, more complex texts",
-      "Write paragraphs and short compositions",
-      "Use past simple and past continuous confidently",
-      "Form and use present perfect tense",
-      "Understand and create first conditional sentences",
-      "Achieve vocabulary of 1000+ words"
-    ],
-    whatYoullFind: [
-      "Chapter books and extended readings",
-      "Paragraph and essay writing guides",
-      "Advanced grammar with visual explanations",
-      "Speaking projects and presentations",
-      "Cambridge A2 Flyers exam preparation",
-      "Digital interactive exercises"
-    ],
-    targetAudience: [
-      "Children aged 9-12 at intermediate level",
-      "Students preparing for Cambridge A2 Flyers",
-      "Kids transitioning to secondary school English",
-      "Young learners ready for advanced challenges"
-    ],
-    examPrep: "Cambridge English A2 Flyers",
-    units: [
-      { title: "Past Continuous", topics: ["Was/were + -ing", "Interrupted actions", "While and when"] },
-      { title: "Past Simple vs Continuous", topics: ["Choosing the right tense", "Storytelling", "Background actions"] },
-      { title: "Present Perfect Introduction", topics: ["Have/has + past participle", "Ever and never", "Life experiences"] },
-      { title: "Present Perfect vs Past Simple", topics: ["Time expressions", "Finished vs unfinished time", "Recent events"] },
-      { title: "Comparatives & Superlatives", topics: ["More/most", "Irregular forms", "Comparing three things"] },
-      { title: "First Conditional", topics: ["If + present, will + infinitive", "Real possibilities", "Unless"] },
-      { title: "Second Conditional Introduction", topics: ["If + past, would + infinitive", "Imaginary situations", "Wishes"] },
-      { title: "Passive Voice Basics", topics: ["Is/are + past participle", "Focus on object", "By + agent"] },
-      { title: "Reported Speech Basics", topics: ["Said that...", "Tense changes", "Reporting verbs"] },
-      { title: "Relative Clauses", topics: ["Who, which, that", "Defining relatives", "Combining sentences"] },
-      { title: "Modal Verbs Review", topics: ["Must, should, might", "Advice and obligation", "Possibility"] },
-      { title: "Exam Skills & Practice", topics: ["Reading strategies", "Listening tips", "Speaking confidence"] }
-    ]
-  },
-  'premium': {
-    description: "The Premium Program is our flagship live online course, combining the power of personalized one-to-one instruction with dynamic group workshops. Designed specifically for students with learning differences, this comprehensive program includes 7 individual lessons, 32 group workshops, and unlimited access to our complete library of mind maps, video lessons, and interactive materials. With dedicated support 6 days a week, you'll never feel alone on your learning journey.",
-    learningOutcomes: [
-      "Achieve personalized progress through dedicated 1-on-1 lessons",
-      "Build confidence through interactive group workshop experiences",
-      "Master vocabulary using 525 visual mind maps",
-      "Develop listening and concentration skills with 100+ video lessons",
-      "Track your progress with regular assessments and feedback",
-      "Earn official level certification upon completion"
-    ],
-    whatYoullFind: [
-      "7 individual lessons of 50 minutes with expert instructors",
-      "32 group workshops for collaborative learning",
-      "525 mind maps covering all grammar and vocabulary",
-      "100+ interactive video lessons",
-      "Stop & Check assessments throughout the program",
-      "School tutoring support for homework and tests",
-      "6-day-a-week dedicated assistance"
-    ],
-    targetAudience: [
-      "Students seeking intensive, personalized support",
-      "Learners who benefit from both 1-on-1 and group settings",
-      "Those wanting structured progress with accountability",
-      "Anyone ready for comprehensive English transformation"
-    ],
-    units: []
-  },
-  'golden': {
-    description: "The Golden Program offers an exclusive one-to-one learning experience with 30 personalized private lessons. This is our most prestigious offering, providing undivided attention from our top instructors, a completely customized curriculum tailored to your specific goals, and VIP support throughout your journey. Flexible scheduling means you learn at your own pace, with detailed progress reports after every session.",
-    learningOutcomes: [
-      "Receive fully personalized curriculum based on your goals",
-      "Master English through 30 dedicated private lessons",
-      "Get flexible scheduling that fits your lifestyle",
-      "Enjoy VIP priority support and response times",
-      "Track detailed progress with session-by-session reports",
-      "Achieve certification with comprehensive skill assessment"
-    ],
-    whatYoullFind: [
-      "30 private one-to-one lessons of 50 minutes each",
-      "Dedicated instructor assigned to your entire journey",
-      "Customized learning path based on assessment",
-      "All premium learning materials included",
-      "VIP support with priority response times",
-      "Detailed progress reports after each session",
-      "Final certification with skill assessment"
-    ],
-    targetAudience: [
-      "Learners seeking exclusive one-to-one attention",
-      "Professionals needing flexible, personalized scheduling",
-      "Students who want the fastest path to fluency",
-      "Anyone committed to premium, VIP learning experience"
-    ],
-    units: []
-  },
-  'language-lab': {
-    description: "Small group live sessions designed for focused, interactive learning. Join a class of 3-4 students for 8 dynamic lab sessions, each lasting 50 minutes. Perfect for learners who thrive in collaborative environments with personalised attention from expert instructors.",
-    learningOutcomes: [
-      "Build conversational confidence in small group settings",
-      "Develop real-time communication skills with peer interaction",
-      "Receive personalised feedback from expert instructors",
-      "Practice speaking, listening and responding naturally",
-      "Gain exposure to diverse communication styles"
-    ],
-    whatYoullFind: [
-      "8 live lab sessions with 3-4 students",
-      "50 minute interactive classes",
-      "Expert instructor guidance throughout",
-      "Collaborative learning activities",
-      "Real-time feedback and corrections"
-    ],
-    targetAudience: [
-      "Learners who thrive in collaborative settings",
-      "Students wanting real-time speaking practice",
-      "Anyone looking for an affordable group learning option",
-      "Those who enjoy interactive, social learning"
-    ],
-    units: []
-  },
-  'starter-path': {
-    description: "Begin your English journey with personalised one-to-one attention. This starter programme includes 5 individual lessons of 30 minutes each, tailored entirely to your needs and learning pace. Ideal for beginners or anyone looking for a focused introduction with a dedicated instructor.",
-    learningOutcomes: [
-      "Receive a personalised learning assessment",
-      "Build foundational English skills one-to-one",
-      "Gain confidence speaking with individual attention",
-      "Develop a customised learning roadmap",
-      "Get targeted feedback on your specific challenges"
-    ],
-    whatYoullFind: [
-      "5 one-to-one lessons with a dedicated instructor",
-      "30 minute focused sessions",
-      "Personalised curriculum based on your level",
-      "Flexible scheduling options",
-      "Individual progress tracking"
-    ],
-    targetAudience: [
-      "Beginners wanting a personal start to English",
-      "Learners who prefer one-to-one attention",
-      "Those needing a flexible, short-term programme",
-      "Anyone wanting to assess their level and build a plan"
-    ],
-    units: []
-  },
-  'language-lab-pro': {
-    description: "Our most intensive small-group programme with 30 live lab sessions. Join a class of 3-4 students for 50-minute sessions packed with interactive exercises, real conversation practice, and progressive skill building. All teaching materials are included for a complete learning experience.",
-    learningOutcomes: [
-      "Achieve significant fluency improvement over 30 sessions",
-      "Master complex conversation patterns and responses",
-      "Build advanced vocabulary through immersive practice",
-      "Develop natural pronunciation and intonation",
-      "Gain confidence for professional and social English use"
-    ],
-    whatYoullFind: [
-      "30 live lab sessions with 3-4 students",
-      "50 minute intensive classes",
-      "All teaching materials included",
-      "Progressive skill building curriculum",
-      "Regular progress assessments",
-      "Expert instructor with personalised attention"
-    ],
-    targetAudience: [
-      "Committed learners seeking intensive group practice",
-      "Students wanting long-term structured progression",
-      "Those who benefit from peer learning and collaboration",
-      "Learners aiming for significant fluency improvement"
-    ],
-    units: []
-  },
-  'hybrid-pack': {
-    description: "The best of both worlds — combining the energy of small-group labs with the personalised focus of one-to-one lessons. Includes 25 lab sessions (50 minutes, 3-4 students) plus 5 individual lessons (30 minutes). All teaching materials are included for the most comprehensive learning experience.",
-    learningOutcomes: [
-      "Combine group interaction with personalised attention",
-      "Master both social and academic English skills",
-      "Receive tailored feedback in one-to-one sessions",
-      "Practice real conversation in small group labs",
-      "Achieve comprehensive language development"
-    ],
-    whatYoullFind: [
-      "25 lab sessions with 3-4 students (50 min each)",
-      "5 one-to-one lessons (30 min each)",
-      "All teaching materials included",
-      "Blended learning approach",
-      "Regular progress tracking and assessments",
-      "Dedicated instructor support throughout"
-    ],
-    targetAudience: [
-      "Learners wanting the most comprehensive programme",
-      "Students who benefit from both group and individual learning",
-      "Those seeking maximum progress in a structured format",
-      "Anyone committed to achieving English fluency"
-    ],
-    units: []
-  }
-};
-
-// Premium course features
-const PREMIUM_FEATURES = [
-  { icon: <Users size={18} />, text: '7 individual lessons of 50 minutes' },
-  { icon: <Video size={18} />, text: '32 workshops of 50 minutes' },
-  { icon: <Brain size={18} />, text: '525 mind maps + 15 learning units designed specifically for SLD students' },
-  { icon: <Headphones size={18} />, text: 'Over 100 interactive video lessons to boost concentration, listening, and vocabulary' },
-  { icon: <FileCheck size={18} />, text: '"Stop & Check" worksheets and periodic tests to monitor progress' },
-  { icon: <BookOpen size={18} />, text: 'School tutoring for homework and test preparation' },
-  { icon: <MessageCircle size={18} />, text: 'Dedicated assistance 6 days a week' },
-  { icon: <GraduationCap size={18} />, text: 'Final level certification upon completion' },
+// Premium/Gold course feature icons (text comes from i18n)
+const PREMIUM_FEATURE_ICONS = [
+  <Users size={18} />, <Video size={18} />, <Brain size={18} />, <Headphones size={18} />,
+  <FileCheck size={18} />, <BookOpen size={18} />, <MessageCircle size={18} />, <GraduationCap size={18} />
 ];
-
-const GOLD_FEATURES = [
-  { icon: <Video size={18} />, text: '52 workshops of 50 minutes with twice-weekly attendance' },
-  { icon: <Brain size={18} />, text: '525 mind maps + 15 learning units developed specifically for SLD' },
-  { icon: <Headphones size={18} />, text: 'Over 100 interactive video lessons for concentration, listening, and vocabulary' },
-  { icon: <FileCheck size={18} />, text: '"Stop & Check" worksheets to constantly monitor and adapt the pathway' },
-  { icon: <MessageCircle size={18} />, text: 'Dedicated tutoring and assistance 6 days a week' },
-  { icon: <GraduationCap size={18} />, text: 'Final level certification' },
+const GOLD_FEATURE_ICONS = [
+  <Video size={18} />, <Brain size={18} />, <Headphones size={18} />,
+  <FileCheck size={18} />, <MessageCircle size={18} />, <GraduationCap size={18} />
 ];
 
 // Format price for display
@@ -642,6 +84,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
   onToggleTeachingMaterials,
   isAddingToCart = false
 }) => {
+  const { t } = useTranslation('courses');
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
@@ -731,7 +174,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-400 font-medium">Loading course details...</p>
+          <p className="text-gray-400 font-medium">{t('shared.loading')}</p>
         </div>
       </div>
     );
@@ -744,10 +187,10 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
           <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/10">
             <BookOpen size={32} className="text-gray-500" />
           </div>
-          <h3 className="text-2xl font-black text-white mb-4">Course Not Found</h3>
-          <p className="text-gray-400 mb-8">The course you're looking for doesn't exist or has been removed.</p>
+          <h3 className="text-2xl font-black text-white mb-4">{t('shared.courseNotFound')}</h3>
+          <p className="text-gray-400 mb-8">{t('shared.courseNotFoundDesc')}</p>
           <button onClick={onBack} className="px-8 py-4 bg-purple-600 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-colors">
-            Back to Courses
+            {t('shared.backToCourses')}
           </button>
         </div>
       </div>
@@ -771,8 +214,9 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
     ? `${Math.floor(totalDuration / 60)}h ${totalDuration % 60}m`
     : `${totalDuration}m`;
 
-  // Get course content from database (syllabusContent) or fallback to hardcoded COURSE_CONTENT
-  const hardcodedContent = COURSE_CONTENT[course.level];
+  // Get course content from database (syllabusContent) or fallback to i18n courseContent
+  const rawContent = t(`courseContent.${course.level}`, { returnObjects: true });
+  const hardcodedContent = (typeof rawContent === 'object' && rawContent !== null) ? rawContent as CourseContentData : undefined;
   const syllabusContent = course.syllabusContent;
   
   // PRIORITY: Use course's syllabusContent first > learningOutcomes field > COURSE_CONTENT > extracted from modules > generic
@@ -788,12 +232,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
     outcomes = modules.slice(0, 4).map(m => m.lessons?.[0]?.title || m.title).filter(Boolean);
   }
   if (outcomes.length === 0) {
-    outcomes = [
-      'Master essential vocabulary through visual memory techniques',
-      'Build confidence speaking in real-life situations', 
-      'Develop reading comprehension with dyslexia-friendly methods',
-      'Track your progress with personalized milestones'
-    ];
+    outcomes = t('syllabusPage.defaultOutcomes', { returnObjects: true }) as string[];
   }
 
   // Target audience: syllabusContent > course data > COURSE_CONTENT > generic
@@ -805,11 +244,11 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
   } else if (hardcodedContent?.targetAudience) {
     targetAudiencePoints = hardcodedContent.targetAudience;
   } else {
-    targetAudiencePoints = ['Complete beginners starting their English journey', 'Visual learners who struggle with traditional textbooks', 'Students with dyslexia or learning differences', 'Anyone who wants a supportive, judgment-free environment'];
+    targetAudiencePoints = t('syllabusPage.defaultTargetAudience', { returnObjects: true }) as string[];
   }
   
   const targetAudience = {
-    description: course.targetAudienceInfo?.description || `Perfect for ${config.label.toLowerCase()} learners who want to build a strong foundation`,
+    description: course.targetAudienceInfo?.description || t('syllabusPage.defaultTargetAudienceDesc', { label: t('shared.levelLabels.' + course.level, { defaultValue: config.label }).toLowerCase() }),
     points: targetAudiencePoints
   };
 
@@ -835,6 +274,9 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
   // Course description: course data > COURSE_CONTENT > empty
   const courseDescription = course.description || hardcodedContent?.description || '';
 
+  // Format description fallback
+  const descriptionFallback = t('shared.defaultSyllabusDescription', { label: t('shared.levelLabels.' + course.level, { defaultValue: config.label }).toLowerCase() });
+
   // Check for original price vs discount - with null safety
   const pricing = course.pricing || { price: 0, currency: 'EUR', isFree: false };
   const hasDiscount = pricing.discountPrice !== undefined && pricing.discountPrice < pricing.price;
@@ -845,9 +287,9 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
   const teachingMaterialsPrice = isPremiumOrGold ? 50 : 0;
   
   // Calculate display price including teaching materials if selected
-  const basePrice = parseFloat(price.replace('€', '')) || 0;
+  const basePrice = parseFloat(price.replace('â‚¬', '')) || 0;
   const totalWithMaterials = teachingMaterialsSelected && isPremiumOrGold ? basePrice + teachingMaterialsPrice : basePrice;
-  const displayPrice = pricing.isFree ? 'FREE' : `${totalWithMaterials.toFixed(2)}€`;
+  const displayPrice = pricing.isFree ? t('shared.free') : `${totalWithMaterials.toFixed(2)}€`;
   
   // Check if discount is currently active (for urgency badge)
   const now = new Date();
@@ -866,12 +308,12 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
         <div className="fixed top-0 left-0 right-0 z-50 bg-amber-500 text-white py-2 px-4 text-center">
           <div className="flex items-center justify-center gap-2 text-sm font-bold">
             <Eye size={16} />
-            <span>ADMIN PREVIEW - This course is not published yet</span>
+            <span>{t('syllabusPage.adminPreview')}</span>
             <button 
               onClick={() => window.location.hash = `#admin-course-edit-${course.id}`}
               className="ml-4 px-3 py-1 bg-white/20 rounded-full text-xs font-black uppercase hover:bg-white/30 transition-colors"
             >
-              Edit Course
+              {t('syllabusPage.editCourse')}
             </button>
           </div>
         </div>
@@ -897,7 +339,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
             <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-[#AB8FFF]/30 group-hover:shadow-md transition-all">
               <ArrowLeft size={16} />
             </div>
-            Back to Courses
+            {t('shared.backToCourses')}
           </button>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
@@ -909,8 +351,8 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                   {config.icon}
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-[#AB8FFF]">Level {course.level}</span>
-                  <span className="text-sm font-bold text-gray-300">{config.label}</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-[#AB8FFF]">{t('syllabusPage.level', { level: course.level })}</span>
+                  <span className="text-sm font-bold text-gray-300">{t('shared.levelLabels.' + course.level, { defaultValue: config.label })}</span>
                 </div>
               </div>
 
@@ -935,14 +377,14 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
 
               {/* Description */}
               <p className="text-lg sm:text-xl font-medium text-gray-400 leading-relaxed max-w-xl">
-                {courseDescription || `Transform your English skills with our ${config.label.toLowerCase()} course. Designed specifically for visual learners and students with dyslexia — learn at your own pace with proven, brain-friendly methods.`}
+                {courseDescription || descriptionFallback}
               </p>
 
               {/* Exam Prep Badge */}
               {examPrep && (
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/20 rounded-full border border-green-500/30">
                   <GraduationCap size={16} className="text-green-400" />
-                  <span className="text-xs font-bold text-green-400">Prepares for {examPrep}</span>
+                  <span className="text-xs font-bold text-green-400">{t('shared.preparesFor', { exam: examPrep })}</span>
                 </div>
               )}
 
@@ -954,7 +396,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                   </div>
                   <div>
                     <p className="text-2xl font-black text-white">{totalModules}</p>
-                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Modules</p>
+                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{t('shared.modules')}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -963,7 +405,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                   </div>
                   <div>
                     <p className="text-2xl font-black text-white">{totalLessons}</p>
-                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Lessons</p>
+                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{t('shared.lessons')}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -972,7 +414,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                   </div>
                   <div>
                     <p className="text-2xl font-black text-white">{formattedDuration || '2h+'}</p>
-                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Duration</p>
+                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{t('shared.duration')}</p>
                   </div>
                 </div>
               </div>
@@ -984,14 +426,14 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                   {hasActiveDiscount && (
                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-pink-500 rounded-full w-fit animate-pulse">
                       <Flame size={14} className="text-white" />
-                      <span className="text-[10px] font-black uppercase tracking-widest text-white">Limited Time Offer</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-white">{t('shared.limitedTimeOffer')}</span>
                     </div>
                   )}
                   {/* Teaching Materials Badge */}
                   {isPremiumOrGold && teachingMaterialsSelected && (
                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full w-fit">
                       <BookOpen size={14} className="text-white" />
-                      <span className="text-[10px] font-black uppercase tracking-widest text-white">+ Teaching Materials</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-white">{t('syllabusPage.teachingMaterialsBadge')}</span>
                     </div>
                   )}
                   <div className="flex items-baseline gap-3">
@@ -1002,7 +444,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                       <span className="text-xl font-bold text-gray-500 line-through decoration-pink-500">{originalPrice}</span>
                     )}
                     {teachingMaterialsSelected && isPremiumOrGold && (
-                      <span className="text-sm font-medium text-gray-400">({price} + €50 materials)</span>
+                      <span className="text-sm font-medium text-gray-400">{t('syllabusPage.materialsPrice', { price })}</span>
                     )}
                   </div>
                 </div>
@@ -1012,7 +454,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                     onClick={() => onEnroll(courseId)}
                     className={`group flex items-center gap-3 px-8 py-4 rounded-full text-[11px] font-black uppercase tracking-widest text-white shadow-xl hover:shadow-[#AB8FFF]/25 hover:-translate-y-1 transition-all bg-[#AB8FFF]`}
                   >
-                    {price === 'FREE' ? 'Start Free' : 'Enroll Now'}
+                    {pricing.isFree ? t('shared.cta.startFree') : t('shared.cta.enrollNow')}
                     <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
                   </button>
                   <button 
@@ -1029,7 +471,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                     {isAddingToCart ? (
                       <div className="w-4 h-4 border-2 border-gray-500 border-t-gray-300 rounded-full animate-spin" />
                     ) : isInCart ? <Check size={16} /> : <ShoppingCart size={16} />}
-                    {isAddingToCart ? 'Adding...' : isInCart ? 'Added' : 'Add to Cart'}
+                    {isAddingToCart ? t('shared.adding') : isInCart ? t('shared.added') : t('shared.addToCart')}
                   </button>
                 </div>
               </div>
@@ -1072,19 +514,19 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                     <div className="p-1 rounded-full bg-green-500/20 text-green-400">
                       <CheckCircle2 size={14} />
                     </div>
-                    <span className="text-base font-bold text-gray-300">Lifetime access to all materials</span>
+                    <span className="text-base font-bold text-gray-300">{t('syllabusPage.highlights.lifetimeAccess')}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="p-1 rounded-full bg-green-500/20 text-green-400">
                       <CheckCircle2 size={16} />
                     </div>
-                    <span className="text-base font-bold text-gray-300">Certificate of completion</span>
+                    <span className="text-base font-bold text-gray-300">{t('syllabusPage.highlights.certificate')}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="p-1 rounded-full bg-green-500/20 text-green-400">
                       <CheckCircle2 size={16} />
                     </div>
-                    <span className="text-base font-bold text-gray-300">Dyslexia-friendly design</span>
+                    <span className="text-base font-bold text-gray-300">{t('syllabusPage.highlights.dyslexiaFriendly')}</span>
                   </div>
                 </div>
               </div>
@@ -1117,13 +559,13 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                   <Target size={28} />
                 </div>
                 <h3 className="text-3xl font-black text-white tracking-tight uppercase">
-                  {course.level.startsWith('kids') ? "What Your Child Will Achieve by the End of the Course" : "What You'll Achieve"}
+                  {course.level.startsWith('kids') ? t('shared.whatYoullAchieveKids') : t('shared.whatYoullAchieveShort')}
                 </h3>
               </div>
               <p className="text-gray-400 text-lg mb-8 font-medium">
                 {course.level.startsWith('kids')
-                  ? "By the end of this course, your child will be able to confidently:"
-                  : "By the end of this course, you'll be able to confidently:"}
+                  ? t('shared.outcomesIntroKids')
+                  : t('shared.outcomesIntroShort')}
               </p>
               <div className="space-y-4">
                 {outcomes.slice(0, 4).map((item, i) => (
@@ -1141,13 +583,16 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
               <div className="absolute top-0 right-0 w-32 h-32 bg-purple-600/30 rounded-full blur-[60px] translate-x-1/2 -translate-y-1/2"></div>
               <div className="relative z-10">
                 <Sparkles className="text-purple-400 mb-6" size={32} />
-                <h4 className="text-2xl font-black mb-4 uppercase tracking-tight">DSA Smart Start Advantage</h4>
+                <h4 className="text-2xl font-black mb-4 uppercase tracking-tight">{t('shared.dsaAdvantageTitle')}</h4>
                 <p className="text-gray-400 text-sm leading-loose mb-6">
-                  Unlike traditional methods, we don't overload students with abstract grammar explanations. We teach students to understand through <span className="text-white italic underline underline-offset-4 decoration-purple-500 decoration-2">visual learning paths</span> and sensory triggers that make English clear, structured, and memorable.
+                  {(() => {
+                    const parts = (t('shared.dsaAdvantageDesc') as string).split(/<1>|<\/1>/);
+                    return parts.length === 3 ? <>{parts[0]}<span className="text-white italic underline underline-offset-4 decoration-purple-500 decoration-2">{parts[1]}</span>{parts[2]}</> : t('shared.dsaAdvantageDesc');
+                  })()}
                 </p>
-                <p className="text-white text-sm font-bold mb-4 uppercase tracking-wide">What makes the difference:</p>
+                <p className="text-white text-sm font-bold mb-4 uppercase tracking-wide">{t('shared.dsaWhatMakesTheDifference')}</p>
                 <div className="space-y-2">
-                   {["Visual Mind Mapping", "Multisensory Learning Approach", "Structured Step-by-Step System", "Confidence-Building Method"].map((tag, i) => (
+                   {(t('shared.dsaTags', { returnObjects: true }) as string[]).map((tag, i) => (
                      <div key={i} className="inline-block px-4 py-2 bg-white/5 rounded-full border border-white/10 text-[10px] font-black uppercase tracking-widest mr-2 mb-2">{tag}</div>
                    ))}
                 </div>
@@ -1161,7 +606,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                   <div className="p-2 bg-blue-500/20 rounded-xl text-blue-400">
                     <FileCheck size={24} />
                   </div>
-                  <h4 className="text-xl font-black text-white uppercase tracking-tight">What's Included</h4>
+                  <h4 className="text-xl font-black text-white uppercase tracking-tight">{t('shared.whatsIncluded')}</h4>
                 </div>
                 <div className="space-y-3">
                   {whatYoullFind.map((item, i) => (
@@ -1182,7 +627,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                   <div className="p-2 bg-white/10 rounded-xl text-[#AB8FFF] shadow-sm border border-white/10">
                     <UserCheck size={24} />
                   </div>
-                  <h4 className="text-xl font-black text-white uppercase tracking-tight">Who Is This For?</h4>
+                  <h4 className="text-xl font-black text-white uppercase tracking-tight">{t('shared.whoIsThisFor')}</h4>
                 </div>
                 <p className="text-gray-400 text-sm mb-6 font-medium">{targetAudience.description}</p>
                 <div className="space-y-3">
@@ -1204,29 +649,29 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                 <div className="p-2 bg-green-500/20 rounded-xl text-green-400">
                   <Shield size={24} />
                 </div>
-                <h4 className="text-xl font-black text-white uppercase tracking-tight">Our Promise</h4>
+                <h4 className="text-xl font-black text-white uppercase tracking-tight">{t('shared.ourPromise')}</h4>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-white/5">
                   <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center mb-3">
                     <RefreshCcw size={20} className="text-green-400" />
                   </div>
-                  <span className="text-xs font-black uppercase tracking-wider text-white">14-Day</span>
-                  <span className="text-[10px] text-gray-400 font-medium">Money Back Guarantee</span>
+                  <span className="text-xs font-black uppercase tracking-wider text-white">{t('shared.promise.moneyBackTitle')}</span>
+                  <span className="text-[10px] text-gray-400 font-medium">{t('shared.promise.moneyBackDesc')}</span>
                 </div>
                 <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-white/5">
                   <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center mb-3">
                     <Heart size={20} className="text-purple-400" />
                   </div>
-                  <span className="text-xs font-black uppercase tracking-wider text-white">Dyslexia</span>
-                  <span className="text-[10px] text-gray-400 font-medium">Friendly Design</span>
+                  <span className="text-xs font-black uppercase tracking-wider text-white">{t('shared.promise.dyslexiaTitle')}</span>
+                  <span className="text-[10px] text-gray-400 font-medium">{t('shared.promise.dyslexiaDesc')}</span>
                 </div>
                 <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-white/5">
                   <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center mb-3">
                     <BadgeCheck size={20} className="text-amber-400" />
                   </div>
-                  <span className="text-xs font-black uppercase tracking-wider text-white">Certificate</span>
-                  <span className="text-[10px] text-gray-400 font-medium">Upon Completion</span>
+                  <span className="text-xs font-black uppercase tracking-wider text-white">{t('shared.promise.certificateTitle')}</span>
+                  <span className="text-[10px] text-gray-400 font-medium">{t('shared.promise.certificateDesc')}</span>
                 </div>
               </div>
             </div>
@@ -1240,10 +685,10 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
               </div>
               <h3 className="text-3xl font-black text-white tracking-tight uppercase">
                 {course.level === 'Premium' || course.level === 'premium' || course.level === 'Gold' || course.level === 'golden'
-                  ? 'Program Includes' 
+                  ? t('shared.programIncludes') 
                   : grammarUnits.length > 0 
-                    ? 'Unit Content' 
-                    : 'Course Modules'}
+                    ? t('shared.unitContent') 
+                    : t('shared.courseModules')}
               </h3>
             </div>
 
@@ -1272,13 +717,16 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                         {course.level === 'Premium' || course.level === 'premium' ? <Crown size={28} /> : <Diamond size={28} />}
                       </div>
                       <div>
-                        <h4 className="text-xl font-black text-white">Complete Learning Package</h4>
-                        <p className="text-white/50 text-sm">Everything you need for success</p>
+                        <h4 className="text-xl font-black text-white">{t('syllabusPage.completeLearningPackage')}</h4>
+                        <p className="text-white/50 text-sm">{t('syllabusPage.everythingForSuccess')}</p>
                       </div>
                     </div>
                     
                     <div className="space-y-4">
-                      {((course.level === 'Premium' || course.level === 'premium') ? PREMIUM_FEATURES : GOLD_FEATURES).map((feature, i) => (
+                      {((course.level === 'Premium' || course.level === 'premium')
+                        ? (t('premiumFeatures', { returnObjects: true }) as string[]).map((text, i) => ({ icon: PREMIUM_FEATURE_ICONS[i], text }))
+                        : (t('goldFeatures', { returnObjects: true }) as string[]).map((text, i) => ({ icon: GOLD_FEATURE_ICONS[i], text }))
+                      ).map((feature, i) => (
                         <div key={i} className="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 group hover:bg-white/10 transition-all">
                           <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
                             course.level === 'Premium' || course.level === 'premium' ? 'bg-violet-500/30 text-violet-300' : 'bg-amber-500/30 text-amber-300'
@@ -1294,15 +742,15 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                     <div className="mt-10 pt-8 border-t border-white/10 flex flex-wrap items-center justify-center gap-6">
                       <div className="flex items-center gap-2 text-white/40 text-[10px] font-bold uppercase tracking-wider">
                         <Shield size={14} />
-                        Secure Payment
+                        {t('shared.trustBadges.securePayment')}
                       </div>
                       <div className="flex items-center gap-2 text-white/40 text-[10px] font-bold uppercase tracking-wider">
                         <Award size={14} />
-                        Certificate Included
+                        {t('shared.trustBadges.certificateIncluded')}
                       </div>
                       <div className="flex items-center gap-2 text-white/40 text-[10px] font-bold uppercase tracking-wider">
                         <MessageCircle size={14} />
-                        6 Days Support
+                        {t('shared.trustBadges.sixDaysSupport')}
                       </div>
                     </div>
                   </div>
@@ -1332,8 +780,8 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                         <BookOpen size={24} className="text-white" />
                       </div>
                       <div>
-                        <h4 className="text-xl font-black text-white uppercase tracking-tight">Teaching Materials</h4>
-                        <p className="text-amber-400 font-bold text-lg">+€50 <span className="text-sm font-normal text-amber-500/70">(Optional Add-on)</span></p>
+                        <h4 className="text-xl font-black text-white uppercase tracking-tight">{t('syllabusPage.teachingMaterials.title')}</h4>
+                        <p className="text-amber-400 font-bold text-lg">{t('syllabusPage.teachingMaterials.price')} <span className="text-sm font-normal text-amber-500/70">{t('syllabusPage.teachingMaterials.priceNote')}</span></p>
                       </div>
                     </div>
                     {/* Checkbox */}
@@ -1352,7 +800,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                     </button>
                   </div>
                   <p className="text-gray-400 leading-relaxed mb-4">
-                    Enhance your learning experience with our comprehensive teaching materials package, including workbooks, practice exercises, supplementary resources, and exclusive study guides designed specifically for this program.
+                    {t('syllabusPage.teachingMaterials.description')}
                   </p>
                   <div className={`flex items-center gap-2 text-sm rounded-xl px-4 py-2 w-fit transition-all ${
                     teachingMaterialsSelected 
@@ -1362,12 +810,12 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                     {teachingMaterialsSelected ? (
                       <>
                         <Check size={16} />
-                        <span className="font-medium">Added to your purchase</span>
+                        <span className="font-medium">{t('syllabusPage.teachingMaterials.added')}</span>
                       </>
                     ) : (
                       <>
                         <Sparkles size={16} />
-                        <span className="font-medium">Click to add to your purchase</span>
+                        <span className="font-medium">{t('syllabusPage.teachingMaterials.clickToAdd')}</span>
                       </>
                     )}
                   </div>
@@ -1375,11 +823,11 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                 
                 {/* Method Description */}
                 <div className="bg-white/5 rounded-[3rem] p-10 border border-white/10">
-                  <h4 className="text-xl font-black text-white mb-4 uppercase tracking-tight">The Eduway Method</h4>
+                  <h4 className="text-xl font-black text-white mb-4 uppercase tracking-tight">{t('syllabusPage.theEduwayMethod')}</h4>
                   <p className="text-gray-400 leading-relaxed">
                     {course.level === 'Premium' || course.level === 'premium'
-                      ? 'The Eduway Method is the only one that integrates socialization, specific support tools, and a gradual approach, to guide students step by step, with confidence and motivation.'
-                      : 'The Eduway method is the only one that combines socialization, specific support tools, and a step-by-step approach, to guide students in their learning journey with confidence and motivation.'
+                      ? t('syllabusPage.eduwayMethodPremium')
+                      : t('syllabusPage.eduwayMethodGold')
                     }
                   </p>
                 </div>
@@ -1388,9 +836,11 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
               /* Unit Content Display for A1, A2, B1, Kids */
               <div className="space-y-4">
                 <p className="text-gray-400 text-sm mb-6">
-                  {course.level === 'kids-basic' || course.level === 'kids-medium'
-                    ? <>This course includes <span className="font-bold text-white">{grammarUnits.length} comprehensive units</span> designed to build structure, clarity, and confidence step by step.</>
-                    : <>This course covers <span className="font-bold text-white">{grammarUnits.length} comprehensive units</span>, each designed with visual learning techniques and dyslexia-friendly materials.</>}
+                  {(() => {
+                    const key = (course.level === 'kids-basic' || course.level === 'kids-medium') ? 'shared.unitCountMessage' : 'shared.unitCountMessageAlt';
+                    const parts = (t(key, { count: grammarUnits.length }) as string).split(/<1>|<\/1>/);
+                    return parts.length === 3 ? <>{parts[0]}<span className="font-bold text-white">{parts[1]}</span>{parts[2]}</> : t(key, { count: grammarUnits.length });
+                  })()}
                 </p>
                 
                 {grammarUnits.map((unit, i) => {
@@ -1410,7 +860,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                           </div>
                           <div>
                             <h5 className="text-lg font-black text-white tracking-tight">{unit.title}</h5>
-                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">{(unit.topics || []).length} Topics</span>
+                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">{t('shared.topics', { count: (unit.topics || []).length })}</span>
                           </div>
                         </div>
                         <div className={`w-10 h-10 rounded-full bg-white/5 flex items-center justify-center transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
@@ -1438,8 +888,8 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
             ) : modules.length === 0 ? (
               <div className="bg-white/5 rounded-[3rem] p-12 text-center border border-white/10">
                 <BookOpen size={48} className="text-gray-500 mx-auto mb-4" />
-                <h4 className="text-xl font-black text-white mb-2">Content Coming Soon</h4>
-                <p className="text-gray-400">This course is being developed. Check back soon for the full curriculum!</p>
+                <h4 className="text-xl font-black text-white mb-2">{t('shared.contentComingSoonTitle')}</h4>
+                <p className="text-gray-400">{t('shared.contentComingSoonAlt')}</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -1455,7 +905,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                     }}
                     className="text-[10px] font-black uppercase tracking-widest text-[#AB8FFF] hover:text-purple-300 transition-colors"
                   >
-                    {expandedModules.size === modules.length ? 'Collapse All' : 'Expand All'}
+                    {expandedModules.size === modules.length ? t('shared.collapseAll') : t('shared.expandAll')}
                   </button>
                 </div>
                 
@@ -1478,9 +928,9 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                           <div>
                             <h5 className="text-lg md:text-xl font-black text-white tracking-tight">{module.title}</h5>
                             <div className="flex items-center gap-4 mt-1">
-                              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">{lessonCount} Lessons</span>
+                              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">{t('shared.lessonsCount', { count: lessonCount })}</span>
                               {totalModuleDuration > 0 && (
-                                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">{totalModuleDuration} min</span>
+                                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">{t('shared.durationMinutes', { count: totalModuleDuration })}</span>
                               )}
                             </div>
                           </div>
@@ -1511,7 +961,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                                 </div>
                                 <div className="flex-1">
                                   <span className="text-sm font-bold text-gray-300 block">{lesson.title}</span>
-                                  <span className="text-xs text-gray-500">{lesson.type.charAt(0).toUpperCase() + lesson.type.slice(1)} • {lesson.duration}</span>
+                                  <span className="text-xs text-gray-500">{lesson.type.charAt(0).toUpperCase() + lesson.type.slice(1)} â€¢ {lesson.duration}</span>
                                 </div>
                                 <Lock size={14} className="text-gray-500 group-hover:text-purple-400" />
                               </div>
@@ -1519,7 +969,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                             
                             {(module.homework?.length || 0) > 0 && (
                               <div className="mt-4 pt-4 border-t border-white/10">
-                                <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 block mb-3">Practice & Homework</span>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 block mb-3">{t('shared.practiceHomework')}</span>
                                 {(module.homework || []).map((hw) => (
                                   <div key={hw.id} className="flex items-center gap-3 p-3 bg-amber-500/10 rounded-xl mb-2">
                                     <FileText size={16} className="text-amber-400" />
@@ -1544,20 +994,10 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                   <div className="p-3 bg-pink-500/20 rounded-2xl text-pink-400 border border-pink-500/30">
                     <BookOpen size={28} />
                   </div>
-                  <h3 className="text-3xl font-black text-white tracking-tight uppercase">Vocabulary Topics</h3>
+                  <h3 className="text-3xl font-black text-white tracking-tight uppercase">{t('shared.vocabularyTopics')}</h3>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                  {(course.level === 'kids-medium' ? [
-                    "Emotions and feelings", "Family", "Daily routines", "School",
-                    "Friends & relationships", "Describing your home", "Weather", "Food & drinks",
-                    "Numbers", "Days of the week", "Months of the year", "Hobbies and free time",
-                    "Sports", "Clothing", "Cities", "Adjectives"
-                  ] : [
-                    "Emotions and feelings", "Family", "Daily routines", "School",
-                    "Home", "Colors", "Nations", "Countries",
-                    "Numbers", "Days of the week", "Months of the year", "Hobbies and free time",
-                    "Sports", "Clothing", "Cities", "Adjectives"
-                  ]).map((topic, i) => (
+                  {(t(`vocabularyTopics.${course.level}`, { returnObjects: true }) as string[]).map((topic, i) => (
                     <div key={i} className="flex items-center gap-3 p-4 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 hover:border-pink-500/30 transition-all">
                       <CheckCircle2 size={16} className="text-pink-400 flex-shrink-0" />
                       <span className="text-sm font-bold text-gray-300">{topic}</span>
@@ -1576,18 +1016,18 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                <div className="relative z-10">
                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/10 mb-6">
                    <Rocket size={16} className="text-[#AB8FFF]" />
-                   <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Start Your Transformation</span>
+                   <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">{t('shared.cta.badge')}</span>
                  </div>
-                 <h4 className="text-3xl font-black text-white mb-4 tracking-tight">Ready to unlock your potential?</h4>
+                 <h4 className="text-3xl font-black text-white mb-4 tracking-tight">{t('shared.cta.titleAlt')}</h4>
                  <p className="text-gray-400 mb-10 font-medium max-w-lg mx-auto">
-                   Join hundreds of students who've discovered a better way to learn. Your journey to confidence starts with a single step.
+                   {t('shared.cta.descriptionSyllabus')}
                  </p>
                  <div className="flex flex-col sm:flex-row justify-center gap-4">
                     <button 
                       onClick={() => onEnroll(courseId)}
                       className={`group flex items-center justify-center gap-3 px-10 py-5 rounded-full text-xs font-black uppercase tracking-widest text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all bg-gradient-to-r ${config.color}`}
                     >
-                      {price === 'FREE' ? 'Start Learning Free' : `Enroll Now — ${displayPrice}`}
+                      {pricing.isFree ? t('shared.cta.startLearningFree') : t('shared.cta.enrollNowPrice', { price: displayPrice })}
                       <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
                     </button>
                     <button 
@@ -1602,11 +1042,11 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                       }`}
                     >
                       {isAddingToCart ? (
-                        <><div className="w-4 h-4 border-2 border-gray-500 border-t-gray-300 rounded-full animate-spin" /> Adding...</>
+                        <><div className="w-4 h-4 border-2 border-gray-500 border-t-gray-300 rounded-full animate-spin" /> {t('shared.adding')}</>
                       ) : isInCart ? (
-                        <><Check size={18} /> Added to Cart</>
+                        <><Check size={18} /> {t('shared.addedToCart')}</>
                       ) : (
-                        <><ShoppingCart size={18} /> Save for Later</>
+                        <><ShoppingCart size={18} /> {t('shared.saveForLater')}</>
                       )}
                     </button>
                  </div>
@@ -1615,15 +1055,15 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                  <div className="flex flex-wrap items-center justify-center gap-6 mt-10 pt-8 border-t border-white/10">
                    <div className="flex items-center gap-2 text-gray-500 text-[10px] font-bold">
                      <Shield size={14} />
-                     <span>14-Day Money Back</span>
+                     <span>{t('shared.trustBadges.moneyBack')}</span>
                    </div>
                    <div className="flex items-center gap-2 text-gray-500 text-[10px] font-bold">
                      <Lock size={14} />
-                     <span>Secure Checkout</span>
+                     <span>{t('shared.trustBadges.secureCheckout')}</span>
                    </div>
                    <div className="flex items-center gap-2 text-gray-500 text-[10px] font-bold">
                      <Award size={14} />
-                     <span>Certificate Included</span>
+                     <span>{t('shared.trustBadges.certificateIncluded')}</span>
                    </div>
                  </div>
                </div>

@@ -1,0 +1,186 @@
+{
+  "title": "Pago",
+  "backButton": "Volver a la página anterior",
+  "backButtonMobile": "Volver",
+
+  "emptyCart": {
+    "title": "Tu carrito está vacío",
+    "description": "¡Comienza tu camino de aprendizaje hoy! Explora nuestros cursos diseñados específicamente para estudiantes con diferencias de aprendizaje.",
+    "popularChoices": "Opciones populares:",
+    "choice1": "Cursos Interactivos de Inglés A1-B1",
+    "choice2": "Programas de Inglés para Niños (Básico a Avanzado)",
+    "choice3": "Rutas Premium y Gold para aprendizaje intensivo",
+    "browseCourses": "Explorar Cursos"
+  },
+
+  "paymentNotConfigured": {
+    "title": "Configuración de Pago Requerida",
+    "description": "El procesamiento de pagos aún no está configurado. Por favor, contáctanos para completar tu inscripción.",
+    "yourCourses": "Tus cursos:",
+    "contactButton": "Contáctanos para Inscribirte"
+  },
+
+  "studentInfo": {
+    "title": "Información del Estudiante",
+    "fullName": "Nombre Completo",
+    "emailAddress": "Correo Electrónico",
+    "namePlaceholder": "Tu nombre",
+    "emailPlaceholder": "correo@ejemplo.com"
+  },
+
+  "loginBanner": {
+    "title": "Inicia sesión para completar tu compra",
+    "description": "Se requiere una cuenta para que tus cursos aparezcan en tu panel después de la compra.",
+    "button": "Iniciar Sesión / Registrarse"
+  },
+
+  "paymentMethod": {
+    "title": "Método de Pago",
+    "card": "Tarjeta de Crédito / Débito",
+    "cardDescription": "Pago seguro a través de Raiffeisen Bank",
+    "paypal": "PayPal",
+    "paypalDescription": "Paga de forma segura con tu cuenta PayPal",
+    "selectPrompt": "Por favor, selecciona un método de pago arriba",
+    "bankNotice": "Un formulario de pago seguro de Raiffeisen Bank aparecerá en esta página para que introduzcas los datos de tu tarjeta.",
+    "loadingPaypal": "Cargando PayPal...",
+    "redirecting": "REDIRIGIENDO AL PAGO...",
+    "proceedToPayment": "PROCEDER AL PAGO ({{total}})"
+  },
+
+  "terms": {
+    "accept": "Acepto los <termsLink>Términos y Condiciones</termsLink> y la <privacyLink>Política de Privacidad</privacyLink>",
+    "required": "Debes aceptar los términos para continuar",
+    "termsConditions": "Términos y Condiciones",
+    "privacyPolicy": "Política de Privacidad",
+    "acceptPlain": "Acepto los Términos y Condiciones y la Política de Privacidad"
+  },
+
+  "orderSummary": {
+    "title": "Tus Cursos",
+    "noItems": "Ningún curso seleccionado",
+    "subtotal": "Subtotal",
+    "teachingMaterials": "Material Didáctico",
+    "discountApplied": "Descuento Aplicado",
+    "total": "Total",
+    "digitalNote": "📦 Producto digital — acceso inmediato tras la confirmación del pago",
+    "currencyNotice": "Todos los precios se muestran en EUR. Los pagos con tarjeta se procesan en RSD (dinares serbios) a una tasa fija de 1 EUR = {{rate}} RSD. Se cargará aproximadamente <strong>{{rsdAmount}}</strong> en tu tarjeta por este pedido.",
+    "currencyNoticeLabel": "Aviso de moneda:"
+  },
+
+  "teachingMaterialsAddon": {
+    "title": "Material Didáctico",
+    "description": "Guías de estudio y cuadernos de ejercicios"
+  },
+
+  "removal": {
+    "removing": "Eliminando: {{name}}",
+    "removedIn5s": "Se eliminará en 5 segundos",
+    "undo": "Deshacer"
+  },
+
+  "promoCode": {
+    "label": "Código Promocional",
+    "placeholder": "INTRODUCE EL CÓDIGO",
+    "apply": "Aplicar",
+    "codeApplied": "Código Aplicado: {{code}}",
+    "invalid": "Código de descuento inválido o caducado",
+    "expired": "Este código de descuento ha caducado",
+    "usageLimitReached": "Este código de descuento ha alcanzado su límite de uso",
+    "alreadyUsed": "Ya has utilizado este código de descuento",
+    "minOrder": "Se requiere un pedido mínimo de {{amount}} para este código (tu pedido: {{orderTotal}})",
+    "deactivated": "Este código de descuento ha sido desactivado",
+    "unavailable": "Los códigos de descuento no están disponibles en este momento",
+    "noLongerValid": "Tu código de descuento ya no es válido. Por favor, revisa tu pedido.",
+    "expiredReview": "Tu código de descuento ha caducado. Por favor, revisa tu pedido.",
+    "usageLimitReview": "Tu código de descuento ha alcanzado su límite de uso. Por favor, revisa tu pedido.",
+    "deactivatedReview": "Tu código de descuento ha sido desactivado. Por favor, revisa tu pedido."
+  },
+
+  "sellerInfo": {
+    "title": "Información del Vendedor",
+    "seller": "Vendedor:",
+    "sellerName": "ANA MILATOVIĆ PR CENTAR ZA EDUKACIJE EDUWAY",
+    "pib": "PIB:",
+    "mb": "MB:",
+    "productType": "Tipo de producto:",
+    "productTypeValue": "Contenido educativo digital",
+    "delivery": "Entrega:",
+    "deliveryValue": "Acceso digital inmediato tras el pago",
+    "rightToWithdraw": "Derecho de desistimiento:",
+    "rightToWithdrawValue": "14 días (ver condiciones)",
+    "fullTerms": "Términos y Condiciones completos →"
+  },
+
+  "benefits": {
+    "lifetimeUpdates": "Actualizaciones de por vida del curso",
+    "certificate": "Certificado oficial DSA Smart Start",
+    "support": "Soporte prioritario de especialistas 24/7",
+    "satisfaction": "Garantía de satisfacción"
+  },
+
+  "emailConfirmation": "La confirmación del pedido se enviará a <strong>{{email}}</strong>",
+
+  "security": {
+    "sslSecured": "Protegido con SSL",
+    "3dSecure": "3D Secure",
+    "raiffeisenProcessing": "Procesamiento de pagos por Raiffeisen Bank",
+    "securePayment": "Pago Seguro – Raiffeisen Bank"
+  },
+
+  "session": {
+    "expiringSoon": "La sesión expira pronto",
+    "expiresIn": "Tu sesión de pago expirará en {{minutes}} minuto(s). Por favor, completa tu compra.",
+    "expired": "Tu sesión de pago ha expirado. Por favor, actualiza la página e inténtalo de nuevo.",
+    "dismiss": "Cerrar"
+  },
+
+  "errors": {
+    "paymentCancelled": "El pago fue cancelado. Puedes intentarlo de nuevo.",
+    "paymentFailed": "El pago falló. Por favor, inténtalo de nuevo.",
+    "failedToComplete": "No se pudo completar la compra",
+    "paypalError": "Error de PayPal: {{message}}",
+    "acceptTerms": "Por favor, acepta los Términos y Condiciones para continuar",
+    "fillNameEmail": "Por favor, completa tu nombre y correo electrónico",
+    "emailRequired": "El correo electrónico es obligatorio",
+    "emailInvalid": "Por favor, introduce una dirección de correo electrónico válida"
+  },
+
+  "announcements": {
+    "paymentSuccess": "¡Pago exitoso! Tu compra está confirmada.",
+    "paymentSuccessShort": "¡Pago exitoso! Tus cursos estarán disponibles en breve.",
+    "paymentCancelled": "Pago cancelado.",
+    "paymentFailed": "Pago fallido.",
+    "teachingMaterialsAdded": "Material didáctico añadido para {{name}}",
+    "teachingMaterialsRemoved": "Material didáctico eliminado para {{name}}",
+    "itemRemoved": "{{name}} eliminado del carrito",
+    "itemWillBeRemoved": "{{name}} será eliminado. Pulsa deshacer para cancelar.",
+    "removalCancelled": "Eliminación de {{name}} cancelada",
+    "discountApplied": "¡Código de descuento aplicado! Ahorras {{amount}}"
+  },
+
+  "success": {
+    "title": "¡Pago Exitoso!",
+    "description": "Tus cursos ya están desbloqueados. ¡Bienvenido/a a la familia DSA Smart Start! Se ha enviado un correo de confirmación a {{email}}.",
+    "goToCourses": "Ir a Mis Cursos"
+  },
+
+  "successPage": {
+    "title": "¡Pago Recibido!",
+    "thankYou": "¡Gracias por tu compra, <strong>{{name}}</strong>!",
+    "verifying": "Tu pago está siendo verificado. Tu contenido digital estará disponible en tu Panel en breve.",
+    "digitalDelivery": "Todos los cursos y materiales comprados se entregan digitalmente — no se requiere envío.",
+    "confirmationEmail": "Se enviará un correo de confirmación a tu dirección de correo electrónico registrada.",
+    "yourPurchase": "Tu Compra",
+    "yourPurchases": "Tus Compras",
+    "ebook": "E-book",
+    "serviceProgram": "Programa de Servicio",
+    "interactiveCourse": "Curso Interactivo",
+    "statusVerifying": "Verificando",
+    "statusReady": "Listo",
+    "pendingNotice": "La verificación del pago generalmente tarda unos momentos. Tu curso aparecerá en tu panel automáticamente una vez confirmado.",
+    "contentAvailable": "Tu contenido ya está disponible en tu panel.",
+    "goToDashboard": "Ir a Mi Panel",
+    "browseMore": "Explorar Más Cursos",
+    "needHelp": "¿Necesitas ayuda? <contactLink>Contacta con nuestro equipo de soporte</contactLink>"
+  }
+}

@@ -4,6 +4,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { CheckCircle2, Download, BookOpen, ArrowRight, Sparkles, Mail, Key, User, Loader2, Clock } from 'lucide-react';
+import { useTranslation, Trans } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { purchasesApi, coursesApi } from '../data/supabaseStore';
 import { Course, Purchase } from '../types';
@@ -18,6 +19,7 @@ interface PurchaseWithCourse extends Purchase {
 }
 
 const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate }) => {
+  const { t } = useTranslation('checkout');
   const { user, profile } = useAuth();
   const [recentPurchases, setRecentPurchases] = useState<PurchaseWithCourse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -175,16 +177,16 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
         {/* Success Message */}
         <div className="mb-12 animate-reveal stagger-1">
           <h1 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tight mb-4">
-            Payment Received!
+            {t('successPage.title')}
           </h1>
           <p className="text-xl text-gray-300 font-medium">
-            Thank you for your purchase, <span className="text-purple-400 font-bold">{userName}</span>!
+            <Trans i18nKey="successPage.thankYou" ns="checkout" values={{ name: userName }} components={{ strong: <span className="text-purple-400 font-bold" /> }} />
           </p>
           <p className="text-gray-500 mt-2">
-            Your payment is being verified. Your digital content will be available in your Dashboard shortly.
+            {t('successPage.verifying')}
           </p>
           <p className="text-gray-600 text-sm mt-1">
-            All purchased courses and materials are delivered digitally — no shipping required.
+            {t('successPage.digitalDelivery')}
           </p>
         </div>
 
@@ -193,7 +195,7 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
           <div className="flex items-center justify-center gap-3 mb-6">
             <Mail size={20} className="text-purple-400" />
             <p className="text-sm text-gray-400">
-              A confirmation email will be sent to your registered email address.
+              {t('successPage.confirmationEmail')}
             </p>
           </div>
 
@@ -205,7 +207,7 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
           ) : recentPurchases.length > 0 ? (
             <div className="space-y-4">
               <h3 className="text-sm font-black uppercase tracking-widest text-gray-500 mb-4">
-                Your Purchase{recentPurchases.length > 1 ? 's' : ''}
+                {recentPurchases.length > 1 ? t('successPage.yourPurchases') : t('successPage.yourPurchase')}
               </h3>
               {recentPurchases.map(purchase => (
                 <div 
@@ -228,20 +230,20 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
                   <div className="flex-1 text-left">
                     <h4 className="font-bold text-white">{purchase.course?.title || 'Course'}</h4>
                     <p className="text-xs text-gray-500 uppercase tracking-wider">
-                      {purchase.course?.productType === 'ebook' ? 'E-book' : 
-                       purchase.course?.productType === 'service' ? 'Service Program' : 'Interactive Course'}
+                      {purchase.course?.productType === 'ebook' ? t('successPage.ebook') : 
+                       purchase.course?.productType === 'service' ? t('successPage.serviceProgram') : t('successPage.interactiveCourse')}
                     </p>
                   </div>
                   {/* Status badge */}
                   {purchase.status === 'pending' ? (
                     <span className="px-3 py-1 bg-amber-500/20 text-amber-400 text-xs font-bold rounded-full flex items-center gap-1">
                       <Loader2 size={12} className="animate-spin" />
-                      Verifying
+                      {t('successPage.statusVerifying')}
                     </span>
                   ) : purchase.status === 'completed' ? (
                     <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-xs font-bold rounded-full flex items-center gap-1">
                       <CheckCircle2 size={12} />
-                      Ready
+                      {t('successPage.statusReady')}
                     </span>
                   ) : (
                     <span className="px-3 py-1 bg-white/10 text-gray-400 text-xs font-bold rounded-full">
@@ -256,14 +258,14 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
                 <div className="flex items-center gap-3 p-4 bg-amber-500/10 rounded-xl border border-amber-500/30 mt-4">
                   <Clock size={20} className="text-amber-400" />
                   <p className="text-sm text-amber-300/80">
-                    Payment verification usually takes a few moments. Your course will appear in your dashboard automatically once confirmed.
+                    {t('successPage.pendingNotice')}
                   </p>
                 </div>
               )}
             </div>
           ) : (
             <p className="text-gray-500 py-4">
-              Your content is now available in your dashboard.
+              {t('successPage.contentAvailable')}
             </p>
           )}
         </div>
@@ -275,7 +277,7 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
             className="px-10 py-5 bg-purple-600 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-all shadow-xl shadow-purple-500/20 flex items-center justify-center gap-3"
           >
             <BookOpen size={18} />
-            Go to My Dashboard
+            {t('successPage.goToDashboard')}
             <ArrowRight size={16} />
           </button>
           
@@ -283,13 +285,13 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
             onClick={() => onNavigate('courses')}
             className="px-10 py-5 bg-white/5 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all border-2 border-white/10 flex items-center justify-center gap-3"
           >
-            Browse More Courses
+            {t('successPage.browseMore')}
           </button>
         </div>
 
         {/* Support Link */}
         <p className="mt-12 text-sm text-gray-500 animate-reveal stagger-4">
-          Need help? <button onClick={() => onNavigate('contact')} className="text-purple-400 hover:underline font-semibold">Contact our support team</button>
+          <Trans i18nKey="successPage.needHelp" ns="checkout" components={{ contactLink: <button onClick={() => onNavigate('contact')} className="text-purple-400 hover:underline font-semibold" /> }} />
         </p>
       </div>
     </div>

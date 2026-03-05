@@ -1,12 +1,14 @@
 
 import React, { useEffect, useRef } from 'react';
 import { ArrowUpRight, ArrowDownRight, ChevronRight, Star, ShieldCheck } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface HeroProps {
   onNavigate?: (path: string) => void;
 }
 
 const HeroSection: React.FC<HeroProps> = ({ onNavigate }) => {
+  const { t } = useTranslation('home');
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -77,9 +79,9 @@ const HeroSection: React.FC<HeroProps> = ({ onNavigate }) => {
         {/* Main Title */}
         <h1 className="flex flex-col items-center justify-center text-5xl sm:text-7xl md:text-8xl font-extrabold text-white tracking-tight leading-[1.1] mb-4 animate-reveal">
           <span className="flex items-center gap-3 sm:gap-6">
-            English 
+            {t('hero.title1')}{' '}
             <span className="relative inline-block text-[#AB8FFF]">
-              & DSA
+              {t('hero.title2')}
                {/* Underline decoration */}
               <svg className="absolute w-full h-3 -bottom-1 left-0 text-[#FFC1F2]" viewBox="0 0 100 10" preserveAspectRatio="none">
                  <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="8" fill="none" />
@@ -92,8 +94,8 @@ const HeroSection: React.FC<HeroProps> = ({ onNavigate }) => {
 
         {/* Subtitle - Dyslexia friendly sans-serif, good line height */}
         <p className="text-lg sm:text-2xl font-medium text-gray-300 max-w-3xl mx-auto mb-10 leading-relaxed animate-reveal stagger-1">
-          The First Method for <span className="font-bold text-[#AB8FFF]">DSA students</span>.
-          <span className="block mt-2 text-gray-400 font-normal">Learning made effortless, engaging, and effective.</span>
+          {t('hero.subtitle', { defaultValue: '' }).split('<1>')[0]}<span className="font-bold text-[#AB8FFF]">{t('hero.subtitle', { defaultValue: '' }).match(/<1>(.*?)<\/1>/)?.[1]}</span>{t('hero.subtitle', { defaultValue: '' }).split('</1>')[1]}
+          <span className="block mt-2 text-gray-400 font-normal">{t('hero.subtitle2')}</span>
         </p>
 
         {/* Features Row - Replaces floating cards for better mobile definition */}
@@ -103,8 +105,8 @@ const HeroSection: React.FC<HeroProps> = ({ onNavigate }) => {
                     <ShieldCheck size={24} />
                 </div>
                 <div className="text-left">
-                    <h3 className="text-sm font-bold text-white">Proven Methodology</h3>
-                    <p className="text-xs text-gray-400">Eduway Framework</p>
+                    <h3 className="text-sm font-bold text-white">{t('hero.provenMethodology')}</h3>
+                    <p className="text-xs text-gray-400">{t('hero.eduwayFramework')}</p>
                 </div>
             </div>
             <div className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl shadow-md border border-white/10 hover:border-[#AB8FFF]/50 transition-colors">
@@ -112,8 +114,8 @@ const HeroSection: React.FC<HeroProps> = ({ onNavigate }) => {
                     <ArrowUpRight size={24} />
                 </div>
                 <div className="text-left">
-                    <h3 className="text-sm font-bold text-white">Premium Courses</h3>
-                    <p className="text-xs text-gray-400">Tailored for your success</p>
+                    <h3 className="text-sm font-bold text-white">{t('hero.premiumCourses')}</h3>
+                    <p className="text-xs text-gray-400">{t('hero.tailoredSuccess')}</p>
                 </div>
             </div>
         </div>
@@ -124,7 +126,7 @@ const HeroSection: React.FC<HeroProps> = ({ onNavigate }) => {
             onClick={() => onNavigate?.('courses')}
             className="group relative inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-10 sm:px-12 py-4 sm:py-5 rounded-full font-bold text-sm sm:text-base tracking-widest shadow-xl shadow-[#25D366]/30 transition-all duration-300 transform hover:-translate-y-1 active:scale-95 uppercase"
           >
-            Explore
+            {t('hero.explore')}
             <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
           </button>
         </div>

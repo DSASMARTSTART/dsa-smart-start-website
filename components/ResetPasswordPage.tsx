@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Lock, Eye, EyeOff, AlertCircle, Loader2, CheckCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 
 interface ResetPasswordPageProps {
@@ -7,6 +8,7 @@ interface ResetPasswordPageProps {
 }
 
 const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({ onComplete }) => {
+  const { t } = useTranslation('auth');
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -17,9 +19,9 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({ onComplete }) => 
   const [success, setSuccess] = useState(false);
 
   const validateForm = (): string | null => {
-    if (!password) return 'Password is required';
-    if (password.length < 6) return 'Password must be at least 6 characters';
-    if (password !== confirmPassword) return 'Passwords do not match';
+    if (!password) return t('validation.passwordRequired');
+    if (password.length < 6) return t('validation.passwordMinLength6');
+    if (password !== confirmPassword) return t('validation.passwordsNoMatch');
     return null;
   };
 
@@ -34,7 +36,7 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({ onComplete }) => 
     }
 
     if (!supabase) {
-      setError('Unable to connect to the server. Please try again later.');
+      setError(t('errors.serverUnavailable'));
       return;
     }
 
@@ -53,7 +55,7 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({ onComplete }) => 
         }, 3000);
       }
     } catch (err) {
-      setError('An unexpected error occurred. Please try again.');
+      setError(t('errors.unexpected'));
     } finally {
       setLoading(false);
     }
@@ -114,26 +116,26 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({ onComplete }) => 
                 <CheckCircle className="text-green-400" size={40} />
               </div>
               <h1 className="text-3xl font-black text-white tracking-tighter mb-4">
-                Password Updated!
+                {t('passwordUpdatedTitle')}
               </h1>
               <p className="text-gray-400 mb-6">
-                Your password has been successfully reset. You will be redirected to login shortly.
+                {t('passwordUpdatedDesc')}
               </p>
               <button
                 onClick={onComplete}
                 className="px-8 py-4 bg-purple-600 text-white rounded-2xl font-bold hover:bg-purple-700 transition-colors"
               >
-                Go to Login
+                {t('goToLogin')}
               </button>
             </div>
           ) : (
             <>
               <div className="text-center mb-12">
                 <h1 className="text-4xl font-black text-white tracking-tighter uppercase mb-4">
-                  Set New Password
+                  {t('setNewPasswordTitle')}
                 </h1>
                 <p className="text-gray-400 italic font-medium">
-                  Enter your new password below.
+                  {t('setNewPasswordSubtitle')}
                 </p>
               </div>
 
@@ -147,7 +149,7 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({ onComplete }) => 
               <form className="space-y-6" onSubmit={handleSubmit}>
                 <div className="flex flex-col gap-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">
-                    New Password
+                    {t('newPassword')}
                   </label>
                   <div className="relative">
                     <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
@@ -171,7 +173,7 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({ onComplete }) => 
 
                 <div className="flex flex-col gap-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">
-                    Confirm New Password
+                    {t('confirmNewPassword')}
                   </label>
                   <div className="relative">
                     <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
@@ -201,10 +203,10 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({ onComplete }) => 
                   {loading ? (
                     <>
                       <Loader2 className="animate-spin" size={20} />
-                      UPDATING...
+                      {t('updating')}
                     </>
                   ) : (
-                    'UPDATE PASSWORD'
+                    t('updatePassword')
                   )}
                 </button>
               </form>

@@ -1,22 +1,25 @@
 
 import React from 'react';
 import { CheckCircle2, Award, ChevronRight, Sparkles } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const PathwaysDetail: React.FC = () => {
+  const { t } = useTranslation('home');
+
   const kidBenefits = [
-    "Improvement in grades",
-    "Reducing school-related stress",
-    "Development of self-esteem and motivation",
-    "Flexibility and comfort",
-    "Continuous feedback and parental involvement"
+    t('pathways.benefit1'),
+    t('pathways.benefit2'),
+    t('pathways.benefit3'),
+    t('pathways.benefit4'),
+    t('pathways.benefit5')
   ];
 
   const exams = [
-    { title: "Cambridge English", detail: "KET, PET, FCE, CAE, CPE" },
-    { title: "IELTS", detail: "For Study or Work Abroad" },
-    { title: "TOEFL", detail: "International University Admission" },
-    { title: "Trinity College London", detail: "Graded Exams" },
-    { title: "ESOL", detail: "Practical language skills" }
+    { title: t('pathways.exam1Title'), detail: t('pathways.exam1Detail') },
+    { title: t('pathways.exam2Title'), detail: t('pathways.exam2Detail') },
+    { title: t('pathways.exam3Title'), detail: t('pathways.exam3Detail') },
+    { title: t('pathways.exam4Title'), detail: t('pathways.exam4Detail') },
+    { title: t('pathways.exam5Title'), detail: t('pathways.exam5Detail') }
   ];
 
   return (
@@ -35,8 +38,8 @@ const PathwaysDetail: React.FC = () => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-pink-900/60 to-transparent"></div>
                 <div className="absolute bottom-10 left-10 text-white">
-                   <p className="text-xs font-black uppercase tracking-widest mb-2">Success Journey</p>
-                   <p className="text-2xl font-bold italic">"Making English a happy adventure"</p>
+                   <p className="text-xs font-black uppercase tracking-widest mb-2">{t('pathways.successJourney')}</p>
+                   <p className="text-2xl font-bold italic">{t('pathways.funAdventure')}</p>
                 </div>
              </div>
           </div>
@@ -44,13 +47,13 @@ const PathwaysDetail: React.FC = () => {
           <div className="flex flex-col animate-reveal">
             <div className="flex items-center gap-3 mb-6">
                <span className="w-10 h-[1px] bg-pink-400"></span>
-               <span className="text-xs font-black text-pink-400 uppercase tracking-widest">Parental Support</span>
+               <span className="text-xs font-black text-pink-400 uppercase tracking-widest">{t('pathways.parentalSupport')}</span>
             </div>
             <h3 className="text-4xl md:text-5xl font-black text-white mb-8 leading-[1.1] tracking-tight">
-              Does your child have dyslexia and learning English seems <span className="text-pink-400">impossible?</span>
+              {t('pathways.parentalTitle', { defaultValue: '' }).split('<1>')[0]}<span className="text-pink-400">{t('pathways.parentalTitle', { defaultValue: '' }).match(/<1>(.*?)<\/1>/)?.[1]}</span>{t('pathways.parentalTitle', { defaultValue: '' }).split('</1>')[1]}
             </h3>
             <p className="text-xl text-gray-300 mb-10 leading-relaxed font-medium italic">
-              "With Eduway it's possible! Your child will have the keys and methods to achieve amazing results and make learning fun."
+              {t('pathways.parentalDesc')}
             </p>
             <div className="grid grid-cols-1 gap-5 mb-12">
               {kidBenefits.map((b, i) => (
@@ -68,7 +71,7 @@ const PathwaysDetail: React.FC = () => {
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-3 bg-[#25D366] text-white px-12 py-5 rounded-full font-black uppercase tracking-widest hover:bg-[#1ebe5d] transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
             >
-              Book a Free Call
+              {t('pathways.bookFreeCall')}
               <ChevronRight size={20} />
             </a>
           </div>
@@ -79,13 +82,13 @@ const PathwaysDetail: React.FC = () => {
           <div className="order-2 lg:order-1 flex flex-col animate-reveal">
             <div className="flex items-center gap-3 mb-6">
                <span className="w-10 h-[1px] bg-blue-400"></span>
-               <span className="text-xs font-black text-blue-400 uppercase tracking-widest">Global Opportunities</span>
+               <span className="text-xs font-black text-blue-400 uppercase tracking-widest">{t('pathways.globalOpportunities')}</span>
             </div>
             <h3 className="text-4xl md:text-5xl font-black text-white mb-8 leading-[1.1] tracking-tight">
-              Do you need to pass an International English Exam and <span className="text-blue-400">want to do it well?</span>
+              {t('pathways.examsTitle', { defaultValue: '' }).split('<1>')[0]}<span className="text-blue-400">{t('pathways.examsTitle', { defaultValue: '' }).match(/<1>(.*?)<\/1>/)?.[1]}</span>{t('pathways.examsTitle', { defaultValue: '' }).split('</1>')[1]}
             </h3>
             <p className="text-lg text-gray-400 mb-10 leading-relaxed">
-              Our programs are designed specifically to prepare DSA students for exams recognized by the <span className="font-black text-white underline decoration-blue-500 decoration-2">MIUR</span>, using tools that align with neurodiverse learning styles.
+              {t('pathways.examsDesc', { defaultValue: '' }).split('<1>')[0]}<span className="font-black text-white underline decoration-blue-500 decoration-2">{t('pathways.examsDesc', { defaultValue: '' }).match(/<1>(.*?)<\/1>/)?.[1]}</span>{t('pathways.examsDesc', { defaultValue: '' }).split('</1>')[1]}
             </p>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
@@ -103,7 +106,7 @@ const PathwaysDetail: React.FC = () => {
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-3 bg-[#25D366] text-white px-12 py-5 rounded-full font-black uppercase tracking-widest hover:bg-[#1ebe5d] transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
             >
-              Book a Free Call
+              {t('pathways.bookFreeCall')}
               <ChevronRight size={20} />
             </a>
           </div>
@@ -121,7 +124,7 @@ const PathwaysDetail: React.FC = () => {
                    <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center mb-4">
                      <Award size={24} />
                    </div>
-                   <p className="text-xs font-black uppercase tracking-widest">Certified Success</p>
+                   <p className="text-xs font-black uppercase tracking-widest">{t('pathways.certifiedSuccess')}</p>
                 </div>
              </div>
           </div>

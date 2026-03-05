@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import { X, ChevronRight, ChevronLeft, CheckCircle2, RotateCcw, Sparkles, Clock, Trophy, Target, GraduationCap, Baby } from 'lucide-react';
 import {
   AssessmentTestType,
@@ -319,6 +320,8 @@ interface AgeSelectStageProps {
 }
 
 const AgeSelectStage: React.FC<AgeSelectStageProps> = ({ onSelect }) => {
+  const { t } = useTranslation('assessment');
+
   return (
     <div className="p-8 text-center">
       <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -326,11 +329,11 @@ const AgeSelectStage: React.FC<AgeSelectStageProps> = ({ onSelect }) => {
       </div>
 
       <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-3">
-        Who is taking the test?
+        {t('ageSelect.title')}
       </h2>
 
       <p className="text-gray-600 mb-10 max-w-md mx-auto">
-        Select the learner's age group so we can show the right placement test.
+        {t('ageSelect.subtitle')}
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md mx-auto">
@@ -341,8 +344,8 @@ const AgeSelectStage: React.FC<AgeSelectStageProps> = ({ onSelect }) => {
           <div className="w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
             <GraduationCap size={24} />
           </div>
-          <span className="text-lg font-black text-gray-900">12 or older</span>
-          <span className="text-xs text-gray-500 uppercase tracking-wide">Teens & Adults</span>
+          <span className="text-lg font-black text-gray-900">{t('ageSelect.teensAdults')}</span>
+          <span className="text-xs text-gray-500 uppercase tracking-wide">{t('ageSelect.teensAdultsLabel')}</span>
         </button>
 
         <button
@@ -352,12 +355,12 @@ const AgeSelectStage: React.FC<AgeSelectStageProps> = ({ onSelect }) => {
           <div className="w-14 h-14 rounded-full bg-gradient-to-br from-pink-500 to-rose-500 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
             <Baby size={24} />
           </div>
-          <span className="text-lg font-black text-gray-900">Under 12</span>
-          <span className="text-xs text-gray-500 uppercase tracking-wide">Kids</span>
+          <span className="text-lg font-black text-gray-900">{t('ageSelect.kids')}</span>
+          <span className="text-xs text-gray-500 uppercase tracking-wide">{t('ageSelect.kidsLabel')}</span>
         </button>
       </div>
 
-      <p className="text-xs text-gray-400 mt-6">No login required • Free assessment</p>
+      <p className="text-xs text-gray-400 mt-6">{t('ageSelect.footer')}</p>
     </div>
   );
 };
@@ -369,6 +372,7 @@ interface IntroStageProps {
 }
 
 const IntroStage: React.FC<IntroStageProps> = ({ testType, onStart }) => {
+  const { t } = useTranslation('assessment');
   const isKids = testType === 'kids';
   
   return (
@@ -378,13 +382,11 @@ const IntroStage: React.FC<IntroStageProps> = ({ testType, onStart }) => {
       </div>
 
       <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-3">
-        {isKids ? 'Discover Your Kid\'s Level' : 'Discover Your English Level'}
+        {isKids ? t('intro.titleKids') : t('intro.titleAdults')}
       </h2>
 
       <p className="text-gray-600 mb-8 max-w-md mx-auto">
-        {isKids
-          ? 'A fun 30-question test designed for young learners! Find the perfect course for your child in about 10 minutes.'
-          : 'Take our 40-question placement test to find the perfect course for your level. It only takes about 10-15 minutes!'}
+        {isKids ? t('intro.subtitleKids') : t('intro.subtitleAdults')}
       </p>
 
       {/* Test Info */}
@@ -393,13 +395,13 @@ const IntroStage: React.FC<IntroStageProps> = ({ testType, onStart }) => {
           <div className={`text-2xl font-black ${isKids ? 'text-pink-600' : 'text-purple-600'}`}>
             {isKids ? '30' : '40'}
           </div>
-          <div className="text-xs text-gray-500 uppercase tracking-wide">Questions</div>
+          <div className="text-xs text-gray-500 uppercase tracking-wide">{t('intro.questions')}</div>
         </div>
         <div className="bg-gray-50 rounded-2xl p-4">
           <div className={`text-2xl font-black ${isKids ? 'text-pink-600' : 'text-purple-600'}`}>
             {isKids ? '3' : '4'}
           </div>
-          <div className="text-xs text-gray-500 uppercase tracking-wide">Levels</div>
+          <div className="text-xs text-gray-500 uppercase tracking-wide">{t('intro.levels')}</div>
         </div>
         <div className="bg-gray-50 rounded-2xl p-4">
           <div className="flex items-center justify-center gap-1">
@@ -447,10 +449,10 @@ const IntroStage: React.FC<IntroStageProps> = ({ testType, onStart }) => {
         onClick={onStart}
         className={`${isKids ? 'bg-gradient-to-r from-pink-500 to-orange-500 shadow-pink-200' : 'bg-gradient-to-r from-purple-600 to-pink-600 shadow-purple-200'} text-white px-10 py-4 rounded-full font-black uppercase tracking-wide hover:scale-105 transition-transform shadow-xl`}
       >
-        Start Assessment
+        {t('intro.startButton')}
       </button>
 
-      <p className="text-xs text-gray-400 mt-4">No login required • Free assessment</p>
+      <p className="text-xs text-gray-400 mt-4">{t('intro.footer')}</p>
     </div>
   );
 };
@@ -484,6 +486,7 @@ const QuizStage: React.FC<QuizStageProps> = ({
   onClose,
 }) => {
   const levelInfo = getLevelInfo(currentLevel as CourseLevel);
+  const { t } = useTranslation('assessment');
 
   return (
     <div className="flex flex-col h-full max-h-[90vh]">
@@ -497,14 +500,14 @@ const QuizStage: React.FC<QuizStageProps> = ({
               {levelInfo.emoji} {currentLevel}
             </span>
             <span className="text-sm text-gray-500">
-              Question {questionNumber} of {totalQuestions}
+              {t('quiz.questionOf', { current: questionNumber, total: totalQuestions })}
             </span>
           </div>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 text-sm"
           >
-            Exit Test
+            {t('quiz.exitTest')}
           </button>
         </div>
 
@@ -573,7 +576,7 @@ const QuizStage: React.FC<QuizStageProps> = ({
             }`}
           >
             <ChevronLeft size={20} />
-            <span className="hidden sm:inline">Previous</span>
+            <span className="hidden sm:inline">{t('quiz.previous')}</span>
           </button>
 
           <button
@@ -585,7 +588,7 @@ const QuizStage: React.FC<QuizStageProps> = ({
                 : 'bg-gray-200 text-gray-400 cursor-not-allowed'
             }`}
           >
-            <span>{questionNumber === totalQuestions ? 'Finish' : 'Next'}</span>
+            <span>{questionNumber === totalQuestions ? t('quiz.finish') : t('quiz.next')}</span>
             <ChevronRight size={20} />
           </button>
         </div>
@@ -603,6 +606,7 @@ interface ResultsStageProps {
 }
 
 const ResultsStage: React.FC<ResultsStageProps> = ({ result, onRetake, onViewCourse, recommendNextLevel = false }) => {
+  const { t } = useTranslation('assessment');
   const passedLevel = result.recommendedLevel;
   const displayLevel = recommendNextLevel
     ? (NEXT_LEVEL_MAP[passedLevel] || passedLevel)
@@ -619,10 +623,10 @@ const ResultsStage: React.FC<ResultsStageProps> = ({ result, onRetake, onViewCou
         </div>
 
         <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-2">
-          Assessment Complete! 🎉
+          {t('results.title')}
         </h2>
         <p className="text-gray-600">
-          You answered {result.totalCorrect} out of {result.totalQuestions} questions correctly ({percentage}%)
+          {t('results.score', { correct: result.totalCorrect, total: result.totalQuestions, percentage })}
         </p>
       </div>
 
@@ -631,7 +635,7 @@ const ResultsStage: React.FC<ResultsStageProps> = ({ result, onRetake, onViewCou
         className={`${levelInfo.bgColor} rounded-3xl p-6 md:p-8 mb-6 text-center border-2 border-white shadow-xl`}
       >
         <p className="text-sm uppercase tracking-wide font-semibold text-gray-600 mb-2">
-          {recommendNextLevel ? 'Recommended E-book Level' : 'Your Recommended Level'}
+          {recommendNextLevel ? t('results.recommendedEbookLevel') : t('results.yourRecommendedLevel')}
         </p>
         <div className={`text-4xl md:text-5xl font-black ${levelInfo.color} mb-3`}>
           {levelInfo.emoji} {displayLevel}
@@ -639,7 +643,7 @@ const ResultsStage: React.FC<ResultsStageProps> = ({ result, onRetake, onViewCou
         <h3 className={`text-xl font-bold ${levelInfo.color} mb-2`}>{levelInfo.name}</h3>
         <p className="text-gray-600 text-sm max-w-md mx-auto">
           {recommendNextLevel
-            ? `Based on your results, we recommend the ${levelInfo.name} e-book as your next step.`
+            ? t('results.ebookRecommendation', { levelName: levelInfo.name })
             : levelInfo.description}
         </p>
       </div>
@@ -648,7 +652,7 @@ const ResultsStage: React.FC<ResultsStageProps> = ({ result, onRetake, onViewCou
       <div className="bg-gray-50 rounded-2xl p-5 mb-8">
         <h4 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
           <CheckCircle2 className="w-5 h-5 text-green-600" />
-          Score Breakdown by Level
+          {t('results.scoreBreakdown')}
         </h4>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {result.levelScores.map((score) => {
@@ -675,7 +679,7 @@ const ResultsStage: React.FC<ResultsStageProps> = ({ result, onRetake, onViewCou
                     score.passed ? 'text-green-600' : 'text-gray-400'
                   }`}
                 >
-                  {score.passed ? '✓ Passed' : 'Not passed'}
+                  {score.passed ? t('results.passed') : t('results.notPassed')}
                 </div>
               </div>
             );
@@ -690,19 +694,19 @@ const ResultsStage: React.FC<ResultsStageProps> = ({ result, onRetake, onViewCou
           className="flex-1 flex items-center justify-center gap-2 px-6 py-4 border-2 border-gray-200 rounded-2xl font-bold text-gray-700 hover:bg-gray-50 transition-colors"
         >
           <RotateCcw size={20} />
-          Retake Test
+          {t('results.retakeTest')}
         </button>
         <button
           onClick={onViewCourse}
           className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl font-bold hover:scale-105 transition-transform shadow-xl shadow-purple-200"
         >
-          {recommendNextLevel ? 'View Recommended E-book' : 'View Recommended Course'}
+          {recommendNextLevel ? t('results.viewRecommendedEbook') : t('results.viewRecommendedCourse')}
           <ChevronRight size={20} />
         </button>
       </div>
 
       <p className="text-center text-xs text-gray-400 mt-4">
-        Your result has been saved locally. Create an account to track your progress!
+        {t('results.savedLocally')}
       </p>
     </div>
   );

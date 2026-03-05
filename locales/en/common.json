@@ -1,0 +1,68 @@
+{
+  "nav": {
+    "home": "Home",
+    "whoWeAre": "Who We Are",
+    "products": "Products",
+    "faq": "FAQ",
+    "contacts": "Contacts",
+    "loginRegister": "Login/Register",
+    "dashboard": "Dashboard",
+    "browseProducts": "Browse Products",
+    "adminPanel": "Admin Panel",
+    "logout": "Logout"
+  },
+  "footer": {
+    "eduway": "EDUWAY",
+    "aboutText": "The first program in the world specifically designed for those living with dyslexia, helping them achieve amazing results and make learning fun.",
+    "followInstagram": "Follow us on Instagram",
+    "quickLinks": "Quick Links",
+    "home": "Home",
+    "whoWeAre": "Who We Are",
+    "allCourses": "All Courses",
+    "contact": "Contact",
+    "faq": "FAQ",
+    "loginRegister": "Login / Register",
+    "onlineCourses": "Online Courses",
+    "interactiveCourses": "Interactive Courses",
+    "adultsTeens": "Adults & Teens",
+    "kids": "Kids",
+    "ebooks": "E-books",
+    "viewAll": "View All",
+    "contactUs": "Contact Us",
+    "supportFaq": "Support & FAQ",
+    "comingSoon": "Coming soon...",
+    "copyright": "Copyright © 2026 ANA MILATOVIĆ PR CENTAR ZA EDUKACIJE EDUWAY | All rights reserved",
+    "termsConditions": "Terms & Conditions",
+    "cookiePolicy": "Cookie Policy",
+    "privacyPolicy": "Privacy Policy",
+    "refundPolicy": "Refund and Return Policy",
+    "weAccept": "We accept:"
+  },
+  "toast": {
+    "addedToCart": "Added to cart!",
+    "alreadyInCart": "This item is already in your cart",
+    "alreadyOwn": "You already own this product! Check your dashboard."
+  },
+  "whatsapp": {
+    "chatWithUs": "Chat with us",
+    "ariaLabel": "Chat on WhatsApp"
+  },
+  "cart": {
+    "courseInCart": "{{count}} course in cart",
+    "coursesInCart": "{{count}} courses in cart",
+    "goToCheckout": "Go to checkout"
+  },
+  "error": {
+    "title": "Oops! Something went wrong",
+    "description": "We're sorry, but something unexpected happened. Please try refreshing the page or going back to the home page.",
+    "refreshPage": "Refresh Page",
+    "goToHome": "Go to Home",
+    "technicalDetails": "Technical Details (Development Only)"
+  },
+  "accessDenied": {
+    "title": "Access Denied",
+    "message": "You don't have permission to access this page.",
+    "goToHome": "Go to Home"
+  },
+  "skipToContent": "Skip to main content"
+}

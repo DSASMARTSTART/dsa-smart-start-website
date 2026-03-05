@@ -1,0 +1,113 @@
+{
+  "hero": {
+    "badge": "Base di conoscenza",
+    "title1": "FAQ",
+    "titleAnd": "&",
+    "title2": "Risposte",
+    "supportLabel": "Supporto",
+    "findAnswers": "Trova risposte",
+    "contactLabel": "Contatti",
+    "alwaysAvailable": "Sempre disponibile",
+    "subtitleTop": "Tutto ciò che devi",
+    "subtitleBottom": "Sapere"
+  },
+  "sections": {
+    "section01": "Sezione 01",
+    "section02": "Sezione 02",
+    "section03": "Sezione 03",
+    "section04": "Sezione 04",
+    "section05": "Sezione 05",
+    "heading01": "Approccio per studenti con DSA",
+    "heading02": "Approccio visivo e multisensoriale",
+    "heading03": "Adattamenti per la comprensione linguistica",
+    "heading04": "Tecniche per la memorizzazione permanente",
+    "heading05": "Benefici e risultati"
+  },
+  "general": [
+    {
+      "q": "Come è progettato il programma Eduway per supportare gli studenti con dislessia nell'apprendimento dell'inglese?",
+      "a": "Il programma Eduway è progettato con un approccio inclusivo, utilizzando tecniche multisensoriali, strumenti visivi e strategie adattive per facilitare l'apprendimento dell'inglese. Ogni modulo è progettato per essere accessibile e coinvolgente, rispettando le esigenze di apprendimento degli studenti con dislessia."
+    },
+    {
+      "q": "Quali sono le principali caratteristiche del programma Eduway che lo rendono adatto agli studenti con dislessia?",
+      "a": "Le caratteristiche principali includono l'uso di grafiche vivaci, attività interattive, mappe mentali, codifica cromatica per migliorare l'organizzazione visiva e supporto audio per facilitare la comprensione. Questi elementi promuovono un apprendimento coinvolgente che minimizza le difficoltà di lettura e memorizzazione."
+    },
+    {
+      "q": "In che modo il programma si differenzia dai metodi di insegnamento tradizionali nell'adattarsi alle esigenze degli studenti con dislessia?",
+      "a": "Eduway si differenzia integrando tecniche didattiche che sfruttano forme, colori, modelli visivi e audio. A differenza dei metodi tradizionali, questo programma enfatizza l'apprendimento visivo e pratico per rafforzare la comprensione e la memorizzazione."
+    },
+    {
+      "q": "Quali tecniche visive e di apprendimento vengono utilizzate in Eduway per supportare la memorizzazione e la comprensione?",
+      "a": "Mappe mentali, tabelle a colori e illustrazioni vengono utilizzate per rappresentare visivamente le informazioni. Queste tecniche aiutano gli studenti a vedere le connessioni tra le idee e a organizzare meglio il proprio pensiero, migliorando la memorizzazione e la comprensione."
+    },
+    {
+      "q": "Come vengono utilizzate le forme e i colori per migliorare l'apprendimento negli studenti dislessici?",
+      "a": "Forme e colori vengono utilizzati per evidenziare parti importanti delle lezioni, distinguere categorie di parole e rappresentare concetti grammaticali. Questa tecnica, chiamata SHAPE & COLOR CODING BRAIN PUZZLE, riduce la complessità visiva, aiutando gli studenti a concentrarsi sulle informazioni chiave."
+    },
+    {
+      "q": "Come sono integrate le mappe mentali nel programma per facilitare l'organizzazione delle informazioni e l'apprendimento?",
+      "a": "Le mappe mentali vengono utilizzate per riassumere le lezioni e rappresentare visivamente le connessioni tra i concetti. Queste mappe aiutano gli studenti dislessici a strutturare le informazioni in modo più logico e memorabile."
+    },
+    {
+      "q": "Come utilizza il programma le immagini per favorire la comprensione e la memorizzazione?",
+      "a": "Il programma integra immagini colorate, grafici e diagrammi visivi che rappresentano parole e frasi in modo intuitivo. Questo impatto visivo permette agli studenti di associare facilmente i significati alle immagini, rendendo la memorizzazione più naturale."
+    }
+  ],
+  "visual": [
+    {
+      "q": "Qual è il ruolo delle immagini e dei materiali visivi nell'insegnamento dell'inglese agli studenti con SMART START DSA?",
+      "a": "Le immagini e i materiali visivi sono fondamentali per creare forti associazioni mentali e facilitare la comprensione dei contenuti. Servono a trasformare le parole in concetti visivi, che sono più facili da elaborare e memorizzare per gli studenti con dislessia."
+    },
+    {
+      "q": "Come utilizza il programma le illustrazioni per rafforzare il significato di parole e frasi?",
+      "a": "Le illustrazioni sono integrate in ogni lezione per accompagnare il nuovo vocabolario e le frasi chiave. Questo aiuta gli studenti a collegare le immagini alle parole, rafforzando la comprensione e facilitando l'apprendimento visivo."
+    },
+    {
+      "q": "Come contribuisce l'approccio visivo ad accelerare la memorizzazione e creare un'impressione permanente?",
+      "a": "L'approccio visivo crea forti connessioni tra immagini e concetti linguistici, accelerando il processo di memorizzazione. Queste connessioni visive aiutano a creare un'impronta permanente nella memoria a lungo termine, rendendo l'apprendimento più efficace."
+    }
+  ],
+  "language": [
+    {
+      "q": "Come supporta il programma la comprensione linguistica attraverso tecniche di apprendimento adattive per dislessici?",
+      "a": "Il programma include letture semplificate, supporti video per migliorare la comprensione orale e l'uso di diagrammi e mappe per riassumere i contenuti. Questo approccio permette agli studenti di apprendere al proprio ritmo e secondo le proprie esigenze."
+    },
+    {
+      "q": "Quali strumenti specifici vengono utilizzati per migliorare le capacità di ascolto e scrittura degli studenti con dislessia?",
+      "a": "Eduway utilizza spiegazioni video guidate per migliorare la comprensione orale. Per la scrittura, vengono forniti guide visive, modelli di frase ed esercizi interattivi per incoraggiare la pratica."
+    },
+    {
+      "q": "Come rende Eduway il parlato e la scrittura più accessibili per gli studenti dislessici?",
+      "a": "Il programma include attività pratiche che incoraggiano la conversazione e l'espressione scritta, utilizzando spunti visivi per facilitare la comprensione. Gli esercizi sono progettati per essere ripetitivi ma vari, per mantenere l'interesse e promuovere l'apprendimento."
+    }
+  ],
+  "memorization": [
+    {
+      "q": "Quale strategia utilizza Eduway per garantire che l'apprendimento sia duraturo e radicato?",
+      "a": "Il programma utilizza tecniche di ripetizione distribuita e pratica interattiva per rafforzare i concetti appresi. Le mappe mentali e le attività basate sulle immagini aiutano a consolidare l'apprendimento e a renderlo duraturo."
+    },
+    {
+      "q": "Come vengono utilizzati gli elementi visivi e le tecniche multisensoriali per creare connessioni mentali stabili?",
+      "a": "Gli elementi visivi e le tecniche multisensoriali, come l'associazione di parole con suoni, immagini e colori, creano connessioni multiple nella mente, facilitando la memorizzazione e il richiamo delle informazioni."
+    }
+  ],
+  "benefits": [
+    {
+      "q": "Quali sono i principali benefici per uno studente dislessico che segue il programma Eduway?",
+      "a": "Gli studenti dislessici migliorano la comprensione e la produzione linguistica grazie a un approccio visivo e multisensoriale che rende l'apprendimento più accessibile e coinvolgente."
+    },
+    {
+      "q": "Come aiuta Eduway a superare le difficoltà specifiche legate alla dislessia nell'apprendimento dell'inglese?",
+      "a": "Il programma utilizza tecniche visive, supporto audio e attività interattive per ridurre le difficoltà di lettura e memorizzazione, aiutando gli studenti a superare le loro sfide specifiche."
+    },
+    {
+      "q": "Quali miglioramenti possono aspettarsi gli studenti dislessici in termini di comprensione e produzione linguistica?",
+      "a": "Gli studenti possono aspettarsi di migliorare la comprensione orale e scritta, arricchire il vocabolario e sviluppare maggiore sicurezza nel comunicare in inglese, grazie a un approccio strutturato supportato da tecniche visive."
+    }
+  ],
+  "cta": {
+    "title": "Hai ancora domande?",
+    "description": "Il nostro team di supporto è pronto ad aiutarti a trovare il percorso migliore per il tuo viaggio di apprendimento.",
+    "button": "Contatta il supporto"
+  }
+}

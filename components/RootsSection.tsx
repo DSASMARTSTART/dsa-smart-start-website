@@ -3,17 +3,19 @@ import React, { useState } from 'react';
 import { BookOpen, ChevronRight, Sparkles, GraduationCap, ClipboardCheck } from 'lucide-react';
 import AssessmentPopup from './AssessmentPopup';
 import { AssessmentTestType } from '../types';
+import { useTranslation } from 'react-i18next';
 
 interface RootsSectionProps {
   onNavigate?: (path: string) => void;
 }
 
 const RootsSection: React.FC<RootsSectionProps> = ({ onNavigate }) => {
+  const { t } = useTranslation('home');
   const [showAssessment, setShowAssessment] = useState(false);
 
   const categories = [
     {
-      label: 'Live Courses',
+      label: t('roots.liveCourses'),
       icon: <GraduationCap size={28} />,
       color: 'from-purple-500 to-pink-600',
       shadow: 'shadow-purple-500/20',
@@ -21,7 +23,7 @@ const RootsSection: React.FC<RootsSectionProps> = ({ onNavigate }) => {
       tab: 'courses-live',
     },
     {
-      label: 'E-books',
+      label: t('roots.ebooks'),
       icon: <BookOpen size={28} />,
       color: 'from-blue-500 to-indigo-600',
       shadow: 'shadow-blue-500/20',
@@ -43,13 +45,13 @@ const RootsSection: React.FC<RootsSectionProps> = ({ onNavigate }) => {
         <div className="text-center mb-16 animate-reveal">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/30 mb-6">
             <Sparkles size={14} className="text-purple-400" />
-            <span className="text-[10px] uppercase tracking-widest text-purple-400 font-bold">Comprehensive Curriculum</span>
+            <span className="text-[10px] uppercase tracking-widest text-purple-400 font-bold">{t('roots.badge')}</span>
           </div>
           <h2 className="text-4xl md:text-6xl font-black text-white mb-6 tracking-tighter">
-            Discover Your <span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-[#9b4dff] via-[#8a3ffc] to-[#ff2d85] italic px-4">Level</span>
+            {t('roots.title', { defaultValue: '' }).split('<1>')[0]}<span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-[#9b4dff] via-[#8a3ffc] to-[#ff2d85] italic px-4">{t('roots.title', { defaultValue: '' }).match(/<1>(.*?)<\/1>/)?.[1]}</span>{t('roots.title', { defaultValue: '' }).split('</1>')[1]}
           </h2>
           <p className="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed">
-            Take the test to discover your English level and learning program designed for you.
+            {t('roots.subtitle')}
           </p>
         </div>
 
@@ -60,7 +62,7 @@ const RootsSection: React.FC<RootsSectionProps> = ({ onNavigate }) => {
             className="inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-10 py-5 rounded-full font-black uppercase tracking-widest text-lg hover:scale-105 transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
           >
             <ClipboardCheck size={24} />
-            Take the Placement Test
+            {t('roots.placementTest')}
           </button>
         </div>
 
@@ -82,7 +84,7 @@ const RootsSection: React.FC<RootsSectionProps> = ({ onNavigate }) => {
 
               <div className="pt-4 flex items-center">
                 <span className={`text-[11px] font-black uppercase tracking-widest ${cat.accent} flex items-center gap-2 group-hover:gap-4 transition-all`}>
-                  Explore
+                  {t('roots.explore')}
                   <ChevronRight size={14} />
                 </span>
               </div>
@@ -94,10 +96,10 @@ const RootsSection: React.FC<RootsSectionProps> = ({ onNavigate }) => {
         <div className="text-center animate-reveal stagger-3">
           <div className="bg-white/5 p-10 sm:p-12 rounded-[3rem] shadow-lg border border-white/10 max-w-2xl mx-auto">
             <h5 className="text-2xl sm:text-3xl font-black text-white mb-4 tracking-tight">
-              Still not sure which level is right for you?
+              {t('roots.stillNotSure')}
             </h5>
             <p className="text-gray-400 max-w-md mx-auto mb-8 text-lg">
-              Book a free consultation and one of our specialists will guide you to the perfect learning path.
+              {t('roots.stillNotSureDesc')}
             </p>
             <a 
               href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ0qY73eSZNjDKlM_CQETEMDZFNGB5SONV3eJl2rbRFfK6hT6uNAwz_X4L7Jo0lIbuw-zerkbJWu"
@@ -105,7 +107,7 @@ const RootsSection: React.FC<RootsSectionProps> = ({ onNavigate }) => {
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-3 bg-[#25D366] text-white px-10 py-4 rounded-full font-black uppercase tracking-widest hover:bg-[#1ebe5d] transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
             >
-              Book a Free Call
+              {t('roots.bookFreeCall')}
               <ChevronRight size={20} />
             </a>
           </div>

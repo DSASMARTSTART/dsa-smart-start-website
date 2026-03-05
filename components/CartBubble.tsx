@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ShoppingCart, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { coursesApi } from '../data/supabaseStore';
 import { CoursePricing } from '../types';
 
@@ -9,6 +10,7 @@ interface CartBubbleProps {
 }
 
 const CartBubble: React.FC<CartBubbleProps> = ({ cart, onNavigateToCheckout }) => {
+  const { t } = useTranslation('common');
   const [totalPrice, setTotalPrice] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -61,7 +63,7 @@ const CartBubble: React.FC<CartBubbleProps> = ({ cart, onNavigateToCheckout }) =
     <button
       onClick={onNavigateToCheckout}
       className="fixed top-20 sm:top-24 right-4 sm:right-8 z-[150] flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-2 sm:px-5 sm:py-3 rounded-full shadow-2xl shadow-purple-500/40 hover:scale-105 active:scale-95 transition-all duration-300 animate-pulse-subtle group"
-      aria-label="Go to checkout"
+      aria-label={t('cart.goToCheckout')}
     >
       {/* Pulse ring animation */}
       <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full animate-ping opacity-20"></div>
@@ -77,7 +79,7 @@ const CartBubble: React.FC<CartBubbleProps> = ({ cart, onNavigateToCheckout }) =
       {/* Text content */}
       <div className="flex flex-col items-start leading-tight">
         <span className="text-[10px] sm:text-xs font-bold opacity-90">
-          {cart.length} {cart.length === 1 ? 'course' : 'courses'} in cart
+          {t(cart.length === 1 ? 'cart.courseInCart' : 'cart.coursesInCart', { count: cart.length })}
         </span>
         <span className="text-sm sm:text-base font-black">
           {loading ? (

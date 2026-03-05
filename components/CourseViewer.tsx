@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, CheckCircle2, Circle, ChevronRight, PlayCircle, BookOpen, Clock, FileText, ChevronDown, ChevronUp, ClipboardCheck, Download, ExternalLink, Lock } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { coursesApi, enrollmentsApi, videoHelpers } from '../data/supabaseStore';
 import { Course, Module, Lesson, Homework } from '../types';
 import { useAuth } from '../contexts/AuthContext';
@@ -13,6 +14,7 @@ interface CourseViewerProps {
 }
 
 const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigateToCheckout }) => {
+  const { t } = useTranslation('courses');
   const { user, isAdmin, isEditor } = useAuth();
   const { progress, toggleProgress } = useUserProgress(); // Now using hook directly
   const [course, setCourse] = useState<Course | null>(null);
@@ -98,7 +100,7 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-400 font-medium">Loading course...</p>
+          <p className="text-gray-400 font-medium">{t('courseViewer.loading')}</p>
         </div>
       </div>
     );
@@ -112,14 +114,14 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
           <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
             <Lock size={32} className="text-red-400" />
           </div>
-          <h3 className="text-2xl font-black text-white mb-4">Access Denied</h3>
+          <h3 className="text-2xl font-black text-white mb-4">{t('courseViewer.accessDenied')}</h3>
           <p className="text-gray-400 mb-2">
             {course?.title && <span className="font-semibold text-gray-300">"{course.title}"</span>}
           </p>
           <p className="text-gray-400 mb-8">
             {user 
-              ? "You don't have access to this course. Please purchase it to continue learning."
-              : "Please log in and purchase this course to access its content."
+              ? t('courseViewer.noAccessLoggedIn')
+              : t('courseViewer.noAccessLoggedOut')
             }
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -127,14 +129,14 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
               onClick={onBack} 
               className="px-6 py-3 bg-white/5 text-gray-300 rounded-full font-bold text-sm hover:bg-white/10 transition-colors border border-white/10"
             >
-              Go Back
+              {t('courseViewer.goBack')}
             </button>
             {onNavigateToCheckout && course && (
               <button 
                 onClick={() => onNavigateToCheckout(courseId)} 
                 className="px-6 py-3 bg-purple-600 text-white rounded-full font-bold text-sm hover:bg-purple-700 transition-colors"
               >
-                Purchase Course
+                {t('courseViewer.purchaseCourse')}
               </button>
             )}
             {!user && (
@@ -142,7 +144,7 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
                 onClick={() => window.location.hash = '#login'} 
                 className="px-6 py-3 bg-purple-600 text-white rounded-full font-bold text-sm hover:bg-purple-700 transition-colors"
               >
-                Log In
+                {t('courseViewer.logIn')}
               </button>
             )}
           </div>
@@ -158,10 +160,10 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
           <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
             <BookOpen size={32} className="text-gray-500" />
           </div>
-          <h3 className="text-2xl font-black text-white mb-4">Course Not Available</h3>
-          <p className="text-gray-400 mb-8">This course doesn't have any content yet or doesn't exist.</p>
+          <h3 className="text-2xl font-black text-white mb-4">{t('courseViewer.courseNotAvailable')}</h3>
+          <p className="text-gray-400 mb-8">{t('courseViewer.courseNotAvailableDesc')}</p>
           <button onClick={onBack} className="px-8 py-4 bg-purple-600 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-colors">
-            Back to Dashboard
+            {t('courseViewer.backToDashboard')}
           </button>
         </div>
       </div>
@@ -213,11 +215,11 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
     const currentIndex = currentItems.findIndex(item => item.id === selectedItemId);
 
     if (currentIndex < currentItems.length - 1) {
-      return `Next: ${currentItems[currentIndex + 1].title}`;
+      return t('courseViewer.nextItem', { title: currentItems[currentIndex + 1].title });
     } else if (currentModuleIndex < course.modules.length - 1) {
-      return `Next Module: ${course.modules[currentModuleIndex + 1].title}`;
+      return t('courseViewer.nextModule', { title: course.modules[currentModuleIndex + 1].title });
     }
-    return "Course Complete! Return to Dashboard";
+    return t('courseViewer.courseComplete');
   };
 
   // Get video embed URL if lesson has video
@@ -240,7 +242,7 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
           </button>
           <div className="h-10 w-px bg-white/10"></div>
           <div>
-            <span className="text-[10px] font-black uppercase tracking-widest text-purple-400 mb-1 block">Classroom Environment</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-purple-400 mb-1 block">{t('courseViewer.classroomEnvironment')}</span>
             <h1 className="text-xl font-black text-white tracking-tight uppercase">{course.title}</h1>
           </div>
         </div>
@@ -248,7 +250,7 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
         <div className="flex items-center gap-8 w-full md:w-auto">
           <div className="flex-grow md:flex-initial min-w-[150px]">
              <div className="flex justify-between items-end mb-1">
-                <span className="text-[9px] font-black uppercase tracking-widest text-gray-500">Course Progress</span>
+                <span className="text-[9px] font-black uppercase tracking-widest text-gray-500">{t('courseViewer.courseProgress')}</span>
                 <span className="text-xs font-black text-white">{calculateCourseProgress()}%</span>
              </div>
              <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
@@ -262,7 +264,7 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
             onClick={handleNext}
             className="flex items-center gap-2 px-6 py-2.5 bg-[#8a3ffc] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-purple-500/20 hover:scale-105 active:scale-95 transition-all"
           >
-            Continue Next
+            {t('courseViewer.continueNext')}
             <ChevronRight size={14} />
           </button>
         </div>
@@ -318,7 +320,7 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
 
                     {(module.homework || []).length > 0 && (
                       <div className="pt-2 border-t border-white/10 mt-2">
-                        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2 pl-3">Assignments</p>
+                        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2 pl-3">{t('courseViewer.assignments')}</p>
                         {(module.homework || []).map(h => (
                           <button 
                             key={h.id}
@@ -345,7 +347,7 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
         {/* Main Viewer Area */}
         <div className="lg:col-span-8 p-6 md:p-12 overflow-y-auto h-full animate-reveal">
           <div className="flex items-center gap-2 mb-8">
-            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Learning Center</span>
+            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">{t('courseViewer.learningCenter')}</span>
             <ChevronRight size={10} className="text-gray-600" />
             <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">{course.title}</span>
             <ChevronRight size={10} className="text-gray-600" />
@@ -369,9 +371,9 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
                   <div className="aspect-video bg-[#0f172a] flex items-center justify-center relative group">
                     <div className="text-center">
                       <PlayCircle size={80} className="text-white/20 mx-auto mb-4" />
-                      <p className="text-white/40 text-sm">No video uploaded yet</p>
+                      <p className="text-white/40 text-sm">{t('courseViewer.noVideoUploaded')}</p>
                     </div>
-                    <div className="absolute bottom-6 left-6 text-white/40 text-[10px] font-black uppercase tracking-widest">Eduway PLAYER</div>
+                    <div className="absolute bottom-6 left-6 text-white/40 text-[10px] font-black uppercase tracking-widest">{t('courseViewer.eduwayPlayer')}</div>
                   </div>
                 )
               ) : (
@@ -379,9 +381,9 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
                   <div className="w-20 h-20 bg-purple-500/10 rounded-3xl flex items-center justify-center text-purple-400 mx-auto mb-8 border border-purple-500/20">
                     <BookOpen size={40} />
                   </div>
-                  <h3 className="text-3xl font-black text-white mb-6 uppercase tracking-tight">Reading Resource</h3>
+                  <h3 className="text-3xl font-black text-white mb-6 uppercase tracking-tight">{t('courseViewer.readingResource')}</h3>
                   <p className="text-gray-400 text-lg max-w-xl mx-auto leading-relaxed">
-                    {selectedLesson.content || 'Access visual materials. High-contrast viewing mode recommended.'}
+                    {selectedLesson.content || t('courseViewer.readingResourceDefault')}
                   </p>
                 </div>
               )
@@ -390,9 +392,9 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
                 <div className="w-20 h-20 bg-indigo-500/10 rounded-3xl flex items-center justify-center text-indigo-400 mx-auto mb-8 border border-indigo-500/20 shadow-sm">
                   <ClipboardCheck size={40} />
                 </div>
-                <h3 className="text-3xl font-black text-white mb-6 uppercase tracking-tight">Practice Assignment</h3>
+                <h3 className="text-3xl font-black text-white mb-6 uppercase tracking-tight">{t('courseViewer.practiceAssignment')}</h3>
                 <p className="text-gray-400 text-lg max-w-xl mx-auto leading-relaxed">
-                  {selectedHomework?.description || 'Complete this assignment to reinforce your learning.'}
+                  {selectedHomework?.description || t('courseViewer.practiceAssignmentDefault')}
                 </p>
               </div>
             )}
@@ -405,8 +407,8 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
                     <FileText size={24} />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-white">{selectedLesson.pdfTitle || 'Lesson PDF'}</p>
-                    <p className="text-xs text-gray-400">PDF Attachment</p>
+                    <p className="text-sm font-bold text-white">{selectedLesson.pdfTitle || t('courseViewer.lessonPdf')}</p>
+                    <p className="text-xs text-gray-400">{t('courseViewer.pdfAttachment')}</p>
                   </div>
                 </div>
                 <div className="flex gap-2">
@@ -417,7 +419,7 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
                     className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-blue-500/30 rounded-xl text-blue-400 text-xs font-bold hover:bg-blue-500/10 transition-colors"
                   >
                     <ExternalLink size={14} />
-                    Open
+                    {t('courseViewer.open')}
                   </a>
                   <a 
                     href={selectedLesson.pdfUrl} 
@@ -425,7 +427,7 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
                     className="flex items-center gap-2 px-4 py-2 bg-blue-600 rounded-xl text-white text-xs font-bold hover:bg-blue-700 transition-colors"
                   >
                     <Download size={14} />
-                    Download
+                    {t('courseViewer.download')}
                   </a>
                 </div>
               </div>
@@ -439,8 +441,8 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
                     <FileText size={24} />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-white">{selectedHomework.pdfTitle || 'Homework PDF'}</p>
-                    <p className="text-xs text-gray-400">Download to complete this assignment</p>
+                    <p className="text-sm font-bold text-white">{selectedHomework.pdfTitle || t('courseViewer.homeworkPdf')}</p>
+                    <p className="text-xs text-gray-400">{t('courseViewer.downloadToComplete')}</p>
                   </div>
                 </div>
                 <div className="flex gap-2">
@@ -451,7 +453,7 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
                     className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-indigo-500/30 rounded-xl text-indigo-400 text-xs font-bold hover:bg-indigo-500/10 transition-colors"
                   >
                     <ExternalLink size={14} />
-                    Open
+                    {t('courseViewer.open')}
                   </a>
                   <a 
                     href={selectedHomework.pdfUrl} 
@@ -459,7 +461,7 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
                     className="flex items-center gap-2 px-4 py-2 bg-indigo-600 rounded-xl text-white text-xs font-bold hover:bg-indigo-700 transition-colors"
                   >
                     <Download size={14} />
-                    Download
+                    {t('courseViewer.download')}
                   </a>
                 </div>
               </div>
@@ -468,16 +470,16 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
             <div className="p-10 flex flex-col md:flex-row items-center justify-between gap-8 border-t border-white/10">
                <div>
                   <h2 className="text-2xl font-black text-white tracking-tight uppercase mb-2">{selectedItem?.title}</h2>
-                  <p className="text-gray-400 font-medium">{selectedLesson ? `Part of ${currentModule.title}` : 'Independent Assignment'}</p>
+                  <p className="text-gray-400 font-medium">{selectedLesson ? t('courseViewer.partOf', { module: currentModule.title }) : t('courseViewer.independentAssignment')}</p>
                </div>
                <button 
                  onClick={() => selectedItem && toggleProgress(courseId, selectedItem.id)}
                  className={`flex items-center gap-3 px-10 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl transition-all ${selectedItem && isCompleted(selectedItem.id) ? 'bg-green-500 text-white shadow-green-500/20' : 'bg-white text-black hover:bg-purple-600 hover:text-white shadow-white/10'}`}
                >
                  {selectedItem && isCompleted(selectedItem.id) ? (
-                   <><CheckCircle2 size={18} /> Completed</>
+                   <><CheckCircle2 size={18} /> {t('courseViewer.completed')}</>
                  ) : (
-                   'Mark as Completed'
+                   t('courseViewer.markAsCompleted')
                  )}
                </button>
             </div>
@@ -492,12 +494,12 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
                 <Clock size={28} />
               </div>
               <div className="text-left">
-                <h4 className="text-xl font-black text-white tracking-tight uppercase mb-1">Coming Up Next</h4>
+                <h4 className="text-xl font-black text-white tracking-tight uppercase mb-1">{t('courseViewer.comingUpNext')}</h4>
                 <p className="text-gray-400 font-medium">{getNextLabel()}</p>
               </div>
             </div>
             <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-purple-400 group-hover:gap-6 transition-all">
-              GO TO NEXT
+              {t('courseViewer.goToNext')}
               <ChevronRight size={18} />
             </div>
           </button>

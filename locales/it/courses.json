@@ -1,0 +1,1199 @@
+{
+  "coursesPage": {
+    "hero": {
+      "badge": "Percorso di apprendimento Premium",
+      "titleLine1": "ESPLORA",
+      "titleLine2": "I PRODOTTI",
+      "subtitle": "Progettati scientificamente per la <1>mente dislessica</1>.",
+      "subtitleSecondary": "Approccio di apprendimento visivo, multisensoriale e inclusivo."
+    },
+    "tabs": {
+      "liveCourses": "Corsi\ndal vivo",
+      "ebook": "E-book"
+    },
+    "liveSection": {
+      "badge": "Programmi dal vivo",
+      "title": "Programmi di <1>apprendimento dal vivo online</1>",
+      "description": "I nostri programmi più completi che combinano lezioni individuali, workshop di gruppo e supporto completo per un apprendimento trasformativo dell'inglese."
+    },
+    "interactiveSection": {
+      "badge": "Apprendimento interattivo",
+      "title": "<1>Video corsi</1> interattivi",
+      "description": "Video lezioni, quiz ed esercizi da seguire al proprio ritmo, progettati per la mente dislessica."
+    },
+    "ebookSection": {
+      "badge": "Libri digitali",
+      "title": "<1>E-book</1> completi",
+      "description": "Guide PDF scaricabili con vocabolario, grammatica ed esercizi. Perfette per lo studio offline e come riferimento."
+    },
+    "audienceLabels": {
+      "adultsTeens": "Adulti e ragazzi",
+      "kids": "Bambini"
+    },
+    "assessmentButtons": {
+      "takeTestTeens": "Fai il test — Ragazzi e adulti",
+      "takeTestKids": "Fai il test — Bambini",
+      "findLevelTeens": "Trova il tuo livello — Ragazzi e adulti",
+      "findLevelKids": "Trova il tuo livello — Bambini"
+    },
+    "emptyStates": {
+      "liveComingSoonTitle": "Corsi dal vivo in arrivo!",
+      "liveComingSoonDesc": "I nostri corsi dal vivo sono in preparazione. Torna presto!",
+      "ebooksComingSoonTitle": "E-book in arrivo!",
+      "ebooksComingSoonDesc": "Stiamo preparando i nostri e-book completi. Torna presto!",
+      "coursesComingSoonTitle": "Corsi in arrivo!",
+      "coursesComingSoonDesc": "Stiamo preparando i nostri corsi per te. Torna presto per i nostri percorsi di apprendimento completi progettati per tutti i livelli."
+    },
+    "error": {
+      "title": "Ops! Qualcosa è andato storto",
+      "retry": "Riprova"
+    },
+    "liveCard": {
+      "whatsIncluded": "Cosa è incluso",
+      "addToCart": "Aggiungi al carrello",
+      "inCart": "Nel carrello",
+      "buyNow": "Acquista ora",
+      "securePayment": "Pagamento sicuro",
+      "certificateIncluded": "Certificato incluso",
+      "save": "Risparmia €{{amount}}"
+    },
+    "ebookCard": {
+      "mostPopular": "Più popolare",
+      "digitalEbook": "E-book digitale",
+      "level": "Livello {{level}}",
+      "comingSoon": "Prossimamente",
+      "addToCart": "Aggiungi al carrello",
+      "inCart": "Nel carrello",
+      "buyNow": "Acquista ora",
+      "free": "Gratis"
+    }
+  },
+  "courseViewer": {
+    "loading": "Caricamento del corso...",
+    "accessDenied": "Accesso negato",
+    "noAccessLoggedIn": "Non hai accesso a questo corso. Acquistalo per continuare ad apprendere.",
+    "noAccessLoggedOut": "Accedi e acquista questo corso per accedere ai suoi contenuti.",
+    "goBack": "Torna indietro",
+    "purchaseCourse": "Acquista il corso",
+    "logIn": "Accedi",
+    "courseNotAvailable": "Corso non disponibile",
+    "courseNotAvailableDesc": "Questo corso non ha ancora contenuti o non esiste.",
+    "backToDashboard": "Torna alla Dashboard",
+    "classroomEnvironment": "Ambiente di classe",
+    "courseProgress": "Progresso del corso",
+    "continueNext": "Continua",
+    "assignments": "Compiti",
+    "learningCenter": "Centro di apprendimento",
+    "readingResource": "Risorsa di lettura",
+    "readingResourceDefault": "Accedi ai materiali visivi. Si consiglia la modalità di visualizzazione ad alto contrasto.",
+    "practiceAssignment": "Esercitazione pratica",
+    "practiceAssignmentDefault": "Completa questa esercitazione per rafforzare il tuo apprendimento.",
+    "lessonPdf": "PDF della lezione",
+    "pdfAttachment": "Allegato PDF",
+    "homeworkPdf": "PDF dei compiti",
+    "downloadToComplete": "Scarica per completare questa esercitazione",
+    "open": "Apri",
+    "download": "Scarica",
+    "partOf": "Parte di {{module}}",
+    "independentAssignment": "Esercitazione indipendente",
+    "completed": "Completato",
+    "markAsCompleted": "Segna come completato",
+    "comingUpNext": "Prossimamente",
+    "goToNext": "VAI AL SUCCESSIVO",
+    "nextItem": "Successivo: {{title}}",
+    "nextModule": "Modulo successivo: {{title}}",
+    "courseComplete": "Corso completato! Torna alla Dashboard",
+    "eduwayPlayer": "Eduway PLAYER",
+    "noVideoUploaded": "Nessun video caricato ancora"
+  },
+  "shared": {
+    "backToProducts": "Torna ai prodotti",
+    "backToCourses": "Torna ai corsi",
+    "loading": "Caricamento dettagli del corso...",
+    "loadingEbook": "Caricamento dettagli dell'e-book...",
+    "courseNotFound": "Corso non trovato",
+    "courseNotFoundDesc": "Il corso che stai cercando non esiste o è stato rimosso.",
+    "ebookNotFound": "E-book non trovato",
+    "ebookNotFoundDesc": "L'e-book che stai cercando non esiste o è stato rimosso.",
+    "buyNow": "Acquista ora",
+    "addToCart": "Aggiungi al carrello",
+    "added": "Aggiunto",
+    "adding": "Aggiunta in corso...",
+    "addedToCart": "Aggiunto al carrello",
+    "saveForLater": "Salva per dopo",
+    "limitedTimeOffer": "Offerta a tempo limitato",
+    "liveCourse": "Corso dal vivo",
+    "digitalEbook": "E-book digitale",
+    "preparesFor": "Prepara per {{exam}}",
+    "duration": "Durata",
+    "sessions": "Sessioni",
+    "total": "Totale",
+    "modules": "Moduli",
+    "lessons": "Lezioni",
+    "instant": "Istantaneo",
+    "downloadLabel": "Download",
+    "pdf": "PDF",
+    "format": "Formato",
+    "lifetime": "A vita",
+    "access": "Accesso",
+    "topics": "{{count}} argomenti",
+    "whatsIncluded": "Cosa è incluso",
+    "whatYoullAchieve": "Cosa raggiungerai alla fine del corso",
+    "whatYoullAchieveKids": "Cosa raggiungerà tuo figlio alla fine del corso",
+    "whatYoullAchieveShort": "Cosa raggiungerai",
+    "outcomesIntro": "Alla fine di questo corso, sarai in grado di:",
+    "outcomesIntroKids": "Alla fine di questo corso, tuo figlio sarà in grado di:",
+    "outcomesIntroShort": "Alla fine di questo corso, sarai in grado di:",
+    "dsaAdvantageTitle": "Il vantaggio DSA Smart Start",
+    "dsaAdvantageDesc": "A differenza dei metodi tradizionali, non sovraccarichiamo gli studenti con spiegazioni grammaticali astratte. Insegniamo agli studenti a comprendere attraverso <1>percorsi di apprendimento visivo</1> e stimoli sensoriali che rendono l'inglese chiaro, strutturato e memorabile.",
+    "dsaWhatMakesTheDifference": "Cosa fa la differenza:",
+    "dsaTags": [
+      "Mappe mentali visive",
+      "Approccio di apprendimento multisensoriale",
+      "Sistema strutturato passo dopo passo",
+      "Metodo per costruire la fiducia"
+    ],
+    "whoIsThisFor": "A chi è rivolto?",
+    "ourPromise": "La nostra promessa",
+    "promise": {
+      "moneyBackTitle": "14 giorni",
+      "moneyBackDesc": "Garanzia soddisfatti o rimborsati",
+      "dyslexiaTitle": "Dislessia",
+      "dyslexiaDesc": "Design amichevole",
+      "dyslexiaDescAlt": "Approccio amichevole",
+      "certificateTitle": "Certificato",
+      "certificateDesc": "Al completamento",
+      "lifetimeTitle": "A vita",
+      "lifetimeDesc": "Aggiornamenti gratuiti",
+      "certifiedTitle": "Certificati",
+      "certifiedDesc": "Tutor madrelingua"
+    },
+    "trustBadges": {
+      "moneyBack": "Rimborso entro 14 giorni",
+      "secureCheckout": "Pagamento sicuro",
+      "securePayment": "Pagamento sicuro",
+      "instantDownload": "Download istantaneo",
+      "certificateIncluded": "Certificato incluso",
+      "certifiedTutors": "Tutor certificati",
+      "sixDaysSupport": "Supporto 6 giorni"
+    },
+    "cta": {
+      "badge": "Inizia la tua trasformazione",
+      "title": "Pronto a iniziare ad apprendere?",
+      "titleAlt": "Pronto a sbloccare il tuo potenziale?",
+      "descriptionEbook": "Ottieni accesso istantaneo a questo e-book completo e inizia il tuo percorso di apprendimento dell'inglese oggi. Progettato per il modo in cui funziona meglio il tuo cervello.",
+      "descriptionLive": "Iscriviti oggi e inizia il tuo percorso di apprendimento dell'inglese con tutor madrelingua certificati che comprendono il modo in cui funziona meglio il tuo cervello.",
+      "descriptionSyllabus": "Unisciti a centinaia di studenti che hanno scoperto un modo migliore di apprendere. Il tuo viaggio verso la sicurezza inizia con un singolo passo.",
+      "buyNowPrice": "Acquista ora — {{price}}",
+      "enrollNow": "Iscriviti ora",
+      "enrollNowPrice": "Iscriviti ora — {{price}}",
+      "startFree": "Inizia gratis",
+      "startLearningFree": "Inizia ad apprendere gratis"
+    },
+    "comingSoon": "Prossimamente!",
+    "comingSoonEbookTitle": "Questo e-book è in arrivo!",
+    "comingSoonEbookDesc": "Stiamo dando gli ultimi ritocchi a questo e-book. Resta sintonizzato — sarà disponibile per l'acquisto a breve!",
+    "browseOtherEbooks": "Sfoglia altri e-book",
+    "contentComingSoonTitle": "Contenuto in arrivo",
+    "contentComingSoonDesc": "Il contenuto dettagliato delle unità è in preparazione. Torna presto!",
+    "contentComingSoonAlt": "Questo corso è in fase di sviluppo. Torna presto per il programma completo!",
+    "unitContent": "Contenuto dell'unità",
+    "courseModules": "Moduli del corso",
+    "programIncludes": "Il programma include",
+    "vocabularyTopics": "Argomenti di vocabolario",
+    "notIncluded": "Non incluso",
+    "expandAll": "Espandi tutto",
+    "collapseAll": "Comprimi tutto",
+    "unitCountMessage": "Questo corso include <1>{{count}} unità complete</1> progettate per costruire struttura, chiarezza e sicurezza passo dopo passo.",
+    "unitCountMessageAlt": "Questo corso copre <1>{{count}} unità complete</1>, ciascuna progettata con tecniche di apprendimento visivo e materiali adatti alla dislessia.",
+    "lessonsCount": "{{count}} lezioni",
+    "durationMinutes": "{{count}} min",
+    "practiceHomework": "Pratica e compiti",
+    "defaultDescription": "Guida PDF completa progettata per la mente dislessica. Approccio di apprendimento visivo e multisensoriale con contenuti {{label}}.",
+    "defaultSyllabusDescription": "Trasforma le tue competenze in inglese con il nostro corso {{label}}. Progettato specificamente per apprendenti visivi e studenti con dislessia — impara al tuo ritmo con metodi comprovati e adatti al cervello.",
+    "free": "GRATIS",
+    "levelLabels": {
+      "A1": "Principiante",
+      "A2": "Elementare",
+      "B1": "Intermedio",
+      "B2": "Intermedio Superiore",
+      "Kids": "Giovani Studenti Avanzati",
+      "kids-basic": "Bambini Base",
+      "kids-medium": "Bambini Intermedio",
+      "kids-advanced": "Bambini Avanzato",
+      "Premium": "Percorso Premium",
+      "premium": "Programma Premium",
+      "Gold": "Percorso Gold",
+      "golden": "Programma Golden",
+      "language-lab": "Language Lab",
+      "starter-path": "Percorso Starter",
+      "language-lab-pro": "Language Lab Pro",
+      "hybrid-pack": "Pacchetto Ibrido"
+    }
+  },
+  "ebookDetail": {
+    "videoDescriptionKids": "Guarda il nostro video e scopri come tuo figlio può finalmente imparare l'inglese con chiarezza, sicurezza e il metodo giusto.",
+    "videoDescription": "Guarda il nostro video e scopri come puoi finalmente imparare l'inglese con chiarezza, sicurezza e il metodo giusto.",
+    "highlights": {
+      "lifetimeAccess": "Accesso a vita — scarica in qualsiasi momento",
+      "dyslexiaFriendly": "Formattazione adatta alla dislessia",
+      "worksOnAnyDevice": "Funziona su qualsiasi dispositivo"
+    },
+    "defaultOutcomes": [
+      "Padroneggia il vocabolario essenziale attraverso tecniche di memoria visiva",
+      "Costruisci fiducia nella lettura in situazioni reali",
+      "Sviluppa la comprensione con metodi adatti alla dislessia",
+      "Monitora i tuoi progressi con esercizi di autovalutazione"
+    ],
+    "defaultWhatYoullFind": [
+      "Guida PDF completa",
+      "Approccio di apprendimento visivo",
+      "Esercizi pratici inclusi",
+      "Formattazione adatta alla dislessia",
+      "Accesso immediato al download",
+      "Compatibile con tutti i dispositivi"
+    ],
+    "defaultTargetAudience": [
+      "Apprendenti visivi che hanno difficoltà con i libri di testo tradizionali",
+      "Studenti con dislessia o differenze di apprendimento",
+      "Genitori che supportano l'apprendimento dei propri figli",
+      "Chiunque desideri un approccio di supporto e senza giudizio"
+    ],
+    "defaultTargetAudienceDesc": "Perfetto per gli apprendenti di livello {{label}} che vogliono costruire una base solida"
+  },
+  "liveCourseDetail": {
+    "videoDescription": "Guarda il nostro video e scopri come puoi finalmente imparare l'inglese con chiarezza, sicurezza e il metodo giusto.",
+    "highlights": {
+      "certifiedTutors": "Tutor madrelingua certificati",
+      "dsaMethod": "Metodo DSA Smart Start®",
+      "personalised": "Esperienza di apprendimento personalizzata"
+    },
+    "defaultDescription": "Corso di inglese dal vivo con tutor madrelingua certificati specializzati in DSA.",
+    "defaultTargetAudienceDesc": "Perfetto per gli apprendenti che desiderano un'istruzione d'inglese personalizzata e che costruisce fiducia."
+  },
+  "syllabusPage": {
+    "adminPreview": "ANTEPRIMA ADMIN - Questo corso non è ancora pubblicato",
+    "editCourse": "Modifica corso",
+    "level": "Livello {{level}}",
+    "teachingMaterialsBadge": "+ Materiale didattico",
+    "materialsPrice": "({{price}} + €50 materiali)",
+    "highlights": {
+      "lifetimeAccess": "Accesso a vita a tutti i materiali",
+      "certificate": "Certificato di completamento",
+      "dyslexiaFriendly": "Design adatto alla dislessia"
+    },
+    "teachingMaterials": {
+      "title": "Materiale didattico",
+      "price": "+€50",
+      "priceNote": "(Opzionale)",
+      "description": "Migliora la tua esperienza di apprendimento con il nostro pacchetto completo di materiale didattico, inclusi quaderni di lavoro, esercizi pratici, risorse supplementari e guide allo studio esclusive progettate specificamente per questo programma.",
+      "added": "Aggiunto al tuo acquisto",
+      "clickToAdd": "Clicca per aggiungere al tuo acquisto"
+    },
+    "completeLearningPackage": "Pacchetto di apprendimento completo",
+    "everythingForSuccess": "Tutto ciò di cui hai bisogno per il successo",
+    "theEduwayMethod": "Il metodo Eduway",
+    "eduwayMethodPremium": "Il metodo Eduway è l'unico che integra socializzazione, strumenti di supporto specifici e un approccio graduale, per guidare gli studenti passo dopo passo, con sicurezza e motivazione.",
+    "eduwayMethodGold": "Il metodo Eduway è l'unico che combina socializzazione, strumenti di supporto specifici e un approccio graduale, per guidare gli studenti nel loro percorso di apprendimento con fiducia e motivazione.",
+    "defaultOutcomes": [
+      "Padroneggia il vocabolario essenziale attraverso tecniche di memoria visiva",
+      "Costruisci fiducia nel parlare in situazioni reali",
+      "Sviluppa la comprensione della lettura con metodi adatti alla dislessia",
+      "Monitora i tuoi progressi con traguardi personalizzati"
+    ],
+    "defaultTargetAudience": [
+      "Principianti assoluti che iniziano il loro percorso in inglese",
+      "Apprendenti visivi che hanno difficoltà con i libri di testo tradizionali",
+      "Studenti con dislessia o differenze di apprendimento",
+      "Chiunque desideri un ambiente di supporto e senza giudizio"
+    ],
+    "defaultTargetAudienceDesc": "Perfetto per gli apprendenti di livello {{label}} che vogliono costruire una base solida"
+  },
+  "courseFeatures": {
+    "language-lab": [
+      "8 sessioni di laboratorio con 3-4 studenti",
+      "Lezioni di 50 minuti",
+      "Materiale non incluso"
+    ],
+    "starter-path": [
+      "5 lezioni individuali",
+      "Lezioni di 30 minuti",
+      "Materiale non incluso"
+    ],
+    "language-lab-pro": [
+      "30 sessioni di laboratorio con 3-4 studenti",
+      "Lezioni di 50 minuti",
+      "Materiale incluso"
+    ],
+    "hybrid-pack": [
+      "25 sessioni di laboratorio con 3-4 studenti",
+      "5 lezioni individuali",
+      "30 min individuali / 50 min laboratorio",
+      "Materiale incluso"
+    ]
+  },
+  "premiumFeatures": [
+    "7 lezioni individuali di 50 minuti",
+    "32 workshop di 50 minuti",
+    "525 mappe mentali + 15 unità didattiche progettate specificamente per studenti DSA",
+    "Oltre 100 video lezioni interattive per potenziare concentrazione, ascolto e vocabolario",
+    "Schede \"Stop & Check\" e test periodici per monitorare i progressi",
+    "Tutoraggio scolastico per compiti e preparazione ai test",
+    "Assistenza dedicata 6 giorni a settimana",
+    "Certificazione di livello finale al completamento"
+  ],
+  "goldFeatures": [
+    "52 workshop di 50 minuti con frequenza bisettimanale",
+    "525 mappe mentali + 15 unità didattiche sviluppate specificamente per DSA",
+    "Oltre 100 video lezioni interattive per concentrazione, ascolto e vocabolario",
+    "Schede \"Stop & Check\" per monitorare e adattare costantemente il percorso",
+    "Tutoraggio e assistenza dedicati 6 giorni a settimana",
+    "Certificazione di livello finale"
+  ],
+  "vocabularyTopics": {
+    "B1": [
+      "Identità personale ed esperienze di vita",
+      "Relazioni e vita sociale",
+      "Istruzione e scelte di carriera",
+      "Lavoro e situazioni lavorative",
+      "Viaggi ed esperienze culturali",
+      "Salute, stile di vita e benessere",
+      "Tecnologia e vita digitale",
+      "Media e comunicazione",
+      "Ambiente e problemi globali",
+      "Denaro, consumismo e pubblicità",
+      "Criminalità e problemi sociali",
+      "Scienza e innovazione",
+      "Sentimenti, opinioni e convinzioni personali",
+      "Piani futuri e ambizioni",
+      "Società e sfide moderne"
+    ],
+    "A2": [
+      "Vita quotidiana e routine",
+      "Scuola e istruzione",
+      "Tempo libero e hobby",
+      "Luoghi in città",
+      "Viaggi e trasporti",
+      "Cibo e vita sana",
+      "Shopping e denaro",
+      "Tecnologia e comunicazione",
+      "Il mondo naturale e l'ambiente",
+      "Persone e relazioni",
+      "Lavoro e piani futuri",
+      "Salute e corpo",
+      "Intrattenimento e media",
+      "Descrivere esperienze",
+      "Argomenti globali e società"
+    ],
+    "A1": [
+      "Routine quotidiane e responsabilità",
+      "Attività del tempo libero e interessi",
+      "Luoghi in città",
+      "Indicazioni e dare istruzioni",
+      "Viaggi e vacanze",
+      "Salute e corpo",
+      "Shopping e denaro",
+      "Lavori e professioni",
+      "Tecnologia e comunicazione",
+      "L'ambiente",
+      "Feste e celebrazioni",
+      "Amicizia e relazioni",
+      "Sport e competizioni",
+      "Piani futuri e ambizioni"
+    ],
+    "kids-advanced": [
+      "Routine quotidiane e responsabilità",
+      "Attività del tempo libero e interessi",
+      "Luoghi in città",
+      "Indicazioni e dare istruzioni",
+      "Viaggi e vacanze",
+      "Salute e corpo",
+      "Shopping e denaro",
+      "Lavori e professioni",
+      "Tecnologia e comunicazione",
+      "L'ambiente",
+      "Feste e celebrazioni",
+      "Materie scolastiche",
+      "Amicizia e relazioni",
+      "Sport e competizioni",
+      "Piani futuri e ambizioni"
+    ],
+    "kids-medium": [
+      "Emozioni e sentimenti",
+      "Famiglia",
+      "Routine quotidiane",
+      "Scuola",
+      "Amici e relazioni",
+      "Descrivere la tua casa",
+      "Tempo atmosferico",
+      "Cibo e bevande",
+      "Numeri",
+      "Giorni della settimana",
+      "Mesi dell'anno",
+      "Hobby e tempo libero",
+      "Sport",
+      "Abbigliamento",
+      "Città",
+      "Aggettivi"
+    ],
+    "kids-basic": [
+      "Emozioni e sentimenti",
+      "Famiglia",
+      "Routine quotidiane",
+      "Scuola",
+      "Casa",
+      "Colori",
+      "Nazioni",
+      "Paesi",
+      "Numeri",
+      "Giorni della settimana",
+      "Mesi dell'anno",
+      "Hobby e tempo libero",
+      "Sport",
+      "Abbigliamento",
+      "Città",
+      "Aggettivi"
+    ]
+  },
+  "ebookContent": {
+    "A1": {
+      "description": "Inizia il tuo percorso in inglese con il nostro e-book interattivo A1 per principianti, con mappe mentali visive e pratica strutturata progettata per principianti assoluti.",
+      "learningOutcomes": [
+        "Padroneggia i tempi verbali di base.",
+        "Sviluppa competenze di conversazione semplice.",
+        "Esprimi eventi passati e parla delle tue preferenze in situazioni quotidiane.",
+        "Impara a scrivere parole e costruisci competenze di base di lettura e scrittura con sicurezza."
+      ],
+      "whatYoullFind": [
+        "E-book illustrati",
+        "Esercizi di scrittura creativa con modelli strutturati",
+        "Giochi per costruire il vocabolario",
+        "Grammatica introdotta attraverso esempi pratici",
+        "Un quiz di progresso alla fine di ogni unità"
+      ],
+      "targetAudience": [
+        "Studenti dai 9 anni in su"
+      ],
+      "examPrep": "Cambridge English A1 Movers"
+    },
+    "A2": {
+      "description": "Continua a costruire il tuo inglese con il nostro e-book strutturato A2, progettato per rafforzare le basi grammaticali, ampliare il vocabolario e sviluppare competenze comunicative nella vita reale con chiarezza e sicurezza.",
+      "learningOutcomes": [
+        "Usa una gamma più ampia di tempi verbali con maggiore precisione.",
+        "Comunica con sicurezza in situazioni quotidiane.",
+        "Descrivi esperienze passate e piani futuri in modo chiaro.",
+        "Migliora le tue competenze di lettura, scrittura, ascolto e parlato con supporto strutturato."
+      ],
+      "whatYoullFind": [
+        "E-book illustrati",
+        "Esercizi di scrittura creativa con modelli strutturati",
+        "Giochi per costruire il vocabolario",
+        "Grammatica introdotta attraverso esempi pratici",
+        "Un quiz di progresso alla fine di ogni unità"
+      ],
+      "targetAudience": [
+        "Studenti dai 9 anni in su"
+      ],
+      "examPrep": "Cambridge English A2 Key (KET)"
+    },
+    "B1": {
+      "description": "Rafforza il tuo inglese con il nostro e-book strutturato B1 di livello intermedio, progettato per aiutarti a comunicare con fluidità, pensare in inglese e gestire con sicurezza situazioni reali e professionali.",
+      "learningOutcomes": [
+        "Usa strutture grammaticali avanzate con sicurezza.",
+        "Esprimi opinioni, idee e argomentazioni in modo chiaro.",
+        "Descrivi esperienze passate, situazioni presenti e piani futuri in dettaglio.",
+        "Comunica efficacemente in contesti accademici, sociali e professionali."
+      ],
+      "whatYoullFind": [
+        "E-book illustrati",
+        "Esercizi di scrittura creativa con modelli strutturati",
+        "Giochi per costruire il vocabolario",
+        "Grammatica introdotta attraverso esempi pratici",
+        "Un quiz di progresso alla fine di ogni unità"
+      ],
+      "targetAudience": [
+        "Studenti dai 12 anni in su"
+      ],
+      "examPrep": "Cambridge English B1 Preliminary (PET)"
+    },
+    "B2": {
+      "description": "Il volume Eduway di livello B2 rappresenta il culmine del nostro percorso di apprendimento strutturato, progettato per studenti con Disturbi Specifici dell'Apprendimento (DSA) pronti a raggiungere una competenza intermedia superiore. Questo livello avanzato si concentra sull'uso sfumato della lingua, l'inglese accademico e strategie di comunicazione sofisticate che preparano gli studenti per contesti professionali e formativi.",
+      "learningOutcomes": [
+        "Padroneggia tutte le forme condizionali, inclusi i condizionali misti",
+        "Usa strutture passive avanzate e forme causative",
+        "Esprimi situazioni ipotetiche con facilità",
+        "Comprendi e produci frasi relative complesse",
+        "Naviga appropriatamente tra registri formali e informali",
+        "Preparati per l'esame Cambridge B2 First (FCE)"
+      ],
+      "whatYoullFind": [
+        "Spiegazioni grammaticali avanzate con supporto visivo",
+        "Esercizi per costruire il vocabolario accademico",
+        "Strategie di comprensione di testi complessi",
+        "Tecniche di scrittura avanzata e modelli",
+        "Font altamente leggibili e impaginazioni strutturate",
+        "Materiali digitali integrati con pratica per l'esame"
+      ],
+      "targetAudience": [
+        "Studenti dai 12 anni in su di livello intermedio superiore",
+        "Apprendenti che si preparano per il Cambridge B2 First (FCE)",
+        "Chi cerca competenze in inglese accademico o professionale",
+        "Chiunque sia pronto per una comunicazione quasi fluente"
+      ],
+      "examPrep": "Cambridge English B2 First (FCE)"
+    },
+    "kids-basic": {
+      "description": "L'e-book Eduway Kids Basic è appositamente creato per giovani apprendenti dai 5 agli 8 anni che stanno iniziando la loro avventura in inglese. Con un approccio giocoso e multisensoriale, immagini colorate, canzoni e pagine interattive, questo e-book rende l'apprendimento dell'inglese un viaggio entusiasmante. Ogni pagina è progettata con tecniche adatte alla dislessia per garantire che ogni bambino possa avere successo.",
+      "learningOutcomes": [
+        "Riconoscere e usare saluti e presentazioni di base",
+        "Identificare colori, numeri da 1 a 20 e forme comuni",
+        "Nominare i membri della famiglia, gli animali domestici e gli oggetti della classe",
+        "Seguire istruzioni semplici in inglese",
+        "Cantare canzoni e filastrocche in inglese",
+        "Costruire sicurezza nel pronunciare le prime parole in inglese"
+      ],
+      "whatYoullFind": [
+        "E-book illustrati",
+        "Esercizi di scrittura creativa con modelli strutturati",
+        "Giochi per costruire il vocabolario",
+        "Grammatica introdotta attraverso esempi pratici",
+        "Un quiz di progresso alla fine di ogni unità"
+      ],
+      "targetAudience": [
+        "Bambini dai 5 agli 8 anni che iniziano l'inglese",
+        "Giovani apprendenti con differenze di apprendimento",
+        "Bambini che apprendono meglio attraverso il gioco e le immagini",
+        "Genitori che cercano inglese adatto alla dislessia per i bambini"
+      ],
+      "examPrep": "Cambridge English A1 Starters"
+    },
+    "kids-medium": {
+      "description": "L'e-book Eduway Kids Medium si basa sulle nozioni di base, progettato per giovani apprendenti dai 7 ai 10 anni pronti ad ampliare le proprie competenze in inglese. Attraverso l'apprendimento basato su storie, attività creative ed esercizi interattivi, i bambini sviluppano sicurezza nella lettura, scrittura e nel parlato. Ogni pagina incorpora metodi adatti alla dislessia per supportare tutti gli stili di apprendimento.",
+      "learningOutcomes": [
+        "Leggere e comprendere storie semplici in inglese",
+        "Scrivere brevi frasi su argomenti familiari",
+        "Fare e rispondere a domande semplici",
+        "Descrivere persone, luoghi e cose",
+        "Usare il presente semplice per le routine quotidiane",
+        "Espandere il vocabolario a oltre 500 parole"
+      ],
+      "whatYoullFind": [
+        "E-book illustrati",
+        "Esercizi di scrittura creativa con modelli strutturati",
+        "Giochi per costruire il vocabolario",
+        "Grammatica introdotta attraverso esempi pratici",
+        "Un quiz di progresso alla fine di ogni unità"
+      ],
+      "targetAudience": [
+        "Bambini dai 7 ai 10 anni con inglese base",
+        "Giovani apprendenti che progrediscono dal livello base",
+        "Bambini che amano le storie e le attività creative",
+        "Studenti che si preparano per il Cambridge A1 Movers"
+      ],
+      "examPrep": "Cambridge English A1 Movers"
+    },
+    "kids-advanced": {
+      "description": "L'e-book Eduway Kids Advanced è progettato per giovani apprendenti sicuri dai 9 ai 12 anni pronti a padroneggiare l'inglese a un livello superiore. Questa guida completa prepara gli studenti per i requisiti di inglese scolastico e l'esame Cambridge A2 Flyers. La grammatica complessa viene insegnata attraverso contesti coinvolgenti e l'espressione creativa è incoraggiata in tutto il percorso.",
+      "learningOutcomes": [
+        "Leggere e comprendere testi più lunghi e complessi",
+        "Scrivere paragrafi e brevi composizioni",
+        "Usare il passato semplice e il passato progressivo con sicurezza",
+        "Formare e usare il present perfect",
+        "Comprendere e creare frasi con il primo condizionale",
+        "Raggiungere un vocabolario di oltre 1000 parole"
+      ],
+      "whatYoullFind": [
+        "E-book illustrati",
+        "Esercizi di scrittura creativa con modelli strutturati",
+        "Giochi per costruire il vocabolario",
+        "Grammatica introdotta attraverso esempi pratici",
+        "Un quiz di progresso alla fine di ogni unità"
+      ],
+      "targetAudience": [
+        "Bambini dai 9 ai 12 anni di livello intermedio",
+        "Studenti che si preparano per il Cambridge A2 Flyers",
+        "Bambini in transizione verso l'inglese della scuola secondaria",
+        "Giovani apprendenti pronti per sfide avanzate"
+      ],
+      "examPrep": "Cambridge English A2 Flyers"
+    }
+  },
+  "liveCourseContent": {
+    "starter-path": {
+      "description": "Inizia il tuo percorso in inglese con un'attenzione personalizzata individuale. Questo programma iniziale è interamente su misura per le tue esigenze utilizzando il Metodo DSA Smart Start®, perfetto per chiunque cerchi un'introduzione mirata con un tutor madrelingua certificato specializzato in DSA.",
+      "duration": "5 settimane",
+      "lessons": "10 lezioni di 30 minuti",
+      "totalHours": "5 ore",
+      "includes": [
+        "Valutazione iniziale del livello",
+        "Metodo DSA Smart Start®",
+        "Sessioni personalizzate individuali",
+        "Creazione di mappe mentali personalizzate",
+        "Metodo multisensoriale e visivo",
+        "Conversazione guidata",
+        "Mini piano di studio personalizzato",
+        "Tutor madrelingua certificati specializzati in DSA",
+        "Materiale digitale di base",
+        "Monitoraggio progressivo"
+      ],
+      "notIncluded": [
+        "Language Lab",
+        "Materiale didattico DSA Smart Start — accesso illimitato",
+        "Accesso a oltre 500 risorse Brain Mapping",
+        "Accesso a oltre 700 video lezioni",
+        "Preparazione a test ed esami",
+        "Aiuto con i compiti",
+        "Contatto diretto con i rappresentanti della scuola",
+        "Report finale sulle competenze acquisite",
+        "Certificazione di livello",
+        "Durata estesa fino a 9 mesi"
+      ],
+      "learningOutcomes": [
+        "Ricevi una valutazione di apprendimento personalizzata",
+        "Costruisci competenze in inglese di base in modo individuale",
+        "Acquisisci sicurezza nel parlare con attenzione individuale",
+        "Sviluppa una tabella di marcia di apprendimento personalizzata",
+        "Ottieni feedback mirato sulle tue sfide specifiche"
+      ],
+      "targetAudience": [
+        "Principianti che desiderano un inizio personalizzato in inglese",
+        "Apprendenti che preferiscono l'attenzione individuale",
+        "Chi ha bisogno di un programma flessibile a breve termine",
+        "Chiunque voglia valutare il proprio livello e costruire un piano"
+      ]
+    },
+    "language-lab": {
+      "description": "Sessioni dal vivo in piccoli gruppi progettate per un apprendimento interattivo e mirato. Unisciti a una classe di 3-4 studenti per 8 workshop dinamici, ciascuno della durata di 50 minuti. Perfetto per gli apprendenti che prosperano in ambienti collaborativi con attenzione personalizzata da tutor madrelingua certificati specializzati in DSA.",
+      "duration": "8 settimane",
+      "lessons": "8 workshop di 50 minuti",
+      "totalHours": "6,5 ore",
+      "includes": [
+        "Valutazione iniziale del livello",
+        "Metodo DSA Smart Start®",
+        "Language Lab — max 3-4 studenti",
+        "Circle Talk Lab",
+        "Giochi di ruolo e sfide di squadra",
+        "Metodo multisensoriale e visivo",
+        "Tutor madrelingua certificati specializzati in DSA",
+        "Monitoraggio progressivo"
+      ],
+      "notIncluded": [
+        "Sessioni personalizzate individuali",
+        "Materiale didattico DSA Smart Start — accesso illimitato",
+        "Accesso a oltre 500 risorse Brain Mapping",
+        "Accesso a oltre 700 video lezioni",
+        "Preparazione a test ed esami",
+        "Aiuto con i compiti",
+        "Contatto diretto con i rappresentanti della scuola",
+        "Report finale sulle competenze acquisite",
+        "Certificazione di livello",
+        "Durata estesa fino a 9 mesi"
+      ],
+      "learningOutcomes": [
+        "Costruisci sicurezza nella conversazione in piccoli gruppi",
+        "Sviluppa competenze comunicative in tempo reale con interazione tra pari",
+        "Ricevi feedback personalizzato da istruttori esperti",
+        "Pratica nel parlare, ascoltare e rispondere in modo naturale",
+        "Esponi te stesso a diversi stili di comunicazione"
+      ],
+      "targetAudience": [
+        "Apprendenti che prosperano in contesti collaborativi",
+        "Studenti che desiderano pratica di conversazione in tempo reale",
+        "Chiunque cerchi un'opzione di apprendimento di gruppo accessibile",
+        "Chi ama l'apprendimento interattivo e sociale"
+      ]
+    },
+    "language-lab-pro": {
+      "description": "Il nostro programma più intensivo in micro-gruppi con 30 workshop dal vivo. Micro-Lab con max 3-4 studenti della stessa età e livello, sessioni di 50 minuti ricche di esercizi interattivi, pratica di conversazione reale e sviluppo progressivo delle competenze. Tutto il materiale didattico è incluso per un'esperienza di apprendimento completa.",
+      "duration": "Fino a 9 mesi",
+      "lessons": "30 workshop di 50 minuti",
+      "totalHours": "25 ore",
+      "includes": [
+        "Valutazione iniziale del livello",
+        "Metodo DSA Smart Start®",
+        "Materiale didattico DSA Smart Start® — Accesso illimitato",
+        "Metodo multisensoriale e visivo",
+        "Accesso a oltre 500 risorse Brain Mapping",
+        "Accesso a oltre 700 video lezioni",
+        "Language Lab in micro-gruppo (max 3-4 studenti)",
+        "Circle Talk Lab",
+        "Giochi di ruolo e sfide di squadra",
+        "Tutor madrelingua certificati specializzati in DSA",
+        "Monitoraggio progressivo",
+        "Preparazione a test scritti ed esami orali",
+        "Contatto diretto con i rappresentanti della scuola",
+        "Report finale con le competenze acquisite",
+        "Certificazione ufficiale di livello",
+        "Durata estesa fino a 9 mesi"
+      ],
+      "notIncluded": [
+        "Sessioni personalizzate individuali",
+        "Piano di studio personalizzato",
+        "Creazione di mappe mentali personalizzate",
+        "Stop & Check individuale",
+        "Aiuto individuale con i compiti"
+      ],
+      "learningOutcomes": [
+        "Raggiungi un miglioramento significativo della fluidità in 30 sessioni",
+        "Padroneggia modelli di conversazione complessi e risposte",
+        "Costruisci un vocabolario avanzato attraverso la pratica immersiva",
+        "Sviluppa pronuncia e intonazione naturali",
+        "Acquisisci sicurezza per l'uso professionale e sociale dell'inglese"
+      ],
+      "targetAudience": [
+        "Apprendenti motivati che cercano pratica intensiva di gruppo",
+        "Studenti che desiderano una progressione strutturata a lungo termine",
+        "Chi beneficia dell'apprendimento tra pari e della collaborazione",
+        "Apprendenti che mirano a un miglioramento significativo della fluidità"
+      ]
+    },
+    "hybrid-pack": {
+      "description": "Il meglio di entrambi i mondi — combina l'energia dei laboratori in micro-gruppo con l'attenzione personalizzata delle sessioni individuali. Include 25 workshop (50 minuti, max 3-4 studenti) più 5 sessioni individuali (30 minuti). Tutto il materiale didattico è incluso per l'esperienza di apprendimento più completa.",
+      "duration": "Fino a 9 mesi",
+      "lessons": "25 workshop di 50 min + 5 sessioni individuali di 30 min",
+      "totalHours": "23,5 ore",
+      "includes": [
+        "Valutazione iniziale del livello",
+        "Metodo DSA Smart Start®",
+        "Materiale didattico DSA Smart Start® — Accesso illimitato",
+        "Metodo multisensoriale e visivo",
+        "Accesso a oltre 500 risorse Brain Mapping",
+        "Accesso a oltre 700 video lezioni",
+        "Sessioni personalizzate individuali",
+        "Piano di studio personalizzato",
+        "Creazione di mappe mentali personalizzate",
+        "Language Lab max 3-4 studenti",
+        "Circle Talk Lab",
+        "Giochi di ruolo e sfide di squadra",
+        "Tutor madrelingua certificati specializzati in DSA",
+        "Monitoraggio progressivo",
+        "Stop & Check personalizzato",
+        "Preparazione a test ed esami",
+        "Aiuto con i compiti",
+        "Contatto diretto con i rappresentanti della scuola",
+        "Report finale sulle competenze",
+        "Certificazione di livello",
+        "Durata estesa fino a 9 mesi"
+      ],
+      "notIncluded": [],
+      "learningOutcomes": [
+        "Combina l'interazione di gruppo con l'attenzione personalizzata",
+        "Padroneggia sia le competenze in inglese sociale che accademico",
+        "Ricevi feedback su misura nelle sessioni individuali",
+        "Pratica la conversazione reale nei laboratori in piccolo gruppo",
+        "Raggiungi uno sviluppo linguistico completo"
+      ],
+      "targetAudience": [
+        "Apprendenti che desiderano il programma più completo",
+        "Studenti che beneficiano sia dell'apprendimento di gruppo che individuale",
+        "Chi cerca il massimo progresso in un formato strutturato",
+        "Chiunque si impegni a raggiungere la padronanza dell'inglese"
+      ]
+    }
+  },
+  "courseContent": {
+    "A1": {
+      "description": "Il volume Eduway di livello A1 è progettato per guidare gli studenti con Disturbi Specifici dell'Apprendimento (DSA) nei primi passi dell'apprendimento dell'inglese. Grazie a un approccio visivo, multisensoriale e inclusivo, ogni unità didattica è progettata per facilitare la comprensione, la memorizzazione e l'uso attivo della lingua, rendendo l'esperienza di apprendimento accessibile e motivante.",
+      "learningOutcomes": [
+        "Padroneggia i pronomi soggetto e il verbo TO BE in tutte le forme",
+        "Forma domande e negazioni con sicurezza",
+        "Usa correttamente il presente semplice e il presente progressivo",
+        "Esprimi eventi passati usando verbi regolari e irregolari",
+        "Comprendi e usa i verbi modali CAN, COULD e WILL"
+      ],
+      "whatYoullFind": [
+        "Esercizi guidati e spiegazioni semplici",
+        "Illustrazioni e simboli per supportare la comprensione",
+        "Attività pratiche per rafforzare l'apprendimento",
+        "Spazi dedicati alla riflessione metacognitiva",
+        "Schede con font altamente leggibili",
+        "Accesso a materiali digitali aggiuntivi (audio e video)"
+      ],
+      "targetAudience": [
+        "Studenti dagli 8 anni in su che iniziano il loro percorso in inglese",
+        "Genitori che supportano l'apprendimento dei propri figli",
+        "Insegnanti di sostegno e tutor per l'apprendimento",
+        "Chiunque voglia imparare l'inglese in modo visivo e graduale"
+      ],
+      "examPrep": "Cambridge English A1 Movers"
+    },
+    "A2": {
+      "description": "Il volume Eduway di livello A2 è progettato per accompagnare gli studenti con Disturbi Specifici dell'Apprendimento (DSA) nel consolidamento delle competenze linguistiche acquisite e nell'introduzione di strutture grammaticali più complesse. Attraverso un approccio visivo, multisensoriale e inclusivo, ogni unità didattica è strutturata per facilitare la comprensione, la memorizzazione e l'uso attivo della lingua, rendendo l'esperienza di studio accessibile e motivante.",
+      "learningOutcomes": [
+        "Distingui tra presente semplice e presente progressivo",
+        "Usa il passato progressivo per descrivere azioni passate in corso",
+        "Padroneggia aggettivi comparativi e superlativi",
+        "Esprimi possibilità con i verbi modali may e might",
+        "Forma e usa il present perfect",
+        "Crea frasi condizionali (condizionale zero e primo)"
+      ],
+      "whatYoullFind": [
+        "Esercizi guidati e spiegazioni dettagliate",
+        "Illustrazioni e simboli per supportare la comprensione",
+        "Attività pratiche per rafforzare l'apprendimento",
+        "Spazi dedicati alla riflessione metacognitiva",
+        "Schede con font altamente leggibili",
+        "Accesso a materiali digitali aggiuntivi (audio e video)"
+      ],
+      "targetAudience": [
+        "Studenti dai 9 anni in su che consolidano le basi di inglese",
+        "Apprendenti che si preparano per l'esame Cambridge A2 Key (KET)",
+        "Genitori e insegnanti di sostegno",
+        "Chiunque desideri un approccio strutturato e graduale all'inglese"
+      ],
+      "examPrep": "Cambridge English A2 Key (KET)"
+    },
+    "B1": {
+      "description": "Il volume Eduway di livello B1 è progettato per accompagnare gli studenti con Disturbi Specifici dell'Apprendimento (DSA) attraverso una fase intermedia dell'apprendimento dell'inglese, dove la lingua diventa uno strumento più complesso, articolato e vicino all'uso reale. Questo livello introduce strutture grammaticali più avanzate e promuove lo sviluppo di tutte e 4 le competenze: ascolto, lettura, scrittura e conversazione.",
+      "learningOutcomes": [
+        "Usa il present perfect continuous per situazioni in corso",
+        "Padroneggia il past perfect per sequenziare eventi",
+        "Forma la voce passiva al presente, passato e futuro",
+        "Riporta ciò che altri hanno detto usando il discorso indiretto",
+        "Esprimi deduzioni con i verbi modali must, might, can't",
+        "Crea frasi con il secondo e terzo condizionale"
+      ],
+      "whatYoullFind": [
+        "Spiegazioni chiare e progressive",
+        "Schede con struttura visiva e linguaggio semplificato",
+        "Attività pratiche e riflessioni metacognitive",
+        "Strategie per migliorare la comprensione scritta e orale",
+        "Font altamente leggibili e simboli di supporto visivo",
+        "Materiali digitali integrati (audio, video ed esercizi interattivi)"
+      ],
+      "targetAudience": [
+        "Studenti dai 10 anni in su di livello intermedio",
+        "Apprendenti che si preparano per il Cambridge B1 Preliminary (PET)",
+        "Insegnanti di sostegno e tutor per l'apprendimento",
+        "Chiunque cerchi una comunicazione autonoma in contesti quotidiani"
+      ],
+      "examPrep": "Cambridge English B1 Preliminary (PET)"
+    },
+    "Kids": {
+      "description": "Il livello avanzato Eduway è progettato per accompagnare passo dopo passo i giovani apprendenti con difficoltà di apprendimento nei loro studi di lingua inglese. Gli studenti possono migliorare gradualmente, partendo dagli esami A1 Starters, passando per Movers e raggiungendo A2 Flyers. Questo livello avanzato completa il programma, offrendo contenuti essenziali per la preparazione all'esame A2 Flyers — il terzo livello di Cambridge English Young Learners, progettato per studenti della scuola primaria e secondaria inferiore.",
+      "learningOutcomes": [
+        "Comprendere e usare frasi più complesse su argomenti familiari",
+        "Leggere e ascoltare brevi testi, storie e dialoghi realistici in inglese",
+        "Comunicare e interagire efficacemente in contesti quotidiani",
+        "Esprimersi con un linguaggio più articolato e sicuro",
+        "Padroneggiare tutte le forme condizionali (primo e secondo)",
+        "Usare il present perfect in vari contesti"
+      ],
+      "whatYoullFind": [
+        "Spiegazioni adatte all'età con supporto visivo",
+        "Attività interattive progettate per giovani apprendenti",
+        "Mappe mentali per la memorizzazione visiva",
+        "Monitoraggio dei progressi con schede 'Stop & Check'",
+        "Contenuti multimediali coinvolgenti",
+        "Materiali di preparazione all'esame Cambridge A2 Flyers"
+      ],
+      "targetAudience": [
+        "Giovani apprendenti dai 6 ai 12 anni con differenze di apprendimento",
+        "Studenti che si preparano per il Cambridge A2 Flyers",
+        "Bambini che prosperano con l'apprendimento visivo e multisensoriale",
+        "Genitori che cercano corsi di inglese adatti alla dislessia per bambini"
+      ],
+      "examPrep": "Cambridge English A2 Flyers (Young Learners)"
+    },
+    "Premium": {
+      "description": "Il percorso Premium Eduway è un programma completo e innovativo progettato per studenti con DSA che vogliono imparare l'inglese in modo chiaro e stimolante senza frustrazione. Attraverso un metodo multisensoriale e materiali ad alta leggibilità, il percorso combina lezioni individuali, workshop di gruppo, mappe mentali e video lezioni per rendere l'apprendimento più semplice ed efficace.",
+      "learningOutcomes": [
+        "Raggiungi progressi personalizzati attraverso lezioni 1-a-1",
+        "Costruisci sicurezza nell'ambiente dei workshop di gruppo",
+        "Padroneggia il vocabolario attraverso 525 mappe mentali visive",
+        "Sviluppa concentrazione e capacità di ascolto",
+        "Preparati per test scolastici e compiti in autonomia",
+        "Ottieni la certificazione di livello finale"
+      ],
+      "whatYoullFind": [
+        "7 lezioni individuali di 50 minuti ciascuna",
+        "32 workshop di gruppo di 50 minuti",
+        "525 mappe mentali + 15 unità didattiche per studenti DSA",
+        "Oltre 100 video lezioni interattive",
+        "Schede 'Stop & Check' e test periodici",
+        "Tutoraggio scolastico per compiti e preparazione ai test",
+        "Assistenza dedicata 6 giorni a settimana"
+      ],
+      "targetAudience": [
+        "Studenti che cercano supporto intensivo e personalizzato",
+        "Apprendenti che beneficiano della combinazione 1-a-1 e gruppo",
+        "Chi desidera un monitoraggio strutturato dei progressi",
+        "Chiunque sia pronto per una trasformazione completa"
+      ]
+    },
+    "Gold": {
+      "description": "Il percorso Gold Eduway è un programma strutturato e innovativo progettato per studenti con DSA che desiderano imparare l'inglese in modo chiaro e coinvolgente senza frustrazione. Grazie a un metodo multisensoriale e ad alta leggibilità, il percorso combina lezioni di gruppo interattive, mappe mentali, video lezioni e materiali dedicati per rendere l'apprendimento più semplice ed efficace.",
+      "learningOutcomes": [
+        "Costruisci sicurezza attraverso workshop di gruppo bisettimanali",
+        "Padroneggia il vocabolario con 525 mappe mentali visive",
+        "Sviluppa concentrazione e capacità di ascolto",
+        "Monitora i progressi con le schede 'Stop & Check'",
+        "Ricevi tutoraggio e supporto dedicati",
+        "Ottieni la certificazione di livello finale"
+      ],
+      "whatYoullFind": [
+        "52 workshop di 50 minuti (due volte a settimana)",
+        "525 mappe mentali + 15 unità didattiche per DSA",
+        "Oltre 100 video lezioni interattive",
+        "Schede 'Stop & Check' per il monitoraggio dei progressi",
+        "Tutoraggio e assistenza dedicati 6 giorni a settimana",
+        "Certificazione di livello finale"
+      ],
+      "targetAudience": [
+        "Studenti che prosperano in ambienti di apprendimento di gruppo",
+        "Apprendenti che cercano progressi costanti e strutturati",
+        "Chi beneficia dell'interazione e del supporto tra pari",
+        "Chiunque si impegni per un miglioramento a lungo termine dell'inglese"
+      ]
+    },
+    "B2": {
+      "description": "Il volume Eduway di livello B2 rappresenta il culmine del nostro percorso di apprendimento strutturato, progettato per studenti con Disturbi Specifici dell'Apprendimento (DSA) pronti a raggiungere una competenza intermedia superiore. Questo livello avanzato si concentra sull'uso sfumato della lingua, l'inglese accademico e strategie di comunicazione sofisticate che preparano gli studenti per contesti professionali e formativi.",
+      "learningOutcomes": [
+        "Padroneggia tutte le forme condizionali, inclusi i condizionali misti",
+        "Usa strutture passive avanzate e forme causative",
+        "Esprimi situazioni ipotetiche con facilità",
+        "Comprendi e produci frasi relative complesse",
+        "Naviga appropriatamente tra registri formali e informali",
+        "Preparati per l'esame Cambridge B2 First (FCE)"
+      ],
+      "whatYoullFind": [
+        "Spiegazioni grammaticali avanzate con supporto visivo",
+        "Esercizi per costruire il vocabolario accademico",
+        "Strategie di comprensione di testi complessi",
+        "Tecniche di scrittura avanzata e modelli",
+        "Font altamente leggibili e impaginazioni strutturate",
+        "Materiali digitali integrati con pratica per l'esame"
+      ],
+      "targetAudience": [
+        "Studenti dai 12 anni in su di livello intermedio superiore",
+        "Apprendenti che si preparano per il Cambridge B2 First (FCE)",
+        "Chi cerca competenze in inglese accademico o professionale",
+        "Chiunque sia pronto per una comunicazione quasi fluente"
+      ],
+      "examPrep": "Cambridge English B2 First (FCE)"
+    },
+    "kids-basic": {
+      "description": "Il programma Eduway Kids Basic è appositamente creato per giovani apprendenti dai 5 agli 8 anni che stanno iniziando la loro avventura in inglese. Con un approccio giocoso e multisensoriale, immagini colorate, canzoni e giochi interattivi, questo corso rende l'apprendimento dell'inglese un viaggio entusiasmante. Ogni lezione è progettata con tecniche adatte alla dislessia per garantire che ogni bambino possa avere successo.",
+      "learningOutcomes": [
+        "Riconoscere e usare saluti e presentazioni di base",
+        "Identificare colori, numeri da 1 a 20 e forme comuni",
+        "Nominare i membri della famiglia, gli animali domestici e gli oggetti della classe",
+        "Seguire istruzioni semplici in inglese",
+        "Cantare canzoni e filastrocche in inglese",
+        "Costruire sicurezza nel pronunciare le prime parole in inglese"
+      ],
+      "whatYoullFind": [
+        "Lezioni colorate basate su immagini",
+        "Canzoni divertenti e filastrocche",
+        "Giochi e attività interattive",
+        "Premi con adesivi e grafici dei progressi",
+        "Note guida per i genitori per la pratica a casa",
+        "Materiali audio per la pratica della pronuncia"
+      ],
+      "targetAudience": [
+        "Bambini dai 5 agli 8 anni che iniziano l'inglese",
+        "Giovani apprendenti con differenze di apprendimento",
+        "Bambini che apprendono meglio attraverso il gioco e le immagini",
+        "Genitori che cercano inglese adatto alla dislessia per i bambini"
+      ],
+      "examPrep": "Cambridge English Pre A1 Starters Preparation"
+    },
+    "kids-medium": {
+      "description": "Il programma Eduway Kids Medium si basa sulle nozioni di base, progettato per giovani apprendenti dai 7 ai 10 anni pronti ad ampliare le proprie competenze in inglese. Attraverso l'apprendimento basato su storie, attività creative ed esercizi interattivi, i bambini sviluppano sicurezza nella lettura, scrittura e nel parlato. Ogni lezione incorpora metodi adatti alla dislessia per supportare tutti gli stili di apprendimento.",
+      "learningOutcomes": [
+        "Leggere e comprendere storie semplici in inglese",
+        "Scrivere brevi frasi su argomenti familiari",
+        "Fare e rispondere a domande semplici",
+        "Descrivere persone, luoghi e cose",
+        "Usare il presente semplice per le routine quotidiane",
+        "Espandere il vocabolario a oltre 500 parole"
+      ],
+      "whatYoullFind": [
+        "E-book illustrati",
+        "Esercizi di scrittura creativa con modelli strutturati",
+        "Giochi per costruire il vocabolario",
+        "Grammatica introdotta attraverso esempi pratici",
+        "Un quiz di progresso alla fine di ogni unità"
+      ],
+      "targetAudience": [
+        "Bambini dai 7 ai 10 anni con inglese base",
+        "Giovani apprendenti che progrediscono dal livello base",
+        "Bambini che amano le storie e le attività creative",
+        "Studenti che si preparano per il Cambridge A1 Movers"
+      ],
+      "examPrep": "Cambridge English A1 Movers"
+    },
+    "kids-advanced": {
+      "description": "Il programma Eduway Kids Advanced è progettato per giovani apprendenti sicuri dai 9 ai 12 anni pronti a padroneggiare l'inglese a un livello superiore. Questo corso completo prepara gli studenti per i requisiti di inglese scolastico e l'esame Cambridge A2 Flyers. La grammatica complessa viene insegnata attraverso contesti coinvolgenti e l'espressione creativa è incoraggiata in tutto il percorso.",
+      "learningOutcomes": [
+        "Leggere e comprendere testi più lunghi e complessi",
+        "Scrivere paragrafi e brevi composizioni",
+        "Usare il passato semplice e il passato progressivo con sicurezza",
+        "Formare e usare il present perfect",
+        "Comprendere e creare frasi con il primo condizionale",
+        "Raggiungere un vocabolario di oltre 1000 parole"
+      ],
+      "whatYoullFind": [
+        "Libri a capitoli e letture estese",
+        "Guide per la scrittura di paragrafi e saggi",
+        "Grammatica avanzata con spiegazioni visive",
+        "Progetti di conversazione e presentazioni",
+        "Preparazione all'esame Cambridge A2 Flyers",
+        "Esercizi interattivi digitali"
+      ],
+      "targetAudience": [
+        "Bambini dai 9 ai 12 anni di livello intermedio",
+        "Studenti che si preparano per il Cambridge A2 Flyers",
+        "Bambini in transizione verso l'inglese della scuola secondaria",
+        "Giovani apprendenti pronti per sfide avanzate"
+      ],
+      "examPrep": "Cambridge English A2 Flyers"
+    },
+    "premium": {
+      "description": "Il Programma Premium è il nostro corso dal vivo online di punta, che combina la potenza dell'istruzione personalizzata individuale con workshop di gruppo dinamici. Progettato specificamente per studenti con differenze di apprendimento, questo programma completo include 7 lezioni individuali, 32 workshop di gruppo e accesso illimitato alla nostra libreria completa di mappe mentali, video lezioni e materiali interattivi. Con supporto dedicato 6 giorni a settimana, non ti sentirai mai solo nel tuo percorso di apprendimento.",
+      "learningOutcomes": [
+        "Raggiungi progressi personalizzati attraverso lezioni 1-a-1 dedicate",
+        "Costruisci sicurezza attraverso esperienze interattive di workshop di gruppo",
+        "Padroneggia il vocabolario usando 525 mappe mentali visive",
+        "Sviluppa capacità di ascolto e concentrazione con oltre 100 video lezioni",
+        "Monitora i tuoi progressi con valutazioni e feedback regolari",
+        "Ottieni la certificazione ufficiale di livello al completamento"
+      ],
+      "whatYoullFind": [
+        "7 lezioni individuali di 50 minuti con istruttori esperti",
+        "32 workshop di gruppo per l'apprendimento collaborativo",
+        "525 mappe mentali che coprono tutta grammatica e vocabolario",
+        "Oltre 100 video lezioni interattive",
+        "Valutazioni Stop & Check durante tutto il programma",
+        "Supporto di tutoraggio scolastico per compiti e test",
+        "Assistenza dedicata 6 giorni a settimana"
+      ],
+      "targetAudience": [
+        "Studenti che cercano supporto intensivo e personalizzato",
+        "Apprendenti che beneficiano sia del contesto 1-a-1 che di gruppo",
+        "Chi desidera progressi strutturati con responsabilità",
+        "Chiunque sia pronto per una trasformazione completa dell'inglese"
+      ]
+    },
+    "golden": {
+      "description": "Il Programma Golden offre un'esperienza di apprendimento esclusiva individuale con 30 lezioni private personalizzate. Questa è la nostra offerta più prestigiosa, che fornisce attenzione indivisa dai nostri migliori istruttori, un curriculum completamente personalizzato su misura per i tuoi obiettivi specifici e supporto VIP durante tutto il percorso. La programmazione flessibile significa che impari al tuo ritmo, con report dettagliati sui progressi dopo ogni sessione.",
+      "learningOutcomes": [
+        "Ricevi un curriculum completamente personalizzato basato sui tuoi obiettivi",
+        "Padroneggia l'inglese attraverso 30 lezioni private dedicate",
+        "Ottieni una programmazione flessibile che si adatta al tuo stile di vita",
+        "Goditi supporto VIP prioritario e tempi di risposta rapidi",
+        "Monitora i progressi dettagliati con report sessione per sessione",
+        "Ottieni la certificazione con una valutazione completa delle competenze"
+      ],
+      "whatYoullFind": [
+        "30 lezioni private individuali di 50 minuti ciascuna",
+        "Istruttore dedicato assegnato per tutto il tuo percorso",
+        "Percorso di apprendimento personalizzato basato sulla valutazione",
+        "Tutti i materiali di apprendimento premium inclusi",
+        "Supporto VIP con tempi di risposta prioritari",
+        "Report dettagliati sui progressi dopo ogni sessione",
+        "Certificazione finale con valutazione delle competenze"
+      ],
+      "targetAudience": [
+        "Apprendenti che cercano attenzione individuale esclusiva",
+        "Professionisti che necessitano di una programmazione flessibile e personalizzata",
+        "Studenti che desiderano il percorso più rapido verso la padronanza",
+        "Chiunque si impegni per un'esperienza di apprendimento premium e VIP"
+      ]
+    },
+    "language-lab": {
+      "description": "Sessioni dal vivo in piccoli gruppi progettate per un apprendimento interattivo e mirato. Unisciti a una classe di 3-4 studenti per 8 sessioni dinamiche di laboratorio, ciascuna della durata di 50 minuti. Perfetto per gli apprendenti che prosperano in ambienti collaborativi con attenzione personalizzata da istruttori esperti.",
+      "learningOutcomes": [
+        "Costruisci sicurezza nella conversazione in piccoli gruppi",
+        "Sviluppa competenze comunicative in tempo reale con interazione tra pari",
+        "Ricevi feedback personalizzato da istruttori esperti",
+        "Pratica nel parlare, ascoltare e rispondere in modo naturale",
+        "Esponi te stesso a diversi stili di comunicazione"
+      ],
+      "whatYoullFind": [
+        "8 sessioni di laboratorio dal vivo con 3-4 studenti",
+        "Lezioni interattive di 50 minuti",
+        "Guida dell'istruttore esperto durante tutto il percorso",
+        "Attività di apprendimento collaborativo",
+        "Feedback e correzioni in tempo reale"
+      ],
+      "targetAudience": [
+        "Apprendenti che prosperano in contesti collaborativi",
+        "Studenti che desiderano pratica di conversazione in tempo reale",
+        "Chiunque cerchi un'opzione di apprendimento di gruppo accessibile",
+        "Chi ama l'apprendimento interattivo e sociale"
+      ]
+    },
+    "starter-path": {
+      "description": "Inizia il tuo percorso in inglese con un'attenzione personalizzata individuale. Questo programma iniziale include 5 lezioni individuali di 30 minuti ciascuna, interamente su misura per le tue esigenze e il tuo ritmo di apprendimento. Ideale per principianti o chiunque cerchi un'introduzione mirata con un istruttore dedicato.",
+      "learningOutcomes": [
+        "Ricevi una valutazione di apprendimento personalizzata",
+        "Costruisci competenze in inglese di base in modo individuale",
+        "Acquisisci sicurezza nel parlare con attenzione individuale",
+        "Sviluppa una tabella di marcia di apprendimento personalizzata",
+        "Ottieni feedback mirato sulle tue sfide specifiche"
+      ],
+      "whatYoullFind": [
+        "5 lezioni individuali con un istruttore dedicato",
+        "Sessioni mirate di 30 minuti",
+        "Curriculum personalizzato basato sul tuo livello",
+        "Opzioni di programmazione flessibile",
+        "Monitoraggio individuale dei progressi"
+      ],
+      "targetAudience": [
+        "Principianti che desiderano un inizio personalizzato in inglese",
+        "Apprendenti che preferiscono l'attenzione individuale",
+        "Chi ha bisogno di un programma flessibile a breve termine",
+        "Chiunque voglia valutare il proprio livello e costruire un piano"
+      ]
+    },
+    "language-lab-pro": {
+      "description": "Il nostro programma più intensivo in piccoli gruppi con 30 sessioni di laboratorio dal vivo. Unisciti a una classe di 3-4 studenti per sessioni di 50 minuti ricche di esercizi interattivi, pratica di conversazione reale e sviluppo progressivo delle competenze. Tutto il materiale didattico è incluso per un'esperienza di apprendimento completa.",
+      "learningOutcomes": [
+        "Raggiungi un miglioramento significativo della fluidità in 30 sessioni",
+        "Padroneggia modelli di conversazione complessi e risposte",
+        "Costruisci un vocabolario avanzato attraverso la pratica immersiva",
+        "Sviluppa pronuncia e intonazione naturali",
+        "Acquisisci sicurezza per l'uso professionale e sociale dell'inglese"
+      ],
+      "whatYoullFind": [
+        "30 sessioni di laboratorio dal vivo con 3-4 studenti",
+        "Lezioni intensive di 50 minuti",
+        "Tutto il materiale didattico incluso",
+        "Curriculum di sviluppo progressivo delle competenze",
+        "Valutazioni regolari dei progressi",
+        "Istruttore esperto con attenzione personalizzata"
+      ],
+      "targetAudience": [
+        "Apprendenti motivati che cercano pratica intensiva di gruppo",
+        "Studenti che desiderano una progressione strutturata a lungo termine",
+        "Chi beneficia dell'apprendimento tra pari e della collaborazione",
+        "Apprendenti che mirano a un miglioramento significativo della fluidità"
+      ]
+    },
+    "hybrid-pack": {
+      "description": "Il meglio di entrambi i mondi — combina l'energia dei laboratori in piccolo gruppo con l'attenzione personalizzata delle lezioni individuali. Include 25 sessioni di laboratorio (50 minuti, 3-4 studenti) più 5 lezioni individuali (30 minuti). Tutto il materiale didattico è incluso per l'esperienza di apprendimento più completa.",
+      "learningOutcomes": [
+        "Combina l'interazione di gruppo con l'attenzione personalizzata",
+        "Padroneggia sia le competenze in inglese sociale che accademico",
+        "Ricevi feedback su misura nelle sessioni individuali",
+        "Pratica la conversazione reale nei laboratori in piccolo gruppo",
+        "Raggiungi uno sviluppo linguistico completo"
+      ],
+      "whatYoullFind": [
+        "25 sessioni di laboratorio con 3-4 studenti (50 min ciascuna)",
+        "5 lezioni individuali (30 min ciascuna)",
+        "Tutto il materiale didattico incluso",
+        "Approccio di apprendimento misto",
+        "Monitoraggio regolare dei progressi e valutazioni",
+        "Supporto dedicato dell'istruttore durante tutto il percorso"
+      ],
+      "targetAudience": [
+        "Apprendenti che desiderano il programma più completo",
+        "Studenti che beneficiano sia dell'apprendimento di gruppo che individuale",
+        "Chi cerca il massimo progresso in un formato strutturato",
+        "Chiunque si impegni a raggiungere la padronanza dell'inglese"
+      ]
+    }
+  }
+}

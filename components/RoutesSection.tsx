@@ -1,8 +1,11 @@
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ChevronRight, GraduationCap, Baby, Sparkles } from 'lucide-react';
 
 const RoutesSection: React.FC = () => {
+  const { t } = useTranslation('home');
+
   return (
     <section id="routes" className="py-32 bg-white px-6 relative overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl">
@@ -14,13 +17,13 @@ const RoutesSection: React.FC = () => {
         <div className="text-center mb-20">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-50 border border-purple-100 mb-6">
             <Sparkles size={14} className="text-purple-500" />
-            <span className="text-[10px] uppercase tracking-widest text-purple-600 font-bold">Educational Excellence</span>
+            <span className="text-[10px] uppercase tracking-widest text-purple-600 font-bold">{t('routes.badge')}</span>
           </div>
           <h2 className="text-4xl md:text-6xl font-black text-gray-900 mb-4 tracking-tight">
-            Discover Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#9b4dff] via-[#8a3ffc] to-[#ff2d85]">Routes</span>
+            {t('routes.title').split('<1>')[0]}<span className="text-transparent bg-clip-text bg-gradient-to-r from-[#9b4dff] via-[#8a3ffc] to-[#ff2d85]">{t('routes.title').split('<1>')[1]?.split('</1>')[0]}</span>
           </h2>
           <p className="text-gray-500 max-w-xl mx-auto text-lg">
-            Choose the path that fits your current stage of life and learning goals.
+            {t('routes.subtitle')}
           </p>
         </div>
 
@@ -34,14 +37,14 @@ const RoutesSection: React.FC = () => {
                   <GraduationCap size={32} className="text-white" />
                 </div>
                 <h4 className="text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
-                  TEENS & <br /> <span className="text-purple-300">ADULTS</span>
+                  {t('routes.adultsTitle')} <br /> <span className="text-purple-300">{t('routes.adultsHighlight')}</span>
                 </h4>
                 <p className="text-purple-100/70 text-lg mb-8 max-w-sm">
-                  Advanced cognitive tools and strategies designed for mature learners with dyslexia.
+                  {t('routes.adultsDesc')}
                 </p>
               </div>
               <button className="group/btn flex items-center gap-3 w-fit bg-white text-gray-900 px-8 py-4 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-purple-50 transition-all duration-300">
-                Explore Adult Courses
+                {t('routes.adultsCta')}
                 <ChevronRight size={18} className="group-hover/btn:translate-x-1 transition-transform" />
               </button>
             </div>
@@ -56,14 +59,14 @@ const RoutesSection: React.FC = () => {
                   <Baby size={32} className="text-white" />
                 </div>
                 <h4 className="text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
-                  DSA SMART <br /> <span className="text-pink-100">KIDS</span>
+                  {t('routes.kidsTitle')} <br /> <span className="text-pink-100">{t('routes.kidsHighlight')}</span>
                 </h4>
                 <p className="text-pink-100/70 text-lg mb-8 max-w-sm">
-                  Gamified and multisensory learning paths to make English a fun adventure for children.
+                  {t('routes.kidsDesc')}
                 </p>
               </div>
               <button className="group/btn flex items-center gap-3 w-fit bg-white text-gray-900 px-8 py-4 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-pink-50 transition-all duration-300">
-                Explore Kids Courses
+                {t('routes.kidsCta')}
                 <ChevronRight size={18} className="group-hover/btn:translate-x-1 transition-transform" />
               </button>
             </div>

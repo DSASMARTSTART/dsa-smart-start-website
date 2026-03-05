@@ -22,12 +22,18 @@ export default defineConfig(({ mode }) => {
       build: {
         rollupOptions: {
           output: {
-            manualChunks: {
+            manualChunks(id) {
+              // Per-language locale chunks
+              if (id.includes('/locales/it/')) return 'locale-it';
+              if (id.includes('/locales/sr/')) return 'locale-sr';
+              if (id.includes('/locales/es/')) return 'locale-es';
               // Split vendor chunks for better caching
-              'react-vendor': ['react', 'react-dom'],
-              'supabase': ['@supabase/supabase-js'],
-              'query': ['@tanstack/react-query'],
-              'ui-icons': ['lucide-react'],
+              if (id.includes('node_modules/react-dom')) return 'react-vendor';
+              if (id.includes('node_modules/react')) return 'react-vendor';
+              if (id.includes('node_modules/@supabase')) return 'supabase';
+              if (id.includes('node_modules/@tanstack/react-query')) return 'query';
+              if (id.includes('node_modules/lucide-react')) return 'ui-icons';
+              if (id.includes('node_modules/i18next') || id.includes('node_modules/react-i18next')) return 'i18n';
             }
           }
         },

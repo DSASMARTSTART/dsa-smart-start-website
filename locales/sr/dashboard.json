@@ -1,0 +1,69 @@
+{
+  "loading": "Učitavanje vaših kurseva...",
+
+  "loginRequired": {
+    "title": "Potrebna prijava",
+    "description": "Prijavite se da biste pristupili kontrolnoj tabli i upisanim kursevima.",
+    "button": "Prijava / Registracija"
+  },
+
+  "badge": "Kontrolna tabla studenta",
+  "welcome": "Dobrodošli nazad, <highlight>{{name}}</highlight>!",
+  "subtitle": "Nastavite da napredujete. Vaša neurodiverzitetnost je vaša supersposobnost.",
+
+  "setPassword": {
+    "title": "Dobrodošli! Postavite lozinku",
+    "sent": "Email za resetovanje lozinke je poslat! Proverite prijemno sanduče da biste postavili lozinku.",
+    "description": "Prijavljeni ste putem magic linka. Postavite lozinku da biste olakšali buduće prijave!",
+    "button": "Pošalji email za postavljanje lozinke"
+  },
+
+  "pendingPurchases": {
+    "title": "Obrada plaćanja",
+    "descriptionSingle": "Vaša nedavna kupovina se verifikuje. Ovo obično traje nekoliko trenutaka.",
+    "descriptionMultiple": "Imate {{count}} kupovina koje se verifikuju. Ovo obično traje nekoliko trenutaka.",
+    "verifying": "Verifikacija plaćanja...",
+    "supportNote": "Vaš kurs će se automatski pojaviti ispod kada se plaćanje potvrdi. Ako ovo traje duže od očekivanog, kontaktirajte podršku."
+  },
+
+  "courses": {
+    "title": "Moj put učenja",
+    "emptyTitle": "Još nema kurseva",
+    "emptyDescription": "Još niste upisani ni na jedan kurs. Pregledajte naš katalog i pronađite savršen put učenja za vas!",
+    "browseCourses": "Pregledaj kurseve",
+    "completed": "Završeno",
+    "progress": "Napredak",
+    "reviewContent": "PREGLEDAJ SADRŽAJ",
+    "continueLearning": "NASTAVI UČENJE",
+    "nextPath": "Sledeći korak?",
+    "nextPathDescription": "Istražite još kurseva da nastavite svoj put učenja.",
+    "browseCatalog": "Pregledaj katalog"
+  },
+
+  "levelLabels": {
+    "A1": "Početni",
+    "A2": "Osnovni",
+    "B1": "Srednji",
+    "Kids": "Mali polaznici"
+  },
+
+  "ebooks": {
+    "title": "Moje e-knjige",
+    "count_one": "{{count}} e-knjiga",
+    "count_other": "{{count}} e-knjiga",
+    "pdf": "PDF",
+    "download": "Preuzmi e-knjigu",
+    "comingSoon": "Uskoro",
+    "purchased": "Kupljeno {{date}}"
+  },
+
+  "stats": {
+    "title": "Statistike uživo",
+    "itemsCompleted": "Stavke završene",
+    "total": "Ukupno",
+    "enrolledCourses": "Upisani kursevi",
+    "ebooksOwned": "E-knjige u vlasništvu",
+    "currentStatus": "Trenutni status",
+    "activeLearner": "Aktivan polaznik"
+  }
+}

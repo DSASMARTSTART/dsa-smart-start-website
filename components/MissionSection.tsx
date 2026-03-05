@@ -1,24 +1,27 @@
 
 import React from 'react';
 import { Heart, ChevronRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface MissionSectionProps {
   onNavigate?: (path: string) => void;
 }
 
 const MissionSection: React.FC<MissionSectionProps> = ({ onNavigate }) => {
+  const { t } = useTranslation('home');
+
   const points = [
     {
-      highlight: '+3,000',
-      text: 'DSA students every year choose Eduway for their learning journey.',
+      highlight: t('mission.point1Highlight'),
+      text: t('mission.point1Text'),
     },
     {
-      highlight: 'Method',
-      text: 'Every year thousands of DSA students discover a new way to learn English with Eduway.',
+      highlight: t('mission.point2Highlight'),
+      text: t('mission.point2Text'),
     },
     {
-      highlight: "Let's Help",
-      text: 'We help DSA children, teens, and adults turn the impossible into possible.',
+      highlight: t('mission.point3Highlight'),
+      text: t('mission.point3Text'),
     },
   ];
 
@@ -34,9 +37,9 @@ const MissionSection: React.FC<MissionSectionProps> = ({ onNavigate }) => {
             <Heart size={20} fill="currentColor" className="opacity-80" />
           </div>
           <h2 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight leading-tight">
-            Every step forward is a victory.<br />
+            {t('mission.heading1')}<br />
             <span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-[#9b4dff] via-[#8a3ffc] to-[#ff2d85] italic font-medium px-4">
-              We Walk By Your Side!
+              {t('mission.heading2')}
             </span>
           </h2>
         </div>
@@ -75,7 +78,7 @@ const MissionSection: React.FC<MissionSectionProps> = ({ onNavigate }) => {
             onClick={() => onNavigate?.('courses')}
             className="inline-flex items-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-10 py-4 rounded-full font-bold uppercase tracking-wider transition-all shadow-lg shadow-[#25D366]/30 active:scale-95"
           >
-            Explore
+            {t('mission.explore')}
             <ChevronRight size={20} />
           </button>
         </div>

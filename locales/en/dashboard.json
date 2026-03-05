@@ -1,0 +1,69 @@
+{
+  "loading": "Loading your courses...",
+
+  "loginRequired": {
+    "title": "Sign In Required",
+    "description": "Please log in to access your dashboard and enrolled courses.",
+    "button": "Log In / Register"
+  },
+
+  "badge": "Student Dashboard",
+  "welcome": "Welcome back, <highlight>{{name}}</highlight>!",
+  "subtitle": "Keep pushing forward. Your neurodiversity is your superpower.",
+
+  "setPassword": {
+    "title": "Welcome! Set Your Password",
+    "sent": "Password reset email sent! Check your inbox to set your password.",
+    "description": "You're logged in via magic link. Set a password to make future logins easier!",
+    "button": "Send Password Setup Email"
+  },
+
+  "pendingPurchases": {
+    "title": "Payment Processing",
+    "descriptionSingle": "Your recent purchase is being verified. This usually takes a few moments.",
+    "descriptionMultiple": "You have {{count}} purchases being verified. This usually takes a few moments.",
+    "verifying": "Verifying payment...",
+    "supportNote": "Your course will appear below automatically once payment is confirmed. If this takes longer than expected, please contact support."
+  },
+
+  "courses": {
+    "title": "My Learning Path",
+    "emptyTitle": "No Courses Yet",
+    "emptyDescription": "You haven't enrolled in any courses yet. Browse our catalog to find the perfect learning path for you!",
+    "browseCourses": "Browse Courses",
+    "completed": "Completed",
+    "progress": "Progress",
+    "reviewContent": "REVIEW CONTENT",
+    "continueLearning": "CONTINUE LEARNING",
+    "nextPath": "Next Path?",
+    "nextPathDescription": "Explore more courses to continue your learning journey.",
+    "browseCatalog": "Browse Catalog"
+  },
+
+  "levelLabels": {
+    "A1": "Beginner",
+    "A2": "Elementary",
+    "B1": "Intermediate",
+    "Kids": "Young Learners"
+  },
+
+  "ebooks": {
+    "title": "My E-books",
+    "count_one": "{{count}} e-book",
+    "count_other": "{{count}} e-books",
+    "pdf": "PDF",
+    "download": "Download E-book",
+    "comingSoon": "Coming Soon",
+    "purchased": "Purchased {{date}}"
+  },
+
+  "stats": {
+    "title": "Live Stats",
+    "itemsCompleted": "Items Completed",
+    "total": "Total",
+    "enrolledCourses": "Enrolled Courses",
+    "ebooksOwned": "E-books Owned",
+    "currentStatus": "Current Status",
+    "activeLearner": "Active Learner"
+  }
+}

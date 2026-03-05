@@ -1,0 +1,42 @@
+{
+  "ageSelect": {
+    "title": "Chi fa il test?",
+    "subtitle": "Seleziona la fascia d'età dello studente per mostrare il test di livello appropriato.",
+    "teensAdults": "12 anni o più",
+    "teensAdultsLabel": "Ragazzi e adulti",
+    "kids": "Meno di 12 anni",
+    "kidsLabel": "Bambini",
+    "footer": "Nessun login richiesto • Valutazione gratuita"
+  },
+  "intro": {
+    "titleKids": "Scopri il livello del tuo bambino",
+    "titleAdults": "Scopri il tuo livello di inglese",
+    "subtitleKids": "Un divertente test di 30 domande progettato per giovani studenti! Trova il corso perfetto per tuo figlio in circa 10 minuti.",
+    "subtitleAdults": "Fai il nostro test di livello da 40 domande per trovare il corso perfetto per il tuo livello. Ci vogliono solo circa 10-15 minuti!",
+    "questions": "Domande",
+    "levels": "Livelli",
+    "startButton": "Inizia la valutazione",
+    "footer": "Nessun login richiesto • Valutazione gratuita"
+  },
+  "quiz": {
+    "questionOf": "Domanda {{current}} di {{total}}",
+    "exitTest": "Esci dal test",
+    "previous": "Precedente",
+    "next": "Successivo",
+    "finish": "Fine"
+  },
+  "results": {
+    "title": "Valutazione completata! 🎉",
+    "score": "Hai risposto correttamente a {{correct}} domande su {{total}} ({{percentage}}%)",
+    "recommendedEbookLevel": "Livello e-book consigliato",
+    "yourRecommendedLevel": "Il tuo livello consigliato",
+    "ebookRecommendation": "In base ai tuoi risultati, ti consigliamo l'e-book di livello {{levelName}} come prossimo passo.",
+    "scoreBreakdown": "Dettaglio del punteggio per livello",
+    "passed": "✓ Superato",
+    "notPassed": "Non superato",
+    "retakeTest": "Rifai il test",
+    "viewRecommendedEbook": "Vedi l'e-book consigliato",
+    "viewRecommendedCourse": "Vedi il corso consigliato",
+    "savedLocally": "Il tuo risultato è stato salvato localmente. Crea un account per monitorare i tuoi progressi!"
+  }
+}

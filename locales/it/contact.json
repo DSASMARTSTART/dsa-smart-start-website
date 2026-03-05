@@ -1,0 +1,43 @@
+{
+  "hero": {
+    "badge": "Contattaci",
+    "title1": "CONTATTA",
+    "title2": "CI",
+    "subtitle": "Siamo qui per camminare al tuo fianco, letteralmente ad ogni passo."
+  },
+  "info": {
+    "badge": "Connessioni",
+    "headingLine1": "Disponibili per",
+    "headingLine2": "Supportarti",
+    "description": "Il nostro team di specialisti è pronto a fornirti orientamento e rispondere a qualsiasi domanda sui nostri programmi di inglese per DSA.",
+    "callUs": "Chiamaci",
+    "emailUs": "Scrivici",
+    "ourAddress": "Il nostro indirizzo"
+  },
+  "form": {
+    "title": "Contattaci!",
+    "firstNameLabel": "Nome *",
+    "firstNamePlaceholder": "Nome",
+    "lastNameLabel": "Cognome",
+    "lastNamePlaceholder": "Cognome",
+    "emailLabel": "Email *",
+    "emailPlaceholder": "ciao@esempio.com",
+    "messageLabel": "Messaggio *",
+    "messagePlaceholder": "Come possiamo aiutarti?",
+    "sendButton": "Invia messaggio",
+    "sendingButton": "Invio in corso..."
+  },
+  "success": {
+    "title": "Messaggio inviato!",
+    "description": "Grazie per averci contattato. Ti risponderemo il prima possibile.",
+    "sendAnother": "Invia un altro messaggio"
+  },
+  "validation": {
+    "firstNameRequired": "Il nome è obbligatorio",
+    "emailRequired": "L'email è obbligatoria",
+    "emailInvalid": "Inserisci un'email valida",
+    "messageRequired": "Il messaggio è obbligatorio",
+    "submitFailed": "Invio del messaggio non riuscito. Riprova.",
+    "unexpectedError": "Si è verificato un errore imprevisto. Riprova."
+  }
+}

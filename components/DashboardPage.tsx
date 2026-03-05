@@ -1,10 +1,12 @@
 
 import React, { useEffect, useState } from 'react';
 import { Rocket, Clock, ChevronRight, Star, BookOpen, Layout, Zap, Layers, Compass, Music, CheckCircle2, LogIn, Download, FileText, AlertCircle, Loader2, Key, X, Mail } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { enrollmentsApi, purchasesApi, coursesApi } from '../data/supabaseStore';
 import { Course, Enrollment, Purchase } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { useUserProgress } from '../hooks/useUserProgress';
+import { useLocaleFormat } from '../hooks/useLocaleFormat';
 import { supabase } from '../lib/supabase';
 
 // Level-based icons and colors
@@ -43,8 +45,10 @@ interface PendingPurchase extends Purchase {
 }
 
 const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
+  const { t } = useTranslation('dashboard');
   const { user: authUser, profile, loading: authLoading, resetPassword } = useAuth();
   const { progress } = useUserProgress(); // Now using hook directly - only loads when Dashboard is rendered
+  const { formatDate, formatCurrency } = useLocaleFormat();
   const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
   const [purchasedEbooks, setPurchasedEbooks] = useState<PurchasedEbook[]>([]);
   const [pendingPurchases, setPendingPurchases] = useState<PendingPurchase[]>([]);
@@ -219,7 +223,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
       <div className="bg-black min-h-screen pt-32 pb-20 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-400 font-medium">Loading your courses...</p>
+          <p className="text-gray-400 font-medium">{t('loading')}</p>
         </div>
       </div>
     );
@@ -234,16 +238,16 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
             <LogIn size={40} className="text-purple-400" />
           </div>
           <h1 className="text-3xl md:text-4xl font-black text-white mb-4 uppercase tracking-tight">
-            Sign In Required
+            {t('loginRequired.title')}
           </h1>
           <p className="text-gray-400 text-lg mb-8">
-            Please log in to access your dashboard and enrolled courses.
+            {t('loginRequired.description')}
           </p>
           <button 
             onClick={() => window.location.hash = '#login'}
             className="px-12 py-5 bg-purple-600 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-colors shadow-xl shadow-purple-500/20"
           >
-            Log In / Register
+            {t('loginRequired.button')}
           </button>
         </div>
       </div>
@@ -257,12 +261,12 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
         {/* Welcome Header */}
         <div className="mb-12 animate-reveal">
           <div className="flex items-center gap-3 mb-4">
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-400 px-3 py-1 bg-purple-500/10 rounded-full border border-purple-500/20">Student Dashboard</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-400 px-3 py-1 bg-purple-500/10 rounded-full border border-purple-500/20">{t('badge')}</span>
           </div>
           <h1 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase leading-tight mb-2">
-            Welcome back, <span className="text-purple-400">{displayName}</span>!
+            {t('welcome', { name: displayName })}
           </h1>
-          <p className="text-gray-400 text-lg font-medium italic">Keep pushing forward. Your neurodiversity is your superpower.</p>
+          <p className="text-gray-400 text-lg font-medium italic">{t('subtitle')}</p>
         </div>
 
         {/* Set Password Prompt for Guest Checkout Users */}
@@ -275,7 +279,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-lg font-bold text-purple-300">Welcome! Set Your Password</h3>
+                    <h3 className="text-lg font-bold text-purple-300">{t('setPassword.title')}</h3>
                     <button 
                       onClick={() => setShowSetPasswordPrompt(false)}
                       className="text-purple-500 hover:text-purple-300 transition-colors"
@@ -287,20 +291,20 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
                     <div className="flex items-center gap-3 bg-white/5 rounded-lg px-4 py-3">
                       <CheckCircle2 size={18} className="text-emerald-400" />
                       <span className="text-sm text-emerald-300">
-                        Password reset email sent! Check your inbox to set your password.
+                        {t('setPassword.sent')}
                       </span>
                     </div>
                   ) : (
                     <>
                       <p className="text-purple-300/80 text-sm mb-4">
-                        You're logged in via magic link. Set a password to make future logins easier!
+                        {t('setPassword.description')}
                       </p>
                       <button
                         onClick={handleSendPasswordReset}
                         className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-xl font-bold text-sm hover:bg-purple-700 transition-colors"
                       >
                         <Mail size={16} />
-                        Send Password Setup Email
+                        {t('setPassword.button')}
                       </button>
                     </>
                   )}
@@ -319,11 +323,11 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
                   <Loader2 size={24} className="text-amber-400 animate-spin" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-bold text-amber-300 mb-2">Payment Processing</h3>
+                  <h3 className="text-lg font-bold text-amber-300 mb-2">{t('pendingPurchases.title')}</h3>
                   <p className="text-amber-300/80 text-sm mb-4">
                     {pendingPurchases.length === 1 
-                      ? 'Your recent purchase is being verified. This usually takes a few moments.'
-                      : `You have ${pendingPurchases.length} purchases being verified. This usually takes a few moments.`
+                      ? t('pendingPurchases.descriptionSingle')
+                      : t('pendingPurchases.descriptionMultiple', { count: pendingPurchases.length })
                     }
                   </p>
                   <div className="space-y-2">
@@ -331,16 +335,16 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
                       <div key={purchase.id} className="flex items-center gap-3 bg-white/5 rounded-lg px-4 py-3">
                         <AlertCircle size={18} className="text-amber-400" />
                         <span className="text-sm font-medium text-amber-200">
-                          {purchase.course?.title || 'Course'} - {purchase.currency} {purchase.amount.toFixed(2)}
+                          {purchase.course?.title || 'Course'} - {formatCurrency(purchase.amount, purchase.currency)}
                         </span>
                         <span className="text-xs text-amber-400 ml-auto">
-                          Verifying payment...
+                          {t('pendingPurchases.verifying')}
                         </span>
                       </div>
                     ))}
                   </div>
                   <p className="text-xs text-amber-400/70 mt-4">
-                    Your course will appear below automatically once payment is confirmed. If this takes longer than expected, please contact support.
+                    {t('pendingPurchases.supportNote')}
                   </p>
                 </div>
               </div>
@@ -355,7 +359,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-black text-white uppercase tracking-widest flex items-center gap-3">
                 <BookOpen size={20} className="text-purple-400" />
-                My Learning Path
+                {t('courses.title')}
               </h2>
             </div>
 
@@ -365,15 +369,15 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
                 <div className="w-20 h-20 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
                   <BookOpen size={32} className="text-purple-400" />
                 </div>
-                <h3 className="text-2xl font-black text-white mb-4">No Courses Yet</h3>
+                <h3 className="text-2xl font-black text-white mb-4">{t('courses.emptyTitle')}</h3>
                 <p className="text-gray-400 mb-8 max-w-md mx-auto">
-                  You haven't enrolled in any courses yet. Browse our catalog to find the perfect learning path for you!
+                  {t('courses.emptyDescription')}
                 </p>
                 <button 
                   onClick={() => window.location.hash = '#courses'}
                   className="px-10 py-4 bg-purple-600 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-colors shadow-lg shadow-purple-500/20"
                 >
-                  Browse Courses
+                  {t('courses.browseCourses')}
                 </button>
               </div>
             ) : (
@@ -381,7 +385,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
                 {enrolledCourses.map((course, idx) => {
                   const completion = calculateProgress(course.id, course.totalItems);
                   const config = LEVEL_CONFIG[course.level] || LEVEL_CONFIG['A1'];
-                  const levelLabel = LEVEL_LABELS[course.level] || course.level;
+                  const levelLabel = t(`levelLabels.${course.level}`, { defaultValue: course.level });
                   
                   return (
                     <div key={course.id} className="group bg-white/5 rounded-[3rem] border border-white/10 shadow-sm hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 p-10 flex flex-col animate-reveal" style={{ animationDelay: `${idx * 0.1}s` }}>
@@ -394,7 +398,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
                           {completion === 100 && (
                             <span className="text-[9px] font-black text-green-400 uppercase tracking-widest flex items-center gap-1">
                               <Star size={10} fill="currentColor" />
-                              Completed
+                              {t('courses.completed')}
                             </span>
                           )}
                         </div>
@@ -403,7 +407,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
                       
                       <div className="mb-10">
                         <div className="flex justify-between items-end mb-3">
-                          <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Progress</span>
+                          <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">{t('courses.progress')}</span>
                           <span className="text-sm font-black text-white">{completion}%</span>
                         </div>
                         <div className="h-3 bg-white/10 rounded-full overflow-hidden border border-white/10">
@@ -418,7 +422,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
                         onClick={() => onOpenCourse(course.id)}
                         className="flex items-center justify-center gap-3 w-full py-4 rounded-2xl bg-white text-black font-black text-[10px] uppercase tracking-widest hover:bg-purple-600 hover:text-white transition-all active:scale-95"
                       >
-                        {completion === 100 ? 'REVIEW CONTENT' : 'CONTINUE LEARNING'}
+                        {completion === 100 ? t('courses.reviewContent') : t('courses.continueLearning')}
                         <ChevronRight size={16} />
                       </button>
                     </div>
@@ -430,13 +434,13 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
                   <div className="w-14 h-14 rounded-2xl bg-white/10 text-gray-500 flex items-center justify-center mb-6">
                     <Star size={24} />
                   </div>
-                  <h4 className="text-lg font-black text-gray-500 uppercase tracking-tight mb-2">Next Path?</h4>
-                  <p className="text-xs font-bold text-gray-500 mb-8 max-w-[150px]">Explore more courses to continue your learning journey.</p>
+                  <h4 className="text-lg font-black text-gray-500 uppercase tracking-tight mb-2">{t('courses.nextPath')}</h4>
+                  <p className="text-xs font-bold text-gray-500 mb-8 max-w-[150px]">{t('courses.nextPathDescription')}</p>
                   <button 
                     onClick={() => window.location.hash = '#courses'}
                     className="text-[10px] font-black uppercase tracking-widest text-purple-400 hover:underline"
                   >
-                    Browse Catalog
+                    {t('courses.browseCatalog')}
                   </button>
                 </div>
               </div>
@@ -448,9 +452,9 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-black text-white uppercase tracking-widest flex items-center gap-3">
                     <FileText size={20} className="text-emerald-400" />
-                    My E-books
+                    {t('ebooks.title')}
                   </h2>
-                  <span className="text-xs font-bold text-gray-500">{purchasedEbooks.length} {purchasedEbooks.length === 1 ? 'e-book' : 'e-books'}</span>
+                  <span className="text-xs font-bold text-gray-500">{t('ebooks.count', { count: purchasedEbooks.length })}</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -500,7 +504,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
                               className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-emerald-600 text-white font-black text-[10px] uppercase tracking-widest hover:bg-emerald-700 transition-all active:scale-95"
                             >
                               <Download size={14} />
-                              Download E-book
+                              {t('ebooks.download')}
                             </a>
                           ) : (
                             <button
@@ -508,12 +512,12 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
                               className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-white/10 text-gray-500 font-black text-[10px] uppercase tracking-widest cursor-not-allowed"
                             >
                               <Download size={14} />
-                              Coming Soon
+                              {t('ebooks.comingSoon')}
                             </button>
                           )}
 
                           <p className="text-[9px] text-gray-500 text-center mt-3">
-                            Purchased {new Date(ebook.enrollment.enrolledAt).toLocaleDateString()}
+                            {t('ebooks.purchased', { date: formatDate(ebook.enrollment.enrolledAt) })}
                           </p>
                         </div>
                       </div>
@@ -529,7 +533,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
             <div className="bg-white/5 rounded-[3rem] border border-white/10 p-10 shadow-sm">
               <h3 className="text-lg font-black text-white uppercase tracking-widest mb-8 flex items-center gap-3">
                 <Zap size={20} className="text-amber-500" />
-                Live Stats
+                {t('stats.title')}
               </h3>
               <div className="space-y-6">
                 <div className="flex items-center gap-4">
@@ -537,9 +541,9 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
                     <CheckCircle2 size={18} />
                   </div>
                   <div>
-                    <p className="text-[10px] font-black uppercase text-gray-500 tracking-widest">Items Completed</p>
+                    <p className="text-[10px] font-black uppercase text-gray-500 tracking-widest">{t('stats.itemsCompleted')}</p>
                     <p className="text-xl font-black text-white">
-                      {Object.values(progress).filter(v => v).length} Total
+                      {Object.values(progress).filter(v => v).length} {t('stats.total')}
                     </p>
                   </div>
                 </div>
@@ -548,7 +552,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
                     <BookOpen size={18} />
                   </div>
                   <div>
-                    <p className="text-[10px] font-black uppercase text-gray-500 tracking-widest">Enrolled Courses</p>
+                    <p className="text-[10px] font-black uppercase text-gray-500 tracking-widest">{t('stats.enrolledCourses')}</p>
                     <p className="text-xl font-black text-white">{enrolledCourses.length}</p>
                   </div>
                 </div>
@@ -558,7 +562,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
                       <FileText size={18} />
                     </div>
                     <div>
-                      <p className="text-[10px] font-black uppercase text-gray-500 tracking-widest">E-books Owned</p>
+                      <p className="text-[10px] font-black uppercase text-gray-500 tracking-widest">{t('stats.ebooksOwned')}</p>
                       <p className="text-xl font-black text-white">{purchasedEbooks.length}</p>
                     </div>
                   </div>
@@ -568,8 +572,8 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
                     <Rocket size={18} />
                   </div>
                   <div>
-                    <p className="text-[10px] font-black uppercase text-gray-500 tracking-widest">Current Status</p>
-                    <p className="text-xl font-black text-white">Active Learner</p>
+                    <p className="text-[10px] font-black uppercase text-gray-500 tracking-widest">{t('stats.currentStatus')}</p>
+                    <p className="text-xl font-black text-white">{t('stats.activeLearner')}</p>
                   </div>
                 </div>
               </div>

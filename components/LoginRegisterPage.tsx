@@ -1,6 +1,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Mail, Lock, User, ChevronRight, Eye, EyeOff, AlertCircle, Loader2, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 
 interface LoginProps {
@@ -8,6 +9,7 @@ interface LoginProps {
 }
 
 const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
+  const { t } = useTranslation('auth');
   const { signIn, signUp, resetPassword, user, loading: authLoading } = useAuth();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isLogin, setIsLogin] = useState(true);
@@ -38,12 +40,12 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   }, [user, authLoading, onLoginSuccess]);
 
   const validateForm = (): string | null => {
-    if (!formData.email.trim()) return 'Email is required';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) return 'Invalid email format';
-    if (!formData.password) return 'Password is required';
-    if (formData.password.length < 8) return 'Password must be at least 8 characters';
-    if (!isLogin && !formData.name.trim()) return 'Name is required';
-    if (!isLogin && formData.password !== formData.confirmPassword) return 'Passwords do not match';
+    if (!formData.email.trim()) return t('validation.emailRequired');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) return t('validation.invalidEmail');
+    if (!formData.password) return t('validation.passwordRequired');
+    if (formData.password.length < 8) return t('validation.passwordMinLength');
+    if (!isLogin && !formData.name.trim()) return t('validation.nameRequired');
+    if (!isLogin && formData.password !== formData.confirmPassword) return t('validation.passwordsNoMatch');
     return null;
   };
 
@@ -52,11 +54,11 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     setResetError(null);
     
     if (!resetEmail.trim()) {
-      setResetError('Email is required');
+      setResetError(t('validation.emailRequired'));
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(resetEmail)) {
-      setResetError('Invalid email format');
+      setResetError(t('validation.invalidEmail'));
       return;
     }
 
@@ -69,7 +71,7 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         setResetSuccess(true);
       }
     } catch (err) {
-      setResetError('An unexpected error occurred. Please try again.');
+      setResetError(t('errors.unexpected'));
     } finally {
       setResetLoading(false);
     }
@@ -106,21 +108,21 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   // Password strength calculation
   const getPasswordStrength = (password: string): { score: number; label: string; color: string; requirements: { met: boolean; text: string }[] } => {
     const requirements = [
-      { met: password.length >= 8, text: 'At least 8 characters' },
-      { met: /[A-Z]/.test(password), text: 'One uppercase letter' },
-      { met: /[a-z]/.test(password), text: 'One lowercase letter' },
-      { met: /[0-9]/.test(password), text: 'One number' },
-      { met: /[^A-Za-z0-9]/.test(password), text: 'One special character' },
+      { met: password.length >= 8, text: t('passwordRequirements.minLength') },
+      { met: /[A-Z]/.test(password), text: t('passwordRequirements.uppercase') },
+      { met: /[a-z]/.test(password), text: t('passwordRequirements.lowercase') },
+      { met: /[0-9]/.test(password), text: t('passwordRequirements.number') },
+      { met: /[^A-Za-z0-9]/.test(password), text: t('passwordRequirements.special') },
     ];
     
     const metCount = requirements.filter(r => r.met).length;
     
     if (password.length === 0) return { score: 0, label: '', color: 'bg-gray-200', requirements };
-    if (metCount <= 1) return { score: 1, label: 'Weak', color: 'bg-red-500', requirements };
-    if (metCount <= 2) return { score: 2, label: 'Fair', color: 'bg-orange-500', requirements };
-    if (metCount <= 3) return { score: 3, label: 'Good', color: 'bg-yellow-500', requirements };
-    if (metCount <= 4) return { score: 4, label: 'Strong', color: 'bg-green-500', requirements };
-    return { score: 5, label: 'Excellent', color: 'bg-emerald-500', requirements };
+    if (metCount <= 1) return { score: 1, label: t('passwordStrength.weak'), color: 'bg-red-500', requirements };
+    if (metCount <= 2) return { score: 2, label: t('passwordStrength.fair'), color: 'bg-orange-500', requirements };
+    if (metCount <= 3) return { score: 3, label: t('passwordStrength.good'), color: 'bg-yellow-500', requirements };
+    if (metCount <= 4) return { score: 4, label: t('passwordStrength.strong'), color: 'bg-green-500', requirements };
+    return { score: 5, label: t('passwordStrength.excellent'), color: 'bg-emerald-500', requirements };
   };
 
   const passwordStrength = getPasswordStrength(formData.password);
@@ -143,7 +145,7 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         const { error } = await signIn(formData.email, formData.password);
         if (error) {
           setError(error.message === 'Invalid login credentials' 
-            ? 'Invalid email or password. Please try again.'
+            ? t('errors.invalidCredentials')
             : error.message);
         } else {
           onLoginSuccess?.();
@@ -152,17 +154,17 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         const { error } = await signUp(formData.email, formData.password, formData.name);
         if (error) {
           if (error.message.includes('already registered')) {
-            setError('An account with this email already exists. Please log in instead.');
+            setError(t('errors.emailExists'));
           } else {
             setError(error.message);
           }
         } else {
-          setSuccessMessage('Account created! Please check your email to verify your account.');
+          setSuccessMessage(t('registerSuccessShort'));
           setFormData({ name: '', email: '', password: '', confirmPassword: '' });
         }
       }
     } catch (err) {
-      setError('An unexpected error occurred. Please try again.');
+      setError(t('errors.unexpected'));
     } finally {
       setLoading(false);
     }
@@ -218,14 +220,14 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         <div className="bg-white/5 p-8 sm:p-14 rounded-[3.5rem] border border-white/10 shadow-2xl shadow-purple-500/10">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-black text-white tracking-tighter uppercase mb-4">
-              {isLogin ? 'Welcome Back' : 'Join the Family'}
+              {isLogin ? t('pageLoginTitle') : t('pageRegisterTitle')}
             </h1>
-            <p className="text-gray-400 italic font-medium">Empowering dyslexic minds through specialized English learning.</p>
+            <p className="text-gray-400 italic font-medium">{t('pageSubtitle')}</p>
           </div>
 
           <div className="flex p-2 bg-white/5 rounded-3xl mb-10 border border-white/10">
-            <button onClick={() => { setIsLogin(true); setError(null); setSuccessMessage(null); }} className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-2xl transition-all ${isLogin ? 'bg-white/10 shadow-sm text-purple-400' : 'text-gray-500'}`}>Login</button>
-            <button onClick={() => { setIsLogin(false); setError(null); setSuccessMessage(null); }} className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-2xl transition-all ${!isLogin ? 'bg-white/10 shadow-sm text-purple-400' : 'text-gray-500'}`}>Register</button>
+            <button onClick={() => { setIsLogin(true); setError(null); setSuccessMessage(null); }} className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-2xl transition-all ${isLogin ? 'bg-white/10 shadow-sm text-purple-400' : 'text-gray-500'}`}>{t('loginTab')}</button>
+            <button onClick={() => { setIsLogin(false); setError(null); setSuccessMessage(null); }} className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-2xl transition-all ${!isLogin ? 'bg-white/10 shadow-sm text-purple-400' : 'text-gray-500'}`}>{t('registerTab')}</button>
           </div>
 
           {error && (
@@ -244,26 +246,26 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           <form className="space-y-6" onSubmit={handleSubmit}>
             {!isLogin && (
               <div className="flex flex-col gap-2">
-                <label htmlFor="register-name" className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-4">Full Name</label>
+                <label htmlFor="register-name" className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-4">{t('fullName')}</label>
                 <div className="relative">
                   <User className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
-                  <input id="register-name" type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Your Name" required className="w-full pl-16 pr-8 py-5 rounded-[2rem] bg-white/5 border border-white/10 focus:bg-white/10 focus:border-purple-500 outline-none transition-all font-bold text-white placeholder-gray-500" />
+                  <input id="register-name" type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder={t('namePlaceholder')} required className="w-full pl-16 pr-8 py-5 rounded-[2rem] bg-white/5 border border-white/10 focus:bg-white/10 focus:border-purple-500 outline-none transition-all font-bold text-white placeholder-gray-500" />
                 </div>
               </div>
             )}
             <div className="flex flex-col gap-2">
-              <label htmlFor="auth-email" className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-4">Email Address</label>
+              <label htmlFor="auth-email" className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-4">{t('emailAddress')}</label>
               <div className="relative">
                 <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
                 <input id="auth-email" type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} placeholder="email@example.com" required className="w-full pl-16 pr-8 py-5 rounded-[2rem] bg-white/5 border border-white/10 focus:bg-white/10 focus:border-purple-500 outline-none transition-all font-bold text-white placeholder-gray-500" />
               </div>
             </div>
             <div className="flex flex-col gap-2">
-              <label htmlFor="auth-password" className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-4">Password</label>
+              <label htmlFor="auth-password" className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-4">{t('password')}</label>
               <div className="relative">
                 <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
                 <input id="auth-password" type={showPassword ? "text" : "password"} value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} placeholder="••••••••" required className="w-full pl-16 pr-14 py-5 rounded-[2rem] bg-white/5 border border-white/10 focus:bg-white/10 focus:border-purple-500 outline-none transition-all font-bold text-white placeholder-gray-500" />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-500" aria-label={showPassword ? 'Hide password' : 'Show password'}>{showPassword ? <EyeOff size={20} /> : <Eye size={20} />}</button>
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-500" aria-label={showPassword ? t('hidePassword') : t('showPassword')}>{showPassword ? <EyeOff size={20} /> : <Eye size={20} />}</button>
               </div>
               {/* Password Strength Indicator - Registration only */}
               {!isLogin && formData.password && (
@@ -311,11 +313,11 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             </div>
             {!isLogin && (
               <div className="flex flex-col gap-2">
-                <label htmlFor="register-confirm-password" className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-4">Confirm Password</label>
+                <label htmlFor="register-confirm-password" className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-4">{t('confirmPassword')}</label>
                 <div className="relative">
                   <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
                   <input id="register-confirm-password" type={showConfirmPassword ? "text" : "password"} value={formData.confirmPassword} onChange={e => setFormData({...formData, confirmPassword: e.target.value})} placeholder="••••••••" required className="w-full pl-16 pr-14 py-5 rounded-[2rem] bg-white/5 border border-white/10 focus:bg-white/10 focus:border-purple-500 outline-none transition-all font-bold text-white placeholder-gray-500" />
-                  <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-500" aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}>{showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}</button>
+                  <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-500" aria-label={showConfirmPassword ? t('hidePassword') : t('showPassword')}>{showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}</button>
                 </div>
               </div>
             )}
@@ -327,11 +329,11 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               {loading ? (
                 <>
                   <Loader2 className="animate-spin" size={20} />
-                  {isLogin ? 'LOGGING IN...' : 'CREATING ACCOUNT...'}
+                  {isLogin ? t('loggingIn') : t('creatingAccount')}
                 </>
               ) : (
                 <>
-                  {isLogin ? 'LOG IN' : 'CREATE ACCOUNT'}
+                  {isLogin ? t('loginButton') : t('createAccountButton')}
                   <ChevronRight size={20} />
                 </>
               )}
@@ -346,7 +348,7 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 onClick={() => setShowForgotPassword(true)}
                 className="text-purple-400 hover:text-purple-300 text-sm font-semibold hover:underline transition-all"
               >
-                Forgot your password?
+                {t('forgotPassword')}
               </button>
             </div>
           )}
@@ -369,9 +371,9 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               <X size={24} />
             </button>
             
-            <h2 id="forgot-password-title" className="text-2xl font-black text-white tracking-tight mb-2">Reset Password</h2>
+            <h2 id="forgot-password-title" className="text-2xl font-black text-white tracking-tight mb-2">{t('resetPasswordTitle')}</h2>
             <p className="text-gray-400 text-sm mb-6">
-              Enter your email address and we'll send you a link to reset your password.
+              {t('resetPasswordSubtitleLong')}
             </p>
 
             {resetSuccess ? (
@@ -379,15 +381,13 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Mail className="text-green-400" size={32} />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">Check your email</h3>
-                <p className="text-gray-400 text-sm mb-6">
-                  We've sent a password reset link to <strong className="text-white">{resetEmail}</strong>
-                </p>
+                <h3 className="text-lg font-bold text-white mb-2">{t('checkYourEmail')}</h3>
+                <p className="text-gray-400 text-sm mb-6" dangerouslySetInnerHTML={{ __html: t('resetLinkSentDesc', { email: resetEmail }) }} />
                 <button
                   onClick={closeForgotPasswordModal}
                   className="w-full py-4 bg-purple-600 text-white rounded-2xl font-bold hover:bg-purple-700 transition-colors"
                 >
-                  Back to Login
+                  {t('backToLogin')}
                 </button>
               </div>
             ) : (
@@ -400,7 +400,7 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 )}
                 
                 <div className="flex flex-col gap-2">
-                  <label htmlFor="reset-email" className="sr-only">Email Address</label>
+                  <label htmlFor="reset-email" className="sr-only">{t('emailAddress')}</label>
                   <div className="relative">
                     <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
                     <input
@@ -410,7 +410,7 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                       value={resetEmail}
                       onChange={e => setResetEmail(e.target.value)}
                       placeholder="email@example.com"
-                      aria-label="Email address for password reset"
+                      aria-label={t('emailAddress')}
                       className="w-full pl-14 pr-6 py-4 rounded-2xl bg-white/5 border border-white/10 focus:bg-white/10 focus:border-purple-500 outline-none transition-all font-medium text-white placeholder-gray-500"
                     />
                   </div>
@@ -424,10 +424,10 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                   {resetLoading ? (
                     <>
                       <Loader2 className="animate-spin" size={20} />
-                      Sending...
+                      {t('sending')}
                     </>
                   ) : (
-                    'Send Reset Link'
+                    t('sendResetLink')
                   )}
                 </button>
                 
@@ -436,7 +436,7 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                   onClick={closeForgotPasswordModal}
                   className="w-full py-3 text-gray-400 hover:text-gray-300 font-medium transition-colors"
                 >
-                  Cancel
+                  {t('cancel')}
                 </button>
               </form>
             )}

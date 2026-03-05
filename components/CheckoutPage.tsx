@@ -1,6 +1,8 @@
 
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { ArrowLeft, ShieldCheck, Lock, CreditCard, CheckCircle2, ChevronRight, ShoppingCart, User, X, Tag, Ticket, AlertCircle, Loader2, Building2, Wallet, BookOpen, Plus, Minus, Mail, Check, LogIn } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { useLocaleFormat } from '../hooks/useLocaleFormat';
 import { coursesApi, purchasesApi, enrollmentsApi } from '../data/supabaseStore';
 import AuthModal from './AuthModal';
 import { Course } from '../types';
@@ -77,6 +79,8 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
   initialTeachingMaterials = {},
   onTeachingMaterialsChange
 }) => {
+  const { t } = useTranslation('checkout');
+  const { formatCurrency } = useLocaleFormat();
   const { user: authUser, profile } = useAuth();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const paypalContainerRef = useRef<HTMLDivElement>(null);
@@ -149,12 +153,12 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
     const timer = setTimeout(() => {
       onRemoveItem(itemId);
       setPendingRemoval(null);
-      announce(`${itemName} removed from cart`);
+      announce(t('announcements.itemRemoved', { name: itemName }));
     }, 5000);
 
     setPendingRemoval({ id: itemId, name: itemName, timer });
-    announce(`${itemName} will be removed. Press undo to cancel.`);
-  }, [pendingRemoval, onRemoveItem, announce]);
+    announce(t('announcements.itemWillBeRemoved', { name: itemName }));
+  }, [pendingRemoval, onRemoveItem, announce, t]);
 
   // Undo the pending removal
   const undoRemoval = useCallback(() => {
@@ -163,8 +167,8 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
     }
     const itemName = pendingRemoval?.name || 'Item';
     setPendingRemoval(null);
-    announce(`${itemName} removal cancelled`);
-  }, [pendingRemoval, announce]);
+    announce(t('announcements.removalCancelled', { name: itemName }));
+  }, [pendingRemoval, announce, t]);
 
   // Clean up timer on unmount
   useEffect(() => {
@@ -224,26 +228,26 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
           // Also call handlePaymentSuccess to record purchase and redirect
           handlePaymentSuccess(orderId, 'card').then(() => {
             setPaymentSuccess(true);
-            announce('Payment successful! Your purchase is confirmed.');
+            announce(t('announcements.paymentSuccess'));
           }).catch((err) => {
             console.error('Error processing RaiAccept payment success:', err);
             setPaymentSuccess(true);
-            announce('Payment successful! Your courses will be available shortly.');
+            announce(t('announcements.paymentSuccessShort'));
           });
         } else {
           // Fallback: no orderId stored, just show success
           setPaymentSuccess(true);
-          announce('Payment successful! Your courses will be available shortly.');
+          announce(t('announcements.paymentSuccessShort'));
         }
       } else if (status === 'cancel') {
         setLoading(false);
-        setError('Payment was cancelled. You can try again.');
-        announce('Payment cancelled.');
+        setError(t('errors.paymentCancelled'));
+        announce(t('announcements.paymentCancelled'));
       } else {
         // failure / exception
         setLoading(false);
-        setError(payload.errorMessage || 'Payment failed. Please try again.');
-        announce('Payment failed.');
+        setError(payload.errorMessage || t('errors.paymentFailed'));
+        announce(t('announcements.paymentFailed'));
       }
     };
 
@@ -264,7 +268,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
         // Session timed out - clear sensitive data and redirect
         setSessionWarning({ show: false, minutesLeft: 0 });
         setAppliedDiscount(null);
-        setError('Your checkout session has expired. Please refresh and try again.');
+        setError(t('session.expired'));
       }
     };
 
@@ -284,9 +288,9 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
   useEffect(() => {
     if (!authUser && !profile && emailTouched) {
       if (!customerEmail) {
-        setEmailError('Email is required');
+        setEmailError(t('errors.emailRequired'));
       } else if (!isValidEmail(customerEmail)) {
-        setEmailError('Please enter a valid email address');
+        setEmailError(t('errors.emailInvalid'));
       } else {
         setEmailError(null);
       }
@@ -336,8 +340,8 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
     // Announce change to screen readers
     if (item) {
       announce(newValue 
-        ? `Teaching materials added for ${item.name}` 
-        : `Teaching materials removed for ${item.name}`);
+        ? t('announcements.teachingMaterialsAdded', { name: item.name }) 
+        : t('announcements.teachingMaterialsRemoved', { name: item.name }));
     }
   };
 
@@ -369,28 +373,28 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
 
       if (error || !discountData) {
         setAppliedDiscount(null);
-        setError('Your discount code is no longer valid. Please review your order.');
+        setError(t('promoCode.noLongerValid'));
         return false;
       }
 
       // Check if code has expired
       if (discountData.expires_at && new Date(discountData.expires_at) < new Date()) {
         setAppliedDiscount(null);
-        setError('Your discount code has expired. Please review your order.');
+        setError(t('promoCode.expiredReview'));
         return false;
       }
 
       // Check usage limit
       if (discountData.max_uses && discountData.times_used >= discountData.max_uses) {
         setAppliedDiscount(null);
-        setError('Your discount code has reached its usage limit. Please review your order.');
+        setError(t('promoCode.usageLimitReview'));
         return false;
       }
 
       // Check if code is still active
       if (!discountData.is_active) {
         setAppliedDiscount(null);
-        setError('Your discount code has been deactivated. Please review your order.');
+        setError(t('promoCode.deactivatedReview'));
         return false;
       }
 
@@ -515,7 +519,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
       console.error('Error recording purchase:', err);
       // Still clear cart — payment already succeeded at gateway level
       onClearCart();
-      setError(err instanceof Error ? err.message : 'Failed to complete purchase');
+      setError(err instanceof Error ? err.message : t('errors.failedToComplete'));
     } finally {
       isProcessingRef.current = false;
     }
@@ -571,10 +575,10 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
           await handlePaymentSuccess(transactionId, 'paypal');
         },
         onError: (err) => {
-          setError(`PayPal error: ${err.message}`);
+          setError(t('errors.paypalError', { message: err.message }));
         },
         onCancel: () => {
-          setError('Payment was cancelled. Please try again.');
+          setError(t('errors.paymentCancelled'));
         },
       });
 
@@ -590,7 +594,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
           }
           if (!termsAccepted) {
             setTermsError(true);
-            setError('Please accept the Terms & Conditions to proceed');
+            setError(t('errors.acceptTerms'));
             return actions.reject();
           }
           setTermsError(false);
@@ -720,21 +724,21 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
       const discountData = data as DiscountCodeData | null;
 
       if (error || !discountData) {
-        setDiscountError('Invalid or expired discount code');
+        setDiscountError(t('promoCode.invalid'));
         setAppliedDiscount(null);
         return;
       }
 
       // Check if code has expired
       if (discountData.expires_at && new Date(discountData.expires_at) < new Date()) {
-        setDiscountError('This discount code has expired');
+        setDiscountError(t('promoCode.expired'));
         setAppliedDiscount(null);
         return;
       }
 
       // Check usage limit
       if (discountData.max_uses && discountData.times_used >= discountData.max_uses) {
-        setDiscountError('This discount code has reached its usage limit');
+        setDiscountError(t('promoCode.usageLimitReached'));
         setAppliedDiscount(null);
         return;
       }
@@ -750,7 +754,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
           .maybeSingle();
 
         if (existingUse) {
-          setDiscountError('You have already used this discount code');
+          setDiscountError(t('promoCode.alreadyUsed'));
           setAppliedDiscount(null);
           return;
         }
@@ -759,7 +763,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
       // Check minimum order amount (include teaching materials in order total)
       const orderTotalBeforeDiscount = subtotal + teachingMaterialsTotal;
       if (discountData.min_order_amount && orderTotalBeforeDiscount < discountData.min_order_amount) {
-        setDiscountError(`Minimum order of €${discountData.min_order_amount} required for this code (your order: €${orderTotalBeforeDiscount.toFixed(2)})`);
+        setDiscountError(t('promoCode.minOrder', { amount: formatCurrency(discountData.min_order_amount), orderTotal: formatCurrency(orderTotalBeforeDiscount) }));
         setAppliedDiscount(null);
         return;
       }
@@ -777,20 +781,20 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
           amount: discountAmount,
           discountCodeId: discountData.id
         });
-        announce(`Discount code applied! You save €${discountAmount.toFixed(2)}`);
+        announce(t('announcements.discountApplied', { amount: formatCurrency(discountAmount) }));
       } else {
         // Fixed amount discount (cap at full order total)
         discountAmount = Math.min(discountData.discount_value, orderTotalBeforeDiscount);
         setAppliedDiscount({ 
-          code: `${code} (-€${discountData.discount_value})`, 
+          code: `${code} (-${formatCurrency(discountData.discount_value)})`, 
           amount: discountAmount,
           discountCodeId: discountData.id
         });
-        announce(`Discount code applied! You save €${discountAmount.toFixed(2)}`);
+        announce(t('announcements.discountApplied', { amount: formatCurrency(discountAmount) }));
       }
     } catch (err) {
       // If discount_codes table doesn't exist, show generic message
-      setDiscountError('Discount codes are not available at this time');
+      setDiscountError(t('promoCode.unavailable'));
       setAppliedDiscount(null);
     }
   };
@@ -809,12 +813,12 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
 
     if (!termsAccepted) {
       setTermsError(true);
-      setError('Please accept the Terms & Conditions to proceed');
+      setError(t('errors.acceptTerms'));
       return;
     }
 
     if (!customerName.trim() || !customerEmail.trim()) {
-      setError('Please fill in your name and email');
+      setError(t('errors.fillNameEmail'));
       return;
     }
 
@@ -901,7 +905,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
       setShowPaymentIframe(true);
     } catch (err) {
       console.error('Payment error:', err);
-      setError(err instanceof Error ? err.message : 'Payment failed. Please try again.');
+      setError(err instanceof Error ? err.message : t('errors.paymentFailed'));
       setLoading(false);
     }
   };
@@ -914,16 +918,15 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
           <div className="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center text-white mx-auto mb-10 shadow-xl animate-bounce">
             <CheckCircle2 size={48} />
           </div>
-          <h2 className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tight">Payment Successful!</h2>
+          <h2 className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tight">{t('success.title')}</h2>
           <p className="text-gray-400 text-xl mb-12 font-medium">
-            Your courses are now unlocked. Welcome to the DSA Smart Start family! 
-            A confirmation email has been sent to {customerEmail}.
+            {t('success.description', { email: customerEmail })}
           </p>
           <button 
             onClick={() => window.location.hash = '#dashboard'}
             className="group flex items-center gap-3 bg-white text-gray-900 px-10 py-5 rounded-full font-black text-xs tracking-widest transition-all mx-auto uppercase shadow-xl hover:bg-purple-600 hover:text-white"
           >
-            Go to My Courses
+            {t('success.goToCourses')}
             <ChevronRight size={18} />
           </button>
         </div>
@@ -956,8 +959,8 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
           className="group flex items-center gap-2 text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-gray-400 hover:text-purple-400 transition-all mb-8 sm:mb-12 bg-white/5 backdrop-blur-sm px-4 sm:px-6 py-3 sm:py-3 rounded-full border border-white/10 shadow-sm relative z-50 pointer-events-auto min-h-[44px]"
         >
           <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-          <span className="hidden sm:inline">Go back to previous page</span>
-          <span className="sm:hidden">Back</span>
+          <span className="hidden sm:inline">{t('backButton')}</span>
+          <span className="sm:hidden">{t('backButtonMobile')}</span>
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-16 lg:gap-24 items-start">
@@ -969,26 +972,26 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                   <ShoppingCart size={32} className="sm:hidden" />
                   <ShoppingCart size={40} className="hidden sm:block" />
                 </div>
-                <h2 className="text-2xl sm:text-3xl font-black text-white mb-3 sm:mb-4 uppercase tracking-tight">Your cart is empty</h2>
+                <h2 className="text-2xl sm:text-3xl font-black text-white mb-3 sm:mb-4 uppercase tracking-tight">{t('emptyCart.title')}</h2>
                 <p className="text-gray-400 mb-6 font-medium text-sm sm:text-base">
-                  Start your learning journey today! Browse our courses designed specifically for students with learning differences.
+                  {t('emptyCart.description')}
                 </p>
                 
                 {/* Quick suggestions */}
                 <div className="bg-white/5 rounded-2xl p-4 sm:p-6 mb-8 text-left border border-white/10">
-                  <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3">Popular choices:</p>
+                  <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3">{t('emptyCart.popularChoices')}</p>
                   <ul className="space-y-2 text-sm text-gray-400">
                     <li className="flex items-center gap-2">
                       <span className="w-2 h-2 bg-purple-400 rounded-full"></span>
-                      Interactive A1-B1 English Courses
+                      {t('emptyCart.choice1')}
                     </li>
                     <li className="flex items-center gap-2">
                       <span className="w-2 h-2 bg-pink-400 rounded-full"></span>
-                      Kids English Programs (Basic to Advanced)
+                      {t('emptyCart.choice2')}
                     </li>
                     <li className="flex items-center gap-2">
                       <span className="w-2 h-2 bg-amber-400 rounded-full"></span>
-                      Premium & Gold Pathways for intensive learning
+                      {t('emptyCart.choice3')}
                     </li>
                   </ul>
                 </div>
@@ -997,7 +1000,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                   onClick={onBrowse}
                   className="bg-purple-600 text-white px-8 sm:px-12 py-4 sm:py-5 rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-all shadow-xl shadow-purple-500/20 min-h-[48px]"
                 >
-                  Browse Courses
+                  {t('emptyCart.browseCourses')}
                 </button>
               </div>
             ) : paymentNotConfigured ? (
@@ -1006,24 +1009,24 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                 <div className="w-20 h-20 bg-amber-500/10 rounded-full flex items-center justify-center text-amber-500 mx-auto mb-8">
                   <AlertCircle size={40} />
                 </div>
-                <h2 className="text-3xl font-black text-white mb-4 uppercase tracking-tight">Payment Setup Required</h2>
+                <h2 className="text-3xl font-black text-white mb-4 uppercase tracking-tight">{t('paymentNotConfigured.title')}</h2>
                 <p className="text-gray-400 mb-6 font-medium">
-                  Payment processing is not yet configured. Please contact us to complete your enrollment.
+                  {t('paymentNotConfigured.description')}
                 </p>
                 <div className="bg-white/5 rounded-3xl p-6 text-left mb-8 border border-white/10">
-                  <p className="text-sm text-gray-300 mb-2"><strong>Your courses:</strong></p>
+                  <p className="text-sm text-gray-300 mb-2"><strong>{t('paymentNotConfigured.yourCourses')}</strong></p>
                   <ul className="text-sm text-gray-400 list-disc list-inside">
                     {cartItems.map(item => (
-                      <li key={item.id}>{item.name} - €{item.price.toFixed(2)}</li>
+                      <li key={item.id}>{item.name} - {formatCurrency(item.price)}</li>
                     ))}
                   </ul>
-                  <p className="text-sm font-bold text-white mt-4">Total: €{total.toFixed(2)}</p>
+                  <p className="text-sm font-bold text-white mt-4">{t('orderSummary.total')}: {formatCurrency(total)}</p>
                 </div>
                 <button 
                   onClick={() => window.location.hash = '#contact'}
                   className="bg-purple-600 text-white px-12 py-5 rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-all shadow-xl shadow-purple-500/20"
                 >
-                  Contact Us to Enroll
+                  {t('paymentNotConfigured.contactButton')}
                 </button>
               </div>
             ) : (
@@ -1032,7 +1035,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                   <div className="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-purple-500/30">
                     <CreditCard size={24} />
                   </div>
-                  <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase">Checkout</h1>
+                  <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase">{t('title')}</h1>
                 </div>
 
                 {/* Error message */}
@@ -1053,10 +1056,9 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                         </svg>
                       </div>
                       <div>
-                        <p className="text-amber-400 font-bold text-sm">Session expiring soon</p>
+                        <p className="text-amber-400 font-bold text-sm">{t('session.expiringSoon')}</p>
                         <p className="text-amber-500/80 text-xs mt-0.5">
-                          Your checkout session will expire in {sessionWarning.minutesLeft} minute{sessionWarning.minutesLeft !== 1 ? 's' : ''}. 
-                          Please complete your purchase.
+                          {t('session.expiresIn', { minutes: sessionWarning.minutesLeft })}
                         </p>
                       </div>
                     </div>
@@ -1064,7 +1066,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                       onClick={extendSession}
                       className="px-4 py-2 bg-amber-500 text-white rounded-xl text-xs font-bold uppercase tracking-wide hover:bg-amber-600 transition-all flex-shrink-0"
                     >
-                      Dismiss
+                      {t('session.dismiss')}
                     </button>
                   </div>
                 )}
@@ -1077,9 +1079,9 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                         <LogIn size={20} className="text-purple-400" />
                       </div>
                       <div>
-                        <p className="text-purple-300 font-bold text-sm">Log in to complete your purchase</p>
+                        <p className="text-purple-300 font-bold text-sm">{t('loginBanner.title')}</p>
                         <p className="text-purple-400/70 text-xs mt-0.5">
-                          An account is required so your courses appear on your dashboard after purchase.
+                          {t('loginBanner.description')}
                         </p>
                       </div>
                     </div>
@@ -1087,7 +1089,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                       onClick={() => setShowAuthModal(true)}
                       className="px-5 py-2.5 bg-purple-600 text-white rounded-xl text-xs font-bold uppercase tracking-wide hover:bg-purple-700 transition-all flex-shrink-0 shadow-lg shadow-purple-500/20"
                     >
-                      Log In / Register
+                      {t('loginBanner.button')}
                     </button>
                   </div>
                 )}
@@ -1096,28 +1098,28 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                 <div className="bg-white/5 p-6 sm:p-10 md:p-14 rounded-[2rem] sm:rounded-[3.5rem] border border-white/10 shadow-xl">
                   <h3 className="text-lg sm:text-xl font-black text-white mb-6 sm:mb-8 uppercase tracking-tight flex items-center gap-3">
                     <User size={20} className="text-purple-400" />
-                    Student Information
+                    {t('studentInfo.title')}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     <div className="flex flex-col gap-2">
-                      <label htmlFor="checkout-name" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Full Name</label>
+                      <label htmlFor="checkout-name" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">{t('studentInfo.fullName')}</label>
                       <input 
                         id="checkout-name"
                         required 
                         type="text" 
-                        placeholder="Your Name" 
+                        placeholder={t('studentInfo.namePlaceholder')} 
                         value={customerName}
                         onChange={(e) => setCustomerName(e.target.value)}
                         className="w-full px-5 sm:px-8 py-4 sm:py-5 rounded-2xl sm:rounded-[2rem] bg-white/5 border border-white/10 focus:bg-white/10 focus:border-purple-500 outline-none transition-all font-bold text-base text-white placeholder:text-gray-500" 
                       />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label htmlFor="checkout-email" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Email Address</label>
+                      <label htmlFor="checkout-email" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">{t('studentInfo.emailAddress')}</label>
                       <input 
                         id="checkout-email"
                         required 
                         type="email" 
-                        placeholder="email@example.com" 
+                        placeholder={t('studentInfo.emailPlaceholder')} 
                         value={customerEmail}
                         onChange={(e) => setCustomerEmail(e.target.value)}
                         onBlur={() => setEmailTouched(true)}
@@ -1146,7 +1148,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                   </div>
                   <h3 className="text-lg sm:text-xl font-black text-white mb-6 sm:mb-8 uppercase tracking-tight flex items-center gap-3">
                     <Lock size={20} className="text-purple-400" />
-                    Payment Method
+                    {t('paymentMethod.title')}
                   </h3>
 
                   <div className="space-y-3 sm:space-y-4">
@@ -1168,8 +1170,8 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                           <CreditCard size={24} className="hidden sm:block" />
                         </div>
                         <div className="text-left flex-grow min-w-0">
-                          <p className="font-black text-white uppercase tracking-wide text-xs sm:text-sm">Credit / Debit Card</p>
-                          <p className="text-[10px] sm:text-xs text-gray-400 mt-0.5 sm:mt-1 truncate">Secure payment via Raiffeisen Bank</p>
+                          <p className="font-black text-white uppercase tracking-wide text-xs sm:text-sm">{t('paymentMethod.card')}</p>
+                          <p className="text-[10px] sm:text-xs text-gray-400 mt-0.5 sm:mt-1 truncate">{t('paymentMethod.cardDescription')}</p>
                         </div>
                         <div className="hidden sm:flex items-center gap-2 shrink-0">
                           <img src="/assets/images/visa-logo.jpg" alt="Visa" className="h-5 sm:h-6 object-contain" />
@@ -1197,8 +1199,8 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                           <Wallet size={24} className="hidden sm:block" />
                         </div>
                         <div className="text-left flex-grow min-w-0">
-                          <p className="font-black text-white uppercase tracking-wide text-xs sm:text-sm">PayPal</p>
-                          <p className="text-[10px] sm:text-xs text-gray-400 mt-0.5 sm:mt-1">Pay securely with your PayPal account</p>
+                          <p className="font-black text-white uppercase tracking-wide text-xs sm:text-sm">{t('paymentMethod.paypal')}</p>
+                          <p className="text-[10px] sm:text-xs text-gray-400 mt-0.5 sm:mt-1">{t('paymentMethod.paypalDescription')}</p>
                         </div>
                         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/200px-PayPal.svg.png" alt="PayPal" className="h-5 sm:h-6 object-contain shrink-0" />
                       </button>
@@ -1228,10 +1230,10 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                             className="sr-only"
                           />
                           <div className="text-sm text-gray-400 leading-relaxed max-w-[90%]">
-                            I accept the <a href="#terms" target="_blank" rel="noopener noreferrer" className="text-purple-400 font-bold hover:underline" onClick={(e) => e.stopPropagation()}>Terms & Conditions</a> and <a href="#privacy-policy" target="_blank" rel="noopener noreferrer" className="text-purple-400 font-bold hover:underline" onClick={(e) => e.stopPropagation()}>Privacy Policy</a>
+                            {t('terms.acceptPlain', 'I accept the Terms & Conditions and Privacy Policy')}
                           </div>
                         </label>
-                        {termsError && <p className="text-red-400 text-xs font-bold mt-2 ml-2">You must accept the terms to continue</p>}
+                        {termsError && <p className="text-red-400 text-xs font-bold mt-2 ml-2">{t('terms.required')}</p>}
                       </div>
 
                       {paypalLoaded ? (
@@ -1239,7 +1241,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                       ) : (
                         <div className="flex items-center justify-center p-8">
                           <Loader2 className="animate-spin text-purple-400" size={32} />
-                          <span className="ml-3 text-gray-400">Loading PayPal...</span>
+                          <span className="ml-3 text-gray-400">{t('paymentMethod.loadingPaypal')}</span>
                         </div>
                       )}
                     </div>
@@ -1251,7 +1253,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                       <div className="bg-blue-500/10 border border-blue-500/30 rounded-2xl p-4 mb-6">
                         <p className="text-sm text-blue-300">
                           <Building2 className="inline mr-2" size={16} />
-                          A secure payment form by Raiffeisen Bank will appear on this page for you to enter your card details.
+                          {t('paymentMethod.bankNotice')}
                         </p>
                       </div>
 
@@ -1275,10 +1277,10 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                             className="sr-only"
                           />
                           <div className="text-sm text-gray-400 leading-relaxed max-w-[90%]">
-                            I accept the <a href="#terms" target="_blank" rel="noopener noreferrer" className="text-purple-400 font-bold hover:underline" onClick={(e) => e.stopPropagation()}>Terms & Conditions</a> and <a href="#privacy-policy" target="_blank" rel="noopener noreferrer" className="text-purple-400 font-bold hover:underline" onClick={(e) => e.stopPropagation()}>Privacy Policy</a>
+                            {t('terms.acceptPlain', 'I accept the Terms & Conditions and Privacy Policy')}
                           </div>
                         </label>
-                        {termsError && <p className="text-red-400 text-xs font-bold mt-2 ml-2">You must accept the terms to continue</p>}
+                        {termsError && <p className="text-red-400 text-xs font-bold mt-2 ml-2">{t('terms.required')}</p>}
                       </div>
 
                       <button 
@@ -1290,11 +1292,11 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                         {loading ? (
                           <>
                             <Loader2 className="animate-spin" size={20} />
-                            REDIRECTING TO PAYMENT...
+                            {t('paymentMethod.redirecting')}
                           </>
                         ) : (
                           <>
-                            PROCEED TO PAYMENT ({total.toFixed(2)}€)
+                            {t('paymentMethod.proceedToPayment', { total: formatCurrency(total) })}
                             <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
                           </>
                         )}
@@ -1305,7 +1307,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                   {/* No payment method selected */}
                   {!selectedPaymentMethod && availableMethods.length > 0 && (
                     <div className="mt-8 text-center text-gray-400 text-sm">
-                      Please select a payment method above
+                      {t('paymentMethod.selectPrompt')}
                     </div>
                   )}
                 </div>
@@ -1318,7 +1320,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
             <div className="sticky top-32 space-y-8">
               <div className="bg-gradient-to-br from-[#1a1c2d] to-black p-6 sm:p-10 md:p-12 rounded-[2rem] sm:rounded-[3.5rem] text-white relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-purple-600/20 rounded-full blur-[60px] translate-x-1/2 -translate-y-1/2"></div>
-                <h3 className="text-lg sm:text-xl font-black mb-6 sm:mb-8 uppercase tracking-widest border-b border-white/10 pb-4 sm:pb-6">Your Courses</h3>
+                <h3 className="text-lg sm:text-xl font-black mb-6 sm:mb-8 uppercase tracking-widest border-b border-white/10 pb-4 sm:pb-6">{t('orderSummary.title')}</h3>
                 
                 {/* Cart Loading Skeleton */}
                 {cartLoading && cart.length > 0 ? (
@@ -1367,9 +1369,9 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                             <div className="overflow-hidden min-w-0">
                               <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-tight leading-tight truncate">{item.name}</p>
                               <div className="flex items-center gap-2 mt-1">
-                                <p className="text-[9px] sm:text-[10px] font-bold text-white uppercase tracking-widest">{item.price.toFixed(2)}€</p>
+                                <p className="text-[9px] sm:text-[10px] font-bold text-white uppercase tracking-widest">{formatCurrency(item.price)}</p>
                                 {item.originalPrice && (
-                                  <p className="text-[8px] sm:text-[9px] font-bold text-gray-500 line-through">{item.originalPrice.toFixed(2)}€</p>
+                                  <p className="text-[8px] sm:text-[9px] font-bold text-gray-500 line-through">{formatCurrency(item.originalPrice)}</p>
                                 )}
                               </div>
                             </div>
@@ -1406,10 +1408,10 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                                 </div>
                                 <div className="text-left">
                                   <p className="text-[9px] font-black uppercase tracking-wider text-white">
-                                    Teaching Materials
+                                    {t('teachingMaterialsAddon.title')}
                                   </p>
                                   <p className="text-[8px] text-gray-400 mt-0.5">
-                                    Study guides & workbooks
+                                    {t('teachingMaterialsAddon.description')}
                                   </p>
                                 </div>
                               </div>
@@ -1417,7 +1419,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                                 <span className={`text-[10px] font-black ${
                                   teachingMaterialsSelections[item.id] ? 'text-green-400' : 'text-white'
                                 }`}>
-                                  +€{item.teachingMaterialsPrice.toFixed(0)}
+                                  +{formatCurrency(item.teachingMaterialsPrice)}
                                 </span>
                                 <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
                                   teachingMaterialsSelections[item.id] ? 'bg-green-500 text-white' : 'bg-white/10 text-gray-400'
@@ -1432,7 +1434,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                     ))}
                   </div>
                 ) : (
-                  <div className="py-10 text-center text-gray-500 italic text-sm">No courses selected</div>
+                  <div className="py-10 text-center text-gray-500 italic text-sm">{t('orderSummary.noItems')}</div>
                 )}
 
                 {/* Undo Removal Toast */}
@@ -1444,16 +1446,16 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                       </div>
                       <div>
                         <p className="text-[10px] font-black uppercase tracking-tight text-red-400">
-                          Removing: {pendingRemoval.name}
+                          {t('removal.removing', { name: pendingRemoval.name })}
                         </p>
-                        <p className="text-[8px] text-gray-400 mt-0.5">Will be removed in 5 seconds</p>
+                        <p className="text-[8px] text-gray-400 mt-0.5">{t('removal.removedIn5s')}</p>
                       </div>
                     </div>
                     <button
                       onClick={undoRemoval}
                       className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-[9px] font-black uppercase tracking-widest text-white transition-all"
                     >
-                      Undo
+                      {t('removal.undo')}
                     </button>
                   </div>
                 )}
@@ -1461,7 +1463,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                 {/* Discount Code Field */}
                 {cartItems.length > 0 && (
                   <div className="mb-6 sm:mb-8 p-4 sm:p-6 bg-white/5 rounded-2xl sm:rounded-3xl border border-white/10">
-                    <label htmlFor="promo-code" className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2 sm:mb-3 block">Promo Code</label>
+                    <label htmlFor="promo-code" className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2 sm:mb-3 block">{t('promoCode.label')}</label>
                     <div className="flex flex-col sm:flex-row gap-2">
                       <div className="relative flex-grow">
                         <Tag className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={14} />
@@ -1470,7 +1472,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                           type="text" 
                           value={discountInput}
                           onChange={(e) => setDiscountInput(e.target.value)}
-                          placeholder="ENTER CODE"
+                          placeholder={t('promoCode.placeholder')}
                           aria-describedby={discountError ? 'promo-code-error' : appliedDiscount ? 'promo-code-success' : undefined}
                           className="w-full bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl py-3 pl-10 pr-4 text-[10px] font-black uppercase tracking-widest text-white focus:border-purple-500 focus:outline-none transition-all"
                         />
@@ -1480,7 +1482,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                         onClick={handleApplyDiscount}
                         className="bg-white text-gray-900 px-6 py-3 sm:py-0 rounded-xl sm:rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-purple-500 hover:text-white transition-all shadow-md active:scale-95 min-h-[44px]"
                       >
-                        Apply
+                        {t('promoCode.apply')}
                       </button>
                     </div>
                     {discountError && (
@@ -1489,7 +1491,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                     {appliedDiscount && (
                       <div id="promo-code-success" className="flex items-center gap-2 mt-3 ml-2 text-green-400" role="status">
                         <Ticket size={14} />
-                        <span className="text-[9px] font-black uppercase tracking-widest flex-1 truncate">Code Applied: {appliedDiscount.code}</span>
+                        <span className="text-[9px] font-black uppercase tracking-widest flex-1 truncate">{t('promoCode.codeApplied', { code: appliedDiscount.code })}</span>
                         <button onClick={() => setAppliedDiscount(null)} className="ml-auto text-white/40 hover:text-white transition-colors p-1 min-w-[32px] min-h-[32px] flex items-center justify-center">
                           <X size={14} />
                         </button>
@@ -1500,37 +1502,37 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
 
                 <div className="pt-6 border-t border-white/10 space-y-4">
                   <div className="flex justify-between items-center text-xs font-bold text-gray-400 uppercase tracking-widest">
-                    <span>Subtotal</span>
-                    <span>{subtotal.toFixed(2)}€</span>
+                    <span>{t('orderSummary.subtotal')}</span>
+                    <span>{formatCurrency(subtotal)}</span>
                   </div>
                   {teachingMaterialsTotal > 0 && (
                     <div className="flex justify-between items-center text-xs font-bold text-purple-400 uppercase tracking-widest">
-                      <span>Teaching Materials</span>
-                      <span>+{teachingMaterialsTotal.toFixed(2)}€</span>
+                      <span>{t('orderSummary.teachingMaterials')}</span>
+                      <span>+{formatCurrency(teachingMaterialsTotal)}</span>
                     </div>
                   )}
                   {appliedDiscount && (
                     <div className="flex justify-between items-center text-xs font-bold text-green-400 uppercase tracking-widest">
-                      <span>Discount Applied</span>
-                      <span>-{appliedDiscount.amount.toFixed(2)}€</span>
+                      <span>{t('orderSummary.discountApplied')}</span>
+                      <span>-{formatCurrency(appliedDiscount.amount)}</span>
                     </div>
                   )}
                   <div className="flex justify-between items-center pt-4">
-                    <span className="text-lg font-black uppercase tracking-widest">Total</span>
+                    <span className="text-lg font-black uppercase tracking-widest">{t('orderSummary.total')}</span>
                     <span className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
-                      {total.toFixed(2)}€
+                      {formatCurrency(total)}
                     </span>
                   </div>
 
                   {/* Digital delivery note */}
                   <p className="text-[9px] text-gray-500 uppercase tracking-widest mt-3">
-                    📦 Digital product — instant access upon payment confirmation
+                    {t('orderSummary.digitalNote')}
                   </p>
 
                   {/* Currency conversion notice */}
                   <div className="mt-4 p-3 bg-blue-500/5 rounded-xl border border-blue-500/10">
                     <p className="text-[9px] text-gray-500 leading-relaxed">
-                      <strong className="text-gray-400">Currency notice:</strong> All prices are shown in EUR. Card payments are processed in RSD (Serbian Dinars) at a fixed rate of 1 EUR = {EUR_TO_RSD_RATE} RSD. Your card will be charged approximately <strong className="text-gray-400">{formatRsdAmount(total)}</strong> for this order.
+                      <strong className="text-gray-400">{t('orderSummary.currencyNoticeLabel')}</strong> {t('orderSummary.currencyNotice', { rate: EUR_TO_RSD_RATE, rsdAmount: formatRsdAmount(total) })}
                     </p>
                   </div>
                 </div>
@@ -1538,23 +1540,23 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
 
               {/* Pre-contractual information */}
               <div className="bg-white/5 p-6 rounded-[2.5rem] border border-white/10 shadow-lg">
-                <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 mb-3">Seller Information</h4>
+                <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 mb-3">{t('sellerInfo.title')}</h4>
                 <div className="space-y-1.5 text-[10px] text-gray-500">
-                  <p><span className="text-gray-400 font-bold">Seller:</span> ANA MILATOVIĆ PR CENTAR ZA EDUKACIJE EDUWAY</p>
-                  <p><span className="text-gray-400 font-bold">PIB:</span> 115450214 &nbsp;|&nbsp; <span className="text-gray-400 font-bold">MB:</span> 68375720</p>
-                  <p><span className="text-gray-400 font-bold">Product type:</span> Digital educational content</p>
-                  <p><span className="text-gray-400 font-bold">Delivery:</span> Instant digital access upon payment</p>
-                  <p><span className="text-gray-400 font-bold">Right to withdraw:</span> 14 days (<a href="#terms" className="text-purple-400 hover:underline">see conditions</a>)</p>
+                  <p><span className="text-gray-400 font-bold">{t('sellerInfo.seller')}</span> {t('sellerInfo.sellerName')}</p>
+                  <p><span className="text-gray-400 font-bold">{t('sellerInfo.pib')}</span> 115450214 &nbsp;|&nbsp; <span className="text-gray-400 font-bold">{t('sellerInfo.mb')}</span> 68375720</p>
+                  <p><span className="text-gray-400 font-bold">{t('sellerInfo.productType')}</span> {t('sellerInfo.productTypeValue')}</p>
+                  <p><span className="text-gray-400 font-bold">{t('sellerInfo.delivery')}</span> {t('sellerInfo.deliveryValue')}</p>
+                  <p><span className="text-gray-400 font-bold">{t('sellerInfo.rightToWithdraw')}</span> {t('sellerInfo.rightToWithdrawValue')}</p>
                 </div>
                 <a href="#terms" className="inline-block mt-3 text-[9px] text-purple-400 font-bold uppercase tracking-widest hover:underline">
-                  Full Terms & Conditions →
+                  {t('sellerInfo.fullTerms')}
                 </a>
                 <div className="space-y-4">
                   {[
-                    "Lifetime course updates",
-                    "Official DSA Smart Start Certificate",
-                    "24/7 Priority specialist support",
-                    "Satisfaction guarantee"
+                    t('benefits.lifetimeUpdates'),
+                    t('benefits.certificate'),
+                    t('benefits.support'),
+                    t('benefits.satisfaction')
                   ].map((item, i) => (
                     <div key={i} className="flex items-center gap-3">
                       <CheckCircle2 size={16} className="text-purple-400" />
@@ -1569,7 +1571,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                     <div className="flex items-start gap-3 text-gray-500">
                       <Mail size={16} className="mt-0.5 flex-shrink-0" />
                       <p className="text-xs">
-                        Order confirmation will be sent to <strong className="text-gray-300">{customerEmail}</strong>
+                        {t('emailConfirmation', { email: customerEmail })}
                       </p>
                     </div>
                   </div>
@@ -1581,11 +1583,11 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                 <div className="flex items-center justify-center gap-6">
                   <div className="flex items-center gap-2">
                     <Lock size={14} />
-                    <span className="text-[10px] font-bold uppercase tracking-widest">SSL Secured</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest">{t('security.sslSecured')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <ShieldCheck size={14} />
-                    <span className="text-[10px] font-bold uppercase tracking-widest">3D Secure</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest">{t('security.3dSecure')}</span>
                   </div>
                 </div>
                 {/* Card brand & 3D Secure logos */}
@@ -1599,7 +1601,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                 {/* Raiffeisen Bank badge */}
                 <div className="flex items-center gap-2 mt-1">
                   <img src="/assets/images/raiffeisen-logo.png" alt="Raiffeisen Bank" className="h-5 opacity-50" />
-                  <span className="text-[9px] text-gray-500 uppercase tracking-widest">Payment processing by Raiffeisen Bank</span>
+                  <span className="text-[9px] text-gray-500 uppercase tracking-widest">{t('security.raiffeisenProcessing')}</span>
                 </div>
               </div>
             </div>
@@ -1615,14 +1617,14 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
             <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
               <div className="flex items-center gap-2">
                 <Lock size={18} />
-                <span className="font-semibold text-sm">Secure Payment – Raiffeisen Bank</span>
+                <span className="font-semibold text-sm">{t('security.securePayment')}</span>
               </div>
               <button
                 onClick={() => {
                   setShowPaymentIframe(false);
                   setPaymentIframeUrl(null);
                   setLoading(false);
-                  setError('Payment was cancelled.');
+                  setError(t('errors.paymentCancelled'));
                 }}
                 className="p-1 rounded-full hover:bg-white/20 transition"
                 aria-label="Close payment"

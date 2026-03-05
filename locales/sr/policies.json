@@ -1,0 +1,154 @@
+{
+  "backToHome": "Nazad na početnu",
+  "lastUpdatedLabel": "Poslednje ažuriranje: {{date}}",
+  "ctaQuestion": "Imate pitanja o ovoj politici?",
+  "ctaContact": "Kontaktirajte nas na dsa.smart.start@gmail.com",
+  "privacy": {
+    "title": "Politika privatnosti",
+    "lastUpdated": "januar 2026",
+    "content": [
+      {
+        "heading": "1. Informacije koje prikupljamo",
+        "text": "Prikupljamo informacije koje nam direktno pružate, na primer kada kreirate nalog, upišete se na kurs, izvršite kupovinu ili nas kontaktirate za podršku. Ove informacije mogu uključivati vaše ime, adresu e-pošte i podatke o plaćanju."
+      },
+      {
+        "heading": "2. Kako koristimo vaše informacije",
+        "text": "Informacije koje prikupljamo koristimo za pružanje, održavanje i poboljšanje naših usluga, obradu transakcija, slanje tehničkih obaveštenja i poruka podrške, kao i za odgovaranje na vaše komentare i pitanja."
+      },
+      {
+        "heading": "3. Deljenje informacija",
+        "text": "Ne delimo vaše lične podatke sa trećim stranama osim kako je opisano u ovoj politici. Možemo deliti informacije sa pružaocima usluga koji nam pomažu u radu naše platforme, obradi plaćanja ili pružanju korisničke podrške."
+      },
+      {
+        "heading": "4. Bezbednost podataka",
+        "text": "Preduzimamo razumne mere da zaštitimo vaše lične podatke od gubitka, krađe, zloupotrebe, neovlašćenog pristupa, otkrivanja, izmene i uništenja. Svi podaci o plaćanju su šifrovani i obrađuju se putem bezbednih pružalaca platnih usluga."
+      },
+      {
+        "heading": "5. Vaša prava",
+        "text": "Imate pravo da pristupite, ispravite ili obrišete svoje lične podatke. Takođe možete da se usprotivite ili ograničite određenu obradu vaših informacija. Da biste ostvarili ova prava, kontaktirajte nas na dsa.smart.start@gmail.com."
+      },
+      {
+        "heading": "6. Kontaktirajte nas",
+        "text": "Ako imate bilo kakva pitanja o ovoj Politici privatnosti, kontaktirajte nas na dsa.smart.start@gmail.com ili telefonom na +381 65 886 9930."
+      }
+    ]
+  },
+  "cookie": {
+    "title": "Politika kolačića",
+    "lastUpdated": "januar 2026",
+    "content": [
+      {
+        "heading": "1. Šta su kolačići",
+        "text": "Kolačići su mali tekstualni fajlovi koji se čuvaju na vašem uređaju kada posetite našu veb stranicu. Pomažu nam da vam pružimo bolje iskustvo tako što pamte vaše postavke i pomažu nam da razumemo kako koristite naš sajt."
+      },
+      {
+        "heading": "2. Vrste kolačića koje koristimo",
+        "text": "Neophodni kolačići: Potrebni su za pravilno funkcionisanje veb sajta, uključujući autentifikaciju i bezbednost.\n\nFunkcionalni kolačići: Pamte vaše postavke i podešavanja.\n\nAnalitički kolačići: Pomažu nam da razumemo kako posetioci koriste naš veb sajt kako bismo poboljšali naše usluge."
+      },
+      {
+        "heading": "3. Upravljanje kolačićima",
+        "text": "Možete kontrolisati i/ili brisati kolačiće po želji. Možete obrisati sve kolačiće koji su već na vašem računaru i možete podesiti većinu pretraživača da spreče njihovo postavljanje. Međutim, ako to uradite, možda ćete morati ručno da podešavate neke postavke svaki put kada posetite naš sajt."
+      },
+      {
+        "heading": "4. Kolačići trećih strana",
+        "text": "Možemo koristiti usluge trećih strana kao što su procesori plaćanja i pružaoci analitike koji mogu postaviti sopstvene kolačiće. Nemamo kontrolu nad ovim kolačićima i trebalo bi da proverite odgovarajuće politike privatnosti ovih trećih strana."
+      },
+      {
+        "heading": "5. Ažuriranje ove politike",
+        "text": "Možemo s vremena na vreme ažurirati ovu Politiku kolačića. Obavestićemo vas o svim promenama objavljivanjem nove politike na ovoj stranici sa novim datumom 'Poslednje ažuriranje'."
+      }
+    ]
+  },
+  "refund": {
+    "title": "Politika povraćaja i reklamacija",
+    "lastUpdated": "januar 2026",
+    "content": [
+      {
+        "heading": "1. Digitalni proizvodi",
+        "text": "Svi naši kursevi su digitalni proizvodi koji se isporučuju elektronskim putem. Zbog prirode digitalnih proizvoda, zahteve za povraćaj sredstava razmatramo pojedinačno."
+      },
+      {
+        "heading": "2. Uslovi za povraćaj",
+        "text": "Možete zatražiti povraćaj sredstava u roku od 14 dana od kupovine ako:\n\n• Niste pristupili više od 20% sadržaja kursa\n• Imate tehničke probleme koji vam onemogućavaju pristup kursu\n• Sadržaj kursa ne odgovara navedenom opisu"
+      },
+      {
+        "heading": "3. Kako zatražiti povraćaj",
+        "text": "Da biste zatražili povraćaj sredstava, kontaktirajte nas na dsa.smart.start@gmail.com sa sledećim informacijama:\n\n• Broj vaše narudžbine\n• Razlog zahteva za povraćaj\n• Svi relevantni snimci ekrana ili dokumentacija"
+      },
+      {
+        "heading": "4. Obrada povraćaja",
+        "text": "Nakon što vaš zahtev za povraćaj bude odobren, obradićemo povraćaj u roku od 5–10 radnih dana. Povraćaj će biti izvršen na originalni način plaćanja koji je korišćen za kupovinu."
+      },
+      {
+        "heading": "5. Stavke koje ne podležu povraćaju",
+        "text": "Sledeće stavke ne ispunjavaju uslove za povraćaj:\n\n• Kursevi kod kojih je pristupljeno više od 20% sadržaja\n• Promotivne kupovine ili kupovine sa popustom (osim ako zakon nalaže drugačije)\n• Kursevi kupljeni pre više od 14 dana"
+      },
+      {
+        "heading": "6. Kontaktirajte nas",
+        "text": "Ako imate bilo kakva pitanja o našoj politici povraćaja, kontaktirajte nas na dsa.smart.start@gmail.com ili telefonom na +381 65 886 9930."
+      }
+    ]
+  },
+  "terms": {
+    "title": "Uslovi korišćenja",
+    "lastUpdated": "februar 2026",
+    "content": [
+      {
+        "heading": "1. Opšte odredbe",
+        "text": "Ovi Uslovi korišćenja („Uslovi“) regulišu kupovinu i korišćenje digitalnih obrazovnih proizvoda i usluga koje se nude putem veb sajta www.dsasmartstart.com („Veb sajt“).\n\nProdavac:\nANA MILATOVIĆ PR CENTAR ZA EDUKACIJE EDUWAY BEOGRAD (ZVEZDARA)\nAdresa: Vladana Desnice 28, Beograd, Republika Srbija\nMatični broj: 68375720\nPIB: 115450214\nŠifra delatnosti: 8559\nE-pošta: dsa.smart.start@gmail.com\nTelefon: +381 65 886 9930\n\nPoručivanjem na Veb sajtu potvrđujete da ste pročitali, razumeli i u potpunosti prihvatili ove Uslove."
+      },
+      {
+        "heading": "2. Predmet prodaje",
+        "text": "Veb sajt nudi digitalne obrazovne sadržaje, uključujući ali ne ograničavajući se na:\n\n• Onlajn kurseve (programi zasnovani na uslugama sa podrškom stručnjaka)\n• Interaktivne kurseve za samostalno učenje (e-learning moduli)\n• E-knjige i digitalne nastavne materijale\n\nSvi proizvodi se isporučuju digitalno. Fizička roba se ne šalje."
+      },
+      {
+        "heading": "3. Postupak naručivanja i kupovine",
+        "text": "Za kupovinu proizvoda:\n\n1. Pregledajte katalog kurseva i izaberite proizvode za dodavanje u Korpu.\n2. Pregledajte stavke u Korpi, uključujući sve dodatne nastavne materijale.\n3. Nastavite na Plaćanje, gde ćete uneti svoje ime i adresu e-pošte.\n4. Izaberite željeni način plaćanja (kreditna/debitna kartica ili PayPal).\n5. Prihvatite ove Uslove korišćenja i našu Politiku privatnosti.\n6. Završite plaćanje putem bezbednog platnog sistema.\n7. Nakon uspešnog plaćanja, dobićete trenutni digitalni pristup kupljenom sadržaju putem vaše Kontrolne table.\n\nMorate kreirati nalog ili se prijaviti pre završetka kupovine."
+      },
+      {
+        "heading": "4. Cene i plaćanje",
+        "text": "Sve cene na Veb sajtu su prikazane u EUR (evrima).\n\nPlaćanje se prihvata putem:\n• Kreditnih/debitnih kartica (Visa, MasterCard, DinaCard) — obrađuje se bezbedno putem Raiffeisen Banke a.d. Beograd\n• PayPal\n\nNapomena o konverziji valuta: Sve cene na Veb sajtu su prikazane u EUR. Kartična plaćanja (Visa, MasterCard, DinaCard) se obrađuju u RSD (srpskim dinarima) po fiksnom kursu prikazanom na stranici za plaćanje. Tačan iznos u RSD je prikazan pre potvrde plaćanja. PayPal plaćanja se obrađuju direktno u EUR.\n\nSve prikazane cene su konačne. Prodavac trenutno nije u sistemu PDV-a — prikazane cene ne podležu PDV-u. Ukoliko se ovaj status promeni, ovi Uslovi će biti ažurirani u skladu s tim."
+      },
+      {
+        "heading": "5. Digitalna isporuka",
+        "text": "Svi proizvodi se isporučuju digitalno. Nakon uspešne potvrde plaćanja, kupljeni sadržaj postaje odmah dostupan putem vaše lične Kontrolne table na Veb sajtu.\n\nNe vrši se fizička isporuka niti slanje. Pristup se odobrava za trajanje navedeno u opisu proizvoda (obično doživotni pristup za kupljene kurseve)."
+      },
+      {
+        "heading": "6. Pravo na odustanak",
+        "text": "U skladu sa Zakonom o zaštiti potrošača Republike Srbije (Zakon o zaštiti potrošača, Službeni glasnik RS), imate pravo da odustanete od kupovine u roku od 14 dana od datuma kupovine, bez navođenja razloga.\n\nDa biste ostvarili ovo pravo, morate nas obavestiti u pisanom obliku na dsa.smart.start@gmail.com sa brojem narudžbine i jasnom izjavom o nameri da odustanete.\n\nVažan izuzetak za digitalni sadržaj: U skladu sa članom 37. Zakona o zaštiti potrošača, pravo na odustanak se ne primenjuje ako je isporuka digitalnog sadržaja započela uz vašu izričitu prethodnu saglasnost i vaše potvrđivanje da time gubite pravo na odustanak. Pristupanjem kupljenom digitalnom sadržaju, dajete saglasnost za trenutnu isporuku i potvrđujete gubitak prava na odustanak.\n\nAko niste pristupili više od 20% kupljenog sadržaja, imate pravo na pun povraćaj sredstava u roku od 14 dana."
+      },
+      {
+        "heading": "7. Postupak reklamacije (Reklamacije)",
+        "text": "Ako niste zadovoljni kupovinom ili imate bilo kakve probleme, imate pravo da podnesete reklamaciju.\n\nKako podneti reklamaciju:\n• Pošaljite e-poštu na: dsa.smart.start@gmail.com\n• Navedite: vaše puno ime, broj narudžbine, adresu e-pošte korišćenu za kupovinu i detaljan opis problema\n\nRok za odgovor: U skladu sa Zakonom o zaštiti potrošača Republike Srbije, potvrdićemo prijem vaše reklamacije u roku od 8 dana i pružiti rešenje ili obrazložen odgovor u roku od 15 dana.\n\nMogućnosti rešavanja uključuju:\n• Tehničku podršku za rešavanje problema sa pristupom\n• Potpuni ili delimični povraćaj sredstava\n• Zamenu pristupa ili kredit\n\nAko niste zadovoljni našim rešenjem, možete se obratiti:\n• Ministarstvu trgovine, turizma i telekomunikacija Republike Srbije\n• Nadležnoj Tržišnoj inspekciji\n• Telu za alternativno rešavanje sporova\n\nSve reklamacije se evidentiraju i tretiraju kao poverljive."
+      },
+      {
+        "heading": "8. Politika povraćaja",
+        "text": "Povraćaji se obrađuju u skladu sa našom Politikom povraćaja i reklamacija. Ključni uslovi:\n\n• Zahtevi za povraćaj moraju biti podneti u roku od 14 dana od kupovine\n• Ne smete pristupiti više od 20% sadržaja kursa\n• Odobreni povraćaji se obrađuju u roku od 5–10 radnih dana na originalni način plaćanja\n• Promotivne kupovine ili kupovine sa velikim popustom možda neće ispunjavati uslove za povraćaj (osim ako zakon nalaže drugačije)\n\nZa sve detalje, pogledajte našu stranicu Politika povraćaja i reklamacija."
+      },
+      {
+        "heading": "9. Intelektualna svojina",
+        "text": "Sav sadržaj na Veb sajtu — uključujući kurseve, e-knjige, video materijale, tekst, slike i softver — predstavlja intelektualnu svojinu EDUWAY ili njenih davalaca licence i zaštićen je zakonima o autorskim pravima i intelektualnoj svojini.\n\nKupovinom proizvoda dobijate ličnu, neprenosivu, neekskluzivnu licencu za pristup i korišćenje sadržaja u sopstvene obrazovne svrhe. Ne smete:\n\n• Kopirati, reprodukovati, distribuirati ili deliti kupljeni sadržaj sa trećim licima\n• Menjati, kreirati izvedena dela ili vršiti obrnuti inženjering bilo kog sadržaja\n• Koristiti sadržaj u komercijalne svrhe ili za dalju prodaju\n• Deliti svoje pristupne podatke sa drugima"
+      },
+      {
+        "heading": "10. Ograničenje odgovornosti",
+        "text": "EDUWAY pruža obrazovne sadržaje na osnovi „takvo kakvo jeste“. Iako se trudimo da osiguramo tačnost i kvalitet, ne garantujemo specifične ishode učenja ili rezultate.\n\nU najvećoj meri dozvoljenoj zakonom, EDUWAY neće biti odgovoran za bilo kakvu indirektnu, slučajnu, posebnu ili posledičnu štetu koja proizilazi iz korišćenja naših proizvoda ili usluga."
+      },
+      {
+        "heading": "11. Privatnost i zaštita podataka",
+        "text": "Posvećeni smo zaštiti vaših ličnih podataka u skladu sa važećim zakonima o zaštiti podataka. Za kompletne detalje o tome kako prikupljamo, koristimo i štitimo vaše informacije, pogledajte našu Politiku privatnosti.\n\nPodaci o plaćanju se obrađuju direktno od strane pružaoca platnih usluga (Raiffeisen Banka a.d. Beograd / PayPal) i ne čuvaju se na našim serverima."
+      },
+      {
+        "heading": "12. Merodavno pravo i sporovi",
+        "text": "Ovi Uslovi su regulisani zakonima Republike Srbije. Svi sporovi koji proizilaze iz ili su vezani za ove Uslove biće rešavani od strane nadležnog suda u Beogradu, Republika Srbija.\n\nPre pokretanja pravnog postupka, strane se saglašavaju da će pokušati da reše svaki spor sporazumno putem direktne komunikacije."
+      },
+      {
+        "heading": "13. Izmene ovih Uslova",
+        "text": "Zadržavamo pravo da ažuriramo ove Uslove u bilo kom trenutku. Izmene stupaju na snagu objavljivanjem na Veb sajtu. Nastavak korišćenja Veb sajta nakon izmena predstavlja prihvatanje ažuriranih Uslova.\n\nDatum poslednjeg ažuriranja je naveden na vrhu ove stranice."
+      },
+      {
+        "heading": "14. Kontakt informacije",
+        "text": "Za sva pitanja u vezi sa ovim Uslovima korišćenja, kontaktirajte nas:\n\nANA MILATOVIĆ PR CENTAR ZA EDUKACIJE EDUWAY\nAdresa: Vladana Desnice 28, Beograd, Srbija\nE-pošta: dsa.smart.start@gmail.com\nTelefon: +381 65 886 9930\nVeb sajt: www.dsasmartstart.com"
+      }
+    ]
+  }
+}

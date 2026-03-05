@@ -1,6 +1,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Layers, Compass, Zap, Music, Play, Award, Star, ChevronRight, CheckCircle2, Clock, Sparkles, BookOpen, ShoppingCart, Check, Rocket, Shield, ArrowDown, Filter, Search, BarChart3, Globe, ArrowRight, Plus, Crown, Diamond, Users, Video, FileCheck, GraduationCap, FileText, MonitorPlay, Package, Briefcase, Eye, Baby } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { coursesApi, catalogApi } from '../data/supabaseStore';
 import { Course, ProductType, TargetAudience } from '../types';
 import WaveSeparator from './WaveSeparator';
@@ -11,6 +12,7 @@ type CatalogTab = 'live' | 'ebooks';
 
 // Category Selector Component — Two large visual cards matching the design
 const CategorySelector: React.FC<{ activeTab: CatalogTab; onTabChange: (tab: CatalogTab) => void }> = ({ activeTab, onTabChange }) => {
+  const { t } = useTranslation('courses');
   return (
     <div className="grid grid-cols-2 gap-4 sm:gap-6 max-w-xl mx-auto">
       {/* Live Courses Card */}
@@ -25,7 +27,7 @@ const CategorySelector: React.FC<{ activeTab: CatalogTab; onTabChange: (tab: Cat
         <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center mb-4 shadow-lg group-hover:scale-105 transition-transform">
           <Users size={36} className="text-white" />
         </div>
-        <span className="text-sm sm:text-base font-black text-white uppercase tracking-widest leading-tight text-center">Live<br/>Courses</span>
+        <span className="text-sm sm:text-base font-black text-white uppercase tracking-widest leading-tight text-center">{t('coursesPage.tabs.liveCourses').split('\n').map((l, i) => <React.Fragment key={i}>{i > 0 && <br/>}{l}</React.Fragment>)}</span>
       </button>
 
       {/* Ebook Card */}
@@ -40,7 +42,7 @@ const CategorySelector: React.FC<{ activeTab: CatalogTab; onTabChange: (tab: Cat
         <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-[#AB8FFF] to-pink-500 flex items-center justify-center mb-4 shadow-lg group-hover:scale-105 transition-transform">
           <FileText size={36} className="text-white" />
         </div>
-        <span className="text-sm sm:text-base font-black text-white uppercase tracking-widest leading-tight text-center">Ebook</span>
+        <span className="text-sm sm:text-base font-black text-white uppercase tracking-widest leading-tight text-center">{t('coursesPage.tabs.ebook')}</span>
       </button>
     </div>
   );
@@ -69,29 +71,12 @@ const PRODUCT_TYPE_ICONS: Record<ProductType, React.ReactNode> = {
   'service': <Users size={16} />,
 };
 
-// Live course features data — keyed by level slug
-const COURSE_FEATURES: Record<string, { icon: React.ReactNode; text: string }[]> = {
-  'language-lab': [
-    { icon: <Users size={18} />, text: '8 lab sessions with 3-4 students' },
-    { icon: <Clock size={18} />, text: '50 minute classes' },
-    { icon: <FileCheck size={18} />, text: 'No material included' },
-  ],
-  'starter-path': [
-    { icon: <Video size={18} />, text: '5 one-to-one lessons' },
-    { icon: <Clock size={18} />, text: '30 minute classes' },
-    { icon: <FileCheck size={18} />, text: 'No material included' },
-  ],
-  'language-lab-pro': [
-    { icon: <Users size={18} />, text: '30 lab sessions with 3-4 students' },
-    { icon: <Clock size={18} />, text: '50 minute classes' },
-    { icon: <BookOpen size={18} />, text: 'Material included' },
-  ],
-  'hybrid-pack': [
-    { icon: <Users size={18} />, text: '25 lab sessions with 3-4 students' },
-    { icon: <Video size={18} />, text: '5 one-to-one lessons' },
-    { icon: <Clock size={18} />, text: '30 min one-to-one / 50 min lab classes' },
-    { icon: <BookOpen size={18} />, text: 'Material included' },
-  ],
+// Live course feature icons — keyed by level slug
+const FEATURE_ICONS: Record<string, React.ReactNode[]> = {
+  'language-lab': [<Users size={18} />, <Clock size={18} />, <FileCheck size={18} />],
+  'starter-path': [<Video size={18} />, <Clock size={18} />, <FileCheck size={18} />],
+  'language-lab-pro': [<Users size={18} />, <Clock size={18} />, <BookOpen size={18} />],
+  'hybrid-pack': [<Users size={18} />, <Video size={18} />, <Clock size={18} />, <BookOpen size={18} />],
 };
 
 // Style config per live course level
@@ -153,15 +138,17 @@ interface CourseCardProps {
 
 // Live Course Card Component — data-driven for all service levels
 const PremiumCourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, onAddToCart, onRemoveFromCart }) => {
+  const { t } = useTranslation('courses');
   const s = SERVICE_STYLES[course.level] || DEFAULT_SERVICE_STYLE;
-  const features = COURSE_FEATURES[course.level] || [];
+  const featureTexts = (t(`courseFeatures.${course.level}`, { returnObjects: true }) as string[]) || [];
+  const featureIcons = FEATURE_ICONS[course.level] || [];
   
   const coursePrice = course.pricing?.price;
   const discountPrice = course.pricing?.discountPrice;
   
   const price = discountPrice !== undefined 
     ? `€${discountPrice.toFixed(0)}` 
-    : (coursePrice !== undefined ? `€${coursePrice.toFixed(0)}` : 'Free');
+    : (coursePrice !== undefined ? `€${coursePrice.toFixed(0)}` : t('shared.free'));
     
   const originalPrice = discountPrice !== undefined && coursePrice !== undefined
     ? `€${coursePrice.toFixed(0)}`
@@ -204,7 +191,7 @@ const PremiumCourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, o
             </div>
             {originalPrice && (
               <div className={`px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-wider ${s.featureBg} ${s.priceText}`}>
-                Save €{savings}
+                {t('coursesPage.liveCard.save', { amount: savings })}
               </div>
             )}
           </div>
@@ -229,14 +216,14 @@ const PremiumCourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, o
 
           {/* Features List */}
           <div className="mb-10">
-            <div className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-4">What's Included</div>
+            <div className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-4">{t('coursesPage.liveCard.whatsIncluded')}</div>
             <div className="space-y-3">
-              {features.map((feature, i) => (
+              {featureTexts.map((text, i) => (
                 <div key={i} className="flex items-start gap-3 group/item">
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all group-hover/item:scale-110 ${s.featureBg} ${s.featureText}`}>
-                    {feature.icon}
+                    {featureIcons[i] || <CheckCircle2 size={18} />}
                   </div>
-                  <span className="text-white/80 text-sm font-medium leading-relaxed">{feature.text}</span>
+                  <span className="text-white/80 text-sm font-medium leading-relaxed">{text}</span>
                 </div>
               ))}
             </div>
@@ -255,7 +242,7 @@ const PremiumCourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, o
                 }`}
               >
                 {isInCart ? <Check size={16} /> : <ShoppingCart size={16} />}
-                {isInCart ? 'In Cart' : 'Add to Cart'}
+                {isInCart ? t('coursesPage.liveCard.inCart') : t('coursesPage.liveCard.addToCart')}
               </button>
               
               {/* Buy Now */}
@@ -267,7 +254,7 @@ const PremiumCourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, o
                 }}
                 className={`flex items-center justify-center gap-2 py-4 rounded-2xl text-sm font-black uppercase tracking-widest transition-all transform hover:scale-[1.02] active:scale-[0.98] ${s.ctaGradient} ${s.ctaText} shadow-xl ${s.ctaShadow}`}
               >
-                Buy Now
+                {t('coursesPage.liveCard.buyNow')}
                 <ArrowRight size={16} />
               </button>
             </div>
@@ -277,11 +264,11 @@ const PremiumCourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, o
           <div className="mt-8 pt-6 border-t border-white/10 flex items-center justify-center gap-6">
             <div className="flex items-center gap-2 text-white/40 text-[10px] font-bold uppercase tracking-wider">
               <Shield size={14} />
-              Secure Payment
+              {t('coursesPage.liveCard.securePayment')}
             </div>
             <div className="flex items-center gap-2 text-white/40 text-[10px] font-bold uppercase tracking-wider">
               <Award size={14} />
-              Certificate Included
+              {t('coursesPage.liveCard.certificateIncluded')}
             </div>
           </div>
         </div>
@@ -291,6 +278,7 @@ const PremiumCourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, o
 };
 
 const CourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, onAddToCart, onRemoveFromCart }) => {
+  const { t } = useTranslation('courses');
   const config = LEVEL_CONFIG[course.level] || LEVEL_CONFIG['A1'];
   const isPink = config.isPink;
   const features = (course as any).features ? JSON.parse((course as any).features) : [];
@@ -304,7 +292,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, onAddToC
   
   const price = discountPrice !== undefined 
     ? `€${discountPrice.toFixed(2)}` 
-    : (coursePrice !== undefined ? `€${coursePrice.toFixed(2)}` : 'Free');
+    : (coursePrice !== undefined ? `€${coursePrice.toFixed(2)}` : t('coursesPage.ebookCard.free'));
     
   const originalPrice = discountPrice !== undefined && coursePrice !== undefined
     ? `€${coursePrice.toFixed(2)}`
@@ -321,7 +309,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, onAddToC
       {idx === 1 && (
         <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-[#AB8FFF] to-pink-500 text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-purple-500/30 flex items-center gap-2 z-10">
           <Star size={12} fill="currentColor" />
-          Most Popular
+          {t('coursesPage.ebookCard.mostPopular')}
         </div>
       )}
 
@@ -341,19 +329,19 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, onAddToC
             <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mb-3">
               {config.icon}
             </div>
-            <p className="text-sm font-bold text-white/80">Digital E-book</p>
+            <p className="text-sm font-bold text-white/80">{t('coursesPage.ebookCard.digitalEbook')}</p>
           </div>
         )}
         {/* Level Badge */}
         <div className={`absolute top-4 right-4 px-4 py-1.5 rounded-full border text-[11px] font-black uppercase tracking-widest backdrop-blur-sm ${isPink ? 'bg-pink-500/80 text-white border-pink-400/50' : 'bg-indigo-500/80 text-white border-indigo-400/50'}`}>
-          Level {course.level}
+          {t('coursesPage.ebookCard.level', { level: course.level })}
         </div>
         {/* Coming Soon overlay */}
         {isComingSoon && (
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
             <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-black/60 backdrop-blur-sm rounded-full border border-[#AB8FFF]/40 animate-pulse">
               <Clock size={14} className="text-[#AB8FFF]" />
-              <span className="text-sm font-black text-[#AB8FFF] uppercase tracking-widest">Coming Soon</span>
+              <span className="text-sm font-black text-[#AB8FFF] uppercase tracking-widest">{t('coursesPage.ebookCard.comingSoon')}</span>
             </div>
           </div>
         )}
@@ -389,7 +377,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, onAddToC
               }`}
             >
               {isInCart ? <Check size={12} /> : <ShoppingCart size={12} />}
-              {isInCart ? 'In Cart' : 'Add to Cart'}
+              {isInCart ? t('coursesPage.ebookCard.inCart') : t('coursesPage.ebookCard.addToCart')}
             </button>
             
             {/* Buy Now */}
@@ -404,7 +392,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, onAddToC
                   ? 'bg-gradient-to-r from-pink-500 to-rose-500 hover:shadow-pink-500/30'
                   : 'bg-[#AB8FFF] hover:bg-[#9a7eef] hover:shadow-purple-500/30'
               }`}>
-              Buy Now
+              {t('coursesPage.ebookCard.buyNow')}
               <ArrowRight size={12} />
             </button>
           </div>
@@ -431,6 +419,7 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
   onAddToCart: externalAddToCart,
   defaultTab 
 }) => {
+  const { t } = useTranslation('courses');
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
@@ -666,7 +655,7 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-white mb-3">Oops! Something went wrong</h2>
+          <h2 className="text-2xl font-bold text-white mb-3">{t('coursesPage.error.title')}</h2>
           <p className="text-gray-400 mb-6">{loadError}</p>
           <button
             onClick={retryLoadCourses}
@@ -675,7 +664,7 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            Try Again
+            {t('coursesPage.error.retry')}
           </button>
         </div>
       </div>
@@ -697,23 +686,27 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
           
           <div className="flex items-center gap-4 mb-8 sm:mb-12 opacity-80 animate-reveal">
             <div className="h-[1px] w-8 bg-[#AB8FFF]"></div>
-            <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-gray-300">Premium Learning Path</span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-gray-300">{t('coursesPage.hero.badge')}</span>
             <div className="h-[1px] w-8 bg-[#AB8FFF]"></div>
           </div>
 
           <div className="relative flex flex-col items-center mb-10 w-full">
             <h1 className="text-4xl sm:text-7xl md:text-9xl font-black text-white tracking-tighter leading-[0.9] animate-reveal transition-transform duration-500 flex flex-wrap justify-center gap-x-2 sm:gap-x-6"
                 style={{ transform: `translate(${mousePos.x * 0.3}px, ${mousePos.y * 0.3}px)` }}>
-              <span>EXPLORE</span> 
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-[#AB8FFF] to-pink-500 ">COURSES</span>
+              <span>{t('coursesPage.hero.titleLine1')}</span> 
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-[#AB8FFF] to-pink-500 ">{t('coursesPage.hero.titleLine2')}</span>
             </h1>
           </div>
 
           <div className="max-w-3xl animate-reveal stagger-1 flex flex-col items-center" style={{ transform: `translate(${mousePos.x * 0.1}px, ${mousePos.y * 0.1}px)` }}>
              <p className="text-lg sm:text-xl md:text-3xl font-medium text-gray-300 text-center uppercase tracking-tight leading-snug mb-10">
-               Scientifically designed for the <span className="text-[#AB8FFF] font-bold">dyslexic mind</span>.
+               {t('coursesPage.hero.subtitle', { returnObjects: false }).split('<1>').map((part: string, i: number) => {
+                 if (i === 0) return part;
+                 const [highlighted, rest] = part.split('</1>');
+                 return <React.Fragment key={i}><span className="text-[#AB8FFF] font-bold">{highlighted}</span>{rest}</React.Fragment>;
+               })}
                <br/>
-               <span className="text-base sm:text-lg md:text-xl text-gray-400 normal-case mt-4 block">Visual, multisensory, and inclusive learning approach.</span>
+               <span className="text-base sm:text-lg md:text-xl text-gray-400 normal-case mt-4 block">{t('coursesPage.hero.subtitleSecondary')}</span>
              </p>
 
 
@@ -744,15 +737,19 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
                 <div className="h-[1px] w-16 bg-gradient-to-r from-transparent to-violet-400"></div>
                 <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-violet-500/20 to-amber-500/20 border border-violet-500/30">
                   <Briefcase size={14} className="text-violet-400" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-violet-400">Live Programs</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-violet-400">{t('coursesPage.liveSection.badge')}</span>
                 </div>
                 <div className="h-[1px] w-16 bg-gradient-to-l from-transparent to-amber-400"></div>
               </div>
               <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
-                Live Online <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-amber-400">Learning Programs</span>
+                {t('coursesPage.liveSection.title', { returnObjects: false }).split('<1>').map((part: string, i: number) => {
+                  if (i === 0) return part;
+                  const [highlighted, rest] = part.split('</1>');
+                  return <React.Fragment key={i}><span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-amber-400">{highlighted}</span>{rest}</React.Fragment>;
+                })}
               </h2>
               <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-                Our most comprehensive programs combining individual lessons, group workshops, and full support for transformative English learning.
+                {t('coursesPage.liveSection.description')}
               </p>
             </div>
             
@@ -775,9 +772,9 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
                 <div className="w-16 h-16 bg-violet-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-violet-400">
                   <Users size={24} />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">Live Courses Coming Soon!</h3>
+                <h3 className="text-xl font-bold text-white mb-2">{t('coursesPage.emptyStates.liveComingSoonTitle')}</h3>
                 <p className="text-gray-400 font-medium max-w-md mx-auto">
-                  Our live courses are being prepared. Check back soon!
+                  {t('coursesPage.emptyStates.liveComingSoonDesc')}
                 </p>
               </div>
             )}
@@ -790,15 +787,19 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
                     <div className="h-[1px] w-16 bg-gradient-to-r from-transparent to-[#AB8FFF]"></div>
                     <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#AB8FFF]/20 border border-[#AB8FFF]/30">
                       <MonitorPlay size={14} className="text-[#AB8FFF]" />
-                      <span className="text-[10px] font-black uppercase tracking-widest text-[#AB8FFF]">Interactive Learning</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-[#AB8FFF]">{t('coursesPage.interactiveSection.badge')}</span>
                     </div>
                     <div className="h-[1px] w-16 bg-gradient-to-l from-transparent to-[#AB8FFF]"></div>
                   </div>
                   <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
-                    Interactive <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#AB8FFF] to-pink-500">Video Courses</span>
+                    {t('coursesPage.interactiveSection.title', { returnObjects: false }).split('<1>').map((part: string, i: number) => {
+                      if (i === 0) return part;
+                      const [highlighted, rest] = part.split('</1>');
+                      return <React.Fragment key={i}><span className="text-transparent bg-clip-text bg-gradient-to-r from-[#AB8FFF] to-pink-500">{highlighted}</span>{rest}</React.Fragment>;
+                    })}
                   </h2>
                   <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-                    Self-paced video lessons, quizzes, and exercises designed for the dyslexic mind.
+                    {t('coursesPage.interactiveSection.description')}
                   </p>
                 </div>
 
@@ -808,7 +809,7 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
                     <div className="flex items-center gap-6 mb-6">
                       <div className="flex items-center gap-3">
                         <MonitorPlay size={20} className="text-[#AB8FFF]" />
-                        <h3 className="text-2xl font-black text-white whitespace-nowrap">Adults & Teens</h3>
+                        <h3 className="text-2xl font-black text-white whitespace-nowrap">{t('coursesPage.audienceLabels.adultsTeens')}</h3>
                       </div>
                       <div className="h-[2px] flex-grow bg-gradient-to-r from-[#AB8FFF] to-transparent rounded-full"></div>
                     </div>
@@ -819,7 +820,7 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
                         className="inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
                       >
                         <GraduationCap size={20} />
-                        Take the Test — Teens & Adults
+                        {t('coursesPage.assessmentButtons.takeTestTeens')}
                       </button>
                     </div>
 
@@ -844,7 +845,7 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
                     <div className="flex items-center gap-6 mb-6">
                       <div className="flex items-center gap-3">
                         <MonitorPlay size={20} className="text-pink-400" />
-                        <h3 className="text-2xl font-black text-white whitespace-nowrap">Kids</h3>
+                        <h3 className="text-2xl font-black text-white whitespace-nowrap">{t('coursesPage.audienceLabels.kids')}</h3>
                       </div>
                       <div className="h-[2px] flex-grow bg-gradient-to-r from-pink-400 to-transparent rounded-full"></div>
                     </div>
@@ -855,7 +856,7 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
                         className="inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
                       >
                         <Baby size={20} />
-                        Take the Test — Kids
+                        {t('coursesPage.assessmentButtons.takeTestKids')}
                       </button>
                     </div>
 
@@ -889,15 +890,19 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
                 <div className="h-[1px] w-16 bg-gradient-to-r from-transparent to-[#AB8FFF]"></div>
                 <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#AB8FFF]/20 border border-[#AB8FFF]/30">
                   <FileText size={14} className="text-[#AB8FFF]" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-[#AB8FFF]">Digital Books</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-[#AB8FFF]">{t('coursesPage.ebookSection.badge')}</span>
                 </div>
                 <div className="h-[1px] w-16 bg-gradient-to-l from-transparent to-[#AB8FFF]"></div>
               </div>
               <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
-                Comprehensive <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#AB8FFF] to-pink-500">E-books</span>
+                {t('coursesPage.ebookSection.title', { returnObjects: false }).split('<1>').map((part: string, i: number) => {
+                  if (i === 0) return part;
+                  const [highlighted, rest] = part.split('</1>');
+                  return <React.Fragment key={i}><span className="text-transparent bg-clip-text bg-gradient-to-r from-[#AB8FFF] to-pink-500">{highlighted}</span>{rest}</React.Fragment>;
+                })}
               </h2>
               <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-                Downloadable PDF guides with vocabulary, grammar, and exercises. Perfect for offline study and reference.
+                {t('coursesPage.ebookSection.description')}
               </p>
             </div>
 
@@ -907,7 +912,7 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
                 <div className="flex items-center gap-6 mb-6">
                   <div className="flex items-center gap-3">
                     <FileText size={20} className="text-[#AB8FFF]" />
-                    <h3 className="text-2xl font-black text-white whitespace-nowrap">Adults & Teens</h3>
+                    <h3 className="text-2xl font-black text-white whitespace-nowrap">{t('coursesPage.audienceLabels.adultsTeens')}</h3>
                   </div>
                   <div className="h-[2px] flex-grow bg-gradient-to-r from-[#AB8FFF] to-transparent rounded-full"></div>
                 </div>
@@ -919,7 +924,7 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
                     className="inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
                   >
                     <GraduationCap size={20} />
-                    Find Your Level — Teens & Adults
+                    {t('coursesPage.assessmentButtons.findLevelTeens')}
                   </button>
                 </div>
 
@@ -944,7 +949,7 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
                 <div className="flex items-center gap-6 mb-6">
                   <div className="flex items-center gap-3">
                     <FileText size={20} className="text-pink-400" />
-                    <h3 className="text-2xl font-black text-white whitespace-nowrap">Kids</h3>
+                    <h3 className="text-2xl font-black text-white whitespace-nowrap">{t('coursesPage.audienceLabels.kids')}</h3>
                   </div>
                   <div className="h-[2px] flex-grow bg-gradient-to-r from-pink-400 to-transparent rounded-full"></div>
                 </div>
@@ -956,7 +961,7 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
                     className="inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
                   >
                     <Baby size={20} />
-                    Find Your Level — Kids
+                    {t('coursesPage.assessmentButtons.findLevelKids')}
                   </button>
                 </div>
 
@@ -981,9 +986,9 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
                 <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-purple-400">
                   <FileText size={24} />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">E-books Coming Soon!</h3>
+                <h3 className="text-xl font-bold text-white mb-2">{t('coursesPage.emptyStates.ebooksComingSoonTitle')}</h3>
                 <p className="text-gray-400 font-medium max-w-md mx-auto">
-                  We're preparing our comprehensive e-books. Check back soon!
+                  {t('coursesPage.emptyStates.ebooksComingSoonDesc')}
                 </p>
               </div>
             )}
@@ -996,9 +1001,9 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
              <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
                <BookOpen size={24} />
              </div>
-             <h3 className="text-xl font-bold text-white mb-2">Courses Coming Soon!</h3>
+             <h3 className="text-xl font-bold text-white mb-2">{t('coursesPage.emptyStates.coursesComingSoonTitle')}</h3>
              <p className="text-gray-400 font-medium max-w-md mx-auto">
-               We're preparing our courses for you. Check back soon for our complete learning paths designed for all levels.
+               {t('coursesPage.emptyStates.coursesComingSoonDesc')}
              </p>
            </div>
         )}

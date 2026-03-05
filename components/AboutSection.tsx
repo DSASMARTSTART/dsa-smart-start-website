@@ -1,12 +1,15 @@
 
 import React from 'react';
 import { ChevronRight, Users, Sparkles } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface AboutSectionProps {
   onNavigate?: (path: string) => void;
 }
 
 const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate }) => {
+  const { t } = useTranslation('home');
+
   return (
     <section className="relative bg-black py-24 md:py-32 px-6 overflow-hidden">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -18,21 +21,21 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate }) => {
               <Users size={28} />
             </div>
             <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter">
-              Who are we?
+              {t('about.title')}
             </h2>
           </div>
 
           <div className="space-y-8">
             <p className="text-2xl md:text-3xl font-bold text-white leading-tight">
-              We are here to break down every <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#9b4dff] via-[#8a3ffc] to-[#ff2d85]">barrier</span> and prejudice built against those with learning difficulties.
+              {t('about.headline', { defaultValue: '' }).split('<1>')[0]}<span className="text-transparent bg-clip-text bg-gradient-to-r from-[#9b4dff] via-[#8a3ffc] to-[#ff2d85]">{t('about.headline', { defaultValue: '' }).match(/<1>(.*?)<\/1>/)?.[1]}</span>{t('about.headline', { defaultValue: '' }).split('</1>')[1]}
             </p>
 
             <div className="w-20 h-1.5 bg-gradient-to-r from-purple-600 to-pink-500 rounded-full" />
 
             <p className="text-lg text-gray-300 leading-relaxed max-w-xl">
-              <span className="font-black text-white uppercase tracking-tighter">DSA SMART START</span> is a group of highly qualified language professionals, supported by psychology experts. 
+              <span className="font-black text-white uppercase tracking-tighter">{t('about.body1', { defaultValue: '' }).match(/<0>(.*?)<\/0>/)?.[1]}</span> {t('about.body1', { defaultValue: '' }).split('</0>')[1]}
               <br /><br />
-              Since 2008, our team has supported children and adults with dyslexia in their English language studies, offering targeted tools and strategies. We transform challenges into real opportunities for growth.
+              {t('about.body2')}
             </p>
           </div>
 
@@ -41,7 +44,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate }) => {
               onClick={() => onNavigate?.('who-we-are')}
               className="group flex items-center gap-3 bg-[#25D366] text-white px-10 py-4 rounded-full font-black text-xs tracking-widest transition-all duration-300 uppercase hover:bg-[#1ebe5d] hover:-translate-y-1 shadow-xl shadow-[#25D366]/30"
             >
-              Find out more
+              {t('about.cta')}
               <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
@@ -62,9 +65,9 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate }) => {
             <div className="absolute bottom-8 left-8 bg-black/80 backdrop-blur-md p-6 rounded-3xl shadow-xl border border-white/10 max-w-[200px]">
               <div className="flex items-center gap-2 mb-2">
                 <Sparkles className="text-purple-400" size={16} />
-                <span className="text-[10px] font-black uppercase text-purple-400">Experts</span>
+                <span className="text-[10px] font-black uppercase text-purple-400">{t('about.badgeLabel')}</span>
               </div>
-              <p className="text-xs font-bold text-white">Dedicated specialists working for your success.</p>
+              <p className="text-xs font-bold text-white">{t('about.badgeText')}</p>
             </div>
           </div>
         </div>

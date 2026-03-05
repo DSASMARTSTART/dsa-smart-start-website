@@ -1,0 +1,186 @@
+{
+  "title": "Plaćanje",
+  "backButton": "Vrati se na prethodnu stranicu",
+  "backButtonMobile": "Nazad",
+
+  "emptyCart": {
+    "title": "Vaša korpa je prazna",
+    "description": "Započnite svoje putovanje učenja danas! Pregledajte naše kurseve posebno dizajnirane za učenike sa teškoćama u učenju.",
+    "popularChoices": "Popularni izbori:",
+    "choice1": "Interaktivni kursevi engleskog A1-B1",
+    "choice2": "Programi engleskog za decu (od osnovnog do naprednog)",
+    "choice3": "Premium i Gold programi za intenzivno učenje",
+    "browseCourses": "Pregledaj kurseve"
+  },
+
+  "paymentNotConfigured": {
+    "title": "Potrebno je podesiti plaćanje",
+    "description": "Obrada plaćanja još nije konfigurisana. Kontaktirajte nas kako biste završili upis.",
+    "yourCourses": "Vaši kursevi:",
+    "contactButton": "Kontaktirajte nas za upis"
+  },
+
+  "studentInfo": {
+    "title": "Podaci o učeniku",
+    "fullName": "Ime i prezime",
+    "emailAddress": "Email adresa",
+    "namePlaceholder": "Vaše ime",
+    "emailPlaceholder": "email@primer.com"
+  },
+
+  "loginBanner": {
+    "title": "Prijavite se da biste završili kupovinu",
+    "description": "Nalog je potreban kako bi vaši kursevi bili vidljivi na kontrolnoj tabli nakon kupovine.",
+    "button": "Prijava / Registracija"
+  },
+
+  "paymentMethod": {
+    "title": "Način plaćanja",
+    "card": "Kreditna / Debitna kartica",
+    "cardDescription": "Sigurno plaćanje putem Raiffeisen Bank",
+    "paypal": "PayPal",
+    "paypalDescription": "Platite sigurno sa vašim PayPal nalogom",
+    "selectPrompt": "Molimo izaberite način plaćanja iznad",
+    "bankNotice": "Sigurni obrazac za plaćanje Raiffeisen Bank će se pojaviti na ovoj stranici kako biste uneli podatke o kartici.",
+    "loadingPaypal": "Učitavanje PayPal-a...",
+    "redirecting": "PREUSMERAVANJE NA PLAĆANJE...",
+    "proceedToPayment": "NASTAVI NA PLAĆANJE ({{total}})"
+  },
+
+  "terms": {
+    "accept": "Prihvatam <termsLink>Uslove korišćenja</termsLink> i <privacyLink>Politiku privatnosti</privacyLink>",
+    "required": "Morate prihvatiti uslove da biste nastavili",
+    "termsConditions": "Uslovi korišćenja",
+    "privacyPolicy": "Politika privatnosti",
+    "acceptPlain": "Prihvatam Uslove korišćenja i Politiku privatnosti"
+  },
+
+  "orderSummary": {
+    "title": "Vaši kursevi",
+    "noItems": "Nema izabranih kurseva",
+    "subtotal": "Međuzbir",
+    "teachingMaterials": "Nastavni materijali",
+    "discountApplied": "Primenjen popust",
+    "total": "Ukupno",
+    "digitalNote": "📦 Digitalni proizvod — trenutni pristup nakon potvrde plaćanja",
+    "currencyNotice": "Sve cene su prikazane u EUR. Plaćanja karticom se obrađuju u RSD (srpski dinari) po fiksnom kursu od 1 EUR = {{rate}} RSD. Vaša kartica će biti zadužena za približno <strong>{{rsdAmount}}</strong> za ovu narudžbinu.",
+    "currencyNoticeLabel": "Napomena o valuti:"
+  },
+
+  "teachingMaterialsAddon": {
+    "title": "Nastavni materijali",
+    "description": "Priručnici i radne sveske"
+  },
+
+  "removal": {
+    "removing": "Uklanjanje: {{name}}",
+    "removedIn5s": "Biće uklonjeno za 5 sekundi",
+    "undo": "Poništi"
+  },
+
+  "promoCode": {
+    "label": "Promo kod",
+    "placeholder": "UNESITE KOD",
+    "apply": "Primeni",
+    "codeApplied": "Kod primenjen: {{code}}",
+    "invalid": "Nevažeći ili istekli kod za popust",
+    "expired": "Ovaj kod za popust je istekao",
+    "usageLimitReached": "Ovaj kod za popust je dostigao limit korišćenja",
+    "alreadyUsed": "Već ste iskoristili ovaj kod za popust",
+    "minOrder": "Za ovaj kod je potrebna minimalna narudžbina od {{amount}} (vaša narudžbina: {{orderTotal}})",
+    "deactivated": "Ovaj kod za popust je deaktiviran",
+    "unavailable": "Kodovi za popust trenutno nisu dostupni",
+    "noLongerValid": "Vaš kod za popust više nije važeći. Molimo pregledajte vašu narudžbinu.",
+    "expiredReview": "Vaš kod za popust je istekao. Molimo pregledajte vašu narudžbinu.",
+    "usageLimitReview": "Vaš kod za popust je dostigao limit korišćenja. Molimo pregledajte vašu narudžbinu.",
+    "deactivatedReview": "Vaš kod za popust je deaktiviran. Molimo pregledajte vašu narudžbinu."
+  },
+
+  "sellerInfo": {
+    "title": "Podaci o prodavcu",
+    "seller": "Prodavac:",
+    "sellerName": "ANA MILATOVIĆ PR CENTAR ZA EDUKACIJE EDUWAY",
+    "pib": "PIB:",
+    "mb": "MB:",
+    "productType": "Tip proizvoda:",
+    "productTypeValue": "Digitalni edukativni sadržaj",
+    "delivery": "Isporuka:",
+    "deliveryValue": "Trenutni digitalni pristup nakon plaćanja",
+    "rightToWithdraw": "Pravo na odustanak:",
+    "rightToWithdrawValue": "14 dana (pogledajte uslove)",
+    "fullTerms": "Kompletni Uslovi korišćenja →"
+  },
+
+  "benefits": {
+    "lifetimeUpdates": "Doživotna ažuriranja kurseva",
+    "certificate": "Zvanični DSA Smart Start sertifikat",
+    "support": "Prioritetna specijalizovana podrška 24/7",
+    "satisfaction": "Garancija zadovoljstva"
+  },
+
+  "emailConfirmation": "Potvrda narudžbine biće poslata na <strong>{{email}}</strong>",
+
+  "security": {
+    "sslSecured": "SSL zaštićeno",
+    "3dSecure": "3D Secure",
+    "raiffeisenProcessing": "Obradu plaćanja vrši Raiffeisen Bank",
+    "securePayment": "Sigurno plaćanje – Raiffeisen Bank"
+  },
+
+  "session": {
+    "expiringSoon": "Sesija uskoro ističe",
+    "expiresIn": "Vaša sesija za plaćanje ističe za {{minutes}} minut(a). Molimo završite kupovinu.",
+    "expired": "Vaša sesija za plaćanje je istekla. Molimo osvežite stranicu i pokušajte ponovo.",
+    "dismiss": "Zatvori"
+  },
+
+  "errors": {
+    "paymentCancelled": "Plaćanje je otkazano. Možete pokušati ponovo.",
+    "paymentFailed": "Plaćanje nije uspelo. Molimo pokušajte ponovo.",
+    "failedToComplete": "Nije uspelo završavanje kupovine",
+    "paypalError": "PayPal greška: {{message}}",
+    "acceptTerms": "Molimo prihvatite Uslove korišćenja da biste nastavili",
+    "fillNameEmail": "Molimo unesite vaše ime i email",
+    "emailRequired": "Email je obavezan",
+    "emailInvalid": "Molimo unesite ispravnu email adresu"
+  },
+
+  "announcements": {
+    "paymentSuccess": "Plaćanje uspešno! Vaša kupovina je potvrđena.",
+    "paymentSuccessShort": "Plaćanje uspešno! Vaši kursevi će uskoro biti dostupni.",
+    "paymentCancelled": "Plaćanje otkazano.",
+    "paymentFailed": "Plaćanje nije uspelo.",
+    "teachingMaterialsAdded": "Nastavni materijali dodati za {{name}}",
+    "teachingMaterialsRemoved": "Nastavni materijali uklonjeni za {{name}}",
+    "itemRemoved": "{{name}} uklonjeno iz korpe",
+    "itemWillBeRemoved": "{{name}} će biti uklonjeno. Pritisnite poništi da otkažete.",
+    "removalCancelled": "Uklanjanje {{name}} je otkazano",
+    "discountApplied": "Kod za popust primenjen! Uštedeli ste {{amount}}"
+  },
+
+  "success": {
+    "title": "Plaćanje uspešno!",
+    "description": "Vaši kursevi su sada otključani. Dobrodošli u DSA Smart Start porodicu! Email za potvrdu je poslat na {{email}}.",
+    "goToCourses": "Idi na Moje kurseve"
+  },
+
+  "successPage": {
+    "title": "Uplata primljena!",
+    "thankYou": "Hvala vam na kupovini, <strong>{{name}}</strong>!",
+    "verifying": "Vaša uplata se verifikuje. Vaš digitalni sadržaj će uskoro biti dostupan na kontrolnoj tabli.",
+    "digitalDelivery": "Svi kupljeni kursevi i materijali se isporučuju digitalno — nije potrebna fizička dostava.",
+    "confirmationEmail": "Email za potvrdu biće poslat na vašu registrovanu email adresu.",
+    "yourPurchase": "Vaša kupovina",
+    "yourPurchases": "Vaše kupovine",
+    "ebook": "E-knjiga",
+    "serviceProgram": "Servisni program",
+    "interactiveCourse": "Interaktivni kurs",
+    "statusVerifying": "Verifikacija",
+    "statusReady": "Spremno",
+    "pendingNotice": "Verifikacija uplate obično traje nekoliko trenutaka. Vaš kurs će se automatski pojaviti na kontrolnoj tabli nakon potvrde.",
+    "contentAvailable": "Vaš sadržaj je sada dostupan na kontrolnoj tabli.",
+    "goToDashboard": "Idi na kontrolnu tablu",
+    "browseMore": "Pregledaj još kurseva",
+    "needHelp": "Potrebna vam je pomoć? <contactLink>Kontaktirajte naš tim za podršku</contactLink>"
+  }
+}

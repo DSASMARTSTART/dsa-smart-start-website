@@ -1,0 +1,69 @@
+{
+  "loading": "Cargando tus cursos...",
+
+  "loginRequired": {
+    "title": "Inicio de Sesión Requerido",
+    "description": "Por favor, inicia sesión para acceder a tu panel y cursos inscritos.",
+    "button": "Iniciar Sesión / Registrarse"
+  },
+
+  "badge": "Panel del Estudiante",
+  "welcome": "¡Bienvenido/a de nuevo, <highlight>{{name}}</highlight>!",
+  "subtitle": "Sigue avanzando. Tu neurodiversidad es tu superpoder.",
+
+  "setPassword": {
+    "title": "¡Bienvenido/a! Establece Tu Contraseña",
+    "sent": "¡Correo de restablecimiento de contraseña enviado! Revisa tu bandeja de entrada para establecer tu contraseña.",
+    "description": "Has iniciado sesión mediante enlace mágico. ¡Establece una contraseña para facilitar futuros inicios de sesión!",
+    "button": "Enviar Correo de Configuración de Contraseña"
+  },
+
+  "pendingPurchases": {
+    "title": "Procesando Pago",
+    "descriptionSingle": "Tu compra reciente está siendo verificada. Esto generalmente toma unos momentos.",
+    "descriptionMultiple": "Tienes {{count}} compras siendo verificadas. Esto generalmente toma unos momentos.",
+    "verifying": "Verificando pago...",
+    "supportNote": "Tu curso aparecerá a continuación automáticamente una vez que se confirme el pago. Si esto tarda más de lo esperado, por favor contacta con soporte."
+  },
+
+  "courses": {
+    "title": "Mi Ruta de Aprendizaje",
+    "emptyTitle": "Aún No Hay Cursos",
+    "emptyDescription": "Aún no te has inscrito en ningún curso. ¡Explora nuestro catálogo para encontrar la ruta de aprendizaje perfecta para ti!",
+    "browseCourses": "Explorar Cursos",
+    "completed": "Completado",
+    "progress": "Progreso",
+    "reviewContent": "REVISAR CONTENIDO",
+    "continueLearning": "CONTINUAR APRENDIENDO",
+    "nextPath": "¿Siguiente Ruta?",
+    "nextPathDescription": "Explora más cursos para continuar tu camino de aprendizaje.",
+    "browseCatalog": "Explorar Catálogo"
+  },
+
+  "levelLabels": {
+    "A1": "Principiante",
+    "A2": "Elemental",
+    "B1": "Intermedio",
+    "Kids": "Jóvenes Estudiantes"
+  },
+
+  "ebooks": {
+    "title": "Mis E-books",
+    "count_one": "{{count}} e-book",
+    "count_other": "{{count}} e-books",
+    "pdf": "PDF",
+    "download": "Descargar E-book",
+    "comingSoon": "Próximamente",
+    "purchased": "Comprado el {{date}}"
+  },
+
+  "stats": {
+    "title": "Estadísticas en Vivo",
+    "itemsCompleted": "Ítems Completados",
+    "total": "Total",
+    "enrolledCourses": "Cursos Inscritos",
+    "ebooksOwned": "E-books Adquiridos",
+    "currentStatus": "Estado Actual",
+    "activeLearner": "Estudiante Activo"
+  }
+}

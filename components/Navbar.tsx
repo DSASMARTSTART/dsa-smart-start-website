@@ -1,6 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { Menu, X, ShoppingCart, User, LogOut, Layout, Shield } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from './LanguageSwitcher';
 
 interface NavbarProps {
   onNavigate: (path: string) => void;
@@ -13,6 +15,7 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPath, cartCount, isLoggedIn, user, onLogout, isAdmin }) => {
+  const { t } = useTranslation('common');
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -27,18 +30,18 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPath, cartCount, isL
 
   const navLinks = isLoggedIn 
     ? [
-        { name: 'Dashboard', path: 'dashboard' },
-        { name: 'Browse Products', path: 'courses' },
-        { name: 'FAQ', path: 'faq' },
-        { name: 'Contacts', path: 'contact' },
+        { name: t('nav.dashboard'), path: 'dashboard' },
+        { name: t('nav.browseProducts'), path: 'courses' },
+        { name: t('nav.faq'), path: 'faq' },
+        { name: t('nav.contacts'), path: 'contact' },
       ]
     : [
-        { name: 'Home', path: 'home' },
-        { name: 'Who We Are', path: 'who-we-are' },
-        { name: 'Products', path: 'courses' },
-        { name: 'FAQ', path: 'faq' },
-        { name: 'Contacts', path: 'contact' },
-        { name: 'Login/Register', path: 'login' },
+        { name: t('nav.home'), path: 'home' },
+        { name: t('nav.whoWeAre'), path: 'who-we-are' },
+        { name: t('nav.products'), path: 'courses' },
+        { name: t('nav.faq'), path: 'faq' },
+        { name: t('nav.contacts'), path: 'contact' },
+        { name: t('nav.loginRegister'), path: 'login' },
       ];
 
   const handleLinkClick = (path: string) => {
@@ -75,6 +78,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPath, cartCount, isL
           </div>
 
           <div className="flex items-center gap-3 md:gap-4 shrink-0">
+            <LanguageSwitcher />
             <button 
               onClick={() => handleLinkClick('checkout')}
               className="relative p-2.5 rounded-full bg-white/5 text-gray-300 hover:bg-purple-500/20 hover:text-purple-400 transition-all border border-white/10"
@@ -103,7 +107,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPath, cartCount, isL
                         className="w-full flex items-center gap-3 px-4 py-3 text-[11px] font-black uppercase text-purple-400 hover:bg-purple-500/20 rounded-xl transition-all"
                       >
                         <Shield size={14} />
-                        Admin Panel
+                        {t('nav.adminPanel')}
                       </button>
                     )}
                     <button 
@@ -111,14 +115,14 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPath, cartCount, isL
                       className="w-full flex items-center gap-3 px-4 py-3 text-[11px] font-black uppercase text-gray-300 hover:bg-white/10 hover:text-purple-400 rounded-xl transition-all"
                     >
                       <Layout size={14} />
-                      Dashboard
+                      {t('nav.dashboard')}
                     </button>
                     <button 
                       onClick={() => { onLogout?.(); setProfileOpen(false); }}
                       className="w-full flex items-center gap-3 px-4 py-3 text-[11px] font-black uppercase text-pink-400 hover:bg-pink-500/20 rounded-xl transition-all"
                     >
                       <LogOut size={14} />
-                      Logout
+                      {t('nav.logout')}
                     </button>
                   </div>
                 )}
@@ -157,7 +161,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPath, cartCount, isL
           ))}
           {isLoggedIn && onLogout && (
              <button onClick={() => { onLogout(); setMobileMenuOpen(false); }} className="text-2xl font-black text-pink-400 uppercase tracking-tight">
-               Logout
+               {t('nav.logout')}
              </button>
           )}
         </div>

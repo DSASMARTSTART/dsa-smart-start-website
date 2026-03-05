@@ -1,0 +1,68 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "whoWeAre": "Quiénes Somos",
+    "products": "Productos",
+    "faq": "Preguntas Frecuentes",
+    "contacts": "Contacto",
+    "loginRegister": "Iniciar sesión/Registrarse",
+    "dashboard": "Panel",
+    "browseProducts": "Ver Productos",
+    "adminPanel": "Panel de Administración",
+    "logout": "Cerrar sesión"
+  },
+  "footer": {
+    "eduway": "EDUWAY",
+    "aboutText": "El primer programa del mundo diseñado específicamente para personas con dislexia, ayudándolas a lograr resultados increíbles y hacer que el aprendizaje sea divertido.",
+    "followInstagram": "Síguenos en Instagram",
+    "quickLinks": "Enlaces Rápidos",
+    "home": "Inicio",
+    "whoWeAre": "Quiénes Somos",
+    "allCourses": "Todos los Cursos",
+    "contact": "Contacto",
+    "faq": "Preguntas Frecuentes",
+    "loginRegister": "Iniciar sesión / Registrarse",
+    "onlineCourses": "Cursos Online",
+    "interactiveCourses": "Cursos Interactivos",
+    "adultsTeens": "Adultos y Adolescentes",
+    "kids": "Niños",
+    "ebooks": "E-books",
+    "viewAll": "Ver Todo",
+    "contactUs": "Contáctanos",
+    "supportFaq": "Soporte y Preguntas Frecuentes",
+    "comingSoon": "Próximamente...",
+    "copyright": "Copyright © 2026 ANA MILATOVIĆ PR CENTAR ZA EDUKACIJE EDUWAY | Todos los derechos reservados",
+    "termsConditions": "Términos y Condiciones",
+    "cookiePolicy": "Política de Cookies",
+    "privacyPolicy": "Política de Privacidad",
+    "refundPolicy": "Política de Devoluciones y Reembolsos",
+    "weAccept": "Aceptamos:"
+  },
+  "toast": {
+    "addedToCart": "¡Añadido al carrito!",
+    "alreadyInCart": "Este artículo ya está en tu carrito",
+    "alreadyOwn": "¡Ya tienes este producto! Consulta tu panel."
+  },
+  "whatsapp": {
+    "chatWithUs": "Chatea con nosotros",
+    "ariaLabel": "Chatear por WhatsApp"
+  },
+  "cart": {
+    "courseInCart": "{{count}} curso en el carrito",
+    "coursesInCart": "{{count}} cursos en el carrito",
+    "goToCheckout": "Ir al pago"
+  },
+  "error": {
+    "title": "¡Ups! Algo salió mal",
+    "description": "Lo sentimos, pero ocurrió algo inesperado. Por favor, intenta actualizar la página o volver a la página de inicio.",
+    "refreshPage": "Actualizar Página",
+    "goToHome": "Ir al Inicio",
+    "technicalDetails": "Detalles Técnicos (Solo Desarrollo)"
+  },
+  "accessDenied": {
+    "title": "Acceso Denegado",
+    "message": "No tienes permiso para acceder a esta página.",
+    "goToHome": "Ir al Inicio"
+  },
+  "skipToContent": "Saltar al contenido principal"
+}

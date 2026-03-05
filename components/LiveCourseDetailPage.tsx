@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, CheckCircle2, Star, ShoppingCart, Check, ChevronRight, ChevronDown, Layers, TrendingUp, Award, Clock, Shield, RefreshCcw, Sparkles, Target, GraduationCap, Heart, BadgeCheck, UserCheck, Rocket, Lock, Users, Crown, Diamond, Compass, Video, BookOpen, Brain, Headphones, FileCheck, MessageCircle, X, Calendar, Zap } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { coursesApi } from '../data/supabaseStore';
 import { Course } from '../types';
 
@@ -11,194 +12,6 @@ const LEVEL_CONFIG: Record<string, { color: string; bgColor: string; label: stri
   'language-lab':     { color: 'from-violet-600 to-purple-700', bgColor: 'bg-violet-600',  label: 'Language Lab',     icon: <Users size={20} /> },
   'language-lab-pro': { color: 'from-emerald-500 to-teal-600', bgColor: 'bg-emerald-500',  label: 'Language Lab Pro', icon: <Crown size={20} /> },
   'hybrid-pack':      { color: 'from-amber-500 to-yellow-600', bgColor: 'bg-amber-500',    label: 'Hybrid Pack',      icon: <Diamond size={20} /> },
-};
-
-// ============================================
-// LIVE COURSE CONTENT DATA (translated to English)
-// ============================================
-interface LiveCourseContentData {
-  description: string;
-  duration: string;
-  lessons: string;
-  totalHours: string;
-  includes: string[];
-  notIncluded: string[];
-  learningOutcomes: string[];
-  targetAudience: string[];
-}
-
-const LIVE_COURSE_CONTENT: Record<string, LiveCourseContentData> = {
-  'starter-path': {
-    description: "Begin your English journey with personalised one-to-one attention. This starter programme is tailored entirely to your needs using the DSA Smart Start® Method, perfect for anyone looking for a focused introduction with a dedicated certified native-speaking tutor specialised in SLD.",
-    duration: '5 weeks',
-    lessons: '10 lessons of 30 minutes',
-    totalHours: '5 hours',
-    includes: [
-      'Initial level assessment',
-      'DSA Smart Start® Method',
-      'Personalised one-to-one sessions',
-      'Creation of customised Mind Maps',
-      'Multisensory and visual method',
-      'Guided conversation',
-      'Mini personalised study plan',
-      'Certified native-speaking tutors specialised in SLD',
-      'Basic digital material',
-      'Progressive monitoring',
-    ],
-    notIncluded: [
-      'Language Lab',
-      'DSA Smart Start Teaching Material — unlimited access',
-      'Access to 500+ Brain Mapping resources',
-      'Access to 700+ video lessons',
-      'Test and exam preparation',
-      'Homework help',
-      'Direct contact with school representatives',
-      'Final Teaching Report on competencies',
-      'Level certification',
-      'Extended duration up to 9 months',
-    ],
-    learningOutcomes: [
-      'Receive a personalised learning assessment',
-      'Build foundational English skills one-to-one',
-      'Gain confidence speaking with individual attention',
-      'Develop a customised learning roadmap',
-      'Get targeted feedback on your specific challenges',
-    ],
-    targetAudience: [
-      'Beginners wanting a personal start to English',
-      'Learners who prefer one-to-one attention',
-      'Those needing a flexible, short-term programme',
-      'Anyone wanting to assess their level and build a plan',
-    ],
-  },
-  'language-lab': {
-    description: "Small group live sessions designed for focused, interactive learning. Join a class of 3–4 students for 8 dynamic workshops, each lasting 50 minutes. Perfect for learners who thrive in collaborative environments with personalised attention from certified native-speaking tutors specialised in SLD.",
-    duration: '8 weeks',
-    lessons: '8 workshops of 50 minutes',
-    totalHours: '6.5 hours',
-    includes: [
-      'Initial level assessment',
-      'DSA Smart Start® Method',
-      'Language Lab — max 3–4 students',
-      'Circle Talk Lab',
-      'Role Play & Team Challenges',
-      'Multisensory and visual method',
-      'Certified native-speaking tutors specialised in SLD',
-      'Progressive monitoring',
-    ],
-    notIncluded: [
-      'Personalised one-to-one sessions',
-      'DSA Smart Start Teaching Material — unlimited access',
-      'Access to 500+ Brain Mapping resources',
-      'Access to 700+ video lessons',
-      'Test and exam preparation',
-      'Homework help',
-      'Direct contact with school representatives',
-      'Final Teaching Report on competencies',
-      'Level certification',
-      'Extended duration up to 9 months',
-    ],
-    learningOutcomes: [
-      'Build conversational confidence in small group settings',
-      'Develop real-time communication skills with peer interaction',
-      'Receive personalised feedback from expert instructors',
-      'Practice speaking, listening and responding naturally',
-      'Gain exposure to diverse communication styles',
-    ],
-    targetAudience: [
-      'Learners who thrive in collaborative settings',
-      'Students wanting real-time speaking practice',
-      'Anyone looking for an affordable group learning option',
-      'Those who enjoy interactive, social learning',
-    ],
-  },
-  'language-lab-pro': {
-    description: "Our most intensive micro-group programme with 30 live workshops. Micro-Labs with max 3\u20134 students of the same age and level, 50-minute sessions packed with interactive exercises, real conversation practice, and progressive skill building. All teaching materials are included for a complete learning experience.",
-    duration: 'Up to 9 months',
-    lessons: '30 workshops of 50 minutes',
-    totalHours: '25 hours',
-    includes: [
-      'Initial level assessment',
-      'DSA Smart Start\u00ae Method',
-      'DSA Smart Start\u00ae Teaching Material \u2014 Unlimited access',
-      'Multisensory and visual method',
-      'Access to 500+ Brain Mapping resources',
-      'Access to 700+ video lessons',
-      'Language Lab in micro-group (max 3\u20134 students)',
-      'Circle Talk Lab',
-      'Role Play & Team Challenges',
-      'Certified native-speaking tutors specialised in SLD',
-      'Progressive monitoring',
-      'Written test and oral exam preparation',
-      'Direct contact with school representatives',
-      'Final Teaching Report with acquired competencies',
-      'Official level certification',
-      'Extended duration up to 9 months',
-    ],
-    notIncluded: [
-      'Personalised one-to-one sessions',
-      'Personalised study plan',
-      'Creation of customised Mind Maps',
-      'Individual Stop & Check',
-      'Individual homework help',
-    ],
-    learningOutcomes: [
-      'Achieve significant fluency improvement over 30 sessions',
-      'Master complex conversation patterns and responses',
-      'Build advanced vocabulary through immersive practice',
-      'Develop natural pronunciation and intonation',
-      'Gain confidence for professional and social English use',
-    ],
-    targetAudience: [
-      'Committed learners seeking intensive group practice',
-      'Students wanting long-term structured progression',
-      'Those who benefit from peer learning and collaboration',
-      'Learners aiming for significant fluency improvement',
-    ],
-  },
-  'hybrid-pack': {
-    description: "The best of both worlds \u2014 combining the energy of micro-group labs with the personalised focus of one-to-one sessions. Includes 25 workshops (50 minutes, max 3\u20134 students) plus 5 individual sessions (30 minutes). All teaching materials are included for the most comprehensive learning experience.",
-    duration: 'Up to 9 months',
-    lessons: '25 workshops of 50 min + 5 individual sessions of 30 min',
-    totalHours: '23.5 hours',
-    includes: [
-      'Initial level assessment',
-      'DSA Smart Start\u00ae Method',
-      'DSA Smart Start\u00ae Teaching Material \u2014 Unlimited access',
-      'Multisensory and visual method',
-      'Access to 500+ Brain Mapping resources',
-      'Access to 700+ video lessons',
-      'Personalised one-to-one sessions',
-      'Personalised study plan',
-      'Creation of customised Mind Maps',
-      'Language Lab max 3\u20134 students',
-      'Circle Talk Lab',
-      'Role Play & Team Challenges',
-      'Certified native-speaking tutors specialised in SLD',
-      'Progressive monitoring',
-      'Personalised Stop & Check',
-      'Test and exam preparation',
-      'Homework help',
-      'Direct contact with school representatives',
-      'Final Teaching Report on competencies',
-      'Level certification',
-      'Extended duration up to 9 months',
-    ],
-    notIncluded: [],
-    learningOutcomes: [
-      'Combine group interaction with personalised attention',
-      'Master both social and academic English skills',
-      'Receive tailored feedback in one-to-one sessions',
-      'Practice real conversation in small group labs',
-      'Achieve comprehensive language development',
-    ],
-    targetAudience: [
-      'Learners wanting the most comprehensive programme',
-      'Students who benefit from both group and individual learning',
-      'Those seeking maximum progress in a structured format',
-      'Anyone committed to achieving English fluency',
-    ],
-  },
 };
 
 // ============================================
@@ -221,6 +34,7 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
   isInCart,
   isAddingToCart = false,
 }) => {
+  const { t } = useTranslation('courses');
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
@@ -295,7 +109,7 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-400 font-medium">Loading course details...</p>
+          <p className="text-gray-400 font-medium">{t('shared.loading')}</p>
         </div>
       </div>
     );
@@ -309,10 +123,10 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
           <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/10">
             <Users size={32} className="text-gray-500" />
           </div>
-          <h3 className="text-2xl font-black text-white mb-4">Course Not Found</h3>
-          <p className="text-gray-400 mb-8">The course you're looking for doesn't exist or has been removed.</p>
+          <h3 className="text-2xl font-black text-white mb-4">{t('shared.courseNotFound')}</h3>
+          <p className="text-gray-400 mb-8">{t('shared.courseNotFoundDesc')}</p>
           <button onClick={onBack} className="px-8 py-4 bg-purple-600 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-colors">
-            Back to Products
+            {t('shared.backToProducts')}
           </button>
         </div>
       </div>
@@ -331,12 +145,14 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
   const originalPrice = course.pricing?.discountPrice ? course.pricing.price : null;
   const hasDiscount = originalPrice && originalPrice > price;
   const pricing = course.pricing || { price: 0, currency: 'EUR', isFree: false };
-  const displayPrice = pricing.isFree ? 'FREE' : `\u20AC${price}`;
+  const displayPrice = pricing.isFree ? t('shared.free') : `\u20AC${price}`;
 
-  const contentData = LIVE_COURSE_CONTENT[course.level];
+  const contentKey = `liveCourseContent.${course.level}`;
+  const rawContent = t(contentKey, { returnObjects: true });
+  const contentData = typeof rawContent === 'object' ? rawContent as { description: string; duration: string; lessons: string; totalHours: string; includes: string[]; notIncluded: string[]; learningOutcomes: string[]; targetAudience: string[] } : undefined;
 
   const courseDescription =
-    course.description || contentData?.description || 'Live English course with certified native-speaking tutors specialised in SLD.';
+    course.description || contentData?.description || t('liveCourseDetail.defaultDescription');
 
   const includes = contentData?.includes || [];
   const notIncluded = contentData?.notIncluded || [];
@@ -376,7 +192,7 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
             <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-[#AB8FFF]/30 group-hover:shadow-md transition-all">
               <ArrowLeft size={16} />
             </div>
-            Back to Products
+            {t('shared.backToProducts')}
           </button>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
@@ -388,8 +204,8 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
                   {config.icon}
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-[#AB8FFF]">Live Course</span>
-                  <span className="text-sm font-bold text-gray-300">{config.label}</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-[#AB8FFF]">{t('shared.liveCourse')}</span>
+                  <span className="text-sm font-bold text-gray-300">{t('shared.levelLabels.' + course.level, { defaultValue: config.label })}</span>
                 </div>
               </div>
 
@@ -426,7 +242,7 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
                     </div>
                     <div>
                       <p className="text-2xl font-black text-white">{duration}</p>
-                      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Duration</p>
+                      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{t('shared.duration')}</p>
                     </div>
                   </div>
                 )}
@@ -437,7 +253,7 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
                     </div>
                     <div>
                       <p className="text-lg font-black text-white leading-tight">{lessons}</p>
-                      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Sessions</p>
+                      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{t('shared.sessions')}</p>
                     </div>
                   </div>
                 )}
@@ -448,7 +264,7 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
                     </div>
                     <div>
                       <p className="text-2xl font-black text-white">{totalHours}</p>
-                      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Total</p>
+                      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{t('shared.total')}</p>
                     </div>
                   </div>
                 )}
@@ -460,7 +276,7 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
                   {hasActiveDiscount && (
                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-pink-500 rounded-full w-fit animate-pulse">
                       <Sparkles size={14} className="text-white" />
-                      <span className="text-[10px] font-black uppercase tracking-widest text-white">Limited Time Offer</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-white">{t('shared.limitedTimeOffer')}</span>
                     </div>
                   )}
                   <div className="flex items-baseline gap-3">
@@ -479,7 +295,7 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
                     }}
                     className="group flex items-center gap-3 bg-[#AB8FFF] text-white px-8 py-4 rounded-full font-black text-[11px] uppercase tracking-widest hover:bg-[#9a7eef] transition-all shadow-xl shadow-purple-500/30 hover:-translate-y-1 hover:shadow-[#AB8FFF]/25"
                   >
-                    Buy Now
+                    {t('shared.buyNow')}
                     <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
                   </button>
                   <button
@@ -496,7 +312,7 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
                     {isAddingToCart ? (
                       <div className="w-4 h-4 border-2 border-gray-500 border-t-gray-300 rounded-full animate-spin" />
                     ) : isInCart ? <Check size={16} /> : <ShoppingCart size={16} />}
-                    {isAddingToCart ? 'Adding...' : isInCart ? 'Added' : 'Add to Cart'}
+                    {isAddingToCart ? t('shared.adding') : isInCart ? t('shared.added') : t('shared.addToCart')}
                   </button>
                 </div>
               </div>
@@ -525,7 +341,7 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
                   />
                 </div>
                 <p className="text-sm text-gray-400 text-center mb-4 font-medium">
-                  Watch our video and discover how you can finally learn English with clarity, confidence, and the right method.
+                  {t('liveCourseDetail.videoDescription')}
                 </p>
 
                 {/* Quick highlights */}
@@ -534,19 +350,19 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
                     <div className="p-1 rounded-full bg-green-500/20 text-green-400">
                       <CheckCircle2 size={16} />
                     </div>
-                    <span className="text-base font-bold text-gray-300">Certified native-speaking tutors</span>
+                    <span className="text-base font-bold text-gray-300">{t('liveCourseDetail.highlights.certifiedTutors')}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="p-1 rounded-full bg-green-500/20 text-green-400">
                       <CheckCircle2 size={16} />
                     </div>
-                    <span className="text-base font-bold text-gray-300">DSA Smart Start® Method</span>
+                    <span className="text-base font-bold text-gray-300">{t('liveCourseDetail.highlights.dsaMethod')}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="p-1 rounded-full bg-green-500/20 text-green-400">
                       <CheckCircle2 size={16} />
                     </div>
-                    <span className="text-base font-bold text-gray-300">Personalised learning experience</span>
+                    <span className="text-base font-bold text-gray-300">{t('liveCourseDetail.highlights.personalised')}</span>
                   </div>
                 </div>
 
@@ -566,7 +382,7 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
                     {isAddingToCart ? (
                       <div className="w-4 h-4 border-2 border-gray-500 border-t-gray-300 rounded-full animate-spin" />
                     ) : isInCart ? <Check size={16} /> : <ShoppingCart size={16} />}
-                    {isAddingToCart ? 'Adding...' : isInCart ? 'Added' : 'Add to Cart'}
+                    {isAddingToCart ? 'Adding...' : isInCart ? t('shared.added') : t('shared.addToCart')}
                   </button>
                   <button
                     onClick={() => {
@@ -575,7 +391,7 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
                     }}
                     className="flex-1 flex items-center justify-center gap-2 bg-[#AB8FFF] text-white px-4 py-3 rounded-full font-black text-[11px] uppercase tracking-widest hover:bg-[#9a7eef] transition-all shadow-lg shadow-purple-500/30 hover:-translate-y-0.5"
                   >
-                    Buy Now
+                    {t('shared.buyNow')}
                     <ChevronRight size={16} />
                   </button>
                 </div>
@@ -612,9 +428,9 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
                   <div className="p-3 bg-purple-500/20 rounded-2xl text-purple-400 border border-purple-500/30">
                     <Target size={28} />
                   </div>
-                  <h3 className="text-3xl font-black text-white tracking-tight uppercase">What You Will Achieve</h3>
+                  <h3 className="text-3xl font-black text-white tracking-tight uppercase">{t('shared.whatYoullAchieveShort')}</h3>
                 </div>
-                <p className="text-gray-400 text-lg mb-8 font-medium">By the end of this course you will be able to:</p>
+                <p className="text-gray-400 text-lg mb-8 font-medium">{t('shared.outcomesIntroShort')}</p>
                 <div className="space-y-4">
                   {outcomes.map((item, i) => (
                     <div key={i} className="flex items-center gap-4 p-5 bg-white/5 rounded-[2rem] border border-white/10 group hover:bg-white/10 hover:border-purple-500/30 hover:shadow-lg hover:shadow-purple-500/10 transition-all">
@@ -633,15 +449,17 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
               <div className="absolute top-0 right-0 w-32 h-32 bg-purple-600/30 rounded-full blur-[60px] translate-x-1/2 -translate-y-1/2"></div>
               <div className="relative z-10">
                 <Sparkles className="text-purple-400 mb-6" size={32} />
-                <h4 className="text-2xl font-black mb-4 uppercase tracking-tight">DSA Smart Start Advantage</h4>
+                <h4 className="text-2xl font-black mb-4 uppercase tracking-tight">{t('shared.dsaAdvantageTitle')}</h4>
                 <p className="text-gray-400 text-sm leading-loose mb-6">
-                  Unlike traditional methods, we don't overload students with abstract grammar explanations. We teach students to understand through{' '}
-                  <span className="text-white italic underline underline-offset-4 decoration-purple-500 decoration-2">visual learning paths</span>{' '}
-                  and sensory triggers that make English clear, structured, and memorable.
+                  {t('shared.dsaAdvantageDesc', { returnObjects: false }).split('<1>').map((part: string, i: number) => {
+                    if (i === 0) return part;
+                    const [highlighted, rest] = part.split('</1>');
+                    return <React.Fragment key={i}><span className="text-white italic underline underline-offset-4 decoration-purple-500 decoration-2">{highlighted}</span>{rest}</React.Fragment>;
+                  })}
                 </p>
-                <p className="text-white text-sm font-bold mb-4 uppercase tracking-wide">What makes the difference:</p>
+                <p className="text-white text-sm font-bold mb-4 uppercase tracking-wide">{t('shared.dsaWhatMakesTheDifference')}</p>
                 <div className="space-y-2">
-                  {['Visual Mind Mapping', 'Multisensory Learning Approach', 'Structured Step-by-Step System', 'Confidence-Building Method'].map((tag, i) => (
+                  {(t('shared.dsaTags', { returnObjects: true }) as string[]).map((tag, i) => (
                     <div key={i} className="inline-block px-4 py-2 bg-white/5 rounded-full border border-white/10 text-[10px] font-black uppercase tracking-widest mr-2 mb-2">
                       {tag}
                     </div>
@@ -659,10 +477,10 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
                     <div className="p-2 bg-white/10 rounded-xl text-[#AB8FFF] shadow-sm border border-white/10">
                       <UserCheck size={24} />
                     </div>
-                    <h4 className="text-xl font-black text-white uppercase tracking-tight">Who Is This For?</h4>
+                    <h4 className="text-xl font-black text-white uppercase tracking-tight">{t('shared.whoIsThisFor')}</h4>
                   </div>
                   <p className="text-gray-400 text-sm mb-6 font-medium">
-                    Perfect for learners who want personalised, confidence-building English instruction.
+                    {t('liveCourseDetail.defaultTargetAudienceDesc')}
                   </p>
                   <div className="space-y-3">
                     {targetAudiencePoints.map((point, i) => (
@@ -684,29 +502,29 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
                 <div className="p-2 bg-green-500/20 rounded-xl text-green-400">
                   <Shield size={24} />
                 </div>
-                <h4 className="text-xl font-black text-white uppercase tracking-tight">Our Promise</h4>
+                <h4 className="text-xl font-black text-white uppercase tracking-tight">{t('shared.ourPromise')}</h4>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-white/5">
                   <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center mb-3">
                     <RefreshCcw size={20} className="text-green-400" />
                   </div>
-                  <span className="text-xs font-black uppercase tracking-wider text-white">14-Day</span>
-                  <span className="text-[10px] text-gray-400 font-medium">Money Back Guarantee</span>
+                  <span className="text-xs font-black uppercase tracking-wider text-white">{t('shared.promise.moneyBackTitle')}</span>
+                  <span className="text-[10px] text-gray-400 font-medium">{t('shared.promise.moneyBackDesc')}</span>
                 </div>
                 <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-white/5">
                   <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center mb-3">
                     <Heart size={20} className="text-purple-400" />
                   </div>
-                  <span className="text-xs font-black uppercase tracking-wider text-white">Dyslexia</span>
-                  <span className="text-[10px] text-gray-400 font-medium">Friendly Approach</span>
+                  <span className="text-xs font-black uppercase tracking-wider text-white">{t('shared.promise.dyslexiaTitle')}</span>
+                  <span className="text-[10px] text-gray-400 font-medium">{t('shared.promise.dyslexiaDescAlt')}</span>
                 </div>
                 <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-white/5">
                   <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center mb-3">
                     <BadgeCheck size={20} className="text-amber-400" />
                   </div>
-                  <span className="text-xs font-black uppercase tracking-wider text-white">Certified</span>
-                  <span className="text-[10px] text-gray-400 font-medium">Native Tutors</span>
+                  <span className="text-xs font-black uppercase tracking-wider text-white">{t('shared.promise.certifiedTitle')}</span>
+                  <span className="text-[10px] text-gray-400 font-medium">{t('shared.promise.certifiedDesc')}</span>
                 </div>
               </div>
             </div>
@@ -722,7 +540,7 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
                   <div className="p-3 bg-green-500/20 rounded-2xl text-green-400 border border-green-500/30">
                     <CheckCircle2 size={28} />
                   </div>
-                  <h3 className="text-3xl font-black text-white tracking-tight uppercase">What's Included</h3>
+                  <h3 className="text-3xl font-black text-white tracking-tight uppercase">{t('shared.whatsIncluded')}</h3>
                 </div>
                 <div className="space-y-4">
                   {includes.map((item, i) => (
@@ -744,7 +562,7 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
                   <div className="p-3 bg-red-500/20 rounded-2xl text-red-400 border border-red-500/30">
                     <X size={28} />
                   </div>
-                  <h3 className="text-3xl font-black text-white tracking-tight uppercase">Not Included</h3>
+                  <h3 className="text-3xl font-black text-white tracking-tight uppercase">{t('shared.notIncluded')}</h3>
                 </div>
                 <div className="space-y-4">
                   {notIncluded.map((item, i) => (
@@ -768,11 +586,11 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
               <div className="relative z-10">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/10 mb-6">
                   <Rocket size={16} className="text-[#AB8FFF]" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Start Your Transformation</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">{t('shared.cta.badge')}</span>
                 </div>
-                <h4 className="text-3xl font-black text-white mb-4 tracking-tight">Ready to Start Learning?</h4>
+                <h4 className="text-3xl font-black text-white mb-4 tracking-tight">{t('shared.cta.title')}</h4>
                 <p className="text-gray-400 mb-10 font-medium max-w-lg mx-auto">
-                  Enrol today and begin your English learning journey with certified native-speaking tutors who understand the way your brain works best.
+                  {t('shared.cta.descriptionLive')}
                 </p>
                 <div className="flex flex-col sm:flex-row justify-center gap-4">
                   <button
@@ -782,7 +600,7 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
                     }}
                     className={`group flex items-center justify-center gap-3 px-10 py-5 rounded-full text-xs font-black uppercase tracking-widest text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all bg-gradient-to-r ${config.color}`}
                   >
-                    Buy Now — {displayPrice}
+                    {t('shared.cta.buyNowPrice', { price: displayPrice })}
                     <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
                   </button>
                   <button
@@ -797,11 +615,11 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
                     }`}
                   >
                     {isAddingToCart ? (
-                      <><div className="w-4 h-4 border-2 border-gray-500 border-t-gray-300 rounded-full animate-spin" /> Adding...</>
+                      <><div className="w-4 h-4 border-2 border-gray-500 border-t-gray-300 rounded-full animate-spin" /> {t('shared.adding')}</>
                     ) : isInCart ? (
-                      <><Check size={18} /> Added to Cart</>
+                      <><Check size={18} /> {t('shared.addedToCart')}</>
                     ) : (
-                      <><ShoppingCart size={18} /> Save for Later</>
+                      <><ShoppingCart size={18} /> {t('shared.saveForLater')}</>
                     )}
                   </button>
                 </div>
@@ -810,15 +628,15 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
                 <div className="flex flex-wrap items-center justify-center gap-6 mt-10 pt-8 border-t border-white/10">
                   <div className="flex items-center gap-2 text-gray-500 text-[10px] font-bold">
                     <Shield size={14} />
-                    <span>14-Day Money Back</span>
+                    <span>{t('shared.trustBadges.moneyBack')}</span>
                   </div>
                   <div className="flex items-center gap-2 text-gray-500 text-[10px] font-bold">
                     <Lock size={14} />
-                    <span>Secure Checkout</span>
+                    <span>{t('shared.trustBadges.secureCheckout')}</span>
                   </div>
                   <div className="flex items-center gap-2 text-gray-500 text-[10px] font-bold">
                     <GraduationCap size={14} />
-                    <span>Certified Tutors</span>
+                    <span>{t('shared.trustBadges.certifiedTutors')}</span>
                   </div>
                 </div>
               </div>

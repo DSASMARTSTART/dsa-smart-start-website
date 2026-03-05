@@ -1,0 +1,113 @@
+{
+  "hero": {
+    "badge": "Knowledge Base",
+    "title1": "FAQ",
+    "titleAnd": "&",
+    "title2": "Answers",
+    "supportLabel": "Support",
+    "findAnswers": "Find Answers",
+    "contactLabel": "Contact",
+    "alwaysAvailable": "Always Available",
+    "subtitleTop": "Everything you need to",
+    "subtitleBottom": "Know"
+  },
+  "sections": {
+    "section01": "Section 01",
+    "section02": "Section 02",
+    "section03": "Section 03",
+    "section04": "Section 04",
+    "section05": "Section 05",
+    "heading01": "Approach for Students with DSA",
+    "heading02": "Visual and Multisensory Approach",
+    "heading03": "Adaptations for Language Understanding",
+    "heading04": "Techniques for Permanent Memorization",
+    "heading05": "Benefits and Results"
+  },
+  "general": [
+    {
+      "q": "How is the Eduway program designed to support students with dyslexia in learning English?",
+      "a": "The Eduway program is designed with an inclusive approach, using multisensory techniques, visual tools, and adaptive strategies to facilitate English learning. Each module is designed to be accessible and engaging, respecting the learning needs of students with dyslexia."
+    },
+    {
+      "q": "What are the main features of the Eduway program that make it suitable for students with dyslexia?",
+      "a": "Key features include the use of vibrant graphics, interactive activities, mind maps, color-coding to enhance visual organization, and audio support to aid comprehension. These elements promote engaging learning that minimizes reading and memorization difficulties."
+    },
+    {
+      "q": "How does the program differ from traditional teaching methods in adapting to the needs of students with dyslexia?",
+      "a": "Eduway differentiates itself by integrating teaching techniques that leverage shapes, colors, visual patterns, and audio. Unlike traditional methods, this program emphasizes visual and hands-on learning to strengthen comprehension and retention."
+    },
+    {
+      "q": "What visual and learning techniques are used in Eduway to support memorization and comprehension?",
+      "a": "Mind maps, color charts, and illustrations are used to visually represent information. These techniques help students see connections between ideas and better organize their thinking, improving retention and comprehension."
+    },
+    {
+      "q": "How are shapes and colors used to improve learning in dyslexic students?",
+      "a": "Shapes and colors are used to highlight important parts of lessons, distinguish word categories, and represent grammatical concepts. This technique, called the SHAPE & COLOR CODING BRAIN PUZZLE, reduces visual complexity, helping students focus on key information."
+    },
+    {
+      "q": "How are mind maps integrated into the program to facilitate information organization and learning?",
+      "a": "Mind maps are used to summarize lessons and visually represent connections between concepts. These maps help dyslexic students structure information in a more logical and memorable way."
+    },
+    {
+      "q": "How does the program use visuals to aid comprehension and retention?",
+      "a": "The program integrates colorful images, charts, and visual diagrams that represent words and phrases intuitively. This visual impact allows students to easily associate meanings with images, making memorization more natural."
+    }
+  ],
+  "visual": [
+    {
+      "q": "What is the role of images and visual materials in teaching English to students with SMART START DSA?",
+      "a": "Images and visual materials are crucial for creating strong mental associations and facilitating content comprehension. They serve to transform words into visual concepts, which are easier for students with dyslexia to process and memorize."
+    },
+    {
+      "q": "How does the program use illustrations to reinforce the meaning of words and phrases?",
+      "a": "Illustrations are integrated into each lesson to accompany new vocabulary and key phrases. This helps students connect the images to the words, strengthening understanding and facilitating visual learning."
+    },
+    {
+      "q": "How does the visual approach contribute to accelerating memorization and creating a permanent impression?",
+      "a": "The visual approach creates strong connections between images and linguistic concepts, accelerating the memorization process. These visual connections help create a permanent imprint in long-term memory, making learning more effective."
+    }
+  ],
+  "language": [
+    {
+      "q": "How does the program support language comprehension through adaptive learning techniques for dyslexics?",
+      "a": "The program includes simplified readings, video supports to improve listening comprehension, and the use of diagrams and maps to summarize content. This approach allows students to learn at their own pace and according to their needs."
+    },
+    {
+      "q": "What specific tools are used to improve the listening and writing skills of students with dyslexia?",
+      "a": "Eduway uses guided video explanations to improve listening comprehension. For writing, visual guides, sentence templates, and interactive exercises are provided to encourage practice."
+    },
+    {
+      "q": "How does Eduway make speaking and writing more accessible for dyslexic students?",
+      "a": "The program includes hands-on activities that encourage conversation and written expression, using visual cues to facilitate comprehension. The exercises are designed to be repetitive yet varied, to maintain interest and promote learning."
+    }
+  ],
+  "memorization": [
+    {
+      "q": "What strategy does Eduway use to ensure that learning is lasting and rooted?",
+      "a": "The program uses distributed repetition techniques and interactive practice to reinforce learned concepts. Mind maps and image-based activities help consolidate learning and make it lasting."
+    },
+    {
+      "q": "How are visual elements and multisensory techniques used to create stable mental connections?",
+      "a": "Visual elements and multisensory techniques, such as associating words with sounds, images, and colors, create multiple connections in the mind, facilitating the memorization and recall of information."
+    }
+  ],
+  "benefits": [
+    {
+      "q": "What are the main benefits for a dyslexic student who follows the Eduway program?",
+      "a": "Dyslexic students improve their comprehension and production of language thanks to a visual and multisensory approach that makes learning more accessible and engaging."
+    },
+    {
+      "q": "How does Eduway help overcome specific difficulties related to dyslexia when learning English?",
+      "a": "The program uses visual techniques, audio support, and interactive activities to reduce reading and memorization difficulties, helping students overcome their specific challenges."
+    },
+    {
+      "q": "What improvements can dyslexic students expect in terms of language comprehension and production?",
+      "a": "Students can expect to improve their listening and reading comprehension, enrich their vocabulary, and develop greater confidence in communicating in English, thanks to a structured approach supported by visual techniques."
+    }
+  ],
+  "cta": {
+    "title": "Still have questions?",
+    "description": "Our support team is ready to help you find the best path for your learning journey.",
+    "button": "Contact Support"
+  }
+}

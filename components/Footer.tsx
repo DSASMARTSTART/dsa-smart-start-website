@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Mail, Phone, MapPin, Instagram, Users, MonitorPlay, FileText, Crown, Diamond, ChevronRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { coursesApi } from '../data/supabaseStore';
 import { Course, ProductType, TargetAudience } from '../types';
 
@@ -26,6 +27,7 @@ const LEVEL_ICONS: Record<string, React.ReactNode> = {
 };
 
 const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
+  const { t } = useTranslation('common');
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -133,7 +135,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               onClick={() => goToCoursesFiltered(viewAllProductType, viewAllAudience)} 
               className="hover:text-purple-400 transition-colors text-left flex items-center gap-1 text-purple-400 font-medium mt-1"
             >
-              View All
+              {t('footer.viewAll')}
               <ChevronRight size={14} />
             </button>
           </li>
@@ -147,9 +149,9 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
         {/* About Column */}
         <div className="lg:col-span-1">
-          <h4 className="text-white text-xl font-bold mb-6">EDUWAY</h4>
+          <h4 className="text-white text-xl font-bold mb-6">{t('footer.eduway')}</h4>
           <p className="text-sm leading-loose mb-8">
-            The first program in the world specifically designed for those living with dyslexia, helping them achieve amazing results and make learning fun.
+            {t('footer.aboutText')}
           </p>
           <div className="flex gap-4">
             <a 
@@ -157,7 +159,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               target="_blank" 
               rel="noopener noreferrer" 
               className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-purple-600 transition-colors" 
-              aria-label="Follow us on Instagram"
+              aria-label={t('footer.followInstagram')}
             >
               <Instagram size={18} />
             </a>
@@ -166,14 +168,14 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
         {/* Quick Links */}
         <div>
-          <h4 className="text-white font-bold mb-6">Quick Links</h4>
+          <h4 className="text-white font-bold mb-6">{t('footer.quickLinks')}</h4>
           <ul className="space-y-3 text-sm">
-            <li><button onClick={() => handleLinkClick('home')} className="hover:text-purple-400 transition-colors">Home</button></li>
-            <li><button onClick={() => handleLinkClick('who-we-are')} className="hover:text-purple-400 transition-colors">Who We Are</button></li>
-            <li><button onClick={() => handleLinkClick('courses')} className="hover:text-purple-400 transition-colors">All Courses</button></li>
-            <li><button onClick={() => handleLinkClick('contact')} className="hover:text-purple-400 transition-colors">Contact</button></li>
-            <li><button onClick={() => handleLinkClick('faq')} className="hover:text-purple-400 transition-colors">FAQ</button></li>
-            <li><button onClick={() => handleLinkClick('login')} className="hover:text-purple-400 transition-colors">Login / Register</button></li>
+            <li><button onClick={() => handleLinkClick('home')} className="hover:text-purple-400 transition-colors">{t('footer.home')}</button></li>
+            <li><button onClick={() => handleLinkClick('who-we-are')} className="hover:text-purple-400 transition-colors">{t('footer.whoWeAre')}</button></li>
+            <li><button onClick={() => handleLinkClick('courses')} className="hover:text-purple-400 transition-colors">{t('footer.allCourses')}</button></li>
+            <li><button onClick={() => handleLinkClick('contact')} className="hover:text-purple-400 transition-colors">{t('footer.contact')}</button></li>
+            <li><button onClick={() => handleLinkClick('faq')} className="hover:text-purple-400 transition-colors">{t('footer.faq')}</button></li>
+            <li><button onClick={() => handleLinkClick('login')} className="hover:text-purple-400 transition-colors">{t('footer.loginRegister')}</button></li>
           </ul>
         </div>
 
@@ -184,7 +186,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <>
               <h4 className="text-white font-bold mb-4 flex items-center gap-2">
                 {PRODUCT_ICONS['service']}
-                Online Courses
+                {t('footer.onlineCourses')}
               </h4>
               <ul className="space-y-3 text-sm mb-6">
                 {renderCourseLinks(
@@ -202,13 +204,13 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <>
               <h4 className="text-white font-bold mb-4 flex items-center gap-2">
                 {PRODUCT_ICONS['learndash']}
-                Interactive Courses
+                {t('footer.interactiveCourses')}
               </h4>
               
               {/* Adults & Teens */}
               {groupedCourses.interactiveAdults.length > 0 && (
                 <>
-                  <p className="text-xs text-gray-500 mb-2 uppercase tracking-wider">Adults & Teens</p>
+                  <p className="text-xs text-gray-500 mb-2 uppercase tracking-wider">{t('footer.adultsTeens')}</p>
                   <ul className="space-y-2 text-sm mb-4">
                     {renderCourseLinks(
                       groupedCourses.interactiveAdults, 
@@ -224,7 +226,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               {/* Kids */}
               {groupedCourses.interactiveKids.length > 0 && (
                 <>
-                  <p className="text-xs text-gray-500 mb-2 uppercase tracking-wider">Kids</p>
+                  <p className="text-xs text-gray-500 mb-2 uppercase tracking-wider">{t('footer.kids')}</p>
                   <ul className="space-y-2 text-sm">
                     {renderCourseLinks(
                       groupedCourses.interactiveKids, 
@@ -246,13 +248,13 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <>
               <h4 className="text-white font-bold mb-4 flex items-center gap-2">
                 {PRODUCT_ICONS['ebook']}
-                E-books
+                {t('footer.ebooks')}
               </h4>
               
               {/* Adults & Teens */}
               {groupedCourses.ebooksAdults.length > 0 && (
                 <>
-                  <p className="text-xs text-gray-500 mb-2 uppercase tracking-wider">Adults & Teens</p>
+                  <p className="text-xs text-gray-500 mb-2 uppercase tracking-wider">{t('footer.adultsTeens')}</p>
                   <ul className="space-y-2 text-sm mb-4">
                     {renderCourseLinks(
                       groupedCourses.ebooksAdults, 
@@ -268,7 +270,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               {/* Kids */}
               {groupedCourses.ebooksKids.length > 0 && (
                 <>
-                  <p className="text-xs text-gray-500 mb-2 uppercase tracking-wider">Kids</p>
+                  <p className="text-xs text-gray-500 mb-2 uppercase tracking-wider">{t('footer.kids')}</p>
                   <ul className="space-y-2 text-sm">
                     {renderCourseLinks(
                       groupedCourses.ebooksKids, 
@@ -288,16 +290,16 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <div>
               <h4 className="text-white font-bold mb-4 flex items-center gap-2">
                 {PRODUCT_ICONS['ebook']}
-                E-books
+                {t('footer.ebooks')}
               </h4>
-              <p className="text-xs text-gray-500">Coming soon...</p>
+              <p className="text-xs text-gray-500">{t('footer.comingSoon')}</p>
             </div>
           )}
         </div>
 
         {/* Contact Column */}
         <div>
-          <h4 className="text-white font-bold mb-6">Contact Us</h4>
+          <h4 className="text-white font-bold mb-6">{t('footer.contactUs')}</h4>
           <ul className="space-y-4 text-sm">
             <li className="flex items-center gap-3">
               <Phone size={16} className="text-purple-500" />
@@ -313,7 +315,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             </li>
             <li className="pt-4">
               <button onClick={() => handleLinkClick('faq')} className="hover:text-purple-400 transition-colors">
-                Support & FAQ
+                {t('footer.supportFaq')}
               </button>
             </li>
           </ul>
@@ -332,16 +334,16 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
       </div>
 
       <div className="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-medium text-gray-500">
-        <p>Copyright © 2026 ANA MILATOVIĆ PR CENTAR ZA EDUKACIJE EDUWAY | All rights reserved</p>
+        <p>{t('footer.copyright')}</p>
         <div className="flex gap-6 flex-wrap justify-center">
-          <button onClick={() => handleLinkClick('terms')} className="hover:text-white">Terms & Conditions</button>
-          <button onClick={() => handleLinkClick('cookie-policy')} className="hover:text-white">Cookie Policy</button>
-          <button onClick={() => handleLinkClick('privacy-policy')} className="hover:text-white">Privacy Policy</button>
-          <button onClick={() => handleLinkClick('refund-policy')} className="hover:text-white">Refund and Return Policy</button>
+          <button onClick={() => handleLinkClick('terms')} className="hover:text-white">{t('footer.termsConditions')}</button>
+          <button onClick={() => handleLinkClick('cookie-policy')} className="hover:text-white">{t('footer.cookiePolicy')}</button>
+          <button onClick={() => handleLinkClick('privacy-policy')} className="hover:text-white">{t('footer.privacyPolicy')}</button>
+          <button onClick={() => handleLinkClick('refund-policy')} className="hover:text-white">{t('footer.refundPolicy')}</button>
         </div>
         {/* Accepted Payment Methods */}
         <div className="flex items-center gap-4 mt-4">
-          <span className="text-[9px] uppercase tracking-widest text-gray-600">We accept:</span>
+          <span className="text-[9px] uppercase tracking-widest text-gray-600">{t('footer.weAccept')}</span>
           <img src="/assets/images/visa-logo.jpg" alt="Visa" className="h-6 opacity-50 hover:opacity-80 transition-opacity" />
           <img src="/assets/images/mastercard-logo.png" alt="Mastercard" className="h-6 opacity-50 hover:opacity-80 transition-opacity" />
           <img src="/assets/images/dinacard-logo.jpg" alt="DinaCard" className="h-6 opacity-50 hover:opacity-80 transition-opacity" />

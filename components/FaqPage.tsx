@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowUpRight, ArrowDownRight, ChevronRight, Plus, Minus, Search, MessageCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import WaveSeparator from './WaveSeparator';
 
 const FaqItem: React.FC<{ question: string; answer: string }> = ({ question, answer }) => {
@@ -29,6 +30,7 @@ const FaqItem: React.FC<{ question: string; answer: string }> = ({ question, ans
 };
 
 const FaqPage: React.FC = () => {
+  const { t } = useTranslation('faq');
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -80,92 +82,15 @@ const FaqPage: React.FC = () => {
     };
   }, []);
 
-  const generalFaqs = [
-    {
-      q: "How is the Eduway program designed to support students with dyslexia in learning English?",
-      a: "The Eduway program is designed with an inclusive approach, using multisensory techniques, visual tools, and adaptive strategies to facilitate English learning. Each module is designed to be accessible and engaging, respecting the learning needs of students with dyslexia."
-    },
-    {
-      q: "What are the main features of the Eduway program that make it suitable for students with dyslexia?",
-      a: "Key features include the use of vibrant graphics, interactive activities, mind maps, color-coding to enhance visual organization, and audio support to aid comprehension. These elements promote engaging learning that minimizes reading and memorization difficulties."
-    },
-    {
-      q: "How does the program differ from traditional teaching methods in adapting to the needs of students with dyslexia?",
-      a: "Eduway differentiates itself by integrating teaching techniques that leverage shapes, colors, visual patterns, and audio. Unlike traditional methods, this program emphasizes visual and hands-on learning to strengthen comprehension and retention."
-    },
-    {
-      q: "What visual and learning techniques are used in Eduway to support memorization and comprehension?",
-      a: "Mind maps, color charts, and illustrations are used to visually represent information. These techniques help students see connections between ideas and better organize their thinking, improving retention and comprehension."
-    },
-    {
-      q: "How are shapes and colors used to improve learning in dyslexic students?",
-      a: "Shapes and colors are used to highlight important parts of lessons, distinguish word categories, and represent grammatical concepts. This technique, called the SHAPE & COLOR CODING BRAIN PUZZLE, reduces visual complexity, helping students focus on key information."
-    },
-    {
-      q: "How are mind maps integrated into the program to facilitate information organization and learning?",
-      a: "Mind maps are used to summarize lessons and visually represent connections between concepts. These maps help dyslexic students structure information in a more logical and memorable way."
-    },
-    {
-      q: "How does the program use visuals to aid comprehension and retention?",
-      a: "The program integrates colorful images, charts, and visual diagrams that represent words and phrases intuitively. This visual impact allows students to easily associate meanings with images, making memorization more natural."
-    }
-  ];
+  const generalFaqs = t('general', { returnObjects: true }) as { q: string; a: string }[];
 
-  const visualFaqs = [
-    {
-      q: "What is the role of images and visual materials in teaching English to students with SMART START DSA?",
-      a: "Images and visual materials are crucial for creating strong mental associations and facilitating content comprehension. They serve to transform words into visual concepts, which are easier for students with dyslexia to process and memorize."
-    },
-    {
-      q: "How does the program use illustrations to reinforce the meaning of words and phrases?",
-      a: "Illustrations are integrated into each lesson to accompany new vocabulary and key phrases. This helps students connect the images to the words, strengthening understanding and facilitating visual learning."
-    },
-    {
-      q: "How does the visual approach contribute to accelerating memorization and creating a permanent impression?",
-      a: "The visual approach creates strong connections between images and linguistic concepts, accelerating the memorization process. These visual connections help create a permanent imprint in long-term memory, making learning more effective."
-    }
-  ];
+  const visualFaqs = t('visual', { returnObjects: true }) as { q: string; a: string }[];
 
-  const languageFaqs = [
-    {
-      q: "How does the program support language comprehension through adaptive learning techniques for dyslexics?",
-      a: "The program includes simplified readings, video supports to improve listening comprehension, and the use of diagrams and maps to summarize content. This approach allows students to learn at their own pace and according to their needs."
-    },
-    {
-      q: "What specific tools are used to improve the listening and writing skills of students with dyslexia?",
-      a: "Eduway uses guided video explanations to improve listening comprehension. For writing, visual guides, sentence templates, and interactive exercises are provided to encourage practice."
-    },
-    {
-      q: "How does Eduway make speaking and writing more accessible for dyslexic students?",
-      a: "The program includes hands-on activities that encourage conversation and written expression, using visual cues to facilitate comprehension. The exercises are designed to be repetitive yet varied, to maintain interest and promote learning."
-    }
-  ];
+  const languageFaqs = t('language', { returnObjects: true }) as { q: string; a: string }[];
 
-  const memorizationFaqs = [
-    {
-      q: "What strategy does Eduway use to ensure that learning is lasting and rooted?",
-      a: "The program uses distributed repetition techniques and interactive practice to reinforce learned concepts. Mind maps and image-based activities help consolidate learning and make it lasting."
-    },
-    {
-      q: "How are visual elements and multisensory techniques used to create stable mental connections?",
-      a: "Visual elements and multisensory techniques, such as associating words with sounds, images, and colors, create multiple connections in the mind, facilitating the memorization and recall of information."
-    }
-  ];
+  const memorizationFaqs = t('memorization', { returnObjects: true }) as { q: string; a: string }[];
 
-  const benefitsFaqs = [
-    {
-      q: "What are the main benefits for a dyslexic student who follows the Eduway program?",
-      a: "Dyslexic students improve their comprehension and production of language thanks to a visual and multisensory approach that makes learning more accessible and engaging."
-    },
-    {
-      q: "How does Eduway help overcome specific difficulties related to dyslexia when learning English?",
-      a: "The program uses visual techniques, audio support, and interactive activities to reduce reading and memorization difficulties, helping students overcome their specific challenges."
-    },
-    {
-      q: "What improvements can dyslexic students expect in terms of language comprehension and production?",
-      a: "Students can expect to improve their listening and reading comprehension, enrich their vocabulary, and develop greater confidence in communicating in English, thanks to a structured approach supported by visual techniques."
-    }
-  ];
+  const benefitsFaqs = t('benefits', { returnObjects: true }) as { q: string; a: string }[];
 
   return (
     <div className="bg-black">
@@ -180,7 +105,7 @@ const FaqPage: React.FC = () => {
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 flex flex-col items-center text-center -translate-y-6 sm:-translate-y-8">
           <div className="flex items-center gap-4 mb-6 sm:mb-8 opacity-60 animate-reveal">
             <div className="h-[1px] w-8 bg-[#AB8FFF]"></div>
-            <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-gray-400">Knowledge Base</span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-gray-400">{t('hero.badge')}</span>
             <div className="h-[1px] w-8 bg-[#AB8FFF]"></div>
           </div>
 
@@ -190,15 +115,15 @@ const FaqPage: React.FC = () => {
                 <Search size={16} className="text-[#AB8FFF]" />
               </div>
               <div className="text-left">
-                <p className="text-[8px] font-black uppercase text-gray-500 leading-none mb-1">Support</p>
-                <p className="text-xs font-black text-white leading-none">Find Answers</p>
+                <p className="text-[8px] font-black uppercase text-gray-500 leading-none mb-1">{t('hero.supportLabel')}</p>
+                <p className="text-xs font-black text-white leading-none">{t('hero.findAnswers')}</p>
               </div>
             </div>
 
             <h1 className="flex flex-wrap items-center justify-center gap-x-2 sm:gap-x-4 text-4xl sm:text-6xl md:text-9xl lg:text-[8rem] font-black text-white tracking-tighter leading-none animate-reveal">
-              <span>FAQ</span>
-              <span className="text-[#AB8FFF] font-medium px-2 sm:px-4">&</span>
-              <span>Answers</span>
+              <span>{t('hero.title1')}</span>
+              <span className="text-[#AB8FFF] font-medium px-2 sm:px-4">{t('hero.titleAnd')}</span>
+              <span>{t('hero.title2')}</span>
             </h1>
 
             <div className="hidden lg:flex absolute -right-40 bottom-0 items-center gap-3 bg-white/5 backdrop-blur px-5 py-3 rounded-2xl shadow-lg transform rotate-3 animate-reveal stagger-2 border border-white/10">
@@ -206,18 +131,18 @@ const FaqPage: React.FC = () => {
                 <MessageCircle size={16} className="text-white" />
               </div>
               <div className="text-left">
-                <p className="text-[8px] font-black uppercase text-gray-500 leading-none mb-1">Contact</p>
-                <p className="text-xs font-black text-white leading-none">Always Available</p>
+                <p className="text-[8px] font-black uppercase text-gray-500 leading-none mb-1">{t('hero.contactLabel')}</p>
+                <p className="text-xs font-black text-white leading-none">{t('hero.alwaysAvailable')}</p>
               </div>
             </div>
           </div>
 
           <div className="flex flex-col items-center animate-reveal stagger-1">
             <p className="text-xl sm:text-3xl md:text-5xl font-black text-gray-300 tracking-[0.1em] mb-2 uppercase">
-              Everything you need to
+              {t('hero.subtitleTop')}
             </p>
             <p className="text-3xl sm:text-4xl md:text-6xl font-black text-[#AB8FFF] tracking-tight mb-8 uppercase">
-              Know
+              {t('hero.subtitleBottom')}
             </p>
           </div>
         </div>
@@ -233,10 +158,10 @@ const FaqPage: React.FC = () => {
           <div className="mb-24">
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-12 animate-reveal">
               <div className="shrink-0 px-6 py-2 bg-purple-500/10 rounded-full border border-purple-500/20 w-fit">
-                <span className="text-[10px] font-black text-purple-400 uppercase tracking-widest">Section 01</span>
+                <span className="text-[10px] font-black text-purple-400 uppercase tracking-widest">{t('sections.section01')}</span>
               </div>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight leading-tight uppercase">
-                Approach for Students with DSA
+                {t('sections.heading01')}
               </h2>
             </div>
             
@@ -252,10 +177,10 @@ const FaqPage: React.FC = () => {
           <div className="mb-24">
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-12 animate-reveal">
               <div className="shrink-0 px-6 py-2 bg-pink-500/10 rounded-full border border-pink-500/20 w-fit">
-                <span className="text-[10px] font-black text-pink-400 uppercase tracking-widest">Section 02</span>
+                <span className="text-[10px] font-black text-pink-400 uppercase tracking-widest">{t('sections.section02')}</span>
               </div>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight leading-tight uppercase">
-                Visual and Multisensory Approach
+                {t('sections.heading02')}
               </h2>
             </div>
             <div className="bg-white/5 rounded-[2.5rem] sm:rounded-[3rem] p-6 md:p-12 border border-white/10 shadow-xl shadow-pink-500/10 animate-reveal stagger-1">
@@ -269,10 +194,10 @@ const FaqPage: React.FC = () => {
           <div className="mb-24">
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-12 animate-reveal">
               <div className="shrink-0 px-6 py-2 bg-indigo-500/10 rounded-full border border-indigo-500/20 w-fit">
-                <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Section 03</span>
+                <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">{t('sections.section03')}</span>
               </div>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight leading-tight uppercase">
-                Adaptations for Language Understanding
+                {t('sections.heading03')}
               </h2>
             </div>
             <div className="bg-white/5 rounded-[2.5rem] sm:rounded-[3rem] p-6 md:p-12 border border-white/10 shadow-xl shadow-indigo-500/10 animate-reveal stagger-1">
@@ -286,10 +211,10 @@ const FaqPage: React.FC = () => {
           <div className="mb-24">
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-12 animate-reveal">
               <div className="shrink-0 px-6 py-2 bg-rose-500/10 rounded-full border border-rose-500/20 w-fit">
-                <span className="text-[10px] font-black text-rose-400 uppercase tracking-widest">Section 04</span>
+                <span className="text-[10px] font-black text-rose-400 uppercase tracking-widest">{t('sections.section04')}</span>
               </div>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight leading-tight uppercase">
-                Techniques for Permanent Memorization
+                {t('sections.heading04')}
               </h2>
             </div>
             <div className="bg-white/5 rounded-[2.5rem] sm:rounded-[3rem] p-6 md:p-12 border border-white/10 shadow-xl shadow-rose-500/10 animate-reveal stagger-1">
@@ -303,10 +228,10 @@ const FaqPage: React.FC = () => {
           <div className="mb-24">
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-12 animate-reveal">
               <div className="shrink-0 px-6 py-2 bg-orange-500/10 rounded-full border border-orange-500/20 w-fit">
-                <span className="text-[10px] font-black text-orange-400 uppercase tracking-widest">Section 05</span>
+                <span className="text-[10px] font-black text-orange-400 uppercase tracking-widest">{t('sections.section05')}</span>
               </div>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight leading-tight uppercase">
-                Benefits and Results
+                {t('sections.heading05')}
               </h2>
             </div>
             <div className="bg-white/5 rounded-[2.5rem] sm:rounded-[3rem] p-6 md:p-12 border border-white/10 shadow-xl shadow-orange-500/10 animate-reveal stagger-1">
@@ -322,12 +247,12 @@ const FaqPage: React.FC = () => {
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-600/20 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2 mix-blend-screen"></div>
             
             <div className="relative z-10">
-              <h3 className="text-3xl md:text-5xl font-black text-white mb-6 tracking-tight uppercase">Still have questions?</h3>
+              <h3 className="text-3xl md:text-5xl font-black text-white mb-6 tracking-tight uppercase">{t('cta.title')}</h3>
               <p className="text-gray-400 text-lg md:text-xl mb-12 max-w-xl mx-auto">
-                Our support team is ready to help you find the best path for your learning journey.
+                {t('cta.description')}
               </p>
               <button className="bg-[#AB8FFF] text-white px-12 py-5 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-2xl shadow-purple-500/20 active:scale-95">
-                Contact Support
+                {t('cta.button')}
               </button>
             </div>
           </div>

@@ -1,0 +1,42 @@
+{
+  "ageSelect": {
+    "title": "Ko polaže test?",
+    "subtitle": "Izaberite starosnu grupu polaznika kako bismo prikazali odgovarajući test za određivanje nivoa.",
+    "teensAdults": "12 godina ili više",
+    "teensAdultsLabel": "Tinejdžeri i odrasli",
+    "kids": "Mlađi od 12",
+    "kidsLabel": "Deca",
+    "footer": "Prijava nije potrebna • Besplatna procena"
+  },
+  "intro": {
+    "titleKids": "Otkrijte nivo vašeg deteta",
+    "titleAdults": "Otkrijte svoj nivo engleskog",
+    "subtitleKids": "Zabavan test od 30 pitanja kreiran za mlade polaznike! Pronađite savršen kurs za vaše dete za oko 10 minuta.",
+    "subtitleAdults": "Uradite naš test od 40 pitanja za određivanje nivoa i pronađite savršen kurs za vaš nivo. Potrebno je samo 10-15 minuta!",
+    "questions": "Pitanja",
+    "levels": "Nivoi",
+    "startButton": "Započni procenu",
+    "footer": "Prijava nije potrebna • Besplatna procena"
+  },
+  "quiz": {
+    "questionOf": "Pitanje {{current}} od {{total}}",
+    "exitTest": "Izađi iz testa",
+    "previous": "Prethodno",
+    "next": "Sledeće",
+    "finish": "Završi"
+  },
+  "results": {
+    "title": "Procena završena! 🎉",
+    "score": "Tačno ste odgovorili na {{correct}} od {{total}} pitanja ({{percentage}}%)",
+    "recommendedEbookLevel": "Preporučeni nivo e-knjige",
+    "yourRecommendedLevel": "Vaš preporučeni nivo",
+    "ebookRecommendation": "Na osnovu vaših rezultata, preporučujemo e-knjigu nivoa {{levelName}} kao vaš sledeći korak.",
+    "scoreBreakdown": "Pregled rezultata po nivou",
+    "passed": "✓ Položeno",
+    "notPassed": "Nije položeno",
+    "retakeTest": "Ponovi test",
+    "viewRecommendedEbook": "Pogledaj preporučenu e-knjigu",
+    "viewRecommendedCourse": "Pogledaj preporučeni kurs",
+    "savedLocally": "Vaš rezultat je sačuvan lokalno. Napravite nalog da pratite svoj napredak!"
+  }
+}

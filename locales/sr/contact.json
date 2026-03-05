@@ -1,0 +1,43 @@
+{
+  "hero": {
+    "badge": "Kontaktirajte nas",
+    "title1": "KONTAKTIRAJTE",
+    "title2": "NAS",
+    "subtitle": "Tu smo da koračamo uz vas, bukvalno na svakom koraku."
+  },
+  "info": {
+    "badge": "Veze",
+    "headingLine1": "Dostupni da vas",
+    "headingLine2": "podržimo",
+    "description": "Naš tim stručnjaka je spreman da pruži smernice i odgovori na sva pitanja o našim DSA programima za engleski.",
+    "callUs": "Pozovite nas",
+    "emailUs": "Pišite nam",
+    "ourAddress": "Naša adresa"
+  },
+  "form": {
+    "title": "Javite nam se!",
+    "firstNameLabel": "Ime *",
+    "firstNamePlaceholder": "Ime",
+    "lastNameLabel": "Prezime",
+    "lastNamePlaceholder": "Prezime",
+    "emailLabel": "Email *",
+    "emailPlaceholder": "hello@example.com",
+    "messageLabel": "Poruka *",
+    "messagePlaceholder": "Kako vam možemo pomoći?",
+    "sendButton": "Pošalji poruku",
+    "sendingButton": "Slanje..."
+  },
+  "success": {
+    "title": "Poruka je poslata!",
+    "description": "Hvala što ste nam se javili. Odgovorićemo vam što je pre moguće.",
+    "sendAnother": "Pošalji drugu poruku"
+  },
+  "validation": {
+    "firstNameRequired": "Ime je obavezno",
+    "emailRequired": "Email je obavezan",
+    "emailInvalid": "Unesite ispravan email",
+    "messageRequired": "Poruka je obavezna",
+    "submitFailed": "Slanje poruke nije uspelo. Pokušajte ponovo.",
+    "unexpectedError": "Došlo je do neočekivane greške. Pokušajte ponovo."
+  }
+}

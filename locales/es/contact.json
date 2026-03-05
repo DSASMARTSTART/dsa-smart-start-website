@@ -1,0 +1,43 @@
+{
+  "hero": {
+    "badge": "Contáctanos",
+    "title1": "PONTE EN",
+    "title2": "CONTACTO",
+    "subtitle": "Estamos aquí para acompañarte, literalmente en cada paso del camino."
+  },
+  "info": {
+    "badge": "Conexiones",
+    "headingLine1": "Disponibles para",
+    "headingLine2": "Ayudarte",
+    "description": "Nuestro equipo de especialistas está listo para orientarte y responder cualquier pregunta sobre nuestros programas de inglés para DEA.",
+    "callUs": "Llámanos",
+    "emailUs": "Escríbenos",
+    "ourAddress": "Nuestra Dirección"
+  },
+  "form": {
+    "title": "¡Ponte en Contacto!",
+    "firstNameLabel": "Nombre *",
+    "firstNamePlaceholder": "Nombre",
+    "lastNameLabel": "Apellido",
+    "lastNamePlaceholder": "Apellido",
+    "emailLabel": "Correo electrónico *",
+    "emailPlaceholder": "hola@ejemplo.com",
+    "messageLabel": "Mensaje *",
+    "messagePlaceholder": "¿Cómo podemos ayudarte?",
+    "sendButton": "Enviar Mensaje",
+    "sendingButton": "Enviando..."
+  },
+  "success": {
+    "title": "¡Mensaje Enviado!",
+    "description": "Gracias por contactarnos. Te responderemos lo antes posible.",
+    "sendAnother": "Enviar Otro Mensaje"
+  },
+  "validation": {
+    "firstNameRequired": "El nombre es obligatorio",
+    "emailRequired": "El correo electrónico es obligatorio",
+    "emailInvalid": "Por favor, introduce un correo electrónico válido",
+    "messageRequired": "El mensaje es obligatorio",
+    "submitFailed": "No se pudo enviar el mensaje. Por favor, inténtalo de nuevo.",
+    "unexpectedError": "Ocurrió un error inesperado. Por favor, inténtalo de nuevo."
+  }
+}

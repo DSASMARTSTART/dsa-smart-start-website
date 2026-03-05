@@ -29,6 +29,7 @@ import ResetPasswordPage from './components/ResetPasswordPage';
 import { useAuth } from './contexts/AuthContext';
 import { clearCoursesCache, enrollmentsApi } from './data/supabaseStore';
 import { CheckCircle, AlertCircle, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 // Admin Dashboard Components
 import { 
@@ -48,6 +49,7 @@ const CART_STORAGE_KEY = 'dsa_cart';
 const MATERIALS_STORAGE_KEY = 'dsa_materials';
 
 const App: React.FC = () => {
+  const { t } = useTranslation('common');
   const { user, profile, loading: authLoading, signOut, isAdmin: checkIsAdmin, canAccessAdmin } = useAuth();
   // Note: useUserProgress is now called only in components that need it (DashboardPage, CourseViewer)
   // This prevents unnecessary API calls on every page load
@@ -250,7 +252,7 @@ const App: React.FC = () => {
     
     // Check if already in cart
     if (cart.includes(id)) {
-      showToast('info', 'This item is already in your cart');
+      showToast('info', t('toast.alreadyInCart'));
       return;
     }
 
@@ -261,7 +263,7 @@ const App: React.FC = () => {
       try {
         const isEnrolled = await enrollmentsApi.checkEnrollment(userId, id);
         if (isEnrolled) {
-          showToast('info', 'You already own this product! Check your dashboard.');
+          showToast('info', t('toast.alreadyOwn'));
           setAddingToCart(null);
           return;
         }
@@ -273,7 +275,7 @@ const App: React.FC = () => {
 
     // Add to cart
     setCart(prev => [...prev, id]);
-    showToast('success', 'Added to cart!');
+    showToast('success', t('toast.addedToCart'));
     setAddingToCart(null);
   }, [cart, userId, showToast, addingToCart]);
 
@@ -293,7 +295,7 @@ const App: React.FC = () => {
       try {
         const isEnrolled = await enrollmentsApi.checkEnrollment(userId, id);
         if (isEnrolled) {
-          showToast('info', 'You already own this product! Check your dashboard.');
+          showToast('info', t('toast.alreadyOwn'));
           navigateTo('dashboard');
           return;
         }
@@ -313,7 +315,7 @@ const App: React.FC = () => {
         href="#main-content" 
         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[9999] focus:bg-purple-600 focus:text-white focus:px-6 focus:py-3 focus:rounded-full focus:font-bold focus:text-sm focus:shadow-lg"
       >
-        Skip to main content
+        {t('skipToContent')}
       </a>
       
       {!isAdminPath && (
@@ -467,13 +469,13 @@ const App: React.FC = () => {
       {isAdminPath && !isAdmin && (
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
-            <p className="text-gray-600 mb-6">You don't have permission to access this page.</p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">{t('accessDenied.title')}</h1>
+            <p className="text-gray-600 mb-6">{t('accessDenied.message')}</p>
             <button 
               onClick={() => navigateTo('home')}
               className="px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors"
             >
-              Go to Home
+              {t('accessDenied.goToHome')}
             </button>
           </div>
         </div>

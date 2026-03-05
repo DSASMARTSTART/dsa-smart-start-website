@@ -1,0 +1,68 @@
+{
+  "nav": {
+    "home": "Home",
+    "whoWeAre": "Chi siamo",
+    "products": "Prodotti",
+    "faq": "FAQ",
+    "contacts": "Contatti",
+    "loginRegister": "Accedi/Registrati",
+    "dashboard": "Dashboard",
+    "browseProducts": "Sfoglia i prodotti",
+    "adminPanel": "Pannello Admin",
+    "logout": "Esci"
+  },
+  "footer": {
+    "eduway": "EDUWAY",
+    "aboutText": "Il primo programma al mondo specificamente progettato per chi convive con la dislessia, aiutandoli a raggiungere risultati straordinari e rendendo l'apprendimento divertente.",
+    "followInstagram": "Seguici su Instagram",
+    "quickLinks": "Link rapidi",
+    "home": "Home",
+    "whoWeAre": "Chi siamo",
+    "allCourses": "Tutti i corsi",
+    "contact": "Contatti",
+    "faq": "FAQ",
+    "loginRegister": "Accedi / Registrati",
+    "onlineCourses": "Corsi online",
+    "interactiveCourses": "Corsi interattivi",
+    "adultsTeens": "Adulti e ragazzi",
+    "kids": "Bambini",
+    "ebooks": "E-book",
+    "viewAll": "Vedi tutti",
+    "contactUs": "Contattaci",
+    "supportFaq": "Supporto e FAQ",
+    "comingSoon": "Prossimamente...",
+    "copyright": "Copyright © 2026 ANA MILATOVIĆ PR CENTAR ZA EDUKACIJE EDUWAY | Tutti i diritti riservati",
+    "termsConditions": "Termini e condizioni",
+    "cookiePolicy": "Politica sui cookie",
+    "privacyPolicy": "Informativa sulla privacy",
+    "refundPolicy": "Politica di rimborso e reso",
+    "weAccept": "Accettiamo:"
+  },
+  "toast": {
+    "addedToCart": "Aggiunto al carrello!",
+    "alreadyInCart": "Questo articolo è già nel tuo carrello",
+    "alreadyOwn": "Possiedi già questo prodotto! Controlla la tua dashboard."
+  },
+  "whatsapp": {
+    "chatWithUs": "Chatta con noi",
+    "ariaLabel": "Chatta su WhatsApp"
+  },
+  "cart": {
+    "courseInCart": "{{count}} corso nel carrello",
+    "coursesInCart": "{{count}} corsi nel carrello",
+    "goToCheckout": "Vai al pagamento"
+  },
+  "error": {
+    "title": "Ops! Qualcosa è andato storto",
+    "description": "Ci scusiamo, ma si è verificato un errore imprevisto. Prova ad aggiornare la pagina o a tornare alla home page.",
+    "refreshPage": "Aggiorna la pagina",
+    "goToHome": "Vai alla Home",
+    "technicalDetails": "Dettagli tecnici (solo sviluppo)"
+  },
+  "accessDenied": {
+    "title": "Accesso negato",
+    "message": "Non hai il permesso di accedere a questa pagina.",
+    "goToHome": "Vai alla Home"
+  },
+  "skipToContent": "Vai al contenuto principale"
+}

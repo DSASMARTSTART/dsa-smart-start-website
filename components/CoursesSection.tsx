@@ -4,34 +4,35 @@ import { Star, Zap, Award, Music, Play, Layers, Compass, ChevronRight, Crown, Di
 import { coursesApi } from '../data/supabaseStore';
 import { Course, CourseLevel } from '../types';
 import AssessmentPopup from './AssessmentPopup';
+import { useTranslation } from 'react-i18next';
 
-// Level configuration for icons and colors
-const LEVEL_CONFIG: Record<string, { icon: React.ReactNode; color: string; label: string; category: 'adult' | 'kids' | 'pathway' }> = {
-  'A1': { icon: <Layers size={22} />, color: 'from-[#AB8FFF] to-[#d4bfff]', label: 'Beginner', category: 'adult' },
-  'A2': { icon: <Compass size={22} />, color: 'from-[#9b7aff] to-[#deaaff]', label: 'Elementary', category: 'adult' },
-  'B1': { icon: <Zap size={22} />, color: 'from-[#8a65ff] to-[#FFC1F2]', label: 'Intermediate', category: 'adult' },
-  'B2': { icon: <Award size={22} />, color: 'from-blue-600 to-cyan-500', label: 'Upper-Intermediate', category: 'adult' },
-  'Kids': { icon: <Music size={22} />, color: 'from-[#FFC1F2] to-[#ffdaeb]', label: 'Young Learners', category: 'kids' },
-  'kids-basic': { icon: <Music size={22} />, color: 'from-[#FFC1F2] to-[#ffdaeb]', label: 'Kids Basic', category: 'kids' },
-  'kids-medium': { icon: <Play size={22} />, color: 'from-[#fface0] to-[#fbcfe8]', label: 'Kids Medium', category: 'kids' },
-  'kids-advanced': { icon: <Award size={22} />, color: 'from-[#FFC1F2] to-[#AB8FFF]', label: 'Kids Advanced', category: 'kids' },
-  'language-lab': { icon: <Users size={22} />, color: 'from-violet-600 to-purple-700', label: 'Language Lab', category: 'pathway' },
-  'starter-path': { icon: <Compass size={22} />, color: 'from-sky-500 to-blue-600', label: 'Starter Path', category: 'pathway' },
-  'language-lab-pro': { icon: <Crown size={22} />, color: 'from-emerald-500 to-teal-600', label: 'Language Lab Pro', category: 'pathway' },
-  'hybrid-pack': { icon: <Diamond size={22} />, color: 'from-amber-500 to-yellow-600', label: 'Hybrid Pack', category: 'pathway' },
+// Level configuration for icons and colors (labels are translated inside the component)
+const LEVEL_CONFIG_STATIC: Record<string, { icon: React.ReactNode; color: string; labelKey: string; category: 'adult' | 'kids' | 'pathway' }> = {
+  'A1': { icon: <Layers size={22} />, color: 'from-[#AB8FFF] to-[#d4bfff]', labelKey: 'coursesSection.levelBeginner', category: 'adult' },
+  'A2': { icon: <Compass size={22} />, color: 'from-[#9b7aff] to-[#deaaff]', labelKey: 'coursesSection.levelElementary', category: 'adult' },
+  'B1': { icon: <Zap size={22} />, color: 'from-[#8a65ff] to-[#FFC1F2]', labelKey: 'coursesSection.levelIntermediate', category: 'adult' },
+  'B2': { icon: <Award size={22} />, color: 'from-blue-600 to-cyan-500', labelKey: 'coursesSection.levelUpperIntermediate', category: 'adult' },
+  'Kids': { icon: <Music size={22} />, color: 'from-[#FFC1F2] to-[#ffdaeb]', labelKey: 'coursesSection.levelYoungLearners', category: 'kids' },
+  'kids-basic': { icon: <Music size={22} />, color: 'from-[#FFC1F2] to-[#ffdaeb]', labelKey: 'coursesSection.levelKidsBasic', category: 'kids' },
+  'kids-medium': { icon: <Play size={22} />, color: 'from-[#fface0] to-[#fbcfe8]', labelKey: 'coursesSection.levelKidsMedium', category: 'kids' },
+  'kids-advanced': { icon: <Award size={22} />, color: 'from-[#FFC1F2] to-[#AB8FFF]', labelKey: 'coursesSection.levelKidsAdvanced', category: 'kids' },
+  'language-lab': { icon: <Users size={22} />, color: 'from-violet-600 to-purple-700', labelKey: 'coursesSection.levelLanguageLab', category: 'pathway' },
+  'starter-path': { icon: <Compass size={22} />, color: 'from-sky-500 to-blue-600', labelKey: 'coursesSection.levelStarterPath', category: 'pathway' },
+  'language-lab-pro': { icon: <Crown size={22} />, color: 'from-emerald-500 to-teal-600', labelKey: 'coursesSection.levelLanguageLabPro', category: 'pathway' },
+  'hybrid-pack': { icon: <Diamond size={22} />, color: 'from-amber-500 to-yellow-600', labelKey: 'coursesSection.levelHybridPack', category: 'pathway' },
 };
 
-// Fallback static courses for when database is empty
-const FALLBACK_ADULT_COURSES = [
-  { name: "A1 LEVEL", level: "Beginner", icon: <Layers size={22} />, color: "from-[#AB8FFF] to-[#d4bfff]", desc: "Foundation strategies for complete beginners with dyslexia.", image: "/assets/courses/adult-a1.svg" },
-  { name: "A2 LEVEL", level: "Elementary", icon: <Compass size={22} />, color: "from-[#9b7aff] to-[#deaaff]", desc: "Developing confidence in daily communication and basic structures.", image: "/assets/courses/adult-a2.svg" },
-  { name: "B1 LEVEL", level: "Intermediate", icon: <Zap size={22} />, color: "from-[#8a65ff] to-[#FFC1F2]", desc: "Independent usage with specialized DSA tools for advanced reasoning.", image: "/assets/courses/adult-b1.svg" },
+// Fallback static courses for when database is empty (translated inside the component)
+const FALLBACK_ADULT_COURSES_STATIC = [
+  { nameKey: "coursesSection.fallbackAdultA1Name", levelKey: "coursesSection.fallbackAdultA1Level", icon: <Layers size={22} />, color: "from-[#AB8FFF] to-[#d4bfff]", descKey: "coursesSection.fallbackAdultA1Desc", image: "/assets/courses/adult-a1.svg" },
+  { nameKey: "coursesSection.fallbackAdultA2Name", levelKey: "coursesSection.fallbackAdultA2Level", icon: <Compass size={22} />, color: "from-[#9b7aff] to-[#deaaff]", descKey: "coursesSection.fallbackAdultA2Desc", image: "/assets/courses/adult-a2.svg" },
+  { nameKey: "coursesSection.fallbackAdultB1Name", levelKey: "coursesSection.fallbackAdultB1Level", icon: <Zap size={22} />, color: "from-[#8a65ff] to-[#FFC1F2]", descKey: "coursesSection.fallbackAdultB1Desc", image: "/assets/courses/adult-b1.svg" },
 ];
 
-const FALLBACK_KIDS_COURSES = [
-  { name: "BASIC", level: "Early Years", icon: <Music size={22} />, color: "from-[#FFC1F2] to-[#ffdaeb]", desc: "Introduction through songs, visuals, and sensory exploration.", image: "/assets/courses/kids-basic.svg" },
-  { name: "MEDIUM", level: "Primary", icon: <Play size={22} />, color: "from-[#fface0] to-[#fbcfe8]", desc: "Interactive storytelling and vocabulary games for active focus.", image: "/assets/courses/kids-medium.svg" },
-  { name: "ADVANCED", level: "Pre-Teen", icon: <Award size={22} />, color: "from-[#FFC1F2] to-[#AB8FFF]", desc: "Preparing for school success with advanced visual mnemonics.", image: "/assets/courses/kids-advanced.svg" },
+const FALLBACK_KIDS_COURSES_STATIC = [
+  { nameKey: "coursesSection.fallbackKidsBasicName", levelKey: "coursesSection.fallbackKidsBasicLevel", icon: <Music size={22} />, color: "from-[#FFC1F2] to-[#ffdaeb]", descKey: "coursesSection.fallbackKidsBasicDesc", image: "/assets/courses/kids-basic.svg" },
+  { nameKey: "coursesSection.fallbackKidsMediumName", levelKey: "coursesSection.fallbackKidsMediumLevel", icon: <Play size={22} />, color: "from-[#fface0] to-[#fbcfe8]", descKey: "coursesSection.fallbackKidsMediumDesc", image: "/assets/courses/kids-medium.svg" },
+  { nameKey: "coursesSection.fallbackKidsAdvancedName", levelKey: "coursesSection.fallbackKidsAdvancedLevel", icon: <Award size={22} />, color: "from-[#FFC1F2] to-[#AB8FFF]", descKey: "coursesSection.fallbackKidsAdvancedDesc", image: "/assets/courses/kids-advanced.svg" },
 ];
 
 interface CoursesSectionProps {
@@ -40,6 +41,7 @@ interface CoursesSectionProps {
 }
 
 const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus, onNavigate }) => {
+  const { t } = useTranslation('home');
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -58,7 +60,7 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus, o
       setCourses(data);
     } catch (error) {
       console.error('Error loading courses:', error);
-      setLoadError('Unable to load courses');
+      setLoadError(t('coursesSection.loadError'));
     } finally {
       setLoading(false);
     }
@@ -94,7 +96,8 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus, o
   };
 
   const renderCourseCard = (course: Course, shadowColor: string) => {
-    const config = LEVEL_CONFIG[course.level] || LEVEL_CONFIG['A1'];
+    const configStatic = LEVEL_CONFIG_STATIC[course.level] || LEVEL_CONFIG_STATIC['A1'];
+    const label = t(configStatic.labelKey);
     
     return (
       <div 
@@ -114,12 +117,12 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus, o
               className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" 
             />
           ) : (
-            <div className={`w-full h-full bg-gradient-to-br ${config.color} flex items-center justify-center`}>
+            <div className={`w-full h-full bg-gradient-to-br ${configStatic.color} flex items-center justify-center`}>
               <span className="text-white text-6xl font-black opacity-30">{course.level}</span>
             </div>
           )}
-          <div className={`absolute top-4 left-4 w-12 h-12 rounded-xl bg-gradient-to-br ${config.color} text-white flex items-center justify-center shadow-lg`}>
-            {config.icon}
+          <div className={`absolute top-4 left-4 w-12 h-12 rounded-xl bg-gradient-to-br ${configStatic.color} text-white flex items-center justify-center shadow-lg`}>
+            {configStatic.icon}
           </div>
           
           {/* Price Badge */}
@@ -135,14 +138,14 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus, o
           )}
         </div>
         <div className="px-6">
-          <span className="text-[10px] font-black text-[#AB8FFF] uppercase tracking-[0.2em] mb-1 block">{config.label}</span>
+          <span className="text-[10px] font-black text-[#AB8FFF] uppercase tracking-[0.2em] mb-1 block">{label}</span>
           <h5 className="text-2xl font-black text-white tracking-tight mb-4">{course.title}</h5>
           <p className="text-gray-400 leading-relaxed mb-8 text-sm line-clamp-2">
             {course.description}
           </p>
           <div className="pt-6 border-t border-white/10 flex items-center justify-between">
             <button className="text-[11px] font-black uppercase tracking-widest text-[#AB8FFF] flex items-center gap-2 group-hover:gap-4 transition-all">
-              View Details
+              {t('coursesSection.viewDetails')}
               <ChevronRight size={14} />
             </button>
             <Star size={16} className="text-white/20" />
@@ -153,12 +156,12 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus, o
   };
 
   // Render static fallback card (for when no DB courses exist)
-  const renderFallbackCard = (course: typeof FALLBACK_ADULT_COURSES[0], shadowColor: string) => (
-    <div key={course.name} className={`group relative bg-white/5 rounded-[2rem] p-4 pb-10 border border-white/10 shadow-sm hover:shadow-2xl hover:shadow-${shadowColor}/20 transition-all duration-500 overflow-hidden`}>
+  const renderFallbackCard = (course: typeof FALLBACK_ADULT_COURSES_STATIC[0], shadowColor: string) => (
+    <div key={t(course.nameKey)} className={`group relative bg-white/5 rounded-[2rem] p-4 pb-10 border border-white/10 shadow-sm hover:shadow-2xl hover:shadow-${shadowColor}/20 transition-all duration-500 overflow-hidden`}>
       <div className="relative w-full aspect-[3/4] rounded-[1.5rem] overflow-hidden mb-8">
         <img 
           src={course.image} 
-          alt={`${course.name} Course`} 
+          alt={`${t(course.nameKey)} Course`} 
           className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" 
         />
         <div className={`absolute top-4 left-4 w-12 h-12 rounded-xl bg-gradient-to-br ${course.color} text-white flex items-center justify-center shadow-lg`}>
@@ -166,14 +169,14 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus, o
         </div>
       </div>
       <div className="px-6">
-        <span className="text-[10px] font-black text-[#AB8FFF] uppercase tracking-[0.2em] mb-1 block">{course.level}</span>
-        <h5 className="text-2xl font-black text-white tracking-tight mb-4">Eduway {course.name}</h5>
+        <span className="text-[10px] font-black text-[#AB8FFF] uppercase tracking-[0.2em] mb-1 block">{t(course.levelKey)}</span>
+        <h5 className="text-2xl font-black text-white tracking-tight mb-4">Eduway {t(course.nameKey)}</h5>
         <p className="text-gray-400 leading-relaxed mb-8 text-sm">
-          {course.desc}
+          {t(course.descKey)}
         </p>
         <div className="pt-6 border-t border-white/10 flex items-center justify-between">
           <button className="text-[11px] font-black uppercase tracking-widest text-[#AB8FFF] flex items-center gap-2 group-hover:gap-4 transition-all">
-            Coming Soon
+            {t('coursesSection.comingSoon')}
             <ChevronRight size={14} />
           </button>
           <Star size={16} className="text-white/20" />
@@ -191,13 +194,13 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus, o
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="flex flex-col lg:flex-row justify-between items-end mb-24 gap-8">
           <div className="max-w-2xl">
-            <span className="text-[10px] font-black text-[#AB8FFF] uppercase tracking-[0.4em] mb-4 block">Our Curriculum</span>
+            <span className="text-[10px] font-black text-[#AB8FFF] uppercase tracking-[0.4em] mb-4 block">{t('coursesSection.badge')}</span>
             <h3 className="text-4xl md:text-6xl font-black text-white leading-[1.1] tracking-tighter">
-              Tailored Programs for <br /> Every <span className="text-[#AB8FFF]">Learning Stage</span>
+              {t('coursesSection.title', { defaultValue: '' }).split('<1>')[0]}<span className="text-[#AB8FFF]">{t('coursesSection.title', { defaultValue: '' }).match(/<1>(.*?)<\/1>/)?.[1]}</span>{t('coursesSection.title', { defaultValue: '' }).split('</1>')[1]}
             </h3>
           </div>
           <p className="text-gray-400 lg:max-w-sm text-lg font-medium leading-relaxed">
-            Meticulously structured pathways to accommodate neurodiversity, ensuring progress without frustration.
+            {t('coursesSection.subtitle')}
           </p>
         </div>
 
@@ -238,7 +241,7 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus, o
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
             </div>
-            <p className="text-gray-500 mb-4">{loadError}</p>
+            <p className="text-gray-500 mb-4">{t('coursesSection.loadError')}</p>
             <button
               onClick={() => { setLoading(true); loadCourses(); }}
               className="inline-flex items-center gap-2 px-5 py-2 bg-purple-600 text-white text-sm font-bold rounded-full hover:bg-purple-700 transition-all"
@@ -246,7 +249,7 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus, o
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              Retry
+              {t('coursesSection.retry')}
             </button>
           </div>
         ) : (
@@ -254,14 +257,14 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus, o
             {/* Adults & Teens Section */}
             <div className="mb-32">
               <div className="flex items-center gap-6 mb-12">
-                <h4 className="text-sm font-black text-gray-300 uppercase tracking-widest whitespace-nowrap">Adults & Teens</h4>
+                <h4 className="text-sm font-black text-gray-300 uppercase tracking-widest whitespace-nowrap">{t('coursesSection.adultsTeens')}</h4>
                 <div className="h-[1px] flex-grow bg-gradient-to-r from-white/20 to-transparent"></div>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {hasDbCourses && adultCourses.length > 0
                   ? adultCourses.map(course => renderCourseCard(course, '[#AB8FFF]'))
-                  : FALLBACK_ADULT_COURSES.map(course => renderFallbackCard(course, '[#AB8FFF]'))
+                  : FALLBACK_ADULT_COURSES_STATIC.map(course => renderFallbackCard(course, '[#AB8FFF]'))
                 }
               </div>
 
@@ -272,7 +275,7 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus, o
                   className="inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
                 >
                   <GraduationCap size={20} />
-                  Take the Test — Teens & Adults
+                  {t('coursesSection.takeTestTeens')}
                 </button>
               </div>
             </div>
@@ -280,14 +283,14 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus, o
             {/* Kids Section */}
             <div className="mb-32">
               <div className="flex items-center gap-6 mb-12">
-                <h4 className="text-sm font-black text-gray-300 uppercase tracking-widest whitespace-nowrap">Kids</h4>
+                <h4 className="text-sm font-black text-gray-300 uppercase tracking-widest whitespace-nowrap">{t('coursesSection.kids')}</h4>
                 <div className="h-[1px] flex-grow bg-gradient-to-r from-white/20 to-transparent"></div>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {hasDbCourses && kidsCourses.length > 0
                   ? kidsCourses.map(course => renderCourseCard(course, '[#FFC1F2]'))
-                  : FALLBACK_KIDS_COURSES.map(course => renderFallbackCard(course, '[#FFC1F2]'))
+                  : FALLBACK_KIDS_COURSES_STATIC.map(course => renderFallbackCard(course, '[#FFC1F2]'))
                 }
               </div>
 
@@ -298,7 +301,7 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus, o
                   className="inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
                 >
                   <Baby size={20} />
-                  Take the Test — Kids
+                  {t('coursesSection.takeTestKids')}
                 </button>
               </div>
             </div>
@@ -307,7 +310,7 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus, o
             {pathwayCourses.length > 0 && (
               <div>
                 <div className="flex items-center gap-6 mb-12">
-                  <h4 className="text-sm font-black text-gray-300 uppercase tracking-widest whitespace-nowrap">Live Courses</h4>
+                  <h4 className="text-sm font-black text-gray-300 uppercase tracking-widest whitespace-nowrap">{t('coursesSection.liveCourses')}</h4>
                   <div className="h-[1px] flex-grow bg-gradient-to-r from-white/20 to-transparent"></div>
                 </div>
                 

@@ -1,0 +1,186 @@
+{
+  "title": "Checkout",
+  "backButton": "Go back to previous page",
+  "backButtonMobile": "Back",
+
+  "emptyCart": {
+    "title": "Your cart is empty",
+    "description": "Start your learning journey today! Browse our courses designed specifically for students with learning differences.",
+    "popularChoices": "Popular choices:",
+    "choice1": "Interactive A1-B1 English Courses",
+    "choice2": "Kids English Programs (Basic to Advanced)",
+    "choice3": "Premium & Gold Pathways for intensive learning",
+    "browseCourses": "Browse Courses"
+  },
+
+  "paymentNotConfigured": {
+    "title": "Payment Setup Required",
+    "description": "Payment processing is not yet configured. Please contact us to complete your enrollment.",
+    "yourCourses": "Your courses:",
+    "contactButton": "Contact Us to Enroll"
+  },
+
+  "studentInfo": {
+    "title": "Student Information",
+    "fullName": "Full Name",
+    "emailAddress": "Email Address",
+    "namePlaceholder": "Your Name",
+    "emailPlaceholder": "email@example.com"
+  },
+
+  "loginBanner": {
+    "title": "Log in to complete your purchase",
+    "description": "An account is required so your courses appear on your dashboard after purchase.",
+    "button": "Log In / Register"
+  },
+
+  "paymentMethod": {
+    "title": "Payment Method",
+    "card": "Credit / Debit Card",
+    "cardDescription": "Secure payment via Raiffeisen Bank",
+    "paypal": "PayPal",
+    "paypalDescription": "Pay securely with your PayPal account",
+    "selectPrompt": "Please select a payment method above",
+    "bankNotice": "A secure payment form by Raiffeisen Bank will appear on this page for you to enter your card details.",
+    "loadingPaypal": "Loading PayPal...",
+    "redirecting": "REDIRECTING TO PAYMENT...",
+    "proceedToPayment": "PROCEED TO PAYMENT ({{total}})"
+  },
+
+  "terms": {
+    "accept": "I accept the <termsLink>Terms & Conditions</termsLink> and <privacyLink>Privacy Policy</privacyLink>",
+    "required": "You must accept the terms to continue",
+    "termsConditions": "Terms & Conditions",
+    "privacyPolicy": "Privacy Policy",
+    "acceptPlain": "I accept the Terms & Conditions and Privacy Policy"
+  },
+
+  "orderSummary": {
+    "title": "Your Courses",
+    "noItems": "No courses selected",
+    "subtotal": "Subtotal",
+    "teachingMaterials": "Teaching Materials",
+    "discountApplied": "Discount Applied",
+    "total": "Total",
+    "digitalNote": "📦 Digital product — instant access upon payment confirmation",
+    "currencyNotice": "All prices are shown in EUR. Card payments are processed in RSD (Serbian Dinars) at a fixed rate of 1 EUR = {{rate}} RSD. Your card will be charged approximately <strong>{{rsdAmount}}</strong> for this order.",
+    "currencyNoticeLabel": "Currency notice:"
+  },
+
+  "teachingMaterialsAddon": {
+    "title": "Teaching Materials",
+    "description": "Study guides & workbooks"
+  },
+
+  "removal": {
+    "removing": "Removing: {{name}}",
+    "removedIn5s": "Will be removed in 5 seconds",
+    "undo": "Undo"
+  },
+
+  "promoCode": {
+    "label": "Promo Code",
+    "placeholder": "ENTER CODE",
+    "apply": "Apply",
+    "codeApplied": "Code Applied: {{code}}",
+    "invalid": "Invalid or expired discount code",
+    "expired": "This discount code has expired",
+    "usageLimitReached": "This discount code has reached its usage limit",
+    "alreadyUsed": "You have already used this discount code",
+    "minOrder": "Minimum order of {{amount}} required for this code (your order: {{orderTotal}})",
+    "deactivated": "This discount code has been deactivated",
+    "unavailable": "Discount codes are not available at this time",
+    "noLongerValid": "Your discount code is no longer valid. Please review your order.",
+    "expiredReview": "Your discount code has expired. Please review your order.",
+    "usageLimitReview": "Your discount code has reached its usage limit. Please review your order.",
+    "deactivatedReview": "Your discount code has been deactivated. Please review your order."
+  },
+
+  "sellerInfo": {
+    "title": "Seller Information",
+    "seller": "Seller:",
+    "sellerName": "ANA MILATOVIĆ PR CENTAR ZA EDUKACIJE EDUWAY",
+    "pib": "PIB:",
+    "mb": "MB:",
+    "productType": "Product type:",
+    "productTypeValue": "Digital educational content",
+    "delivery": "Delivery:",
+    "deliveryValue": "Instant digital access upon payment",
+    "rightToWithdraw": "Right to withdraw:",
+    "rightToWithdrawValue": "14 days (see conditions)",
+    "fullTerms": "Full Terms & Conditions →"
+  },
+
+  "benefits": {
+    "lifetimeUpdates": "Lifetime course updates",
+    "certificate": "Official DSA Smart Start Certificate",
+    "support": "24/7 Priority specialist support",
+    "satisfaction": "Satisfaction guarantee"
+  },
+
+  "emailConfirmation": "Order confirmation will be sent to <strong>{{email}}</strong>",
+
+  "security": {
+    "sslSecured": "SSL Secured",
+    "3dSecure": "3D Secure",
+    "raiffeisenProcessing": "Payment processing by Raiffeisen Bank",
+    "securePayment": "Secure Payment – Raiffeisen Bank"
+  },
+
+  "session": {
+    "expiringSoon": "Session expiring soon",
+    "expiresIn": "Your checkout session will expire in {{minutes}} minute(s). Please complete your purchase.",
+    "expired": "Your checkout session has expired. Please refresh and try again.",
+    "dismiss": "Dismiss"
+  },
+
+  "errors": {
+    "paymentCancelled": "Payment was cancelled. You can try again.",
+    "paymentFailed": "Payment failed. Please try again.",
+    "failedToComplete": "Failed to complete purchase",
+    "paypalError": "PayPal error: {{message}}",
+    "acceptTerms": "Please accept the Terms & Conditions to proceed",
+    "fillNameEmail": "Please fill in your name and email",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Please enter a valid email address"
+  },
+
+  "announcements": {
+    "paymentSuccess": "Payment successful! Your purchase is confirmed.",
+    "paymentSuccessShort": "Payment successful! Your courses will be available shortly.",
+    "paymentCancelled": "Payment cancelled.",
+    "paymentFailed": "Payment failed.",
+    "teachingMaterialsAdded": "Teaching materials added for {{name}}",
+    "teachingMaterialsRemoved": "Teaching materials removed for {{name}}",
+    "itemRemoved": "{{name}} removed from cart",
+    "itemWillBeRemoved": "{{name}} will be removed. Press undo to cancel.",
+    "removalCancelled": "{{name}} removal cancelled",
+    "discountApplied": "Discount code applied! You save {{amount}}"
+  },
+
+  "success": {
+    "title": "Payment Successful!",
+    "description": "Your courses are now unlocked. Welcome to the DSA Smart Start family! A confirmation email has been sent to {{email}}.",
+    "goToCourses": "Go to My Courses"
+  },
+
+  "successPage": {
+    "title": "Payment Received!",
+    "thankYou": "Thank you for your purchase, <strong>{{name}}</strong>!",
+    "verifying": "Your payment is being verified. Your digital content will be available in your Dashboard shortly.",
+    "digitalDelivery": "All purchased courses and materials are delivered digitally — no shipping required.",
+    "confirmationEmail": "A confirmation email will be sent to your registered email address.",
+    "yourPurchase": "Your Purchase",
+    "yourPurchases": "Your Purchases",
+    "ebook": "E-book",
+    "serviceProgram": "Service Program",
+    "interactiveCourse": "Interactive Course",
+    "statusVerifying": "Verifying",
+    "statusReady": "Ready",
+    "pendingNotice": "Payment verification usually takes a few moments. Your course will appear in your dashboard automatically once confirmed.",
+    "contentAvailable": "Your content is now available in your dashboard.",
+    "goToDashboard": "Go to My Dashboard",
+    "browseMore": "Browse More Courses",
+    "needHelp": "Need help? <contactLink>Contact our support team</contactLink>"
+  }
+}

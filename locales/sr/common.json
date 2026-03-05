@@ -1,0 +1,68 @@
+{
+  "nav": {
+    "home": "Početna",
+    "whoWeAre": "Ko smo mi",
+    "products": "Proizvodi",
+    "faq": "Česta pitanja",
+    "contacts": "Kontakt",
+    "loginRegister": "Prijava/Registracija",
+    "dashboard": "Kontrolna tabla",
+    "browseProducts": "Pregledaj proizvode",
+    "adminPanel": "Admin panel",
+    "logout": "Odjavi se"
+  },
+  "footer": {
+    "eduway": "EDUWAY",
+    "aboutText": "Prvi program na svetu posebno dizajniran za one koji žive sa disleksijom, pomažući im da postignu neverovatne rezultate i učine učenje zabavnim.",
+    "followInstagram": "Pratite nas na Instagramu",
+    "quickLinks": "Brzi linkovi",
+    "home": "Početna",
+    "whoWeAre": "Ko smo mi",
+    "allCourses": "Svi kursevi",
+    "contact": "Kontakt",
+    "faq": "Česta pitanja",
+    "loginRegister": "Prijava / Registracija",
+    "onlineCourses": "Online kursevi",
+    "interactiveCourses": "Interaktivni kursevi",
+    "adultsTeens": "Odrasli i tinejdžeri",
+    "kids": "Deca",
+    "ebooks": "E-knjige",
+    "viewAll": "Pogledaj sve",
+    "contactUs": "Kontaktirajte nas",
+    "supportFaq": "Podrška i česta pitanja",
+    "comingSoon": "Uskoro...",
+    "copyright": "Copyright © 2026 ANA MILATOVIĆ PR CENTAR ZA EDUKACIJE EDUWAY | Sva prava zadržana",
+    "termsConditions": "Uslovi korišćenja",
+    "cookiePolicy": "Politika kolačića",
+    "privacyPolicy": "Politika privatnosti",
+    "refundPolicy": "Politika povraćaja i refundacije",
+    "weAccept": "Prihvatamo:"
+  },
+  "toast": {
+    "addedToCart": "Dodato u korpu!",
+    "alreadyInCart": "Ovaj artikal je već u vašoj korpi",
+    "alreadyOwn": "Već posedujete ovaj proizvod! Proverite kontrolnu tablu."
+  },
+  "whatsapp": {
+    "chatWithUs": "Razgovarajte sa nama",
+    "ariaLabel": "Razgovarajte na WhatsApp-u"
+  },
+  "cart": {
+    "courseInCart": "{{count}} kurs u korpi",
+    "coursesInCart": "{{count}} kurseva u korpi",
+    "goToCheckout": "Idi na plaćanje"
+  },
+  "error": {
+    "title": "Ups! Nešto je pošlo naopako",
+    "description": "Žao nam je, ali došlo je do neočekivane greške. Pokušajte da osvežite stranicu ili se vratite na početnu.",
+    "refreshPage": "Osveži stranicu",
+    "goToHome": "Idi na početnu",
+    "technicalDetails": "Tehnički detalji (samo za razvoj)"
+  },
+  "accessDenied": {
+    "title": "Pristup odbijen",
+    "message": "Nemate dozvolu za pristup ovoj stranici.",
+    "goToHome": "Idi na početnu"
+  },
+  "skipToContent": "Preskoči na glavni sadržaj"
+}
