@@ -4,6 +4,17 @@ import { ArrowLeft, BookOpen, Download, FileText, CheckCircle2, Star, ShoppingCa
 import { coursesApi } from '../data/supabaseStore';
 import { Course } from '../types';
 
+// Fallback cover images for e-books (local assets)
+const EBOOK_COVERS: Record<string, string> = {
+  'A1': '/assets/ebooks/a1-cover.jpg',
+  'A2': '/assets/ebooks/a2-cover.jpg',
+  'B1': '/assets/ebooks/b1-cover.jpg',
+  'B2': '/assets/ebooks/b2-cover.jpg',
+  'kids-basic': '/assets/ebooks/kids-basic-cover.jpg',
+  'kids-medium': '/assets/ebooks/kids-medium-cover.jpg',
+  'kids-advanced': '/assets/ebooks/kids-advanced-cover.jpg',
+};
+
 // Level colors and configs for e-books
 const LEVEL_CONFIG: Record<string, { color: string; bgColor: string; label: string; icon: React.ReactNode }> = {
   'A1': { color: 'from-blue-500 to-indigo-600', bgColor: 'bg-blue-500', label: 'Beginner', icon: <Layers size={20} /> },
@@ -398,10 +409,10 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
             <div className="relative animate-reveal stagger-1">
               <div className="relative bg-white/5 rounded-[3rem] p-6 border border-white/10 shadow-2xl shadow-purple-500/10">
                 {/* Cover Photo */}
-                {course.thumbnailUrl ? (
+                {(course.thumbnailUrl || EBOOK_COVERS[course.level]) ? (
                   <div className="relative w-full aspect-[3/4] rounded-3xl overflow-hidden mb-4 shadow-lg">
                     <img 
-                      src={course.thumbnailUrl} 
+                      src={course.thumbnailUrl || EBOOK_COVERS[course.level]} 
                       alt={course.title}
                       className="w-full h-full object-cover"
                     />
