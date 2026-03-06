@@ -513,6 +513,25 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
         console.log('Card payment: skipping client-side purchase creation (Edge Function already created pending purchases server-side)');
       }
 
+      // Client-side confirmation: confirm ALL pending purchases for this transaction.
+      // This is critical for PayPal because the webhook is unreliable (especially in sandbox).
+      // For card payments, the webhook usually fires, but this acts as a fallback.
+      // The RPC is idempotent — calling it multiple times (here + webhook) is safe.
+      try {
+        const { data: confirmData, error: confirmError } = await supabase.rpc('confirm_purchases_by_transaction', {
+          p_transaction_id: transactionId,
+          p_user_id: userId,
+        });
+        if (confirmError) {
+          console.error('Client-side purchase confirmation failed:', confirmError);
+        } else {
+          console.log('Client-side purchase confirmation result:', confirmData);
+        }
+      } catch (confirmErr) {
+        console.error('Client-side purchase confirmation error:', confirmErr);
+        // Non-fatal: webhook may still confirm later
+      }
+
       // Send purchase confirmation email (fire-and-forget — don't block checkout)
       if (userId) {
         sendPurchaseConfirmationEmail({
@@ -586,12 +605,20 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
     if (window.paypal) {
       const options = paypalPayment.getButtonOptions(request, {
         onApprove: async (transactionId) => {
-          await handlePaymentSuccess(transactionId, 'paypal');
+          setLoading(true);
+          setError(null);
+          try {
+            await handlePaymentSuccess(transactionId, 'paypal');
+          } finally {
+            setLoading(false);
+          }
         },
         onError: (err) => {
+          setLoading(false);
           setError(t('errors.paypalError', { message: err.message }));
         },
         onCancel: () => {
+          setLoading(false);
           setError(t('errors.paymentCancelled'));
         },
       });
