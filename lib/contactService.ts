@@ -75,7 +75,7 @@ export async function saveContactMessage(message: ContactMessage): Promise<{ suc
 
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any)
+    const { error } = await (supabase as any)
       .from('contact_messages')
       .insert({
         first_name: message.firstName,
@@ -83,9 +83,7 @@ export async function saveContactMessage(message: ContactMessage): Promise<{ suc
         email: message.email,
         message: message.message,
         status: 'new',
-      })
-      .select('id')
-      .single();
+      });
 
     if (error) {
       // If table doesn't exist, that's okay - we'll still try email
@@ -96,7 +94,7 @@ export async function saveContactMessage(message: ContactMessage): Promise<{ suc
       throw error;
     }
 
-    return { success: true, id: data?.id };
+    return { success: true, id: 'saved' };
   } catch (err) {
     console.error('Error saving contact message:', err);
     return { success: false, error: err instanceof Error ? err.message : 'Failed to save message' };
