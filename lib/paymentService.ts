@@ -332,7 +332,7 @@ export class PayPalPayment {
         })),
       }],
       application_context: {
-        brand_name: 'DSA Smart Start',
+        brand_name: 'Eduway Academy',
         landing_page: 'NO_PREFERENCE',
         user_action: 'PAY_NOW',
         return_url: request.returnUrl,

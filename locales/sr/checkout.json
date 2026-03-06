@@ -113,7 +113,7 @@
 
   "benefits": {
     "lifetimeUpdates": "Doživotna ažuriranja kurseva",
-    "certificate": "Zvanični DSA Smart Start sertifikat",
+    "certificate": "Zvanični Eduway Academy sertifikat",
     "support": "Prioritetna specijalizovana podrška 24/7",
     "satisfaction": "Garancija zadovoljstva"
   },
@@ -160,7 +160,7 @@
 
   "success": {
     "title": "Plaćanje uspešno!",
-    "description": "Vaši kursevi su sada otključani. Dobrodošli u DSA Smart Start porodicu! Email za potvrdu je poslat na {{email}}.",
+    "description": "Vaši kursevi su sada otključani. Dobrodošli u Eduway Academy porodicu! Email za potvrdu je poslat na {{email}}.",
     "goToCourses": "Idi na Moje kurseve"
   },
 

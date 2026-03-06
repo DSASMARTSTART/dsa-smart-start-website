@@ -113,7 +113,7 @@
 
   "benefits": {
     "lifetimeUpdates": "Actualizaciones de por vida del curso",
-    "certificate": "Certificado oficial DSA Smart Start",
+    "certificate": "Certificado oficial de Eduway Academy",
     "support": "Soporte prioritario de especialistas 24/7",
     "satisfaction": "Garantía de satisfacción"
   },
@@ -160,7 +160,7 @@
 
   "success": {
     "title": "¡Pago Exitoso!",
-    "description": "Tus cursos ya están desbloqueados. ¡Bienvenido/a a la familia DSA Smart Start! Se ha enviado un correo de confirmación a {{email}}.",
+    "description": "Tus cursos ya están desbloqueados. ¡Bienvenido/a a la familia Eduway Academy! Se ha enviado un correo de confirmación a {{email}}.",
     "goToCourses": "Ir a Mis Cursos"
   },
 

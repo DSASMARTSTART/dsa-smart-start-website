@@ -578,7 +578,7 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
               </div>
             </div>
 
-            {/* ---- DSA Smart Start Advantage ---- */}
+            {/* ---- Eduway Academy Advantage ---- */}
             <div className="p-10 bg-gradient-to-br from-[#1a1c2d] to-black rounded-[3rem] text-white relative overflow-hidden group border border-white/10">
               <div className="absolute top-0 right-0 w-32 h-32 bg-purple-600/30 rounded-full blur-[60px] translate-x-1/2 -translate-y-1/2"></div>
               <div className="relative z-10">

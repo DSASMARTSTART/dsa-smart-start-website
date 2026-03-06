@@ -202,7 +202,7 @@ enable_signup = true
 # addresses. If disabled, only the new email is required to confirm.
 double_confirm_changes = true
 # If enabled, users need to confirm their email address before signing in.
-enable_confirmations = false
+enable_confirmations = true
 # If enabled, users will need to reauthenticate or have logged in recently to change their password.
 secure_password_change = false
 # Controls the minimum amount of time that must pass before sending another signup confirmation or password reset email.
@@ -226,18 +226,24 @@ otp_expiry = 3600
 # user = "resend"
 # pass = "env(RESEND_API_KEY)"
 # admin_email = "noreply@eduway.academy"
-# sender_name = "DSA Smart Start"
+# sender_name = "Eduway Academy"
 
-# Uncomment to customize email template
-# [auth.email.template.invite]
-# subject = "You have been invited"
-# content_path = "./supabase/templates/invite.html"
+# Custom branded email templates (matching website design)
+[auth.email.template.confirmation]
+subject = "Confirm Your Email — Eduway Academy"
+content_path = "./supabase/templates/confirm_signup.html"
 
-# Uncomment to customize notification email template
-# [auth.email.notification.password_changed]
-# enabled = true
-# subject = "Your password has been changed"
-# content_path = "./templates/password_changed_notification.html"
+[auth.email.template.recovery]
+subject = "Reset Your Password — Eduway Academy"
+content_path = "./supabase/templates/reset_password.html"
+
+[auth.email.template.magic_link]
+subject = "Your Magic Link — Eduway Academy"
+content_path = "./supabase/templates/magic_link.html"
+
+[auth.email.template.invite]
+subject = "You're Invited — Eduway Academy"
+content_path = "./supabase/templates/invite.html"
 
 [auth.sms]
 # Allow/disallow new user signups via SMS to your project.

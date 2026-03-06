@@ -113,7 +113,7 @@
 
   "benefits": {
     "lifetimeUpdates": "Lifetime course updates",
-    "certificate": "Official DSA Smart Start Certificate",
+    "certificate": "Official Eduway Academy Certificate",
     "support": "24/7 Priority specialist support",
     "satisfaction": "Satisfaction guarantee"
   },
@@ -160,7 +160,7 @@
 
   "success": {
     "title": "Payment Successful!",
-    "description": "Your courses are now unlocked. Welcome to the DSA Smart Start family! A confirmation email has been sent to {{email}}.",
+    "description": "Your courses are now unlocked. Welcome to the Eduway Academy family! A confirmation email has been sent to {{email}}.",
     "goToCourses": "Go to My Courses"
   },
 

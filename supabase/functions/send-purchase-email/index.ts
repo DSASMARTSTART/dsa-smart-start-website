@@ -161,31 +161,6 @@ Deno.serve(async (req) => {
 
     const currency = items[0]?.currency || 'EUR'
     const firstName = (customerName || 'there').split(' ')[0]
-
-    // Build items HTML
-    const itemsHtml = items.map(item => `
-      <tr>
-        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; color: #1e293b;">
-          ${item.courseName}
-          ${item.includesTeachingMaterials ? '<br><span style="color: #64748b; font-size: 13px;">+ Teaching Materials</span>' : ''}
-        </td>
-        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; text-align: right; color: #1e293b; white-space: nowrap;">
-          ${formatCurrency(item.amount, item.currency)}
-        </td>
-      </tr>
-    `).join('')
-
-    const discountHtml = discountAmount > 0 ? `
-      <tr>
-        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; color: #16a34a;">
-          Discount${discountCode ? ` (${discountCode})` : ''}
-        </td>
-        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; text-align: right; color: #16a34a; white-space: nowrap;">
-          -${formatCurrency(discountAmount, currency)}
-        </td>
-      </tr>
-    ` : ''
-
     const paymentMethodLabel = paymentMethod === 'paypal' ? 'PayPal' : 'Credit/Debit Card'
 
     // Send purchase confirmation email
@@ -200,61 +175,93 @@ Deno.serve(async (req) => {
         to: [customerEmail],
         subject: `Order Confirmation — Eduway Academy`,
         html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background: linear-gradient(135deg, #1e3a5f, #2d5a8e); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
-              <h1 style="color: white; margin: 0; font-size: 24px;">Thank you for your purchase! 🎉</h1>
+          <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #000000;">
+            <!-- Header -->
+            <div style="background: #000000; padding: 40px 30px 30px; text-align: center; border-bottom: 2px solid #AB8FFF;">
+              <div style="margin-bottom: 16px;">
+                <span style="font-size: 32px; font-weight: 800; color: #ffffff; letter-spacing: 1px;">EDU</span><span style="font-size: 32px; font-weight: 800; color: #AB8FFF; letter-spacing: 1px;">WAY</span>
+              </div>
+              <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Thank you for your purchase! 🎉</h1>
             </div>
-            <div style="background: #f8fafc; padding: 30px; border: 1px solid #e2e8f0; border-top: none;">
-              <p style="color: #1e293b; font-size: 16px; line-height: 1.6;">
+
+            <!-- Body -->
+            <div style="background: #111111; padding: 32px 30px;">
+              <p style="color: #e0e0e0; font-size: 16px; line-height: 1.7; margin-top: 0;">
                 Hi ${firstName},
               </p>
-              <p style="color: #1e293b; font-size: 16px; line-height: 1.6;">
+              <p style="color: #e0e0e0; font-size: 16px; line-height: 1.7;">
                 Your order has been confirmed. Here's a summary of your purchase:
               </p>
 
-              <table style="width: 100%; border-collapse: collapse; margin: 20px 0; background: white; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0;">
+              <!-- Order Table -->
+              <table style="width: 100%; border-collapse: collapse; margin: 20px 0; background: #1a1a1a; border-radius: 8px; overflow: hidden; border: 1px solid #2a2a2a;">
                 <thead>
-                  <tr style="background: #f1f5f9;">
-                    <th style="padding: 12px; text-align: left; color: #475569; font-size: 14px;">Item</th>
-                    <th style="padding: 12px; text-align: right; color: #475569; font-size: 14px;">Amount</th>
+                  <tr style="background: #1a1a1a;">
+                    <th style="padding: 14px 12px; text-align: left; color: #AB8FFF; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #2a2a2a;">Item</th>
+                    <th style="padding: 14px 12px; text-align: right; color: #AB8FFF; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #2a2a2a;">Amount</th>
                   </tr>
                 </thead>
                 <tbody>
-                  ${itemsHtml}
-                  ${discountHtml}
-                  <tr style="background: #f8fafc;">
-                    <td style="padding: 14px 12px; font-weight: bold; color: #1e293b; font-size: 16px;">Total</td>
-                    <td style="padding: 14px 12px; text-align: right; font-weight: bold; color: #1e293b; font-size: 16px; white-space: nowrap;">
+                  ${items.map(item => `
+                    <tr>
+                      <td style="padding: 14px 12px; border-bottom: 1px solid #2a2a2a; color: #e0e0e0; font-size: 14px;">
+                        ${item.courseName}
+                        ${item.includesTeachingMaterials ? '<br><span style="color: #999999; font-size: 12px;">+ Teaching Materials</span>' : ''}
+                      </td>
+                      <td style="padding: 14px 12px; border-bottom: 1px solid #2a2a2a; text-align: right; color: #e0e0e0; white-space: nowrap; font-size: 14px;">
+                        ${formatCurrency(item.amount, item.currency)}
+                      </td>
+                    </tr>
+                  `).join('')}
+                  ${discountAmount > 0 ? `
+                    <tr>
+                      <td style="padding: 14px 12px; border-bottom: 1px solid #2a2a2a; color: #4ade80; font-size: 14px;">
+                        Discount${discountCode ? ` (${discountCode})` : ''}
+                      </td>
+                      <td style="padding: 14px 12px; border-bottom: 1px solid #2a2a2a; text-align: right; color: #4ade80; white-space: nowrap; font-size: 14px;">
+                        -${formatCurrency(discountAmount, currency)}
+                      </td>
+                    </tr>
+                  ` : ''}
+                  <tr style="background: #0a0a0a;">
+                    <td style="padding: 16px 12px; font-weight: bold; color: #ffffff; font-size: 16px;">Total</td>
+                    <td style="padding: 16px 12px; text-align: right; font-weight: bold; color: #AB8FFF; font-size: 16px; white-space: nowrap;">
                       ${formatCurrency(totalAmount || 0, currency)}
                     </td>
                   </tr>
                 </tbody>
               </table>
 
-              <p style="color: #64748b; font-size: 14px;">
-                <strong>Payment method:</strong> ${paymentMethodLabel}
+              <p style="color: #999999; font-size: 14px;">
+                <strong style="color: #e0e0e0;">Payment method:</strong> ${paymentMethodLabel}
               </p>
 
-              <div style="text-align: center; margin: 30px 0;">
+              <!-- CTA Button -->
+              <div style="text-align: center; margin: 32px 0;">
                 <a href="https://eduway.academy/#dashboard" 
-                   style="display: inline-block; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">
+                   style="display: inline-block; background: #AB8FFF; color: #000000; padding: 14px 36px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 16px;">
                   Go to My Dashboard →
                 </a>
               </div>
 
-              <p style="color: #64748b; font-size: 14px; line-height: 1.6;">
+              <p style="color: #999999; font-size: 14px; line-height: 1.6;">
                 Your courses are now available in your dashboard. You can start learning right away!
               </p>
-
-              <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
-
-              <p style="color: #94a3b8; font-size: 12px; line-height: 1.5;">
-                If you have any questions about your purchase, please contact us at 
-                <a href="mailto:office@eduway.academy" style="color: #2563eb;">office@eduway.academy</a>.
-              </p>
             </div>
-            <div style="text-align: center; padding: 20px; color: #94a3b8; font-size: 12px;">
-              © ${new Date().getFullYear()} Eduway Academy. All rights reserved.
+
+            <!-- Footer -->
+            <div style="background: #000000; padding: 24px 30px; border-top: 1px solid #2a2a2a; text-align: center;">
+              <p style="margin: 0 0 8px; font-size: 13px;">
+                <a href="https://www.instagram.com/eduway.academy/" style="color: #AB8FFF; text-decoration: none;">Follow us on Instagram</a>
+              </p>
+              <p style="color: #666666; font-size: 12px; line-height: 1.5; margin: 0 0 8px;">
+                If you have any questions about your purchase, please contact us at 
+                <a href="mailto:office@eduway.academy" style="color: #AB8FFF;">office@eduway.academy</a>.
+              </p>
+              <p style="color: #555555; font-size: 11px; margin: 0;">
+                © ${new Date().getFullYear()} Eduway Academy. All rights reserved.<br />
+                Belgrade, Serbia
+              </p>
             </div>
           </div>
         `,

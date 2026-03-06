@@ -71,28 +71,39 @@ Deno.serve(async (req) => {
         reply_to: email,
         subject: `New Contact Form Message from ${fullName}`,
         html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background: linear-gradient(135deg, #1e3a5f, #2d5a8e); padding: 30px; border-radius: 12px 12px 0 0;">
-              <h1 style="color: white; margin: 0; font-size: 24px;">📩 New Contact Form Submission</h1>
+          <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #000000;">
+            <!-- Header -->
+            <div style="background: #000000; padding: 30px; border-bottom: 2px solid #AB8FFF; text-align: center;">
+              <span style="font-size: 24px; font-weight: 800; color: #ffffff;">EDU</span><span style="font-size: 24px; font-weight: 800; color: #AB8FFF;">WAY</span>
+              <h1 style="color: #ffffff; margin: 12px 0 0; font-size: 22px;">📩 New Contact Form Submission</h1>
             </div>
-            <div style="background: #f8fafc; padding: 30px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 12px 12px;">
+
+            <!-- Body -->
+            <div style="background: #111111; padding: 30px;">
               <table style="width: 100%; border-collapse: collapse;">
                 <tr>
-                  <td style="padding: 10px 0; font-weight: bold; color: #475569; width: 120px;">Name:</td>
-                  <td style="padding: 10px 0; color: #1e293b;">${fullName}</td>
+                  <td style="padding: 12px 0; font-weight: bold; color: #AB8FFF; width: 100px; font-size: 14px;">Name:</td>
+                  <td style="padding: 12px 0; color: #e0e0e0; font-size: 14px;">${fullName}</td>
                 </tr>
                 <tr>
-                  <td style="padding: 10px 0; font-weight: bold; color: #475569;">Email:</td>
-                  <td style="padding: 10px 0;"><a href="mailto:${email}" style="color: #2563eb;">${email}</a></td>
+                  <td style="padding: 12px 0; font-weight: bold; color: #AB8FFF; font-size: 14px;">Email:</td>
+                  <td style="padding: 12px 0;"><a href="mailto:${email}" style="color: #AB8FFF;">${email}</a></td>
                 </tr>
               </table>
-              <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
-              <h3 style="color: #475569; margin-bottom: 10px;">Message:</h3>
-              <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; white-space: pre-wrap; color: #1e293b;">
+              <hr style="border: none; border-top: 1px solid #2a2a2a; margin: 20px 0;" />
+              <h3 style="color: #AB8FFF; margin-bottom: 10px; font-size: 15px;">Message:</h3>
+              <div style="background: #1a1a1a; padding: 20px; border-radius: 8px; border: 1px solid #2a2a2a; white-space: pre-wrap; color: #e0e0e0; font-size: 14px; line-height: 1.6;">
 ${message}
               </div>
-              <p style="color: #94a3b8; font-size: 12px; margin-top: 20px;">
+              <p style="color: #666666; font-size: 12px; margin-top: 20px;">
                 You can reply directly to this email — it will go to ${email}.
+              </p>
+            </div>
+
+            <!-- Footer -->
+            <div style="background: #000000; padding: 16px 30px; border-top: 1px solid #2a2a2a; text-align: center;">
+              <p style="color: #555555; font-size: 11px; margin: 0;">
+                © ${new Date().getFullYear()} Eduway Academy
               </p>
             </div>
           </div>
@@ -121,21 +132,37 @@ ${message}
         to: [email],
         subject: `We received your message — Eduway Academy`,
         html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background: linear-gradient(135deg, #1e3a5f, #2d5a8e); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
-              <h1 style="color: white; margin: 0; font-size: 24px;">Thank you, ${firstName}! 🎉</h1>
+          <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #000000;">
+            <!-- Header -->
+            <div style="background: #000000; padding: 40px 30px 30px; text-align: center; border-bottom: 2px solid #AB8FFF;">
+              <div style="margin-bottom: 16px;">
+                <span style="font-size: 32px; font-weight: 800; color: #ffffff;">EDU</span><span style="font-size: 32px; font-weight: 800; color: #AB8FFF;">WAY</span>
+              </div>
+              <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Thank you, ${firstName}! 🎉</h1>
             </div>
-            <div style="background: #f8fafc; padding: 30px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 12px 12px;">
-              <p style="color: #1e293b; font-size: 16px; line-height: 1.6;">
+
+            <!-- Body -->
+            <div style="background: #111111; padding: 32px 30px;">
+              <p style="color: #e0e0e0; font-size: 16px; line-height: 1.7; margin-top: 0;">
                 We've received your message and will get back to you as soon as possible — usually within 24 hours.
               </p>
-              <p style="color: #64748b; font-size: 14px; line-height: 1.6;">
+              <p style="color: #999999; font-size: 14px; line-height: 1.6;">
                 In the meantime, feel free to explore our courses at 
-                <a href="https://eduway.academy" style="color: #2563eb;">eduway.academy</a>.
+                <a href="https://eduway.academy" style="color: #AB8FFF;">eduway.academy</a>.
               </p>
-              <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
-              <p style="color: #94a3b8; font-size: 12px;">
+            </div>
+
+            <!-- Footer -->
+            <div style="background: #000000; padding: 24px 30px; border-top: 1px solid #2a2a2a; text-align: center;">
+              <p style="margin: 0 0 8px; font-size: 13px;">
+                <a href="https://www.instagram.com/eduway.academy/" style="color: #AB8FFF; text-decoration: none;">Follow us on Instagram</a>
+              </p>
+              <p style="color: #666666; font-size: 12px; margin: 0 0 8px;">
                 This is an automated response. Please do not reply to this email.
+              </p>
+              <p style="color: #555555; font-size: 11px; margin: 0;">
+                © ${new Date().getFullYear()} Eduway Academy. All rights reserved.<br />
+                Belgrade, Serbia
               </p>
             </div>
           </div>

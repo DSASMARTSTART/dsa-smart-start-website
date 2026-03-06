@@ -58,73 +58,86 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         from: SENDER_EMAIL,
         to: [email],
-        subject: `Welcome to Eduway Academy! 🇬🇧`,
+        subject: `Welcome to Eduway Academy! �`,
         html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background: linear-gradient(135deg, #1e3a5f, #2d5a8e); padding: 40px 30px; border-radius: 12px 12px 0 0; text-align: center;">
-              <h1 style="color: white; margin: 0; font-size: 28px;">Welcome, ${firstName}! 🎉</h1>
-              <p style="color: #93c5fd; margin: 10px 0 0; font-size: 16px;">Your English learning journey starts here</p>
+          <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #000000;">
+            <!-- Header -->
+            <div style="background: #000000; padding: 40px 30px 30px; text-align: center; border-bottom: 2px solid #AB8FFF;">
+              <div style="margin-bottom: 16px;">
+                <span style="font-size: 32px; font-weight: 800; color: #ffffff; letter-spacing: 1px;">EDU</span><span style="font-size: 32px; font-weight: 800; color: #AB8FFF; letter-spacing: 1px;">WAY</span>
+              </div>
+              <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 600;">Welcome, ${firstName}! 🎉</h1>
+              <p style="color: #AB8FFF; margin: 10px 0 0; font-size: 15px;">Your English learning journey starts here</p>
             </div>
-            <div style="background: #f8fafc; padding: 30px; border: 1px solid #e2e8f0; border-top: none;">
-              <p style="color: #1e293b; font-size: 16px; line-height: 1.6;">
+
+            <!-- Body -->
+            <div style="background: #111111; padding: 32px 30px;">
+              <p style="color: #e0e0e0; font-size: 16px; line-height: 1.7; margin-top: 0;">
                 Hi ${firstName},
               </p>
-              <p style="color: #1e293b; font-size: 16px; line-height: 1.6;">
+              <p style="color: #e0e0e0; font-size: 16px; line-height: 1.7;">
                 Thank you for creating your account at Eduway Academy! We're thrilled to have you on board.
               </p>
 
-              <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin: 24px 0;">
-                <h3 style="color: #1e3a5f; margin-top: 0;">Here's what you can do next:</h3>
+              <!-- Feature cards -->
+              <div style="background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; padding: 24px; margin: 24px 0;">
+                <h3 style="color: #AB8FFF; margin-top: 0; font-size: 17px;">Here's what you can do next:</h3>
                 <table style="width: 100%;">
                   <tr>
-                    <td style="padding: 8px 0; color: #1e293b; font-size: 15px;">
-                      📚 <strong>Browse our courses</strong> — Find the perfect level for you
+                    <td style="padding: 10px 0; color: #e0e0e0; font-size: 15px; border-bottom: 1px solid #2a2a2a;">
+                      📚 <strong style="color: #ffffff;">Browse our courses</strong> — Find the perfect level for you
                     </td>
                   </tr>
                   <tr>
-                    <td style="padding: 8px 0; color: #1e293b; font-size: 15px;">
-                      📝 <strong>Take the assessment</strong> — Discover your English level
+                    <td style="padding: 10px 0; color: #e0e0e0; font-size: 15px; border-bottom: 1px solid #2a2a2a;">
+                      📝 <strong style="color: #ffffff;">Take the assessment</strong> — Discover your English level
                     </td>
                   </tr>
                   <tr>
-                    <td style="padding: 8px 0; color: #1e293b; font-size: 15px;">
-                      📖 <strong>Check out our e-books</strong> — Extra resources to boost your skills
+                    <td style="padding: 10px 0; color: #e0e0e0; font-size: 15px; border-bottom: 1px solid #2a2a2a;">
+                      📖 <strong style="color: #ffffff;">Check out our e-books</strong> — Extra resources to boost your skills
                     </td>
                   </tr>
                   <tr>
-                    <td style="padding: 8px 0; color: #1e293b; font-size: 15px;">
-                      💬 <strong>Contact us</strong> — We're here to help anytime
+                    <td style="padding: 10px 0; color: #e0e0e0; font-size: 15px;">
+                      💬 <strong style="color: #ffffff;">Contact us</strong> — We're here to help anytime
                     </td>
                   </tr>
                 </table>
               </div>
 
-              <div style="text-align: center; margin: 30px 0;">
+              <!-- CTA Button -->
+              <div style="text-align: center; margin: 32px 0;">
                 <a href="https://eduway.academy/#courses" 
-                   style="display: inline-block; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">
+                   style="display: inline-block; background: #AB8FFF; color: #000000; padding: 14px 36px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 16px;">
                   Explore Courses →
                 </a>
               </div>
 
-              <p style="color: #64748b; font-size: 14px; line-height: 1.6;">
+              <p style="color: #999999; font-size: 14px; line-height: 1.6;">
                 If you have any questions, don't hesitate to reach out. We're here to support you every step of the way.
               </p>
 
-              <p style="color: #1e293b; font-size: 16px; line-height: 1.6;">
+              <p style="color: #e0e0e0; font-size: 16px; line-height: 1.7;">
                 Happy learning! 🚀<br />
-                <strong>The Eduway Academy Team</strong>
-              </p>
-
-              <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
-              
-              <p style="color: #94a3b8; font-size: 12px; line-height: 1.5;">
-                You're receiving this email because you signed up at 
-                <a href="https://eduway.academy" style="color: #2563eb;">eduway.academy</a>. 
-                If you didn't create this account, you can safely ignore this email.
+                <strong style="color: #AB8FFF;">The Eduway Academy Team</strong>
               </p>
             </div>
-            <div style="text-align: center; padding: 20px; color: #94a3b8; font-size: 12px;">
-              © ${new Date().getFullYear()} Eduway Academy. All rights reserved.
+
+            <!-- Footer -->
+            <div style="background: #000000; padding: 24px 30px; border-top: 1px solid #2a2a2a; text-align: center;">
+              <p style="margin: 0 0 8px; font-size: 13px;">
+                <a href="https://www.instagram.com/eduway.academy/" style="color: #AB8FFF; text-decoration: none;">Follow us on Instagram</a>
+              </p>
+              <p style="color: #666666; font-size: 12px; line-height: 1.5; margin: 0 0 8px;">
+                You're receiving this email because you signed up at 
+                <a href="https://eduway.academy" style="color: #AB8FFF;">eduway.academy</a>. 
+                If you didn't create this account, you can safely ignore this email.
+              </p>
+              <p style="color: #555555; font-size: 11px; margin: 0;">
+                © ${new Date().getFullYear()} Eduway Academy. All rights reserved.<br />
+                Belgrade, Serbia
+              </p>
             </div>
           </div>
         `,

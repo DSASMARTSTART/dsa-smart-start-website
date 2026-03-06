@@ -571,7 +571,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
       orderId: generateOrderId(),
       amount: total,
       currency: 'EUR',
-      description: `DSA Smart Start - ${cartItems.length} course(s)`,
+      description: `Eduway Academy - ${cartItems.length} course(s)`,
       customerEmail,
       customerName,
       items: cartItems.map(item => ({
@@ -914,7 +914,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
         orderId,
         amount: rsdTotal,
         currency: 'RSD',
-        description: `DSA Smart Start - ${cartItems.length} course(s)`,
+        description: `Eduway Academy - ${cartItems.length} course(s)`,
         customerEmail,
         customerName,
         items: cartItems.map(item => ({
