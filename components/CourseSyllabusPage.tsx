@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowLeft, CheckCircle2, Star, Clock, Sparkles, BookOpen, Target, GraduationCap, ChevronRight, ChevronDown, Zap, Lock, ShoppingCart, Check, Rocket, Shield, FileText, Play, Users, Layers, Award, TrendingUp, Crown, Diamond, Video, Brain, Headphones, FileCheck, MessageCircle, Flame, BadgeCheck, Heart, RefreshCcw, UserCheck, Eye } from 'lucide-react';
 import { coursesApi } from '../data/supabaseStore';
 import { Course, Module } from '../types';
+import { useLocalizedCourse } from '../hooks/useLocalizedCourse';
 import { useAuth } from '../contexts/AuthContext';
 
 // Level colors and configs
@@ -86,7 +87,8 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
 }) => {
   const { t } = useTranslation('courses');
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [course, setCourse] = useState<Course | null>(null);
+  const [rawCourse, setRawCourse] = useState<Course | null>(null);
+  const course = useLocalizedCourse(rawCourse);
   const [loading, setLoading] = useState(true);
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
   const { isAdmin, isEditor } = useAuth();
@@ -110,7 +112,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
         const data = isAdmin() || isEditor() 
           ? await coursesApi.getByIdForAdmin(courseId)
           : await coursesApi.getById(courseId);
-        setCourse(data);
+        setRawCourse(data);
       } catch (error) {
         console.error('Error loading course:', error);
       } finally {

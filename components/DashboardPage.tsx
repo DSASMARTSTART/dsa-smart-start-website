@@ -1,10 +1,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { Rocket, Clock, ChevronRight, Star, BookOpen, Layout, Zap, Layers, Compass, Music, CheckCircle2, LogIn, Download, FileText, AlertCircle, Loader2, Key, X, Mail } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 import { enrollmentsApi, purchasesApi, coursesApi } from '../data/supabaseStore';
 import { Course, Enrollment, Purchase } from '../types';
 import { useAuth } from '../contexts/AuthContext';
+import { useLocalizedCourses, getLocalizedTitle } from '../hooks/useLocalizedCourse';
 import { useUserProgress } from '../hooks/useUserProgress';
 import { useLocaleFormat } from '../hooks/useLocaleFormat';
 import { supabase } from '../lib/supabase';
@@ -45,8 +46,9 @@ interface PendingPurchase extends Purchase {
 }
 
 const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
-  const { t } = useTranslation('dashboard');
+  const { t, i18n } = useTranslation('dashboard');
   const { user: authUser, profile, loading: authLoading, resetPassword } = useAuth();
+  const currentLang = i18n.language || 'en';
   const { progress } = useUserProgress(); // Now using hook directly - only loads when Dashboard is rendered
   const { formatDate, formatCurrency } = useLocaleFormat();
   const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
@@ -217,6 +219,9 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
     return Math.min(100, Math.round((completedCount / totalItems) * 100));
   };
 
+  const localizedEnrolledCourses = useLocalizedCourses(enrolledCourses);
+  const localizedEbooks = useLocalizedCourses(purchasedEbooks);
+
   if (loading && authLoading) {
     // Only show loading spinner if both are loading (initial load)
     return (
@@ -264,7 +269,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-400 px-3 py-1 bg-purple-500/10 rounded-full border border-purple-500/20">{t('badge')}</span>
           </div>
           <h1 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase leading-tight mb-2">
-            {t('welcome', { name: displayName })}
+            <Trans i18nKey="welcome" ns="dashboard" values={{ name: displayName }} components={{ highlight: <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400" /> }} />
           </h1>
           <p className="text-gray-400 text-lg font-medium italic">{t('subtitle')}</p>
         </div>
@@ -335,7 +340,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
                       <div key={purchase.id} className="flex items-center gap-3 bg-white/5 rounded-lg px-4 py-3">
                         <AlertCircle size={18} className="text-amber-400" />
                         <span className="text-sm font-medium text-amber-200">
-                          {purchase.course?.title || 'Course'} - {formatCurrency(purchase.amount, purchase.currency)}
+                          {purchase.course ? getLocalizedTitle(purchase.course, currentLang) : 'Course'} - {formatCurrency(purchase.amount, purchase.currency)}
                         </span>
                         <span className="text-xs text-amber-400 ml-auto">
                           {t('pendingPurchases.verifying')}
@@ -363,7 +368,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
               </h2>
             </div>
 
-            {enrolledCourses.length === 0 ? (
+            {localizedEnrolledCourses.length === 0 ? (
               // No enrolled courses - show empty state
               <div className="bg-white/5 rounded-[3rem] border border-white/10 p-12 text-center">
                 <div className="w-20 h-20 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -382,7 +387,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                {enrolledCourses.map((course, idx) => {
+                {localizedEnrolledCourses.map((course, idx) => {
                   const completion = calculateProgress(course.id, course.totalItems);
                   const config = LEVEL_CONFIG[course.level] || LEVEL_CONFIG['A1'];
                   const levelLabel = t(`levelLabels.${course.level}`, { defaultValue: course.level });
@@ -447,18 +452,18 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
             )}
 
             {/* My E-books Section */}
-            {purchasedEbooks.length > 0 && (
+            {localizedEbooks.length > 0 && (
               <div className="mt-12">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-black text-white uppercase tracking-widest flex items-center gap-3">
                     <FileText size={20} className="text-emerald-400" />
                     {t('ebooks.title')}
                   </h2>
-                  <span className="text-xs font-bold text-gray-500">{t('ebooks.count', { count: purchasedEbooks.length })}</span>
+                  <span className="text-xs font-bold text-gray-500">{t('ebooks.count', { count: localizedEbooks.length })}</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {purchasedEbooks.map((ebook, idx) => {
+                  {localizedEbooks.map((ebook, idx) => {
                     // Get download URL from the first module's first lesson or homework PDF
                     const downloadUrl = ebook.modules?.[0]?.lessons?.[0]?.pdfUrl 
                       || ebook.modules?.[0]?.homework?.[0]?.pdfUrl

@@ -67,31 +67,34 @@ Code exists but has never been tested end-to-end.
 
 ---
 
-## 3. MISSING ASSETS ❌
+## 3. MISSING ASSETS ⚠️
 
 These files are referenced in `index.html` but don't exist.
 
-- [ ] **3.1** Create/add `public/og-image.jpg` (1200×630px recommended for social sharing)
+- [x] **3.1** Create/add `public/og-image.jpg` (1200×630px recommended for social sharing) ✅ Generated branded OG image
 - [ ] **3.2** Create/add `public/logo.png` (used in structured data / JSON-LD)
 - [ ] **3.3** Verify `public/apple-touch-icon.png` exists (180×180px)
-- [ ] **3.4** Add favicon if not already present
+- [x] **3.4** Add favicon if not already present ✅ Already in place
 
 ---
 
 ## 4. i18n — TRANSLATION REVIEW ⚠️
 
-Infrastructure is done. All 4 languages have all 10 namespace files with matching key counts. But translations need human review.
+Infrastructure is done. All 4 languages have all 10 namespace files with matching key counts. DB course content now has IT/SR/ES translations.
 
-- [ ] **4.1** Italian — native speaker review of all 10 JSON files
+- [x] **4.1** Italian — native speaker review of all 10 JSON files ✅ User confirmed OK
 - [ ] **4.2** Italian — check layout/overflow on all pages (especially mobile)
-- [ ] **4.3** Serbian — native speaker review of all 10 JSON files
+- [x] **4.3** Serbian — native speaker review of all 10 JSON files ✅ User confirmed OK
 - [ ] **4.4** Serbian — check layout/overflow on all pages (especially mobile)
-- [ ] **4.5** Spanish — native speaker review of all 10 JSON files
+- [x] **4.5** Spanish — native speaker review of all 10 JSON files ✅ User confirmed OK
 - [ ] **4.6** Spanish — check layout/overflow on all pages (especially mobile)
 - [ ] **4.7** Test browser language auto-detection (set browser to IT/SR/ES and visit site)
 - [ ] **4.8** Test language switcher on every page
 - [ ] **4.9** Verify `<html lang>` attribute updates correctly on language change
 - [ ] **4.10** Make SEO meta tags (title, description, OG) dynamic per language
+- [x] **4.11** Add multi-language columns to courses table (title_it/sr/es, description_it/sr/es) ✅ Migration applied
+- [x] **4.12** Populate IT/SR/ES translations for all 11 published courses ✅ Done
+- [x] **4.13** Create `useLocalizedCourse` hook and wire into all display components ✅ Done
 
 ---
 
@@ -167,7 +170,7 @@ Infrastructure is done. All 4 languages have all 10 namespace files with matchin
 
 ## 10. FUTURE / LOW PRIORITY
 
-- [ ] **10.1** Add multi-language columns to DB for course titles/descriptions (currently English-only in DB)
+- [x] **10.1** Add multi-language columns to DB for course titles/descriptions ✅ Done — columns + translations + frontend hook
 - [ ] **10.2** Migrate hash routing to browser history routing
 - [ ] **10.3** Add proper TypeScript types to replace `eslint-disable` / `any` usage
 - [ ] **10.4** Add automated tests (unit + e2e)

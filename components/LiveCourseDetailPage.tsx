@@ -3,6 +3,7 @@ import { ArrowLeft, CheckCircle2, Star, ShoppingCart, Check, ChevronRight, Chevr
 import { useTranslation } from 'react-i18next';
 import { coursesApi } from '../data/supabaseStore';
 import { Course } from '../types';
+import { useLocalizedCourse } from '../hooks/useLocalizedCourse';
 
 // ============================================
 // LEVEL CONFIG — colours & icons per live-course slug
@@ -36,14 +37,15 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
 }) => {
   const { t } = useTranslation('courses');
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [course, setCourse] = useState<Course | null>(null);
+  const [rawCourse, setRawCourse] = useState<Course | null>(null);
+  const course = useLocalizedCourse(rawCourse);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadCourse = async () => {
       try {
         const data = await coursesApi.getById(courseId);
-        setCourse(data);
+        setRawCourse(data);
       } catch (error) {
         console.error('Failed to load course:', error);
       } finally {

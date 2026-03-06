@@ -4,6 +4,7 @@ import { Layers, Compass, Zap, Music, Play, Award, Star, ChevronRight, CheckCirc
 import { useTranslation } from 'react-i18next';
 import { coursesApi, catalogApi } from '../data/supabaseStore';
 import { Course, ProductType, TargetAudience } from '../types';
+import { useLocalizedCourses } from '../hooks/useLocalizedCourse';
 import WaveSeparator from './WaveSeparator';
 import AssessmentPopup from './AssessmentPopup';
 
@@ -503,10 +504,13 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
     return sum + price;
   }, 0);
 
+  // Localise course titles & descriptions for the current language
+  const localizedCourses = useLocalizedCourses(courses);
+
   // Separate courses by category - New catalog structure
-  const serviceCourses = courses.filter(c => c.productType === 'service');
-  const ebookCourses = courses.filter(c => c.productType === 'ebook');
-  const learndashCourses = courses.filter(c => c.productType === 'learndash');
+  const serviceCourses = localizedCourses.filter(c => c.productType === 'service');
+  const ebookCourses = localizedCourses.filter(c => c.productType === 'ebook');
+  const learndashCourses = localizedCourses.filter(c => c.productType === 'learndash');
   
   // Split by audience and sort by level
   const LEVEL_ORDER: Record<string, number> = {

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowLeft, BookOpen, Download, FileText, CheckCircle2, Star, ShoppingCart, Check, ArrowRight, Layers, TrendingUp, Award, Music, Play, Clock, Shield, RefreshCcw, Sparkles, Target, GraduationCap, ChevronRight, ChevronDown, Heart, BadgeCheck, UserCheck, Rocket, Lock, FileCheck } from 'lucide-react';
 import { coursesApi } from '../data/supabaseStore';
 import { Course } from '../types';
+import { useLocalizedCourse } from '../hooks/useLocalizedCourse';
 
 // Fallback cover images for e-books (local assets)
 const EBOOK_COVERS: Record<string, string> = {
@@ -63,7 +64,8 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
 }) => {
   const { t } = useTranslation('courses');
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [course, setCourse] = useState<Course | null>(null);
+  const [rawCourse, setRawCourse] = useState<Course | null>(null);
+  const course = useLocalizedCourse(rawCourse);
   const [loading, setLoading] = useState(true);
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
 
@@ -83,7 +85,7 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
     const loadCourse = async () => {
       try {
         const data = await coursesApi.getById(courseId);
-        setCourse(data);
+        setRawCourse(data);
       } catch (error) {
         console.error('Failed to load e-book:', error);
       } finally {

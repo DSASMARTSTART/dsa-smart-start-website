@@ -3,6 +3,7 @@ import { Mail, Phone, MapPin, Instagram, Users, MonitorPlay, FileText, Crown, Di
 import { useTranslation } from 'react-i18next';
 import { coursesApi } from '../data/supabaseStore';
 import { Course, ProductType, TargetAudience } from '../types';
+import { useLocalizedCourses } from '../hooks/useLocalizedCourse';
 
 interface FooterProps {
   onNavigate?: (path: string) => void;
@@ -28,14 +29,15 @@ const LEVEL_ICONS: Record<string, React.ReactNode> = {
 
 const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   const { t } = useTranslation('common');
-  const [courses, setCourses] = useState<Course[]>([]);
+  const [rawCourses, setRawCourses] = useState<Course[]>([]);
+  const courses = useLocalizedCourses(rawCourses);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadCourses = async () => {
       try {
         const data = await coursesApi.list({ isPublished: true });
-        setCourses(data || []);
+        setRawCourses(data || []);
       } catch (error) {
         console.error('Footer: Failed to load courses', error);
       } finally {

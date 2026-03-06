@@ -161,6 +161,13 @@ export interface Course {
   teachingMaterialsPrice?: number;  // €50 for services
   teachingMaterialsIncluded: boolean;  // User's choice at checkout
   relatedMaterialsId?: string;  // Links service to its materials product
+  // ---------- i18n translated fields (null = use English) ----------
+  titleIt?: string;
+  titleSr?: string;
+  titleEs?: string;
+  descriptionIt?: string;
+  descriptionSr?: string;
+  descriptionEs?: string;
   // ---------- E-book specific fields ----------
   ebookPdfUrl?: string;  // URL to the PDF file (Supabase Storage or external)
   ebookPageCount?: number;  // Number of pages in the e-book

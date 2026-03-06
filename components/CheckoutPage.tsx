@@ -7,6 +7,7 @@ import { coursesApi, purchasesApi, enrollmentsApi } from '../data/supabaseStore'
 import AuthModal from './AuthModal';
 import { Course } from '../types';
 import { useAuth } from '../contexts/AuthContext';
+import { getLocalizedTitle } from '../hooks/useLocalizedCourse';
 import { supabase } from '../lib/supabase';
 import { 
   getPaymentConfig, 
@@ -80,8 +81,9 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
   initialTeachingMaterials = {},
   onTeachingMaterialsChange
 }) => {
-  const { t } = useTranslation('checkout');
+  const { t, i18n } = useTranslation('checkout');
   const { formatCurrency } = useLocaleFormat();
+  const currentLang = i18n.language || 'en';
   const { user: authUser, profile } = useAuth();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const paypalContainerRef = useRef<HTMLDivElement>(null);
@@ -674,7 +676,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
             
             items.push({
               id: course.id,
-              name: course.title,
+              name: getLocalizedTitle(course, currentLang),
               price: hasActiveDiscount && pricing.discountPrice !== undefined ? pricing.discountPrice : pricing.price,
               originalPrice: hasActiveDiscount ? pricing.price : undefined,
               color: LEVEL_COLORS[course.level] || 'from-purple-600 to-indigo-800',
