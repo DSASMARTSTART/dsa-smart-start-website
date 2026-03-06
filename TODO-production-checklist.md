@@ -5,34 +5,28 @@
 
 ---
 
-## 1. EMAIL SYSTEM (Resend) ❌
+## 1. EMAIL SYSTEM (Resend) ✅
 
-Currently **no transactional emails are sent**. The contact form stub logs a warning and returns success without sending.
+Resend account created, domain verified, Edge Functions deployed, DNS records configured.
 
-- [ ] **1.1** Create Resend account and obtain API key
-- [ ] **1.2** Install `resend` package (or use fetch in Edge Function)
-- [ ] **1.3** Create Supabase Edge Function: `send-contact-email`
-  - Wire `contactService.ts` → `sendViaResend()` to call this function
-- [ ] **1.4** Create Supabase Edge Function: `send-purchase-confirmation`
-  - Trigger after successful payment (card + PayPal)
-  - Include order details, course name, amount paid
-- [ ] **1.5** Create Supabase Edge Function: `send-welcome-email`
-  - Trigger on new user signup
-- [ ] **1.6** Configure Resend as custom SMTP in Supabase dashboard
-  - This makes password-reset and confirmation emails use your branding
-- [ ] **1.7** Enable email confirmations in Supabase
-  - Change `enable_confirmations = true` in `supabase/config.toml` (line 205)
-  - Or set it in the Supabase dashboard under Auth → Settings
+- [x] **1.1** Create Resend account and obtain API key ✅
+- [x] **1.2** Install `resend` package (or use fetch in Edge Function) ✅ Using fetch in Edge Functions
+- [x] **1.3** Create Supabase Edge Function: `send-contact-email` ✅ Deployed
+- [x] **1.4** Create Supabase Edge Function: `send-purchase-confirmation` ✅ Deployed (`send-purchase-email`)
+- [x] **1.5** Create Supabase Edge Function: `send-welcome-email` ✅ Deployed
+- [x] **1.6** Configure Resend as custom SMTP in Supabase dashboard ✅
+- [ ] **1.7** Enable email confirmations in Supabase (deferred — keeping disabled for now)
 - [ ] **1.8** Customize email templates (password reset, confirmation, invite)
   - Design HTML templates with your brand colors/logo
   - Update in Supabase dashboard → Auth → Email Templates
-- [ ] **1.9** Set Edge Function secrets in Supabase dashboard
-  - `RESEND_API_KEY`
-  - `CONTACT_EMAIL_TO` (where contact form emails go)
+- [x] **1.9** Set Edge Function secrets in Supabase dashboard ✅ `RESEND_API_KEY`, `SENDER_EMAIL`, `CONTACT_EMAIL_TO`
+- [x] **1.9b** Configure DNS records for email deliverability ✅
+  - Resend: DKIM (verified), SPF on `send` subdomain (verified), MX on `send` (verified)
+  - Hostinger: SPF `include:_spf.mail.hostinger.com` on root (added), 3× DKIM CNAME (added)
+  - DMARC: `_dmarc` TXT record (verified)
 - [ ] **1.10** Test all email flows end-to-end:
   - [ ] Contact form submission → email received
   - [ ] New signup → welcome email received
-  - [ ] Email confirmation link works
   - [ ] Password reset email → link works → password changed
   - [ ] Purchase → confirmation email received with correct details
 

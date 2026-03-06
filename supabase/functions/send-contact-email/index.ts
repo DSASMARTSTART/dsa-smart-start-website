@@ -119,7 +119,7 @@ ${message}
       body: JSON.stringify({
         from: SENDER_EMAIL,
         to: [email],
-        subject: `We received your message — DSA Smart Start`,
+        subject: `We received your message — Eduway Academy`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="background: linear-gradient(135deg, #1e3a5f, #2d5a8e); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">

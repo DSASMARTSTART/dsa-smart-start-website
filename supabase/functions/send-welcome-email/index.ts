@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         from: SENDER_EMAIL,
         to: [email],
-        subject: `Welcome to DSA Smart Start! 🇬🇧`,
+        subject: `Welcome to Eduway Academy! 🇬🇧`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="background: linear-gradient(135deg, #1e3a5f, #2d5a8e); padding: 40px 30px; border-radius: 12px 12px 0 0; text-align: center;">
@@ -70,7 +70,7 @@ Deno.serve(async (req) => {
                 Hi ${firstName},
               </p>
               <p style="color: #1e293b; font-size: 16px; line-height: 1.6;">
-                Thank you for creating your account at DSA Smart Start! We're thrilled to have you on board.
+                Thank you for creating your account at Eduway Academy! We're thrilled to have you on board.
               </p>
 
               <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin: 24px 0;">
@@ -112,7 +112,7 @@ Deno.serve(async (req) => {
 
               <p style="color: #1e293b; font-size: 16px; line-height: 1.6;">
                 Happy learning! 🚀<br />
-                <strong>The DSA Smart Start Team</strong>
+                <strong>The Eduway Academy Team</strong>
               </p>
 
               <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
@@ -124,7 +124,7 @@ Deno.serve(async (req) => {
               </p>
             </div>
             <div style="text-align: center; padding: 20px; color: #94a3b8; font-size: 12px;">
-              © ${new Date().getFullYear()} DSA Smart Start. All rights reserved.
+              © ${new Date().getFullYear()} Eduway Academy. All rights reserved.
             </div>
           </div>
         `,

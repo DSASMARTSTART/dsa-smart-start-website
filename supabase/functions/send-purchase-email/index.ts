@@ -198,7 +198,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         from: SENDER_EMAIL,
         to: [customerEmail],
-        subject: `Order Confirmation — DSA Smart Start`,
+        subject: `Order Confirmation — Eduway Academy`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="background: linear-gradient(135deg, #1e3a5f, #2d5a8e); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
@@ -254,7 +254,7 @@ Deno.serve(async (req) => {
               </p>
             </div>
             <div style="text-align: center; padding: 20px; color: #94a3b8; font-size: 12px;">
-              © ${new Date().getFullYear()} DSA Smart Start. All rights reserved.
+              © ${new Date().getFullYear()} Eduway Academy. All rights reserved.
             </div>
           </div>
         `,
