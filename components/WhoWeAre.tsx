@@ -71,8 +71,8 @@ const WhoWeAre: React.FC = () => {
     { name: t('whoWeAre.team1Name'), role: t('whoWeAre.team1Role'), image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400" },
     { name: t('whoWeAre.team2Name'), role: t('whoWeAre.team2Role'), image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400" },
     { name: t('whoWeAre.team3Name'), role: t('whoWeAre.team3Role'), image: "https://images.unsplash.com/photo-1607746882042-944635dfe10e?auto=format&fit=crop&q=80&w=400" },
-    { name: t('whoWeAre.team4Name'), role: t('whoWeAre.team4Role'), image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400" },
-    { name: t('whoWeAre.team5Name'), role: t('whoWeAre.team5Role'), image: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&q=80&w=400" },
+    { name: t('whoWeAre.team4Name'), role: t('whoWeAre.team4Role'), image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400" },
+    { name: t('whoWeAre.team5Name'), role: t('whoWeAre.team5Role'), image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400" },
     { name: t('whoWeAre.team6Name'), role: t('whoWeAre.team6Role'), image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400" },
   ];
 
@@ -115,9 +115,6 @@ const WhoWeAre: React.FC = () => {
       <section className="py-24 sm:py-32 px-6 overflow-hidden bg-black">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
           <div className="animate-reveal" style={{ animationName: 'fadeInLeft' }}>
-            <div className="inline-block px-4 py-1 bg-purple-500/20 text-purple-400 rounded-full text-[10px] font-black uppercase tracking-widest mb-6 border border-purple-500/30">
-              {t('whoWeAre.expertiseBadge')}
-            </div>
             <h3 className="text-4xl sm:text-5xl md:text-7xl font-black text-white mb-8 tracking-tighter leading-none uppercase">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#9b4dff] via-[#8a3ffc] to-[#ff2d85]">{t('whoWeAre.experienceTitle', { defaultValue: '' }).match(/<1>(.*?)<\/1>/)?.[1]}</span> {t('whoWeAre.experienceTitle', { defaultValue: '' }).split('</1>')[1]}
             </h3>

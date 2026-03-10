@@ -251,9 +251,9 @@ const FaqPage: React.FC = () => {
               <p className="text-gray-400 text-lg md:text-xl mb-12 max-w-xl mx-auto">
                 {t('cta.description')}
               </p>
-              <button className="bg-[#AB8FFF] text-white px-12 py-5 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-2xl shadow-purple-500/20 active:scale-95">
+              <a href="https://api.whatsapp.com/send/?phone=393518459607&text&type=phone_number&app_absent=0" target="_blank" rel="noopener noreferrer" className="inline-block bg-[#25D366] text-white px-12 py-5 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-2xl shadow-[#25D366]/30 active:scale-95">
                 {t('cta.button')}
-              </button>
+              </a>
             </div>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Mail, Phone, MapPin, Send, MessageCircle, Sparkles, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { Mail, Phone, Send, MessageCircle, Sparkles, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import WaveSeparator from './WaveSeparator';
 import { submitContactForm, getContactConfig } from '../lib/contactService';
@@ -190,7 +190,7 @@ const ContactPage: React.FC = () => {
             </div>
 
             <div className="space-y-6">
-              {/* Phone */}
+              {/* Phone - Serbian */}
               <div className="flex items-center gap-6 p-6 sm:p-8 bg-white/5 rounded-[2rem] border border-white/10 shadow-sm hover:shadow-xl hover:shadow-[#AB8FFF]/10 transition-all duration-500 group">
                 <div className="w-14 h-14 bg-[#AB8FFF] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#AB8FFF]/40 shrink-0 group-hover:scale-110 transition-transform duration-500">
                   <Phone size={24} />
@@ -198,6 +198,17 @@ const ContactPage: React.FC = () => {
                 <div>
                   <p className="text-[11px] font-black uppercase tracking-widest text-gray-500 mb-1">{t('info.callUs')}</p>
                   <a href="tel:+381658869930" className="text-xl font-black text-white hover:text-[#AB8FFF] transition-colors tracking-tight">+381 65 886 9930</a>
+                </div>
+              </div>
+
+              {/* Phone - Italian */}
+              <div className="flex items-center gap-6 p-6 sm:p-8 bg-white/5 rounded-[2rem] border border-white/10 shadow-sm hover:shadow-xl hover:shadow-[#AB8FFF]/10 transition-all duration-500 group">
+                <div className="w-14 h-14 bg-[#AB8FFF] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#AB8FFF]/40 shrink-0 group-hover:scale-110 transition-transform duration-500">
+                  <Phone size={24} />
+                </div>
+                <div>
+                  <p className="text-[11px] font-black uppercase tracking-widest text-gray-500 mb-1">{t('info.callUs')}</p>
+                  <a href="tel:+393914053239" className="text-xl font-black text-white hover:text-[#AB8FFF] transition-colors tracking-tight">+39 391 4053239</a>
                 </div>
               </div>
 
@@ -212,19 +223,7 @@ const ContactPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Address */}
-              <div className="flex items-center gap-6 p-6 sm:p-8 bg-white/5 rounded-[2rem] border border-white/10 shadow-sm hover:shadow-xl hover:shadow-[#AB8FFF]/10 transition-all duration-500 group">
-                <div className="w-14 h-14 bg-[#AB8FFF] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#AB8FFF]/40 shrink-0 group-hover:scale-110 transition-transform duration-500">
-                  <MapPin size={24} />
-                </div>
-                <div>
-                  <p className="text-[11px] font-black uppercase tracking-widest text-gray-500 mb-1">{t('info.ourAddress')}</p>
-                  <p className="text-lg font-black text-white">Vladana Desnice 28</p>
-                  <p className="text-base font-bold text-gray-400">Beograd, Srbija</p>
-                  <p className="text-xs text-gray-500 mt-2">ANA MILATOVIĆ PR CENTAR ZA EDUKACIJE EDUWAY</p>
-                  <p className="text-xs text-gray-600">MB: 68375720 | PIB: 115450214</p>
-                </div>
-              </div>
+
             </div>
           </div>
 

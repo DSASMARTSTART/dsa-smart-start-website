@@ -42,7 +42,7 @@ const LanguageSwitcher: React.FC = () => {
       </button>
 
       {open && (
-        <div className="absolute top-full right-0 mt-2 w-36 bg-black/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/10 p-1.5 overflow-hidden animate-reveal z-[120]">
+        <div className="absolute top-full right-0 mt-2 w-36 bg-black/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/10 p-1.5 overflow-hidden animate-reveal z-[200]">
           {SUPPORTED_LANGUAGES.map((lng) => {
             const info = LANGUAGE_LABELS[lng];
             const isActive = lng === current;
