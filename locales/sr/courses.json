@@ -8,7 +8,7 @@
       "subtitleSecondary": "Vizuelni, multisenzorni i inkluzivni pristup učenju."
     },
     "tabs": {
-      "liveCourses": "Kursevi\nUživo",
+      "liveCourses": "Kurs uživo\nonline",
       "ebook": "E-knjiga"
     },
     "liveSection": {
@@ -144,7 +144,7 @@
     "outcomesIntro": "Do kraja ovog kursa, moći ćete da:",
     "outcomesIntroKids": "Do kraja ovog kursa, vaše dete će moći sa sigurnošću da:",
     "outcomesIntroShort": "Do kraja ovog kursa, moći ćete sa sigurnošću da:",
-    "dsaAdvantageTitle": "EDUWAY ACADEMY prednost",
+    "dsaAdvantageTitle": "EDUWAY ACADEMY® DSA Smart Start prednost",
     "dsaAdvantageDesc": "Za razliku od tradicionalnih metoda, ne opterećujemo učenike apstraktnim objašnjenjima gramatike. Učimo učenike da razumeju kroz <1>vizuelne puteve učenja</1> i senzorne okidače koji čine engleski jasnim, strukturiranim i zapamtljivim.",
     "dsaWhatMakesTheDifference": "Šta čini razliku:",
     "dsaTags": [
@@ -265,7 +265,7 @@
     "videoDescription": "Pogledajte naš video i otkrijte kako konačno možete da naučite engleski sa jasnoćom, samopouzdanjem i pravom metodom.",
     "highlights": {
       "certifiedTutors": "Sertifikovani predavači kojima je engleski maternji jezik",
-      "dsaMethod": "EDUWAY ACADEMY® metod",
+      "dsaMethod": "EDUWAY ACADEMY® DSA Smart Start metod",
       "personalised": "Personalizovano iskustvo učenja"
     },
     "defaultDescription": "Kurs engleskog uživo sa sertifikovanim predavačima kojima je engleski maternji jezik, specijalizovanim za SLD.",
@@ -620,16 +620,16 @@
   },
   "liveCourseContent": {
     "starter-path": {
-      "description": "Započnite svoje putovanje na engleskom uz personalizovanu pažnju jedan na jedan. Ovaj starter program je u potpunosti prilagođen vašim potrebama koristeći EDUWAY ACADEMY® metod, savršen za svakoga ko traži fokusiran uvod sa posvećenim sertifikovanim predavačem kojem je engleski maternji jezik, specijalizovanim za SLD.",
+      "description": "Započnite svoje putovanje na engleskom uz personalizovanu pažnju jedan na jedan. Ovaj starter program je u potpunosti prilagođen vašim potrebama koristeći EDUWAY ACADEMY® DSA Smart Start metod, savršen za svakoga ko traži fokusiran uvod i personalizovanu pažnju, sa posvećenim sertifikovanim predavačem kojem je engleski maternji jezik, specijalizovanim za SLD.",
       "duration": "5 nedelja",
       "lessons": "10 lekcija od 30 minuta",
       "totalHours": "5 sati",
       "includes": [
         "Početna procena nivoa",
-        "EDUWAY ACADEMY® metod",
+        "EDUWAY ACADEMY® DSA Smart Start metod",
         "Personalizovane sesije jedan na jedan",
         "Kreiranje prilagođenih Mind Maps",
-        "Multisenzorni i vizuelni metod",
+        "DSA Smart Start multisenzorni i vizuelni metod",
         "Vođena konverzacija",
         "Mini personalizovani plan učenja",
         "Sertifikovani predavači kojima je engleski maternji jezik, specijalizovani za SLD",
@@ -638,7 +638,7 @@
       ],
       "notIncluded": [
         "Language Lab",
-        "EDUWAY ACADEMY nastavni materijal — neograničen pristup",
+        "EDUWAY ACADEMY® DSA Smart Start nastavni materijal — neograničen pristup",
         "Pristup 500+ Brain Mapping resursa",
         "Pristup 700+ video lekcija",
         "Priprema za testove i ispite",
@@ -669,17 +669,17 @@
       "totalHours": "6,5 sati",
       "includes": [
         "Početna procena nivoa",
-        "EDUWAY ACADEMY® metod",
+        "EDUWAY ACADEMY® DSA Smart Start metod",
         "Language Lab — maks. 3–4 učenika",
         "Circle Talk Lab",
         "Role Play & Team Challenges",
-        "Multisenzorni i vizuelni metod",
+        "DSA Smart Start multisenzorni i vizuelni metod",
         "Sertifikovani predavači kojima je engleski maternji jezik, specijalizovani za SLD",
         "Progresivno praćenje"
       ],
       "notIncluded": [
         "Personalizovane sesije jedan na jedan",
-        "EDUWAY ACADEMY nastavni materijal — neograničen pristup",
+        "EDUWAY ACADEMY® DSA Smart Start nastavni materijal — neograničen pristup",
         "Pristup 500+ Brain Mapping resursa",
         "Pristup 700+ video lekcija",
         "Priprema za testove i ispite",
@@ -710,9 +710,9 @@
       "totalHours": "25 sati",
       "includes": [
         "Početna procena nivoa",
-        "EDUWAY ACADEMY® metod",
-        "EDUWAY ACADEMY® nastavni materijal — Neograničen pristup",
-        "Multisenzorni i vizuelni metod",
+        "EDUWAY ACADEMY® DSA Smart Start metod",
+        "EDUWAY ACADEMY® DSA Smart Start nastavni materijal — Neograničen pristup",
+        "DSA Smart Start multisenzorni i vizuelni metod",
         "Pristup 500+ Brain Mapping resursa",
         "Pristup 700+ video lekcija",
         "Language Lab u mikro-grupi (maks. 3–4 učenika)",
@@ -754,9 +754,9 @@
       "totalHours": "23,5 sati",
       "includes": [
         "Početna procena nivoa",
-        "EDUWAY ACADEMY® metod",
-        "EDUWAY ACADEMY® nastavni materijal — Neograničen pristup",
-        "Multisenzorni i vizuelni metod",
+        "EDUWAY ACADEMY® DSA Smart Start metod",
+        "EDUWAY ACADEMY® DSA Smart Start nastavni materijal — Neograničen pristup",
+        "DSA Smart Start multisenzorni i vizuelni metod",
         "Pristup 500+ Brain Mapping resursa",
         "Pristup 700+ video lekcija",
         "Personalizovane sesije jedan na jedan",
@@ -1125,7 +1125,7 @@
       ]
     },
     "starter-path": {
-      "description": "Započnite svoje putovanje na engleskom uz personalizovanu pažnju jedan na jedan. Ovaj starter program uključuje 5 individualnih časova od 30 minuta, u potpunosti prilagođenih vašim potrebama i tempu učenja. Idealan za početnike ili svakoga ko traži fokusiran uvod sa posvećenim predavačem.",
+      "description": "Započnite svoje putovanje na engleskom uz personalizovanu pažnju jedan na jedan. Ovaj starter program uključuje 5 individualnih časova od 30 minuta, u potpunosti prilagođenih vašim potrebama i tempu učenja. Idealan za početnike ili svakoga ko traži fokusiran uvod i personalizovanu pažnju.",
       "learningOutcomes": [
         "Dobijte personalizovanu procenu učenja",
         "Izgradite osnovne veštine engleskog jedan na jedan",

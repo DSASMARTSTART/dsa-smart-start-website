@@ -79,17 +79,17 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPath, cartCount, isL
 
           <div className="flex items-center gap-3 md:gap-4 shrink-0">
             <LanguageSwitcher />
-            <button 
-              onClick={() => handleLinkClick('checkout')}
-              className="relative p-2.5 rounded-full bg-white/5 text-gray-300 hover:bg-purple-500/20 hover:text-purple-400 transition-all border border-white/10"
-            >
-              <ShoppingCart size={18} />
-              {cartCount > 0 && (
+            {cartCount > 0 && (
+              <button 
+                onClick={() => handleLinkClick('checkout')}
+                className="relative p-2.5 rounded-full bg-white/5 text-gray-300 hover:bg-purple-500/20 hover:text-purple-400 transition-all border border-white/10"
+              >
+                <ShoppingCart size={18} />
                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-pink-500 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-lg border-2 border-black animate-bounce">
                   {cartCount}
                 </span>
-              )}
-            </button>
+              </button>
+            )}
 
             {isLoggedIn ? (
               <div className="relative">

@@ -8,7 +8,7 @@
       "subtitleSecondary": "Visual, multisensory, and inclusive learning approach."
     },
     "tabs": {
-      "liveCourses": "Live\nCourses",
+      "liveCourses": "Live Online\nCourse",
       "ebook": "Ebook"
     },
     "liveSection": {
@@ -144,7 +144,7 @@
     "outcomesIntro": "By the end of this course, you will be able to:",
     "outcomesIntroKids": "By the end of this course, your child will be able to confidently:",
     "outcomesIntroShort": "By the end of this course, you'll be able to confidently:",
-    "dsaAdvantageTitle": "EDUWAY ACADEMY Advantage",
+    "dsaAdvantageTitle": "EDUWAY ACADEMY® DSA Smart Start Advantage",
     "dsaAdvantageDesc": "Unlike traditional methods, we don't overload students with abstract grammar explanations. We teach students to understand through <1>visual learning paths</1> and sensory triggers that make English clear, structured, and memorable.",
     "dsaWhatMakesTheDifference": "What makes the difference:",
     "dsaTags": [
@@ -265,7 +265,7 @@
     "videoDescription": "Watch our video and discover how you can finally learn English with clarity, confidence, and the right method.",
     "highlights": {
       "certifiedTutors": "Certified native-speaking tutors",
-      "dsaMethod": "EDUWAY ACADEMY® Method",
+      "dsaMethod": "EDUWAY ACADEMY® DSA Smart Start Method",
       "personalised": "Personalised learning experience"
     },
     "defaultDescription": "Live English course with certified native-speaking tutors specialised in SLD.",
@@ -620,16 +620,16 @@
   },
   "liveCourseContent": {
     "starter-path": {
-      "description": "Begin your English journey with personalised one-to-one attention. This starter programme is tailored entirely to your needs using the EDUWAY ACADEMY® Method, perfect for anyone looking for a focused introduction with a dedicated certified native-speaking tutor specialised in SLD.",
+      "description": "Begin your English journey with personalised one-to-one attention. This starter programme is tailored entirely to your needs using the EDUWAY ACADEMY® DSA Smart Start Method, perfect for anyone looking for a focused introduction and personalized attention, with a dedicated certified native-speaking tutor specialised in SLD.",
       "duration": "5 weeks",
       "lessons": "10 lessons of 30 minutes",
       "totalHours": "5 hours",
       "includes": [
         "Initial level assessment",
-        "EDUWAY ACADEMY® Method",
+        "EDUWAY ACADEMY® DSA Smart Start Method",
         "Personalised one-to-one sessions",
         "Creation of customised Mind Maps",
-        "Multisensory and visual method",
+        "DSA Smart Start multisensory and visual method",
         "Guided conversation",
         "Mini personalised study plan",
         "Certified native-speaking tutors specialised in SLD",
@@ -638,7 +638,7 @@
       ],
       "notIncluded": [
         "Language Lab",
-        "EDUWAY ACADEMY Teaching Material — unlimited access",
+        "EDUWAY ACADEMY® DSA Smart Start Teaching Material — unlimited access",
         "Access to 500+ Brain Mapping resources",
         "Access to 700+ video lessons",
         "Test and exam preparation",
@@ -669,17 +669,17 @@
       "totalHours": "6.5 hours",
       "includes": [
         "Initial level assessment",
-        "EDUWAY ACADEMY® Method",
+        "EDUWAY ACADEMY® DSA Smart Start Method",
         "Language Lab — max 3–4 students",
         "Circle Talk Lab",
         "Role Play & Team Challenges",
-        "Multisensory and visual method",
+        "DSA Smart Start multisensory and visual method",
         "Certified native-speaking tutors specialised in SLD",
         "Progressive monitoring"
       ],
       "notIncluded": [
         "Personalised one-to-one sessions",
-        "EDUWAY ACADEMY Teaching Material — unlimited access",
+        "EDUWAY ACADEMY® DSA Smart Start Teaching Material — unlimited access",
         "Access to 500+ Brain Mapping resources",
         "Access to 700+ video lessons",
         "Test and exam preparation",
@@ -710,9 +710,9 @@
       "totalHours": "25 hours",
       "includes": [
         "Initial level assessment",
-        "EDUWAY ACADEMY® Method",
-        "EDUWAY ACADEMY® Teaching Material — Unlimited access",
-        "Multisensory and visual method",
+        "EDUWAY ACADEMY® DSA Smart Start Method",
+        "EDUWAY ACADEMY® DSA Smart Start Teaching Material — Unlimited access",
+        "DSA Smart Start multisensory and visual method",
         "Access to 500+ Brain Mapping resources",
         "Access to 700+ video lessons",
         "Language Lab in micro-group (max 3–4 students)",
@@ -754,9 +754,9 @@
       "totalHours": "23.5 hours",
       "includes": [
         "Initial level assessment",
-        "EDUWAY ACADEMY® Method",
-        "EDUWAY ACADEMY® Teaching Material — Unlimited access",
-        "Multisensory and visual method",
+        "EDUWAY ACADEMY® DSA Smart Start Method",
+        "EDUWAY ACADEMY® DSA Smart Start Teaching Material — Unlimited access",
+        "DSA Smart Start multisensory and visual method",
         "Access to 500+ Brain Mapping resources",
         "Access to 700+ video lessons",
         "Personalised one-to-one sessions",
@@ -1125,7 +1125,7 @@
       ]
     },
     "starter-path": {
-      "description": "Begin your English journey with personalised one-to-one attention. This starter programme includes 5 individual lessons of 30 minutes each, tailored entirely to your needs and learning pace. Ideal for beginners or anyone looking for a focused introduction with a dedicated instructor.",
+      "description": "Begin your English journey with personalised one-to-one attention. This starter programme includes 5 individual lessons of 30 minutes each, tailored entirely to your needs and learning pace. Ideal for beginners or anyone looking for a focused introduction and personalized attention.",
       "learningOutcomes": [
         "Receive a personalised learning assessment",
         "Build foundational English skills one-to-one",

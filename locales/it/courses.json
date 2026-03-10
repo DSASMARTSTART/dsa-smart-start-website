@@ -8,7 +8,7 @@
       "subtitleSecondary": "Approccio di apprendimento visivo, multisensoriale e inclusivo."
     },
     "tabs": {
-      "liveCourses": "Corsi\ndal vivo",
+      "liveCourses": "Corso Online\ndal Vivo",
       "ebook": "E-book"
     },
     "liveSection": {
@@ -144,7 +144,7 @@
     "outcomesIntro": "Alla fine di questo corso, sarai in grado di:",
     "outcomesIntroKids": "Alla fine di questo corso, tuo figlio sarà in grado di:",
     "outcomesIntroShort": "Alla fine di questo corso, sarai in grado di:",
-    "dsaAdvantageTitle": "Il vantaggio EDUWAY ACADEMY",
+    "dsaAdvantageTitle": "Il vantaggio EDUWAY ACADEMY® DSA Smart Start",
     "dsaAdvantageDesc": "A differenza dei metodi tradizionali, non sovraccarichiamo gli studenti con spiegazioni grammaticali astratte. Insegniamo agli studenti a comprendere attraverso <1>percorsi di apprendimento visivo</1> e stimoli sensoriali che rendono l'inglese chiaro, strutturato e memorabile.",
     "dsaWhatMakesTheDifference": "Cosa fa la differenza:",
     "dsaTags": [
@@ -265,7 +265,7 @@
     "videoDescription": "Guarda il nostro video e scopri come puoi finalmente imparare l'inglese con chiarezza, sicurezza e il metodo giusto.",
     "highlights": {
       "certifiedTutors": "Tutor madrelingua certificati",
-      "dsaMethod": "Metodo EDUWAY ACADEMY®",
+      "dsaMethod": "Metodo EDUWAY ACADEMY® DSA Smart Start",
       "personalised": "Esperienza di apprendimento personalizzata"
     },
     "defaultDescription": "Corso di inglese dal vivo con tutor madrelingua certificati specializzati in DSA.",
@@ -620,16 +620,16 @@
   },
   "liveCourseContent": {
     "starter-path": {
-      "description": "Inizia il tuo percorso in inglese con un'attenzione personalizzata individuale. Questo programma iniziale è interamente su misura per le tue esigenze utilizzando il Metodo EDUWAY ACADEMY®, perfetto per chiunque cerchi un'introduzione mirata con un tutor madrelingua certificato specializzato in DSA.",
+      "description": "Inizia il tuo percorso in inglese con un'attenzione personalizzata individuale. Questo programma iniziale è interamente su misura per le tue esigenze utilizzando il Metodo EDUWAY ACADEMY® DSA Smart Start, perfetto per chiunque cerchi un'introduzione mirata e attenzione personalizzata, con un tutor madrelingua certificato specializzato in DSA.",
       "duration": "5 settimane",
       "lessons": "10 lezioni di 30 minuti",
       "totalHours": "5 ore",
       "includes": [
         "Valutazione iniziale del livello",
-        "Metodo EDUWAY ACADEMY®",
+        "Metodo EDUWAY ACADEMY® DSA Smart Start",
         "Sessioni personalizzate individuali",
         "Creazione di mappe mentali personalizzate",
-        "Metodo multisensoriale e visivo",
+        "Metodo multisensoriale e visivo DSA Smart Start",
         "Conversazione guidata",
         "Mini piano di studio personalizzato",
         "Tutor madrelingua certificati specializzati in DSA",
@@ -638,7 +638,7 @@
       ],
       "notIncluded": [
         "Language Lab",
-        "Materiale didattico EDUWAY ACADEMY — accesso illimitato",
+        "Materiale didattico EDUWAY ACADEMY® DSA Smart Start — accesso illimitato",
         "Accesso a oltre 500 risorse Brain Mapping",
         "Accesso a oltre 700 video lezioni",
         "Preparazione a test ed esami",
@@ -669,17 +669,17 @@
       "totalHours": "6,5 ore",
       "includes": [
         "Valutazione iniziale del livello",
-        "Metodo EDUWAY ACADEMY®",
+        "Metodo EDUWAY ACADEMY® DSA Smart Start",
         "Language Lab — max 3-4 studenti",
         "Circle Talk Lab",
         "Giochi di ruolo e sfide di squadra",
-        "Metodo multisensoriale e visivo",
+        "Metodo multisensoriale e visivo DSA Smart Start",
         "Tutor madrelingua certificati specializzati in DSA",
         "Monitoraggio progressivo"
       ],
       "notIncluded": [
         "Sessioni personalizzate individuali",
-        "Materiale didattico EDUWAY ACADEMY — accesso illimitato",
+        "Materiale didattico EDUWAY ACADEMY® DSA Smart Start — accesso illimitato",
         "Accesso a oltre 500 risorse Brain Mapping",
         "Accesso a oltre 700 video lezioni",
         "Preparazione a test ed esami",
@@ -710,9 +710,9 @@
       "totalHours": "25 ore",
       "includes": [
         "Valutazione iniziale del livello",
-        "Metodo EDUWAY ACADEMY®",
-        "Materiale didattico EDUWAY ACADEMY® — Accesso illimitato",
-        "Metodo multisensoriale e visivo",
+        "Metodo EDUWAY ACADEMY® DSA Smart Start",
+        "Materiale didattico EDUWAY ACADEMY® DSA Smart Start — Accesso illimitato",
+        "Metodo multisensoriale e visivo DSA Smart Start",
         "Accesso a oltre 500 risorse Brain Mapping",
         "Accesso a oltre 700 video lezioni",
         "Language Lab in micro-gruppo (max 3-4 studenti)",
@@ -754,9 +754,9 @@
       "totalHours": "23,5 ore",
       "includes": [
         "Valutazione iniziale del livello",
-        "Metodo EDUWAY ACADEMY®",
-        "Materiale didattico EDUWAY ACADEMY® — Accesso illimitato",
-        "Metodo multisensoriale e visivo",
+        "Metodo EDUWAY ACADEMY® DSA Smart Start",
+        "Materiale didattico EDUWAY ACADEMY® DSA Smart Start — Accesso illimitato",
+        "Metodo multisensoriale e visivo DSA Smart Start",
         "Accesso a oltre 500 risorse Brain Mapping",
         "Accesso a oltre 700 video lezioni",
         "Sessioni personalizzate individuali",
@@ -1125,7 +1125,7 @@
       ]
     },
     "starter-path": {
-      "description": "Inizia il tuo percorso in inglese con un'attenzione personalizzata individuale. Questo programma iniziale include 5 lezioni individuali di 30 minuti ciascuna, interamente su misura per le tue esigenze e il tuo ritmo di apprendimento. Ideale per principianti o chiunque cerchi un'introduzione mirata con un istruttore dedicato.",
+      "description": "Inizia il tuo percorso in inglese con un'attenzione personalizzata individuale. Questo programma iniziale include 5 lezioni individuali di 30 minuti ciascuna, interamente su misura per le tue esigenze e il tuo ritmo di apprendimento. Ideale per principianti o chiunque cerchi un'introduzione mirata e attenzione personalizzata.",
       "learningOutcomes": [
         "Ricevi una valutazione di apprendimento personalizzata",
         "Costruisci competenze in inglese di base in modo individuale",

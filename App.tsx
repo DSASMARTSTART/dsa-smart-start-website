@@ -7,7 +7,6 @@ import MissionSection from './components/MissionSection';
 import RootsSection from './components/RootsSection';
 import MethodSection from './components/MethodSection';
 import PathwaysDetail from './components/PathwaysDetail';
-import CareerSection from './components/CareerSection';
 import TestimonialsSection from './components/TestimonialsSection';
 import Footer from './components/Footer';
 import FaqPage from './components/FaqPage';
@@ -340,7 +339,6 @@ const App: React.FC = () => {
             <div id="roots"><RootsSection onNavigate={navigateTo} /></div>
             <div id="methods"><MethodSection onNavigate={navigateTo} /></div>
             <PathwaysDetail />
-            <CareerSection onNavigate={navigateTo} />
             <TestimonialsSection />
           </>
         )}

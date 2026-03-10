@@ -1,0 +1,7 @@
+-- Fix Starter Path description: add "and personalized attention" at the end
+UPDATE courses SET
+  description    = 'Begin your English journey with personalised one-to-one attention. This starter programme includes 5 individual lessons of 30 minutes each, tailored entirely to your needs and learning pace. Ideal for beginners or anyone looking for a focused introduction and personalized attention.',
+  description_it = 'Inizia il tuo percorso in inglese con un''attenzione personalizzata uno-a-uno. Questo programma iniziale include 5 lezioni individuali di 30 minuti ciascuna, interamente su misura per le tue esigenze e il tuo ritmo di apprendimento. Ideale per principianti o per chiunque cerchi un''introduzione mirata e attenzione personalizzata.',
+  description_sr = 'Započnite svoj put u engleskom sa personalizovanom pažnjom jedan-na-jedan. Ovaj početni program uključuje 5 individualnih časova po 30 minuta, potpuno prilagođenih vašim potrebama i tempu učenja. Idealan za početnike ili za svakoga ko traži fokusiran uvod i personalizovanu pažnju.',
+  description_es = 'Comienza tu camino en inglés con atención personalizada uno a uno. Este programa inicial incluye 5 lecciones individuales de 30 minutos cada una, totalmente adaptadas a tus necesidades y ritmo de aprendizaje. Ideal para principiantes o cualquiera que busque una introducción enfocada y atención personalizada.'
+WHERE level = 'starter-path';
