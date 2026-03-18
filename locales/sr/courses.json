@@ -474,7 +474,24 @@
       "targetAudience": [
         "Učenici uzrasta 9 i više godina"
       ],
-      "examPrep": "Cambridge English A1 Movers"
+      "units": [
+        { "title": "Jedinica 1 – Lične zamenice i glagol To Be", "topics": ["Lične zamenice (I, you, he, she, it, we, they)", "Glagol TO BE: potvrdni, odrični i upitni oblik", "Kratki odgovori sa TO BE"] },
+        { "title": "Jedinica 2 – There Is / There Are i Brojevi", "topics": ["There is / There are: potvrdni, odrični, upitni", "Imenice u jednini i množini", "Brojevi i brojanje"] },
+        { "title": "Jedinica 3 – Prisvojni pridevi i Prisvojne zamenice", "topics": ["Prisvojni pridevi (my, your, his, her...)", "Prisvojne zamenice (mine, yours, his, hers...)", "Razlika između prideva i zamenica"] },
+        { "title": "Jedinica 4 – Prisvojni genitiv ('S)", "topics": ["Saksonski genitiv ('s)", "Upitna reč 'Whose'", "Vlasništvo i pripadnost"] },
+        { "title": "Jedinica 5 – Pokazne zamenice", "topics": ["This, That, These, Those", "Upućivanje na blizinu i daljinu", "Vežba u kontekstu"] },
+        { "title": "Jedinica 6 – Prosto prošlo vreme glagola To Be", "topics": ["Was / Were: potvrdni, odrični, upitni", "Vremenski izrazi za prošlost", "Kratki odgovori"] },
+        { "title": "Jedinica 7 – Prosto sadašnje vreme (Glagoli radnje)", "topics": ["Prosto sadašnje: potvrdni, odrični, upitni", "Pravila za treće lice -s/-es", "Prilozi učestalosti"] },
+        { "title": "Jedinica 8 – Prosto prošlo vreme (Glagoli radnje)", "topics": ["Pravilni glagoli: nastavci -ed", "Nepravilni glagoli", "Prosto prošlo: odrični i upitni oblik"] },
+        { "title": "Jedinica 9 – Imperativ", "topics": ["Potvrdni imperativ", "Odrični imperativ (Don't...)", "Davanje uputstava i naredbi"] },
+        { "title": "Jedinica 10 – Buduće vreme sa Will", "topics": ["Will: potvrdni, odrični, upitni", "Predviđanja i obećanja", "Spontane odluke"] },
+        { "title": "Jedinica 11 – Modalni glagoli: Can i Could", "topics": ["Can: sposobnost i dozvola", "Could: prošla sposobnost i učtivi zahtevi", "Poređenje Can vs Could"] },
+        { "title": "Jedinica 12 – Objektne zamenice", "topics": ["Objektne zamenice (me, you, him, her...)", "Subjektne vs objektne zamenice", "Upotreba u rečenicama"] },
+        { "title": "Jedinica 13 – Have i Have Got", "topics": ["Have: potvrdni, odrični, upitni", "Have got: potvrdni, odrični, upitni", "Razlika između have i have got"] },
+        { "title": "Jedinica 14 – Predlozi za vreme i mesto", "topics": ["Predlozi za vreme (in, on, at)", "Predlozi za mesto (in, on, at, under, next to...)", "Uobičajeni izrazi"] },
+        { "title": "Jedinica 15 – Sadašnje trajno vreme", "topics": ["Sadašnje trajno: potvrdni, odrični, upitni", "Pravopisna pravila (-ing oblici)", "Prosto sadašnje vs sadašnje trajno"] }
+      ],
+      "examPrep": "CAMBRIDGE A1 Movers"
     },
     "A2": {
       "description": "Nastavite da gradite svoj engleski sa našom strukturiranom A2 e-knjigom, osmišljenom da ojača gramatičke temelje, proširi vokabular i razvije komunikacijske veštine za svakodnevni život sa jasnoćom i samopouzdanjem.",
@@ -494,7 +511,24 @@
       "targetAudience": [
         "Učenici uzrasta 9 i više godina"
       ],
-      "examPrep": "Cambridge English A2 Key (KET)"
+      "units": [
+        { "title": "Jedinica 1 – Prosto sadašnje vs Sadašnje trajno vreme", "topics": ["Prosto sadašnje: navike i rutine", "Sadašnje trajno: radnje u toku", "Ključne razlike i signalne reči"] },
+        { "title": "Jedinica 2 – Prošlo trajno vreme", "topics": ["Prošlo trajno: potvrdni, odrični, upitni", "Opisivanje radnji u toku u prošlosti", "Vremenski izrazi sa prošlim trajnim"] },
+        { "title": "Jedinica 3 – Prošlo trajno vs Prosto prošlo", "topics": ["When vs While", "Prekinute radnje", "Istovremene radnje u prošlosti"] },
+        { "title": "Jedinica 4 – Prilozi i predlozi za vreme i mesto", "topics": ["Prilozi za vreme, mesto i kretanje", "Predlozi za vreme i mesto", "Uobičajene kolokacije"] },
+        { "title": "Jedinica 5 – Brojive i nebrojive imenice", "topics": ["Identifikovanje brojivih i nebrojivih imenica", "Članovi sa brojivim/nebrojivim", "Izrazi za količinu"] },
+        { "title": "Jedinica 6 – Some, Any, A Lot of", "topics": ["Some: potvrdne rečenice i ponude", "Any: odrični i upitni oblik", "A lot of: velike količine"] },
+        { "title": "Jedinica 7 – Much, Many, A Lot of, A Little, A Few", "topics": ["Much vs Many", "A little vs A few", "Pitanja sa How much / How many"] },
+        { "title": "Jedinica 8 – Komparativni i superlativni pridevi", "topics": ["Komparativni oblici (-er / more)", "Superlativni oblici (-est / most)", "Nepravilni komparativi i superlativi"] },
+        { "title": "Jedinica 9 – Modalni glagoli: May i Might", "topics": ["May: dozvola i mogućnost", "Might: manja mogućnost", "Poređenje May vs Might"] },
+        { "title": "Jedinica 10 – Modalni glagoli: Should, Must, Have To", "topics": ["Should: savet i preporuke", "Must: jaka obaveza", "Have to: spoljašnja obaveza"] },
+        { "title": "Jedinica 11 – Glagolski obrasci", "topics": ["Glagoli + infinitiv (want, would like)", "Glagoli + -ing (like, enjoy, remember)", "Glagoli sa oba obrasca"] },
+        { "title": "Jedinica 12 – Oblici budućeg vremena: Will, Be Going To, Sadašnje trajno", "topics": ["Will: predviđanja i spontane odluke", "Be going to: planovi i namere", "Sadašnje trajno za dogovore"] },
+        { "title": "Jedinica 13 – Present Perfect prosto", "topics": ["Present perfect: potvrdni, odrični, upitni", "Ever, never, already, yet, just", "Oblici prošlog participa"] },
+        { "title": "Jedinica 14 – Present Perfect prosto vs Prosto prošlo", "topics": ["Završeno vs nezavršeno vreme", "Signalne reči za svako vreme", "Odabir pravog vremena"] },
+        { "title": "Jedinica 15 – Nulti i prvi kondicional", "topics": ["Nulti kondicional: opšte istine", "Prvi kondicional: realne buduće mogućnosti", "Unless u kondicionalima"] }
+      ],
+      "examPrep": "CAMBRIDGE A2 Key (KET)"
     },
     "B1": {
       "description": "Ojačajte svoj engleski sa našom strukturiranom B1 e-knjigom za srednji nivo, osmišljenom da vam pomogne da komunicirate tečno, razmišljate na engleskom i sa sigurnošću upravljate svakodnevnim i profesionalnim situacijama.",
@@ -514,7 +548,24 @@
       "targetAudience": [
         "Učenici uzrasta 12 i više godina"
       ],
-      "examPrep": "Cambridge English B1 Preliminary (PET)"
+      "units": [
+        { "title": "Jedinica 1 – Present Perfect trajno", "topics": ["Present perfect trajno: oblik i upotreba", "For i since sa trajanjem", "Razlika od present perfect prostog"] },
+        { "title": "Jedinica 2 – Present Perfect prosto vs Present Perfect trajno", "topics": ["Završene vs radnje u toku", "Fokus na rezultat vs proces", "Odabir pravog oblika"] },
+        { "title": "Jedinica 3 – Past Perfect prosto", "topics": ["Past perfect: potvrdni, odrični, upitni", "Redosled događaja u prošlosti", "Past perfect vs prosto prošlo"] },
+        { "title": "Jedinica 4 – Buduće trajno vreme", "topics": ["Buduće trajno: oblik i upotreba", "Radnje u toku u budućem trenutku", "Buduće trajno vs prosto buduće"] },
+        { "title": "Jedinica 5 – Pasiv", "topics": ["Pasiv u sadašnjem, prošlom i budućem prostom vremenu", "Agens sa 'by'", "Transformacija iz aktiva u pasiv"] },
+        { "title": "Jedinica 6 – Kauzativni oblici", "topics": ["Have something done", "Get something done", "Upotreba i uobičajeni izrazi"] },
+        { "title": "Jedinica 7 – Modalni glagoli: Ought To, Shall, Be Able To, Manage To", "topics": ["Ought to: moralna obaveza", "Shall: predlozi i ponude", "Be able to / Manage to: sposobnost"] },
+        { "title": "Jedinica 8 – Modalni glagoli za dedukciju (sadašnjost)", "topics": ["Must: jaka sigurnost", "Can't: nemogućnost", "Might/Could: mogućnost"] },
+        { "title": "Jedinica 9 – Modalni glagoli za dedukciju (prošlost)", "topics": ["Must have + prošli particip", "Can't have + prošli particip", "Might/Could have + prošli particip"] },
+        { "title": "Jedinica 10 – Neupravni govor", "topics": ["Promene vremena u neupravnom govoru", "Glagoli izveštavanja (say, tell, ask)", "Promene vremena i mesta"] },
+        { "title": "Jedinica 11 – Indirektna pitanja", "topics": ["Red reči u indirektnim pitanjima", "Učtivi oblici pitanja", "Ugrađena pitanja"] },
+        { "title": "Jedinica 12 – Drugi i treći kondicional", "topics": ["Drugi kondicional: nerealna sadašnjost", "Treći kondicional: nerealna prošlost", "Uvod u mešovite kondicionalne rečenice"] },
+        { "title": "Jedinica 13 – Relativne zamenice i relativne rečenice", "topics": ["Who, which, that, where, whose", "Restriktivne vs nerestriktivne klauze", "Izostavljanje relativne zamenice"] },
+        { "title": "Jedinica 14 – Question Tags", "topics": ["Formiranje question tags", "Pozitivni i negativni obrasci", "Intonacija i značenje"] },
+        { "title": "Jedinica 15 – Komparativni pridevi", "topics": ["Napredne komparativne strukture", "Poređenja sa as...as", "Obrasci the more...the more"] }
+      ],
+      "examPrep": "CAMBRIDGE B1 Preliminary (PET)"
     },
     "B2": {
       "description": "Eduway nivo B2 predstavlja vrhunac našeg strukturiranog puta učenja, osmišljen za učenike sa specifičnim teškoćama u učenju (SLD) koji su spremni da dostignu viši srednji nivo znanja. Ovaj napredni nivo se fokusira na nijansirano korišćenje jezika, akademski engleski i sofisticirane komunikacijske strategije koje pripremaju učenike za profesionalne i obrazovne kontekste.",
@@ -565,7 +616,24 @@
         "Deca koja najbolje uče kroz igru i vizuelne sadržaje",
         "Roditelji koji traže engleski prilagođen disleksiji za decu"
       ],
-      "examPrep": "Cambridge English A1 Starters"
+      "units": [
+        { "title": "Jedinica 1 – Lične Zamenice i Glagol To Be (Potvrdni Oblik)", "topics": ["Lične zamenice (I, you, he, she, it, we, they)", "Glagol TO BE: potvrdni oblik", "Kratki odgovori sa TO BE"] },
+        { "title": "Jedinica 2 – Glagol To Be (Odrični i Upitni Oblik)", "topics": ["Glagol TO BE: odrični oblik", "Glagol TO BE: upitni oblik", "Kratki odgovori i vežba"] },
+        { "title": "Jedinica 3 – Prisvojni Pridevi i Prisvojno 'S", "topics": ["Prisvojni pridevi (my, your, his, her...)", "Prisvojno 'S (saksonski genitiv)", "Govoriti o pripadanju"] },
+        { "title": "Jedinica 4 – Pokazne Zamenice (This, That, These, Those)", "topics": ["This i That za jedninu", "These i Those za množinu", "Bliske i daleke reference"] },
+        { "title": "Jedinica 5 – Upitne Reči (Wh- Questions)", "topics": ["What, Where, When, Who, Why, How", "Formiranje Wh- pitanja", "Odgovaranje na Wh- pitanja"] },
+        { "title": "Jedinica 6 – Modalni Glagol \"Can\"", "topics": ["Can: potvrdni i odrični oblik", "Can: pitanja i kratki odgovori", "Govoriti o sposobnosti i dozvoli"] },
+        { "title": "Jedinica 7 – There Is / There Are", "topics": ["There is: jednina (potvrdni, odrični, upitni)", "There are: množina (potvrdni, odrični, upitni)", "Opisivanje mesta i prostorija"] },
+        { "title": "Jedinica 8 – Imenice u Množini (Pravilne i Nepravilne) i Brojevi", "topics": ["Pravilne množine (-s, -es, -ies)", "Nepravilne množine (children, teeth, mice...)", "Brojevi i brojanje"] },
+        { "title": "Jedinica 9 – Present Simple (Potvrdni i Odrični Oblik)", "topics": ["Present Simple: potvrdni oblik", "Pravila za treće lice -s/-es", "Present Simple: odrični oblik (don't / doesn't)"] },
+        { "title": "Jedinica 10 – Present Simple (Upitni Oblik i Kratki Odgovori)", "topics": ["Do / Does u pitanjima", "Kratki odgovori (Yes, I do / No, he doesn't)", "Prilozi za učestalost"] },
+        { "title": "Jedinica 11 – Past Simple Glagola To Be (Potvrdni i Odrični Oblik)", "topics": ["Was / Were: potvrdni oblik", "Was / Were: odrični oblik", "Izrazi za prošlo vreme"] },
+        { "title": "Jedinica 12 – Past Simple Glagola To Be (Upitni Oblik)", "topics": ["Was / Were: upitni oblik", "Kratki odgovori sa was/were", "Vežba u kontekstu"] },
+        { "title": "Jedinica 13 – Past Simple (Pravilni Glagoli)", "topics": ["Pravilni glagoli: nastavci -ed", "Pravila za pisanje -ed", "Past Simple: odrični i upitni oblik"] },
+        { "title": "Jedinica 14 – Buduće Vreme sa Will (Potvrdni i Odrični Oblik)", "topics": ["Will: potvrdni oblik", "Will: odrični oblik (won't)", "Pravljenje predviđanja i obećanja"] },
+        { "title": "Jedinica 15 – Buduće Vreme sa Will (Upitni Oblik)", "topics": ["Will: upitni oblik", "Kratki odgovori sa will", "Vežba sa budućim planovima"] }
+      ],
+      "examPrep": "CAMBRIDGE Pre-A1 Starters"
     },
     "kids-medium": {
       "description": "Eduway Kids Medium e-knjiga nadograđuje osnove, osmišljena za mlade učenike uzrasta 7-10 godina koji su spremni da prošire svoje veštine engleskog. Kroz učenje zasnovano na pričama, kreativne aktivnosti i interaktivne vežbe, deca razvijaju samopouzdanje u čitanju, pisanju i govoru. Svaka stranica uključuje metode prilagođene disleksiji kako bi podržala sve stilove učenja.",
@@ -590,7 +658,24 @@
         "Deca koja uživaju u pričama i kreativnim aktivnostima",
         "Učenici koji se pripremaju za Cambridge A1 Movers"
       ],
-      "examPrep": "Cambridge English A1 Movers"
+      "units": [
+        { "title": "Jedinica 1 – Present Continuous (Potvrdni, Odrični, Upitni Oblik)", "topics": ["Present Continuous: potvrdni oblik", "Present Continuous: odrični oblik", "Present Continuous: upitni oblik i kratki odgovori"] },
+        { "title": "Jedinica 2 – Present Continuous vs Present Simple", "topics": ["Ključne razlike između Present Simple i Continuous", "Signalne reči za svako vreme", "Izbor pravog vremena u kontekstu"] },
+        { "title": "Jedinica 3 – Modali: Can & Could", "topics": ["Can: sposobnost i dozvola", "Could: prošla sposobnost i učtivi zahtevi", "Poređenje Can vs Could"] },
+        { "title": "Jedinica 4 – Brojive i Nebrojive Imenice (Much / Many)", "topics": ["Brojive vs nebrojive imenice", "Much sa nebrojivim imenicama", "Many sa brojivim imenicama"] },
+        { "title": "Jedinica 5 – Kvantifikatori (Some / Any / A lot of)", "topics": ["Some u potvrdnim rečenicama", "Any u odričnim i upitnim oblicima", "A lot of sa oba tipa imenica"] },
+        { "title": "Jedinica 6 – Past Simple – Pravilni Glagoli", "topics": ["Pravilni glagoli: nastavci -ed i pravila pisanja", "Past Simple: odrični oblik (didn't)", "Past Simple: upitni oblik (Did...?)"] },
+        { "title": "Jedinica 7 – Past Simple – Nepravilni Glagoli (Potvrdni Oblik)", "topics": ["Uobičajeni nepravilni glagoli (go, see, eat, have...)", "Oblici nepravilnih glagola", "Korišćenje nepravilnih glagola u rečenicama"] },
+        { "title": "Jedinica 8 – Past Simple – Nepravilni Glagoli (Odrični i Upitni Oblik)", "topics": ["Didn't + osnovni oblik sa nepravilnim glagolima", "Did + subjekat + osnovni oblik u pitanjima", "Vežba sa nepravilnim glagolima"] },
+        { "title": "Jedinica 9 – Modalni Glagoli: Have to & Must", "topics": ["Must: jaka obaveza", "Have to: spoljna obaveza", "Poređenje Must vs Have to"] },
+        { "title": "Jedinica 10 – Modalni Glagol: Should", "topics": ["Should: saveti i preporuke", "Should: odrični oblik (shouldn't)", "Davanje saveta u kontekstu"] },
+        { "title": "Jedinica 11 – Komparativi", "topics": ["Komparativni pridevi (-er / more)", "Pravila pisanja za komparative", "Than u komparativnim rečenicama"] },
+        { "title": "Jedinica 12 – Superlativi", "topics": ["Superlativni pridevi (-est / most)", "The + superlativni oblik", "Poređenje tri ili više stvari"] },
+        { "title": "Jedinica 13 – Past Continuous – Potvrdni Oblik", "topics": ["Was/Were + oblik sa -ing", "Opisivanje radnji u toku u prošlosti", "Vremenski izrazi sa Past Continuous"] },
+        { "title": "Jedinica 14 – Past Continuous – Odrični i Upitni Oblik", "topics": ["Past Continuous: odrični oblik", "Past Continuous: upitni oblik", "Past Continuous vs Past Simple"] },
+        { "title": "Jedinica 15 – Imperativi", "topics": ["Potvrdni imperativi", "Odrični imperativi (Don't...)", "Davanje uputstava, komandi i saveta"] }
+      ],
+      "examPrep": "CAMBRIDGE A1 Movers"
     },
     "kids-advanced": {
       "description": "Eduway Kids Advanced e-knjiga je osmišljena za samouverene mlade učenike uzrasta 9-12 godina koji su spremni da savladaju engleski na višem nivou. Ovaj sveobuhvatni vodič priprema učenike za školske zahteve iz engleskog i Cambridge A2 Flyers ispit. Složena gramatika se predaje kroz zanimljive kontekste, a kreativno izražavanje se podstiče kroz ceo kurs.",
@@ -615,7 +700,24 @@
         "Deca koja prelaze na engleski za srednju školu",
         "Mladi učenici spremni za napredne izazove"
       ],
-      "examPrep": "Cambridge English A2 Flyers"
+      "units": [
+        { "title": "Jedinica 1 – Past Simple vs Past Continuous", "topics": ["Past Simple za završene radnje", "Past Continuous za radnje u toku", "When i While u pripovedanjima u prošlosti"] },
+        { "title": "Jedinica 2 – Modalni Glagoli: May, Might, Shall", "topics": ["May: dozvola i mogućnost", "Might: mogućnost (manje izvesna)", "Shall: predlozi i ponude"] },
+        { "title": "Jedinica 3 – Buduće Vreme sa Will", "topics": ["Will: predviđanja, obećanja, odluke", "Will: odrični i upitni oblik", "Signalne reči za will"] },
+        { "title": "Jedinica 4 – Buduće Vreme sa Be Going To", "topics": ["Be going to: planovi i namere", "Be going to: predviđanja sa dokazima", "Potvrdni, odrični i upitni oblik"] },
+        { "title": "Jedinica 5 – Will vs Be Going To", "topics": ["Spontane odluke vs planirane radnje", "Predviđanja sa i bez dokaza", "Izbor pravog oblika za budućnost"] },
+        { "title": "Jedinica 6 – Present Perfect Simple (Potvrdni Oblik)", "topics": ["Have/Has + particip prošli", "Pravilni i nepravilni participi", "Govoriti o iskustvima i rezultatima"] },
+        { "title": "Jedinica 7 – Present Perfect Simple (Odrični i Upitni Oblik)", "topics": ["Haven't / Hasn't + particip prošli", "Have you ever...? pitanja", "Kratki odgovori sa Present Perfect"] },
+        { "title": "Jedinica 8 – Present Perfect Simple sa Uobičajenim Prilozima i Izrazima", "topics": ["Ever, never, already, yet, just", "For i since sa Present Perfect", "Present Perfect vs Past Simple"] },
+        { "title": "Jedinica 9 – Komparativi", "topics": ["Komparativni pridevi (-er / more...than)", "Nepravilni komparativi (better, worse, further)", "Poređenja sa as...as"] },
+        { "title": "Jedinica 10 – Prisvojne Zamenice", "topics": ["Prisvojne zamenice (mine, yours, his, hers...)", "Prisvojni pridevi vs prisvojne zamenice", "Whose i vlasništvo"] },
+        { "title": "Jedinica 11 – Glagoli Preferencije + -ing", "topics": ["Like, love, enjoy, prefer + -ing", "Don't mind, can't stand + -ing", "Govoriti o preferencijama"] },
+        { "title": "Jedinica 12 – Prilozi koji se Završavaju na -ly", "topics": ["Formiranje priloga od prideva", "Nepravilni prilozi (well, fast, hard)", "Korišćenje priloga za opisivanje radnji"] },
+        { "title": "Jedinica 13 – Prvi Kondicional", "topics": ["If + Present Simple, will + osnovni oblik", "Realne buduće mogućnosti", "Unless u prvom kondicionalu"] },
+        { "title": "Jedinica 14 – Drugi Kondicional", "topics": ["If + Past Simple, would + osnovni oblik", "Nerealne ili zamišljene situacije", "Davanje saveta sa drugim kondicionalom"] },
+        { "title": "Jedinica 15 – Prvi Kondicional vs Drugi Kondicional", "topics": ["Realne vs nerealne situacije", "Ključne razlike i signalne reči", "Izbor pravog kondicionala"] }
+      ],
+      "examPrep": "CAMBRIDGE A2 Flyers"
     }
   },
   "liveCourseContent": {
@@ -751,7 +853,6 @@
       "description": "Najbolje od oba sveta — kombinacija energije mikro-grupnih laboratorija sa personalizovanim fokusom sesija jedan na jedan. Uključuje 25 radionica (50 minuta, maks. 3–4 učenika) plus 5 individualnih sesija (30 minuta). Svi nastavni materijali su uključeni za najsveobuhvatnije iskustvo učenja.",
       "duration": "Do 9 meseci",
       "lessons": "25 radionica od 50 min + 5 individualnih sesija od 30 min",
-      "totalHours": "23,5 sati",
       "includes": [
         "Početna procena nivoa",
         "EDUWAY ACADEMY® DSA Smart Start metod",
@@ -815,7 +916,7 @@
         "Nastavnici podrške i predavači za učenje",
         "Svako ko želi da nauči engleski na vizuelan, postepen način"
       ],
-      "examPrep": "Cambridge English A1 Movers"
+      "examPrep": "CAMBRIDGE A1 Movers"
     },
     "A2": {
       "description": "Eduway nivo A2 je osmišljen da prati učenike sa specifičnim teškoćama u učenju (SLD) u učvršćivanju stečenih jezičkih veština i uvođenju složenijih gramatičkih struktura. Kroz vizuelan, multisenzoran i inkluzivan pristup, svaka nastavna jedinica je strukturirana da olakša razumevanje, pamćenje i aktivnu upotrebu jezika, čineći iskustvo učenja pristupačnim i motivišućim.",
@@ -841,7 +942,7 @@
         "Roditelji i nastavnici podrške",
         "Svako ko želi strukturiran, postepen pristup engleskom"
       ],
-      "examPrep": "Cambridge English A2 Key (KET)"
+      "examPrep": "CAMBRIDGE A2 Key (KET)"
     },
     "B1": {
       "description": "Eduway nivo B1 je osmišljen da prati učenike sa specifičnim teškoćama u učenju (SLD) kroz srednji stupanj učenja engleskog, gde jezik postaje složeniji, artikulisaniji alat bliži upotrebi u stvarnom svetu. Ovaj nivo uvodi naprednije gramatičke strukture i promoviše razvoj svih 4 veština: slušanja, čitanja, pisanja i govora.",
@@ -867,7 +968,7 @@
         "Nastavnici podrške i predavači za učenje",
         "Svako ko teži samostalnoj komunikaciji u svakodnevnim kontekstima"
       ],
-      "examPrep": "Cambridge English B1 Preliminary (PET)"
+      "examPrep": "CAMBRIDGE B1 Preliminary (PET)"
     },
     "Kids": {
       "description": "Eduway napredni nivo je osmišljen da prati mlade učenike sa teškoćama u učenju korak po korak u učenju engleskog jezika. Učenici mogu da napreduju postepeno, počevši od A1 Starters ispita, preko Movers, do A2 Flyers. Ovaj napredni nivo kompletira program, nudeći esencijalni sadržaj za pripremu A2 Flyers ispita — trećeg nivoa Cambridge English Young Learners, osmišljenog za učenike osnovnih i nižih razreda srednje škole.",
@@ -996,7 +1097,7 @@
         "Deca koja najbolje uče kroz igru i vizuelne sadržaje",
         "Roditelji koji traže engleski prilagođen disleksiji za decu"
       ],
-      "examPrep": "Cambridge English Pre A1 Starters Preparation"
+      "examPrep": "CAMBRIDGE Pre-A1 Starters"
     },
     "kids-medium": {
       "description": "Eduway Kids Medium program nadograđuje osnove, osmišljen za mlade učenike uzrasta 7-10 godina koji su spremni da prošire svoje veštine engleskog. Kroz učenje zasnovano na pričama, kreativne aktivnosti i interaktivne vežbe, deca razvijaju samopouzdanje u čitanju, pisanju i govoru. Svaka lekcija uključuje metode prilagođene disleksiji kako bi podržala sve stilove učenja.",
@@ -1021,7 +1122,7 @@
         "Deca koja uživaju u pričama i kreativnim aktivnostima",
         "Učenici koji se pripremaju za Cambridge A1 Movers"
       ],
-      "examPrep": "Cambridge English A1 Movers"
+      "examPrep": "CAMBRIDGE A1 Movers"
     },
     "kids-advanced": {
       "description": "Eduway Kids Advanced program je osmišljen za samouverene mlade učenike uzrasta 9-12 godina koji su spremni da savladaju engleski na višem nivou. Ovaj sveobuhvatni kurs priprema učenike za školske zahteve iz engleskog i Cambridge A2 Flyers ispit. Složena gramatika se predaje kroz zanimljive kontekste, a kreativno izražavanje se podstiče kroz ceo kurs.",
@@ -1047,7 +1148,7 @@
         "Deca koja prelaze na engleski za srednju školu",
         "Mladi učenici spremni za napredne izazove"
       ],
-      "examPrep": "Cambridge English A2 Flyers"
+      "examPrep": "CAMBRIDGE A2 Flyers"
     },
     "premium": {
       "description": "Premium program je naš vodeći kurs engleskog uživo, koji kombinuje snagu personalizovane nastave jedan na jedan sa dinamičnim grupnim radionicama. Osmišljen posebno za učenike sa teškoćama u učenju, ovaj sveobuhvatni program uključuje 7 individualnih časova, 32 grupne radionice i neograničen pristup našoj kompletnoj biblioteci mentalnih mapa, video lekcija i interaktivnih materijala. Sa posvećenom podrškom 6 dana u nedelji, nikada se nećete osećati sami na svom putu učenja.",

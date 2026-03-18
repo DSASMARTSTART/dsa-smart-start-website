@@ -28,6 +28,7 @@ const LEVEL_LABELS: Record<string, string> = {
 interface DashboardProps {
   user: { name: string, email: string } | null;
   onOpenCourse: (id: string) => void;
+  onNavigate?: (path: string) => void;
 }
 
 interface EnrolledCourse extends Course {
@@ -45,7 +46,7 @@ interface PendingPurchase extends Purchase {
   course?: Course;
 }
 
-const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
+const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigate }) => {
   const { t, i18n } = useTranslation('dashboard');
   const { user: authUser, profile, loading: authLoading, resetPassword } = useAuth();
   const currentLang = i18n.language || 'en';
@@ -249,7 +250,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
             {t('loginRequired.description')}
           </p>
           <button 
-            onClick={() => window.location.hash = '#login'}
+            onClick={() => onNavigate ? onNavigate('login') : window.location.hash = '#login'}
             className="px-12 py-5 bg-purple-600 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-colors shadow-xl shadow-purple-500/20"
           >
             {t('loginRequired.button')}
@@ -379,7 +380,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
                   {t('courses.emptyDescription')}
                 </p>
                 <button 
-                  onClick={() => window.location.hash = '#courses'}
+                  onClick={() => onNavigate ? onNavigate('courses') : window.location.hash = '#courses'}
                   className="px-10 py-4 bg-purple-600 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-colors shadow-lg shadow-purple-500/20"
                 >
                   {t('courses.browseCourses')}
@@ -442,7 +443,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse }) => {
                   <h4 className="text-lg font-black text-gray-500 uppercase tracking-tight mb-2">{t('courses.nextPath')}</h4>
                   <p className="text-xs font-bold text-gray-500 mb-8 max-w-[150px]">{t('courses.nextPathDescription')}</p>
                   <button 
-                    onClick={() => window.location.hash = '#courses'}
+                    onClick={() => onNavigate ? onNavigate('courses') : window.location.hash = '#courses'}
                     className="text-[10px] font-black uppercase tracking-widest text-purple-400 hover:underline"
                   >
                     {t('courses.browseCatalog')}

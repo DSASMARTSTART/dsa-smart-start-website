@@ -353,6 +353,7 @@ const App: React.FC = () => {
           <CoursesPage 
             onSelectCourse={(id) => navigateTo('syllabus', id)} 
             onEnroll={enrollNow}
+            onNavigate={navigateTo}
             cart={cart}
             onAddToCart={addToCart}
             defaultTab={coursesDefaultTab}
@@ -401,6 +402,7 @@ const App: React.FC = () => {
           onRemoveItem={removeFromCart}
           onClearCart={() => { setCart([]); setTeachingMaterialsCart({}); }}
           onBrowse={() => navigateTo('courses')}
+          onNavigate={navigateTo}
           user={currentUser}
           initialTeachingMaterials={teachingMaterialsCart}
           onTeachingMaterialsChange={(courseId, selected) => {
@@ -420,6 +422,7 @@ const App: React.FC = () => {
         <DashboardPage 
           user={currentUser} 
           onOpenCourse={(id) => navigateTo('viewer', id)}
+          onNavigate={navigateTo}
         />
       )}
 

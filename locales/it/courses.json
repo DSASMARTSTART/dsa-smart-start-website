@@ -474,7 +474,24 @@
       "targetAudience": [
         "Studenti dai 9 anni in su"
       ],
-      "examPrep": "Cambridge English A1 Movers"
+      "units": [
+        { "title": "Unità 1 – Pronomi Personali Soggetto e il Verbo To Be", "topics": ["Pronomi personali (I, you, he, she, it, we, they)", "Verbo TO BE: forme affermativa, negativa e interrogativa", "Risposte brevi con TO BE"] },
+        { "title": "Unità 2 – There Is / There Are e i Numeri", "topics": ["There is / There are: affermativa, negativa, interrogativa", "Sostantivi singolari e plurali", "Numeri e contare"] },
+        { "title": "Unità 3 – Aggettivi Possessivi e Pronomi Possessivi", "topics": ["Aggettivi possessivi (my, your, his, her...)", "Pronomi possessivi (mine, yours, his, hers...)", "Differenza tra aggettivi e pronomi"] },
+        { "title": "Unità 4 – Genitivo Possessivo ('S)", "topics": ["Genitivo sassone ('s)", "La parola interrogativa 'Whose'", "Possesso e appartenenza"] },
+        { "title": "Unità 5 – Dimostrativi", "topics": ["This, That, These, Those", "Riferimenti di vicinanza e lontananza", "Pratica nel contesto"] },
+        { "title": "Unità 6 – Passato Semplice del Verbo To Be", "topics": ["Was / Were: affermativa, negativa, interrogativa", "Espressioni temporali al passato", "Risposte brevi"] },
+        { "title": "Unità 7 – Presente Semplice (Verbi di Azione)", "topics": ["Presente semplice: affermativa, negativa, interrogativa", "Regole della terza persona -s/-es", "Avverbi di frequenza"] },
+        { "title": "Unità 8 – Passato Semplice (Verbi di Azione)", "topics": ["Verbi regolari: desinenze -ed", "Verbi irregolari", "Passato semplice: forme negativa e interrogativa"] },
+        { "title": "Unità 9 – Imperativi", "topics": ["Imperativi affermativi", "Imperativi negativi (Don't...)", "Dare istruzioni e comandi"] },
+        { "title": "Unità 10 – Futuro con Will", "topics": ["Will: affermativa, negativa, interrogativa", "Previsioni e promesse", "Decisioni spontanee"] },
+        { "title": "Unità 11 – Verbi Modali: Can e Could", "topics": ["Can: abilità e permesso", "Could: abilità passata e richieste cortesi", "Confronto Can vs Could"] },
+        { "title": "Unità 12 – Pronomi Complemento", "topics": ["Pronomi complemento (me, you, him, her...)", "Pronomi soggetto vs pronomi complemento", "Uso nelle frasi"] },
+        { "title": "Unità 13 – Have e Have Got", "topics": ["Have: affermativa, negativa, interrogativa", "Have got: affermativa, negativa, interrogativa", "Differenza tra have e have got"] },
+        { "title": "Unità 14 – Preposizioni di Tempo e Luogo", "topics": ["Preposizioni di tempo (in, on, at)", "Preposizioni di luogo (in, on, at, under, next to...)", "Espressioni comuni"] },
+        { "title": "Unità 15 – Presente Progressivo", "topics": ["Presente progressivo: affermativa, negativa, interrogativa", "Regole ortografiche (forme -ing)", "Presente semplice vs presente progressivo"] }
+      ],
+      "examPrep": "CAMBRIDGE A1 Movers"
     },
     "A2": {
       "description": "Continua a costruire il tuo inglese con il nostro e-book strutturato A2, progettato per rafforzare le basi grammaticali, ampliare il vocabolario e sviluppare competenze comunicative nella vita reale con chiarezza e sicurezza.",
@@ -494,7 +511,24 @@
       "targetAudience": [
         "Studenti dai 9 anni in su"
       ],
-      "examPrep": "Cambridge English A2 Key (KET)"
+      "units": [
+        { "title": "Unità 1 – Presente Semplice vs Presente Progressivo", "topics": ["Presente semplice: abitudini e routine", "Presente progressivo: azioni in corso", "Differenze chiave e parole segnale"] },
+        { "title": "Unità 2 – Passato Progressivo", "topics": ["Passato progressivo: affermativa, negativa, interrogativa", "Descrivere azioni passate in corso", "Espressioni temporali con il passato progressivo"] },
+        { "title": "Unità 3 – Passato Progressivo vs Passato Semplice", "topics": ["When vs While", "Azioni interrotte", "Azioni simultanee al passato"] },
+        { "title": "Unità 4 – Avverbi e Preposizioni di Tempo e Luogo", "topics": ["Avverbi di tempo, luogo e movimento", "Preposizioni di tempo e luogo", "Collocazioni comuni"] },
+        { "title": "Unità 5 – Sostantivi Numerabili e Non Numerabili", "topics": ["Identificare sostantivi numerabili e non numerabili", "Articoli con numerabili/non numerabili", "Espressioni di quantità"] },
+        { "title": "Unità 6 – Some, Any, A Lot of", "topics": ["Some: frasi affermative e offerte", "Any: forme negativa e interrogativa", "A lot of: grandi quantità"] },
+        { "title": "Unità 7 – Much, Many, A Lot of, A Little, A Few", "topics": ["Much vs Many", "A little vs A few", "Domande con How much / How many"] },
+        { "title": "Unità 8 – Aggettivi Comparativi e Superlativi", "topics": ["Forme comparative (-er / more)", "Forme superlative (-est / most)", "Comparativi e superlativi irregolari"] },
+        { "title": "Unità 9 – Verbi Modali: May e Might", "topics": ["May: permesso e possibilità", "Might: possibilità minore", "Confronto May vs Might"] },
+        { "title": "Unità 10 – Verbi Modali: Should, Must, Have To", "topics": ["Should: consigli e raccomandazioni", "Must: obbligo forte", "Have to: obbligo esterno"] },
+        { "title": "Unità 11 – Strutture Verbali", "topics": ["Verbi + infinito (want, would like)", "Verbi + -ing (like, enjoy, remember)", "Verbi con entrambe le strutture"] },
+        { "title": "Unità 12 – Forme del Futuro: Will, Be Going To, Presente Progressivo", "topics": ["Will: previsioni e decisioni spontanee", "Be going to: piani e intenzioni", "Presente progressivo per accordi"] },
+        { "title": "Unità 13 – Present Perfect Semplice", "topics": ["Present perfect: affermativa, negativa, interrogativa", "Ever, never, already, yet, just", "Forme del participio passato"] },
+        { "title": "Unità 14 – Present Perfect Semplice vs Passato Semplice", "topics": ["Tempo finito vs non finito", "Parole segnale per ogni tempo", "Scegliere il tempo giusto"] },
+        { "title": "Unità 15 – Condizionale Zero e Primo Condizionale", "topics": ["Condizionale zero: verità generali", "Primo condizionale: possibilità future reali", "Unless nei condizionali"] }
+      ],
+      "examPrep": "CAMBRIDGE A2 Key (KET)"
     },
     "B1": {
       "description": "Rafforza il tuo inglese con il nostro e-book strutturato B1 di livello intermedio, progettato per aiutarti a comunicare con fluidità, pensare in inglese e gestire con sicurezza situazioni reali e professionali.",
@@ -514,7 +548,24 @@
       "targetAudience": [
         "Studenti dai 12 anni in su"
       ],
-      "examPrep": "Cambridge English B1 Preliminary (PET)"
+      "units": [
+        { "title": "Unità 1 – Present Perfect Progressivo", "topics": ["Present perfect progressivo: forma e uso", "For e since con durata", "Differenza dal present perfect semplice"] },
+        { "title": "Unità 2 – Present Perfect Semplice vs Present Perfect Progressivo", "topics": ["Azioni completate vs in corso", "Focus sul risultato vs sul processo", "Scegliere la forma giusta"] },
+        { "title": "Unità 3 – Past Perfect Semplice", "topics": ["Past perfect: affermativa, negativa, interrogativa", "Sequenziare eventi passati", "Past perfect vs passato semplice"] },
+        { "title": "Unità 4 – Futuro Progressivo", "topics": ["Futuro progressivo: forma e uso", "Azioni in corso in un momento futuro", "Futuro progressivo vs futuro semplice"] },
+        { "title": "Unità 5 – Voce Passiva", "topics": ["Passivo al presente, passato e futuro semplice", "Agente con 'by'", "Trasformazione da attivo a passivo"] },
+        { "title": "Unità 6 – Forme Causative", "topics": ["Have something done", "Get something done", "Usi ed espressioni comuni"] },
+        { "title": "Unità 7 – Verbi Modali: Ought To, Shall, Be Able To, Manage To", "topics": ["Ought to: obbligo morale", "Shall: suggerimenti e offerte", "Be able to / Manage to: capacità"] },
+        { "title": "Unità 8 – Verbi Modali di Deduzione (Presente)", "topics": ["Must: certezza forte", "Can't: impossibilità", "Might/Could: possibilità"] },
+        { "title": "Unità 9 – Verbi Modali di Deduzione (Passato)", "topics": ["Must have + participio passato", "Can't have + participio passato", "Might/Could have + participio passato"] },
+        { "title": "Unità 10 – Discorso Indiretto", "topics": ["Cambiamenti di tempo nel discorso indiretto", "Verbi di riferimento (say, tell, ask)", "Cambiamenti di tempo e luogo"] },
+        { "title": "Unità 11 – Domande Indirette", "topics": ["Ordine delle parole nelle domande indirette", "Forme di domanda cortese", "Domande incorporate"] },
+        { "title": "Unità 12 – Secondo e Terzo Condizionale", "topics": ["Secondo condizionale: presente irreale", "Terzo condizionale: passato irreale", "Introduzione ai condizionali misti"] },
+        { "title": "Unità 13 – Pronomi Relativi e Proposizioni Relative", "topics": ["Who, which, that, where, whose", "Clausole restrittive vs non restrittive", "Omissione del pronome relativo"] },
+        { "title": "Unità 14 – Question Tags", "topics": ["Formazione dei question tags", "Schemi positivi e negativi", "Intonazione e significato"] },
+        { "title": "Unità 15 – Aggettivi Comparativi", "topics": ["Strutture comparative avanzate", "Confronti con as...as", "Schemi the more...the more"] }
+      ],
+      "examPrep": "CAMBRIDGE B1 Preliminary (PET)"
     },
     "B2": {
       "description": "Il volume Eduway di livello B2 rappresenta il culmine del nostro percorso di apprendimento strutturato, progettato per studenti con Disturbi Specifici dell'Apprendimento (DSA) pronti a raggiungere una competenza intermedia superiore. Questo livello avanzato si concentra sull'uso sfumato della lingua, l'inglese accademico e strategie di comunicazione sofisticate che preparano gli studenti per contesti professionali e formativi.",
@@ -565,7 +616,24 @@
         "Bambini che apprendono meglio attraverso il gioco e le immagini",
         "Genitori che cercano inglese adatto alla dislessia per i bambini"
       ],
-      "examPrep": "Cambridge English A1 Starters"
+      "units": [
+        { "title": "Unità 1 – Pronomi Personali Soggetto e Verbo To Be (Forma Affermativa)", "topics": ["Pronomi personali (I, you, he, she, it, we, they)", "Verbo TO BE: forma affermativa", "Risposte brevi con TO BE"] },
+        { "title": "Unità 2 – Verbo To Be (Forme Negativa e Interrogativa)", "topics": ["Verbo TO BE: forma negativa", "Verbo TO BE: forma interrogativa", "Risposte brevi e pratica"] },
+        { "title": "Unità 3 – Aggettivi Possessivi e Genitivo Sassone 'S", "topics": ["Aggettivi possessivi (my, your, his, her...)", "Genitivo sassone ('S)", "Parlare di appartenenze"] },
+        { "title": "Unità 4 – Dimostrativi (This, That, These, Those)", "topics": ["This e That per il singolare", "These e Those per il plurale", "Riferimenti vicini e lontani"] },
+        { "title": "Unità 5 – Parole Interrogative (Wh- Questions)", "topics": ["What, Where, When, Who, Why, How", "Formare domande con Wh-", "Rispondere alle domande con Wh-"] },
+        { "title": "Unità 6 – Verbo Modale \"Can\"", "topics": ["Can: affermativa e negativa", "Can: domande e risposte brevi", "Parlare di abilità e permesso"] },
+        { "title": "Unità 7 – There Is / There Are", "topics": ["There is: singolare (affermativa, negativa, interrogativa)", "There are: plurale (affermativa, negativa, interrogativa)", "Descrivere luoghi e stanze"] },
+        { "title": "Unità 8 – Sostantivi Plurali (Regolari e Irregolari) e Numeri", "topics": ["Plurali regolari (-s, -es, -ies)", "Plurali irregolari (children, teeth, mice...)", "Numeri e contare"] },
+        { "title": "Unità 9 – Present Simple (Forme Affermativa e Negativa)", "topics": ["Present Simple: forma affermativa", "Regole della terza persona -s/-es", "Present Simple: forma negativa (don't / doesn't)"] },
+        { "title": "Unità 10 – Present Simple (Forma Interrogativa e Risposte Brevi)", "topics": ["Do / Does nelle domande", "Risposte brevi (Yes, I do / No, he doesn't)", "Avverbi di frequenza"] },
+        { "title": "Unità 11 – Past Simple del Verbo To Be (Forme Affermativa e Negativa)", "topics": ["Was / Were: forma affermativa", "Was / Were: forma negativa", "Espressioni di tempo al passato"] },
+        { "title": "Unità 12 – Past Simple del Verbo To Be (Forma Interrogativa)", "topics": ["Was / Were: forma interrogativa", "Risposte brevi con was/were", "Pratica nel contesto"] },
+        { "title": "Unità 13 – Past Simple (Verbi Regolari)", "topics": ["Verbi regolari: desinenze -ed", "Regole di spelling per -ed", "Past Simple: forme negativa e interrogativa"] },
+        { "title": "Unità 14 – Futuro con Will (Forme Affermativa e Negativa)", "topics": ["Will: forma affermativa", "Will: forma negativa (won't)", "Fare previsioni e promesse"] },
+        { "title": "Unità 15 – Futuro con Will (Forma Interrogativa)", "topics": ["Will: forma interrogativa", "Risposte brevi con will", "Pratica con piani futuri"] }
+      ],
+      "examPrep": "CAMBRIDGE Pre-A1 Starters"
     },
     "kids-medium": {
       "description": "L'e-book Eduway Kids Medium si basa sulle nozioni di base, progettato per giovani apprendenti dai 7 ai 10 anni pronti ad ampliare le proprie competenze in inglese. Attraverso l'apprendimento basato su storie, attività creative ed esercizi interattivi, i bambini sviluppano sicurezza nella lettura, scrittura e nel parlato. Ogni pagina incorpora metodi adatti alla dislessia per supportare tutti gli stili di apprendimento.",
@@ -590,7 +658,24 @@
         "Bambini che amano le storie e le attività creative",
         "Studenti che si preparano per il Cambridge A1 Movers"
       ],
-      "examPrep": "Cambridge English A1 Movers"
+      "units": [
+        { "title": "Unità 1 – Present Continuous (Affermativa, Negativa, Interrogativa)", "topics": ["Present Continuous: forma affermativa", "Present Continuous: forma negativa", "Present Continuous: forma interrogativa e risposte brevi"] },
+        { "title": "Unità 2 – Present Continuous vs Present Simple", "topics": ["Differenze chiave tra Present Simple e Continuous", "Parole segnale per ogni tempo", "Scegliere il tempo giusto nel contesto"] },
+        { "title": "Unità 3 – Modali: Can & Could", "topics": ["Can: abilità e permesso", "Could: abilità passata e richieste cortesi", "Confronto Can vs Could"] },
+        { "title": "Unità 4 – Sostantivi Numerabili e Non Numerabili (Much / Many)", "topics": ["Sostantivi numerabili vs non numerabili", "Much con sostantivi non numerabili", "Many con sostantivi numerabili"] },
+        { "title": "Unità 5 – Quantificatori (Some / Any / A lot of)", "topics": ["Some nelle frasi affermative", "Any nelle forme negative e interrogative", "A lot of con entrambi i tipi di sostantivi"] },
+        { "title": "Unità 6 – Past Simple – Verbi Regolari", "topics": ["Verbi regolari: desinenze -ed e regole di spelling", "Past Simple: forma negativa (didn't)", "Past Simple: forma interrogativa (Did...?)"] },
+        { "title": "Unità 7 – Past Simple – Verbi Irregolari (Forma Affermativa)", "topics": ["Verbi irregolari comuni (go, see, eat, have...)", "Forme dei verbi irregolari", "Usare i verbi irregolari nelle frasi"] },
+        { "title": "Unità 8 – Past Simple – Verbi Irregolari (Forme Negativa e Interrogativa)", "topics": ["Didn't + forma base con verbi irregolari", "Did + soggetto + forma base nelle domande", "Pratica con verbi irregolari"] },
+        { "title": "Unità 9 – Verbi Modali: Have to & Must", "topics": ["Must: obbligo forte", "Have to: obbligo esterno", "Confronto Must vs Have to"] },
+        { "title": "Unità 10 – Verbo Modale: Should", "topics": ["Should: consigli e raccomandazioni", "Should: forma negativa (shouldn't)", "Dare consigli nel contesto"] },
+        { "title": "Unità 11 – Comparativi", "topics": ["Aggettivi comparativi (-er / more)", "Regole di spelling per i comparativi", "Than nelle frasi comparative"] },
+        { "title": "Unità 12 – Superlativi", "topics": ["Aggettivi superlativi (-est / most)", "The + forma superlativa", "Confrontare tre o più cose"] },
+        { "title": "Unità 13 – Past Continuous – Forma Affermativa", "topics": ["Was/Were + forma in -ing", "Descrivere azioni in corso nel passato", "Espressioni di tempo con il Past Continuous"] },
+        { "title": "Unità 14 – Past Continuous – Forme Negativa e Interrogativa", "topics": ["Past Continuous: forma negativa", "Past Continuous: forma interrogativa", "Past Continuous vs Past Simple"] },
+        { "title": "Unità 15 – Imperativi", "topics": ["Imperativi affermativi", "Imperativi negativi (Don't...)", "Dare istruzioni, comandi e consigli"] }
+      ],
+      "examPrep": "CAMBRIDGE A1 Movers"
     },
     "kids-advanced": {
       "description": "L'e-book Eduway Kids Advanced è progettato per giovani apprendenti sicuri dai 9 ai 12 anni pronti a padroneggiare l'inglese a un livello superiore. Questa guida completa prepara gli studenti per i requisiti di inglese scolastico e l'esame Cambridge A2 Flyers. La grammatica complessa viene insegnata attraverso contesti coinvolgenti e l'espressione creativa è incoraggiata in tutto il percorso.",
@@ -615,7 +700,24 @@
         "Bambini in transizione verso l'inglese della scuola secondaria",
         "Giovani apprendenti pronti per sfide avanzate"
       ],
-      "examPrep": "Cambridge English A2 Flyers"
+      "units": [
+        { "title": "Unità 1 – Past Simple vs Past Continuous", "topics": ["Past Simple per azioni completate", "Past Continuous per azioni in corso", "When e While nelle narrazioni al passato"] },
+        { "title": "Unità 2 – Verbi Modali: May, Might, Shall", "topics": ["May: permesso e possibilità", "Might: possibilità (meno certa)", "Shall: suggerimenti e offerte"] },
+        { "title": "Unità 3 – Futuro con Will", "topics": ["Will: previsioni, promesse, decisioni", "Will: forme negativa e interrogativa", "Parole segnale per will"] },
+        { "title": "Unità 4 – Futuro con Be Going To", "topics": ["Be going to: piani e intenzioni", "Be going to: previsioni con evidenza", "Forme affermativa, negativa e interrogativa"] },
+        { "title": "Unità 5 – Will vs Be Going To", "topics": ["Decisioni spontanee vs azioni pianificate", "Previsioni con e senza evidenza", "Scegliere la forma futura giusta"] },
+        { "title": "Unità 6 – Present Perfect Simple (Forma Affermativa)", "topics": ["Have/Has + participio passato", "Participi passati regolari e irregolari", "Parlare di esperienze e risultati"] },
+        { "title": "Unità 7 – Present Perfect Simple (Forme Negativa e Interrogativa)", "topics": ["Haven't / Hasn't + participio passato", "Have you ever...? domande", "Risposte brevi con il Present Perfect"] },
+        { "title": "Unità 8 – Present Perfect Simple con Avverbi e Espressioni Comuni", "topics": ["Ever, never, already, yet, just", "For e since con il Present Perfect", "Present Perfect vs Past Simple"] },
+        { "title": "Unità 9 – Comparativi", "topics": ["Aggettivi comparativi (-er / more...than)", "Comparativi irregolari (better, worse, further)", "Confronti con as...as"] },
+        { "title": "Unità 10 – Pronomi Possessivi", "topics": ["Pronomi possessivi (mine, yours, his, hers...)", "Aggettivi possessivi vs pronomi possessivi", "Whose e la proprietà"] },
+        { "title": "Unità 11 – Verbi di Preferenza + -ing", "topics": ["Like, love, enjoy, prefer + -ing", "Don't mind, can't stand + -ing", "Parlare di preferenze"] },
+        { "title": "Unità 12 – Avverbi che Terminano in -ly", "topics": ["Formare avverbi dagli aggettivi", "Avverbi irregolari (well, fast, hard)", "Usare gli avverbi per descrivere azioni"] },
+        { "title": "Unità 13 – Primo Condizionale", "topics": ["If + Present Simple, will + forma base", "Possibilità future reali", "Unless nel primo condizionale"] },
+        { "title": "Unità 14 – Secondo Condizionale", "topics": ["If + Past Simple, would + forma base", "Situazioni irreali o immaginarie", "Dare consigli con il secondo condizionale"] },
+        { "title": "Unità 15 – Primo Condizionale vs Secondo Condizionale", "topics": ["Situazioni reali vs irreali", "Differenze chiave e parole segnale", "Scegliere il condizionale giusto"] }
+      ],
+      "examPrep": "CAMBRIDGE A2 Flyers"
     }
   },
   "liveCourseContent": {
@@ -751,7 +853,6 @@
       "description": "Il meglio di entrambi i mondi — combina l'energia dei laboratori in micro-gruppo con l'attenzione personalizzata delle sessioni individuali. Include 25 workshop (50 minuti, max 3-4 studenti) più 5 sessioni individuali (30 minuti). Tutto il materiale didattico è incluso per l'esperienza di apprendimento più completa.",
       "duration": "Fino a 9 mesi",
       "lessons": "25 workshop di 50 min + 5 sessioni individuali di 30 min",
-      "totalHours": "23,5 ore",
       "includes": [
         "Valutazione iniziale del livello",
         "Metodo EDUWAY ACADEMY® DSA Smart Start",
@@ -815,7 +916,7 @@
         "Insegnanti di sostegno e tutor per l'apprendimento",
         "Chiunque voglia imparare l'inglese in modo visivo e graduale"
       ],
-      "examPrep": "Cambridge English A1 Movers"
+      "examPrep": "CAMBRIDGE A1 Movers"
     },
     "A2": {
       "description": "Il volume Eduway di livello A2 è progettato per accompagnare gli studenti con Disturbi Specifici dell'Apprendimento (DSA) nel consolidamento delle competenze linguistiche acquisite e nell'introduzione di strutture grammaticali più complesse. Attraverso un approccio visivo, multisensoriale e inclusivo, ogni unità didattica è strutturata per facilitare la comprensione, la memorizzazione e l'uso attivo della lingua, rendendo l'esperienza di studio accessibile e motivante.",
@@ -841,7 +942,7 @@
         "Genitori e insegnanti di sostegno",
         "Chiunque desideri un approccio strutturato e graduale all'inglese"
       ],
-      "examPrep": "Cambridge English A2 Key (KET)"
+      "examPrep": "CAMBRIDGE A2 Key (KET)"
     },
     "B1": {
       "description": "Il volume Eduway di livello B1 è progettato per accompagnare gli studenti con Disturbi Specifici dell'Apprendimento (DSA) attraverso una fase intermedia dell'apprendimento dell'inglese, dove la lingua diventa uno strumento più complesso, articolato e vicino all'uso reale. Questo livello introduce strutture grammaticali più avanzate e promuove lo sviluppo di tutte e 4 le competenze: ascolto, lettura, scrittura e conversazione.",
@@ -867,7 +968,7 @@
         "Insegnanti di sostegno e tutor per l'apprendimento",
         "Chiunque cerchi una comunicazione autonoma in contesti quotidiani"
       ],
-      "examPrep": "Cambridge English B1 Preliminary (PET)"
+      "examPrep": "CAMBRIDGE B1 Preliminary (PET)"
     },
     "Kids": {
       "description": "Il livello avanzato Eduway è progettato per accompagnare passo dopo passo i giovani apprendenti con difficoltà di apprendimento nei loro studi di lingua inglese. Gli studenti possono migliorare gradualmente, partendo dagli esami A1 Starters, passando per Movers e raggiungendo A2 Flyers. Questo livello avanzato completa il programma, offrendo contenuti essenziali per la preparazione all'esame A2 Flyers — il terzo livello di Cambridge English Young Learners, progettato per studenti della scuola primaria e secondaria inferiore.",
@@ -996,7 +1097,7 @@
         "Bambini che apprendono meglio attraverso il gioco e le immagini",
         "Genitori che cercano inglese adatto alla dislessia per i bambini"
       ],
-      "examPrep": "Cambridge English Pre A1 Starters Preparation"
+      "examPrep": "CAMBRIDGE Pre-A1 Starters"
     },
     "kids-medium": {
       "description": "Il programma Eduway Kids Medium si basa sulle nozioni di base, progettato per giovani apprendenti dai 7 ai 10 anni pronti ad ampliare le proprie competenze in inglese. Attraverso l'apprendimento basato su storie, attività creative ed esercizi interattivi, i bambini sviluppano sicurezza nella lettura, scrittura e nel parlato. Ogni lezione incorpora metodi adatti alla dislessia per supportare tutti gli stili di apprendimento.",
@@ -1021,7 +1122,7 @@
         "Bambini che amano le storie e le attività creative",
         "Studenti che si preparano per il Cambridge A1 Movers"
       ],
-      "examPrep": "Cambridge English A1 Movers"
+      "examPrep": "CAMBRIDGE A1 Movers"
     },
     "kids-advanced": {
       "description": "Il programma Eduway Kids Advanced è progettato per giovani apprendenti sicuri dai 9 ai 12 anni pronti a padroneggiare l'inglese a un livello superiore. Questo corso completo prepara gli studenti per i requisiti di inglese scolastico e l'esame Cambridge A2 Flyers. La grammatica complessa viene insegnata attraverso contesti coinvolgenti e l'espressione creativa è incoraggiata in tutto il percorso.",
@@ -1047,7 +1148,7 @@
         "Bambini in transizione verso l'inglese della scuola secondaria",
         "Giovani apprendenti pronti per sfide avanzate"
       ],
-      "examPrep": "Cambridge English A2 Flyers"
+      "examPrep": "CAMBRIDGE A2 Flyers"
     },
     "premium": {
       "description": "Il Programma Premium è il nostro corso dal vivo online di punta, che combina la potenza dell'istruzione personalizzata individuale con workshop di gruppo dinamici. Progettato specificamente per studenti con differenze di apprendimento, questo programma completo include 7 lezioni individuali, 32 workshop di gruppo e accesso illimitato alla nostra libreria completa di mappe mentali, video lezioni e materiali interattivi. Con supporto dedicato 6 giorni a settimana, non ti sentirai mai solo nel tuo percorso di apprendimento.",

@@ -384,9 +384,9 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
 
               {/* Exam Prep Badge */}
               {examPrep && (
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/20 rounded-full border border-green-500/30">
-                  <GraduationCap size={16} className="text-green-400" />
-                  <span className="text-xs font-bold text-green-400">{t('shared.preparesFor', { exam: examPrep })}</span>
+                <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-green-500/20 rounded-full border border-green-500/30">
+                  <GraduationCap size={20} className="text-green-400" />
+                  <span className="text-sm font-bold text-green-400">{t('shared.preparesFor', { exam: examPrep })}</span>
                 </div>
               )}
 

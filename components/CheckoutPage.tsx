@@ -58,6 +58,7 @@ interface CheckoutProps {
   onRemoveItem: (id: string) => void;
   onClearCart: () => void;
   onBrowse: () => void;
+  onNavigate?: (path: string) => void;
   user: { name: string; email: string } | null;
   initialTeachingMaterials?: Record<string, boolean>;
   onTeachingMaterialsChange?: (courseId: string, selected: boolean) => void;
@@ -77,6 +78,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
   onRemoveItem, 
   onClearCart, 
   onBrowse, 
+  onNavigate,
   user,
   initialTeachingMaterials = {},
   onTeachingMaterialsChange
@@ -549,7 +551,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
 
       // Clear cart and redirect to success page
       onClearCart();
-      window.location.hash = '#checkout-success';
+      if (onNavigate) { onNavigate('checkout-success'); } else { window.location.hash = '#checkout-success'; }
     } catch (err) {
       console.error('Error recording purchase:', err);
       // Still clear cart — payment already succeeded at gateway level
@@ -966,7 +968,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
             {t('success.description', { email: customerEmail })}
           </p>
           <button 
-            onClick={() => window.location.hash = '#dashboard'}
+            onClick={() => onNavigate ? onNavigate('dashboard') : window.location.hash = '#dashboard'}
             className="group flex items-center gap-3 bg-white text-gray-900 px-10 py-5 rounded-full font-black text-xs tracking-widest transition-all mx-auto uppercase shadow-xl hover:bg-purple-600 hover:text-white"
           >
             {t('success.goToCourses')}
@@ -1066,7 +1068,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                   <p className="text-sm font-bold text-white mt-4">{t('orderSummary.total')}: {formatCurrency(total)}</p>
                 </div>
                 <button 
-                  onClick={() => window.location.hash = '#contact'}
+                  onClick={() => onNavigate ? onNavigate('contact') : window.location.hash = '#contact'}
                   className="bg-purple-600 text-white px-12 py-5 rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-all shadow-xl shadow-purple-500/20"
                 >
                   {t('paymentNotConfigured.contactButton')}

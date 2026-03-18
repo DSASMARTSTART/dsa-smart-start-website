@@ -155,10 +155,12 @@ interface CourseCardProps {
   isInCart: boolean;
   onAddToCart: (course: Course) => void;
   onRemoveFromCart: (courseId: string) => void;
+  onDetail?: () => void;
+  onBuyNow?: () => void;
 }
 
 // Live Course Card Component — data-driven for all service levels
-const PremiumCourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, onAddToCart, onRemoveFromCart }) => {
+const PremiumCourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, onAddToCart, onRemoveFromCart, onDetail, onBuyNow }) => {
   const { t } = useTranslation('courses');
   const s = SERVICE_STYLES[course.level] || DEFAULT_SERVICE_STYLE;
   const featureTexts = (t(`courseFeatures.${course.level}`, { returnObjects: true }) as string[]) || [];
@@ -180,7 +182,7 @@ const PremiumCourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, o
     : 0;
 
   const navigateToDetail = () => {
-    window.location.hash = `#live-course-${course.id}`;
+    if (onDetail) { onDetail(); } else { window.location.hash = `#live-course-${course.id}`; }
   };
 
   return (
@@ -270,8 +272,7 @@ const PremiumCourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, o
               <button 
                 onClick={(e) => {
                   e.stopPropagation();
-                  onAddToCart(course);
-                  window.location.hash = '#checkout';
+                  if (onBuyNow) { onBuyNow(); } else { onAddToCart(course); window.location.hash = '#checkout'; }
                 }}
                 className={`flex items-center justify-center gap-2 py-4 rounded-2xl text-sm font-black uppercase tracking-widest transition-all transform hover:scale-[1.02] active:scale-[0.98] ${s.ctaGradient} ${s.ctaText} shadow-xl ${s.ctaShadow}`}
               >
@@ -298,7 +299,7 @@ const PremiumCourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, o
   );
 };
 
-const CourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, onAddToCart, onRemoveFromCart }) => {
+const CourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, onAddToCart, onRemoveFromCart, onDetail, onBuyNow }) => {
   const { t } = useTranslation('courses');
   const config = LEVEL_CONFIG[course.level] || LEVEL_CONFIG['A1'];
   const isPink = config.isPink;
@@ -320,7 +321,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, onAddToC
     : null;
 
   const navigateToDetail = () => {
-    window.location.hash = `#ebook-${course.id}`;
+    if (onDetail) { onDetail(); } else { window.location.hash = `#ebook-${course.id}`; }
   };
 
   return (
@@ -405,8 +406,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, onAddToC
             <button 
               onClick={(e) => {
                 e.stopPropagation();
-                onAddToCart(course);
-                window.location.hash = '#checkout';
+                if (onBuyNow) { onBuyNow(); } else { onAddToCart(course); window.location.hash = '#checkout'; }
               }}
               className={`flex items-center justify-center gap-1.5 py-3 rounded-xl text-white text-[10px] font-black uppercase tracking-wider shadow-lg transition-all transform active:scale-95 ${
                 isPink
@@ -424,7 +424,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, onAddToC
 };
 
 interface CoursesPageProps {
-  onNavigate?: (path: string) => void;
+  onNavigate?: (path: string, params?: string) => void;
   onSelectCourse?: (id: string) => void;
   onEnroll?: (id: string) => void;
   cart?: string[];
@@ -477,7 +477,7 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
       (c) => c.productType === 'ebook' && c.level === level && c.targetAudience === audience
     );
     if (match) {
-      window.location.hash = `#ebook-${match.id}`;
+      if (onNavigate) { onNavigate('ebook', match.id); } else { window.location.hash = `#ebook-${match.id}`; }
     } else {
       // Fallback: just go to ebooks tab
       setActiveTab('ebooks');
@@ -788,6 +788,8 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
                     isInCart={cartIds.includes(course.id)}
                     onAddToCart={addToCart}
                     onRemoveFromCart={removeFromCart}
+                    onDetail={onNavigate ? () => onNavigate('live-course', course.id) : undefined}
+                    onBuyNow={onEnroll ? () => onEnroll(course.id) : undefined}
                   />
                 ))}
               </div>
@@ -857,6 +859,8 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
                           isInCart={cartIds.includes(course.id)}
                           onAddToCart={addToCart}
                           onRemoveFromCart={removeFromCart}
+                          onDetail={onNavigate ? () => onNavigate('ebook', course.id) : undefined}
+                          onBuyNow={onEnroll ? () => onEnroll(course.id) : undefined}
                         />
                       ))}
                     </div>
@@ -893,6 +897,8 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
                           isInCart={cartIds.includes(course.id)}
                           onAddToCart={addToCart}
                           onRemoveFromCart={removeFromCart}
+                          onDetail={onNavigate ? () => onNavigate('ebook', course.id) : undefined}
+                          onBuyNow={onEnroll ? () => onEnroll(course.id) : undefined}
                         />
                       ))}
                     </div>
@@ -961,6 +967,8 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
                       isInCart={cartIds.includes(course.id)}
                       onAddToCart={addToCart}
                       onRemoveFromCart={removeFromCart}
+                      onDetail={onNavigate ? () => onNavigate('ebook', course.id) : undefined}
+                      onBuyNow={onEnroll ? () => onEnroll(course.id) : undefined}
                     />
                   ))}
                 </div>
@@ -998,6 +1006,8 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
                       isInCart={cartIds.includes(course.id)}
                       onAddToCart={addToCart}
                       onRemoveFromCart={removeFromCart}
+                      onDetail={onNavigate ? () => onNavigate('ebook', course.id) : undefined}
+                      onBuyNow={onEnroll ? () => onEnroll(course.id) : undefined}
                     />
                   ))}
                 </div>

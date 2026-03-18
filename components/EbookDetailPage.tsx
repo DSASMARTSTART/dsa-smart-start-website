@@ -319,9 +319,9 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
 
               {/* Cambridge Exam Prep Badge */}
               {examPrep && (
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/20 rounded-full border border-green-500/30">
-                  <GraduationCap size={16} className="text-green-400" />
-                  <span className="text-xs font-bold text-green-400">{t('shared.preparesFor', { exam: examPrep })}</span>
+                <div className="inline-flex items-center gap-2 px-6 py-3 bg-green-500/20 rounded-full border border-green-500/30">
+                  <GraduationCap size={24} className="text-green-400" />
+                  <span className="text-base font-extrabold text-green-400">{t('shared.preparesFor', { exam: examPrep })}</span>
                 </div>
               )}
 
@@ -385,10 +385,7 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
 
                     <div className="flex flex-wrap gap-3">
                       <button
-                        onClick={() => {
-                          onAddToCart(course.id);
-                          window.location.hash = '#checkout';
-                        }}
+                        onClick={() => onEnroll(course.id)}
                         className="group flex items-center gap-3 bg-[#AB8FFF] text-white px-8 py-4 rounded-full font-black text-[11px] uppercase tracking-widest hover:bg-[#9a7eef] transition-all shadow-xl shadow-purple-500/30 hover:-translate-y-1 hover:shadow-[#AB8FFF]/25"
                       >
                         {t('shared.buyNow')}
@@ -512,10 +509,7 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
                       {isAddingToCart ? t('shared.adding') : isInCart ? t('shared.added') : t('shared.addToCart')}
                     </button>
                     <button
-                      onClick={() => {
-                        onAddToCart(course.id);
-                        window.location.hash = '#checkout';
-                      }}
+                      onClick={() => onEnroll(course.id)}
                       className="flex-1 flex items-center justify-center gap-2 bg-[#AB8FFF] text-white px-4 py-3 rounded-full font-black text-[11px] uppercase tracking-widest hover:bg-[#9a7eef] transition-all shadow-lg shadow-purple-500/30 hover:-translate-y-0.5"
                     >
                       {t('shared.buyNow')}
@@ -798,10 +792,7 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
                 </p>
                 <div className="flex flex-col sm:flex-row justify-center gap-4">
                   <button 
-                    onClick={() => {
-                      onAddToCart(course.id);
-                      window.location.hash = '#checkout';
-                    }}
+                    onClick={() => onEnroll(course.id)}
                     className={`group flex items-center justify-center gap-3 px-10 py-5 rounded-full text-xs font-black uppercase tracking-widest text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all bg-gradient-to-r ${config.color}`}
                   >
                     {t('shared.cta.buyNowPrice', { price: displayPrice })}
