@@ -9,7 +9,9 @@
     },
     "tabs": {
       "liveCourses": "Kurs uživo\nonline",
-      "ebook": "E-knjiga"
+      "ebook": "E-knjiga",
+      "interactiveCourses": "Interaktivni\nkursevi",
+      "comingSoon": "Uskoro"
     },
     "liveSection": {
       "badge": "Programi uživo",

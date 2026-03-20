@@ -15,7 +15,7 @@ type CatalogTab = 'live' | 'ebooks';
 const CategorySelector: React.FC<{ activeTab: CatalogTab; onTabChange: (tab: CatalogTab) => void }> = ({ activeTab, onTabChange }) => {
   const { t } = useTranslation('courses');
   return (
-    <div className="grid grid-cols-2 gap-4 sm:gap-6 max-w-xl mx-auto">
+    <div className="grid grid-cols-3 gap-4 sm:gap-6 max-w-3xl mx-auto">
       {/* Live Courses Card */}
       <button
         onClick={() => onTabChange('live')}
@@ -45,6 +45,19 @@ const CategorySelector: React.FC<{ activeTab: CatalogTab; onTabChange: (tab: Cat
         </div>
         <span className="text-sm sm:text-base font-black text-white uppercase tracking-widest leading-tight text-center">{t('coursesPage.tabs.ebook')}</span>
       </button>
+
+      {/* Interactive Courses Card — Coming Soon */}
+      <div
+        className="group relative flex flex-col items-center justify-center p-6 sm:p-8 rounded-3xl border-2 border-white/20 bg-white/5 opacity-60 cursor-default"
+      >
+        <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-[#AB8FFF] text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider">
+          {t('coursesPage.tabs.comingSoon')}
+        </span>
+        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center mb-4 shadow-lg">
+          <MonitorPlay size={36} className="text-white" />
+        </div>
+        <span className="text-sm sm:text-base font-black text-white uppercase tracking-widest leading-tight text-center">{t('coursesPage.tabs.interactiveCourses').split('\n').map((l, i) => <React.Fragment key={i}>{i > 0 && <br/>}{l}</React.Fragment>)}</span>
+      </div>
     </div>
   );
 };
@@ -524,8 +537,9 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
   const adultLearndash = learndashCourses.filter(c => c.targetAudience === 'adults_teens');
   const kidsLearndash = learndashCourses.filter(c => c.targetAudience === 'kids');
   
-  // Services (Premium & Golden programs)
-  const premiumCourses = serviceCourses;
+  // Services (Premium & Golden programs) — Language Lab first, then Language Lab Pro
+  const SERVICE_ORDER: Record<string, number> = { 'language-lab': 1, 'language-lab-pro': 2 };
+  const premiumCourses = serviceCourses.sort((a, b) => (SERVICE_ORDER[a.level] ?? 99) - (SERVICE_ORDER[b.level] ?? 99));
 
   useEffect(() => {
     const loadCourses = async () => {

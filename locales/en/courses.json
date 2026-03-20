@@ -9,7 +9,9 @@
     },
     "tabs": {
       "liveCourses": "Live Online\nCourse",
-      "ebook": "Ebook"
+      "ebook": "Ebook",
+      "interactiveCourses": "Interactive\nCourses",
+      "comingSoon": "Coming Soon"
     },
     "liveSection": {
       "badge": "Live Programs",

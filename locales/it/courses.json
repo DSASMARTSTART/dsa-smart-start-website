@@ -9,7 +9,9 @@
     },
     "tabs": {
       "liveCourses": "Corso Online\ndal Vivo",
-      "ebook": "E-book"
+      "ebook": "E-book",
+      "interactiveCourses": "Corsi\nInterattivi",
+      "comingSoon": "Prossimamente"
     },
     "liveSection": {
       "badge": "Programmi dal vivo",
