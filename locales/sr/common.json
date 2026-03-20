@@ -64,5 +64,6 @@
     "message": "Nemate dozvolu za pristup ovoj stranici.",
     "goToHome": "Idi na početnu"
   },
-  "skipToContent": "Preskoči na glavni sadržaj"
+  "skipToContent": "Preskoči na glavni sadržaj",
+  "goBack": "Nazad"
 }

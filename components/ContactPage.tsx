@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Mail, Phone, Send, MessageCircle, Sparkles, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { ArrowLeft, Mail, Phone, Send, MessageCircle, Sparkles, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import WaveSeparator from './WaveSeparator';
 import { submitContactForm, getContactConfig } from '../lib/contactService';
@@ -134,6 +134,19 @@ const ContactPage: React.FC = () => {
         <div className="absolute inset-0 w-full h-full bg-black">
           <div className="absolute top-[-50%] left-[-20%] w-[80%] h-[80%] rounded-full bg-gradient-to-r from-[#FFC1F2] to-[#AB8FFF] opacity-10 blur-[120px] animate-pulse-slow mix-blend-screen" />
           <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-[#AB8FFF] opacity-10 blur-[100px] animate-float mix-blend-screen" />
+        </div>
+
+        {/* Back Button */}
+        <div className="absolute top-32 left-6 z-20">
+          <button
+            onClick={() => { window.location.hash = '#home'; }}
+            className="group flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-[#AB8FFF] transition-colors"
+          >
+            <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-[#AB8FFF]/30 group-hover:shadow-md transition-all">
+              <ArrowLeft size={16} />
+            </div>
+            {t('goBack', { ns: 'common' })}
+          </button>
         </div>
 
         <div className="absolute inset-0 z-0">

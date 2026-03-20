@@ -3,7 +3,7 @@
 // ============================================
 
 import React, { useEffect, useState } from 'react';
-import { CheckCircle2, Download, BookOpen, ArrowRight, Sparkles, Mail, Key, User, Loader2, Clock } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Download, BookOpen, ArrowRight, Sparkles, Mail, Key, User, Loader2, Clock } from 'lucide-react';
 import { useTranslation, Trans } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { purchasesApi, coursesApi } from '../data/supabaseStore';
@@ -164,6 +164,19 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
       `}</style>
 
       <div className="max-w-3xl mx-auto px-6 text-center relative z-20">
+        {/* Back Button */}
+        <div className="flex justify-start mb-8">
+          <button
+            onClick={() => { window.location.hash = '#home'; }}
+            className="group flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-[#AB8FFF] transition-colors"
+          >
+            <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-[#AB8FFF]/30 group-hover:shadow-md transition-all">
+              <ArrowLeft size={16} />
+            </div>
+            {t('goBack', { ns: 'common' })}
+          </button>
+        </div>
+
         {/* Success Icon */}
         <div className="mb-8 animate-reveal">
           <div className="w-28 h-28 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto shadow-xl shadow-emerald-500/20 relative border border-emerald-500/20">

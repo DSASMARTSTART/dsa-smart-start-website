@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Lock, Eye, EyeOff, AlertCircle, Loader2, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Lock, Eye, EyeOff, AlertCircle, Loader2, CheckCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 
@@ -109,6 +109,17 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({ onComplete }) => 
       </div>
 
       <div className="relative z-10 max-w-xl mx-auto px-6">
+        {/* Back Button */}
+        <button
+          onClick={() => { window.location.hash = '#home'; }}
+          className="group flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-[#AB8FFF] transition-colors mb-8"
+        >
+          <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-[#AB8FFF]/30 group-hover:shadow-md transition-all">
+            <ArrowLeft size={16} />
+          </div>
+          {t('goBack', { ns: 'common' })}
+        </button>
+
         <div className="bg-white/5 p-8 sm:p-14 rounded-[3.5rem] border border-white/10 shadow-2xl shadow-purple-500/20">
           {success ? (
             <div className="text-center py-8">

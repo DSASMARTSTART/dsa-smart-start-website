@@ -64,5 +64,6 @@
     "message": "Non hai il permesso di accedere a questa pagina.",
     "goToHome": "Vai alla Home"
   },
-  "skipToContent": "Vai al contenuto principale"
+  "skipToContent": "Vai al contenuto principale",
+  "goBack": "Torna indietro"
 }

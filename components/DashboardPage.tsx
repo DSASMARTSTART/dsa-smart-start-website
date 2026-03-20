@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { Rocket, Clock, ChevronRight, Star, BookOpen, Layout, Zap, Layers, Compass, Music, CheckCircle2, LogIn, Download, FileText, AlertCircle, Loader2, Key, X, Mail } from 'lucide-react';
+import { ArrowLeft, Rocket, Clock, ChevronRight, Star, BookOpen, Layout, Zap, Layers, Compass, Music, CheckCircle2, LogIn, Download, FileText, AlertCircle, Loader2, Key, X, Mail } from 'lucide-react';
 import { useTranslation, Trans } from 'react-i18next';
 import { enrollmentsApi, purchasesApi, coursesApi } from '../data/supabaseStore';
 import { Course, Enrollment, Purchase } from '../types';
@@ -264,6 +264,17 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
     <div className="bg-black min-h-screen pt-32 pb-20">
       <div className="max-w-7xl mx-auto px-6">
         
+        {/* Back Button */}
+        <button
+          onClick={() => { window.location.hash = '#home'; }}
+          className="group flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-[#AB8FFF] transition-colors mb-8"
+        >
+          <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-[#AB8FFF]/30 group-hover:shadow-md transition-all">
+            <ArrowLeft size={16} />
+          </div>
+          {t('goBack', { ns: 'common' })}
+        </button>
+
         {/* Welcome Header */}
         <div className="mb-12 animate-reveal">
           <div className="flex items-center gap-3 mb-4">

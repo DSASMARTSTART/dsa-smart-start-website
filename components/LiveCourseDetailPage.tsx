@@ -259,17 +259,7 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
                     </div>
                   </div>
                 )}
-                {totalHours && (
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 flex items-center justify-center">
-                      <Clock size={20} className="text-indigo-400" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-black text-white">{totalHours}</p>
-                      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{t('shared.total')}</p>
-                    </div>
-                  </div>
-                )}
+
               </div>
 
               {/* Price & CTA */}
