@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Mail, Phone, MapPin, Instagram, Users, MonitorPlay, FileText, Crown, Diamond, ChevronRight } from 'lucide-react';
+import { Mail, Phone, MapPin, Users, MonitorPlay, FileText, Crown, Diamond, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { coursesApi } from '../data/supabaseStore';
 import { Course, ProductType, TargetAudience } from '../types';
@@ -155,17 +155,6 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           <p className="text-sm leading-loose mb-8">
             {t('footer.aboutText')}
           </p>
-          <div className="flex gap-4">
-            <a 
-              href="https://www.instagram.com/eduway.academy/" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-purple-600 transition-colors" 
-              aria-label={t('footer.followInstagram')}
-            >
-              <Instagram size={18} />
-            </a>
-          </div>
         </div>
 
         {/* Quick Links */}
