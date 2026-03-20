@@ -146,7 +146,7 @@
     "outcomesIntro": "Al finalizar este curso, serás capaz de:",
     "outcomesIntroKids": "Al finalizar este curso, tu hijo/a será capaz de:",
     "outcomesIntroShort": "Al finalizar este curso, serás capaz de:",
-    "dsaAdvantageTitle": "DSA SMART START ADVANTAGE®",
+    "dsaAdvantageTitle": "DSA SMART START® ADVANTAGE®",
     "dsaAdvantageDesc": "A diferencia de los métodos tradicionales, no sobrecargamos a los estudiantes con explicaciones gramaticales abstractas. Enseñamos a comprender a través de <1>rutas de aprendizaje visual</1> y estímulos sensoriales que hacen que el inglés sea claro, estructurado y memorable.",
     "dsaWhatMakesTheDifference": "Lo que marca la diferencia:",
     "dsaTags": [
@@ -267,7 +267,7 @@
     "videoDescription": "Mira nuestro vídeo y descubre cómo puedes por fin aprender inglés con claridad, confianza y el método adecuado.",
     "highlights": {
       "certifiedTutors": "Tutores nativos certificados",
-      "dsaMethod": "DSA SMART START METHOD®",
+      "dsaMethod": "DSA SMART START® METHOD®",
       "personalised": "Experiencia de aprendizaje personalizada"
     },
     "defaultDescription": "Curso de inglés en vivo con tutores nativos certificados especializados en DEA.",
@@ -724,16 +724,16 @@
   },
   "liveCourseContent": {
     "starter-path": {
-      "description": "Comienza tu camino con el inglés con atención personalizada individual. Este programa de iniciación está totalmente adaptado a tus necesidades mediante el Método DSA SMART START®, perfecto para cualquier persona que busque una introducción enfocada y atención personalizada, con un tutor nativo certificado y especializado en DEA.",
+      "description": "Comienza tu camino con el inglés con atención personalizada individual. Este programa de iniciación está totalmente adaptado a tus necesidades mediante el Método DSA SMART START®®, perfecto para cualquier persona que busque una introducción enfocada y atención personalizada, con un tutor nativo certificado y especializado en DEA.",
       "duration": "5 semanas",
       "lessons": "10 clases de 30 minutos",
       "totalHours": "5 horas",
       "includes": [
         "Evaluación de nivel inicial",
-        "Método DSA SMART START®",
+        "Método DSA SMART START®®",
         "Sesiones individuales personalizadas",
         "Creación de mapas mentales personalizados",
-        "Método multisensorial y visual DSA Smart Start",
+        "Método multisensorial y visual DSA SMART START®",
         "Conversación guiada",
         "Mini plan de estudio personalizado",
         "Tutores nativos certificados especializados en DEA",
@@ -742,7 +742,7 @@
       ],
       "notIncluded": [
         "Language Lab",
-        "Material Didáctico DSA SMART START® — acceso ilimitado",
+        "Material Didáctico DSA SMART START®® — acceso ilimitado",
         "Acceso a más de 500 recursos de Brain Mapping",
         "Acceso a más de 700 videolecciones",
         "Preparación de exámenes y pruebas",
@@ -773,17 +773,17 @@
       "totalHours": "6,5 horas",
       "includes": [
         "Evaluación de nivel inicial",
-        "Método DSA SMART START®",
+        "Método DSA SMART START®®",
         "Language Lab — máximo 3–4 estudiantes",
         "Circle Talk Lab",
         "Role Play & Team Challenges",
-        "Método multisensorial y visual DSA Smart Start",
+        "Método multisensorial y visual DSA SMART START®",
         "Tutores nativos certificados especializados en DEA",
         "Seguimiento progresivo"
       ],
       "notIncluded": [
         "Sesiones individuales personalizadas",
-        "Material Didáctico DSA SMART START® — acceso ilimitado",
+        "Material Didáctico DSA SMART START®® — acceso ilimitado",
         "Acceso a más de 500 recursos de Brain Mapping",
         "Acceso a más de 700 videolecciones",
         "Preparación de exámenes y pruebas",
@@ -814,9 +814,9 @@
       "totalHours": "25 horas",
       "includes": [
         "Evaluación de nivel inicial",
-        "Método DSA SMART START®",
-        "Material Didáctico DSA SMART START® — Acceso ilimitado",
-        "Método multisensorial y visual DSA Smart Start",
+        "Método DSA SMART START®®",
+        "Material Didáctico DSA SMART START®® — Acceso ilimitado",
+        "Método multisensorial y visual DSA SMART START®",
         "Acceso a más de 500 recursos de Brain Mapping",
         "Acceso a más de 700 videolecciones",
         "Language Lab en micro-grupo (máx. 3–4 estudiantes)",
@@ -857,9 +857,9 @@
       "lessons": "25 talleres de 50 min + 5 sesiones individuales de 30 min",
       "includes": [
         "Evaluación de nivel inicial",
-        "Método DSA SMART START®",
-        "Material Didáctico DSA SMART START® — Acceso ilimitado",
-        "Método multisensorial y visual DSA Smart Start",
+        "Método DSA SMART START®®",
+        "Material Didáctico DSA SMART START®® — Acceso ilimitado",
+        "Método multisensorial y visual DSA SMART START®",
         "Acceso a más de 500 recursos de Brain Mapping",
         "Acceso a más de 700 videolecciones",
         "Sesiones individuales personalizadas",
