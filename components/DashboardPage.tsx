@@ -491,12 +491,22 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
                       >
                         {/* E-book Cover */}
                         <div className="relative h-48 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 flex items-center justify-center">
-                          {ebook.thumbnailUrl ? (
-                            <img 
-                              src={ebook.thumbnailUrl} 
-                              alt={ebook.title}
-                              className="h-full w-full object-cover"
-                            />
+                          {ebook.thumbnailUrl && ebook.thumbnailUrl !== 'pending-upload' ? (
+                            <>
+                              <img 
+                                src={ebook.thumbnailUrl} 
+                                alt={ebook.title}
+                                className="h-full w-full object-cover"
+                                onError={(e) => {
+                                  // Hide broken image and show fallback icon
+                                  const target = e.currentTarget;
+                                  target.style.display = 'none';
+                                  const fallback = target.parentElement?.querySelector('.ebook-fallback-icon');
+                                  if (fallback) (fallback as HTMLElement).style.display = 'block';
+                                }}
+                              />
+                              <FileText size={64} className="text-emerald-500/30 ebook-fallback-icon" style={{ display: 'none' }} />
+                            </>
                           ) : (
                             <FileText size={64} className="text-emerald-500/30" />
                           )}
