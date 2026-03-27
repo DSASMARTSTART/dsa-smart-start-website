@@ -10,6 +10,24 @@ import { useUserProgress } from '../hooks/useUserProgress';
 import { useLocaleFormat } from '../hooks/useLocaleFormat';
 import { supabase } from '../lib/supabase';
 
+// Fallback cover images for e-books (local assets)
+const EBOOK_COVERS: Record<string, string> = {
+  'A1': '/assets/ebooks/a1-cover.jpg',
+  'A2': '/assets/ebooks/a2-cover.jpg',
+  'B1': '/assets/ebooks/b1-cover.jpg',
+  'B2': '/assets/ebooks/b2-cover.jpg',
+  'kids-basic': '/assets/ebooks/kids-basic-cover.jpg',
+  'kids-medium': '/assets/ebooks/kids-medium-cover.jpg',
+  'kids-advanced': '/assets/ebooks/kids-advanced-cover.jpg',
+};
+
+const getEbookCover = (ebook: { thumbnailUrl?: string; level: string }): string | undefined => {
+  if (ebook.thumbnailUrl && ebook.thumbnailUrl !== 'pending-upload' && !ebook.thumbnailUrl.startsWith('/assets/courses/')) {
+    return ebook.thumbnailUrl;
+  }
+  return EBOOK_COVERS[ebook.level];
+};
+
 // Level-based icons and colors
 const LEVEL_CONFIG: Record<string, { icon: React.ReactNode; color: string }> = {
   'A1': { icon: <Layers size={22} />, color: 'from-blue-500 to-indigo-600' },
@@ -482,6 +500,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
                       : ebook.ebookPdfUrl 
                         ? [{ label: t('ebooks.download'), url: ebook.ebookPdfUrl }]
                         : [];
+                    const coverUrl = getEbookCover(ebook);
                     
                     return (
                       <div 
@@ -491,10 +510,10 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
                       >
                         {/* E-book Cover */}
                         <div className="relative h-48 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 flex items-center justify-center">
-                          {ebook.thumbnailUrl && ebook.thumbnailUrl !== 'pending-upload' ? (
+                          {coverUrl ? (
                             <>
                               <img 
-                                src={ebook.thumbnailUrl} 
+                                src={coverUrl} 
                                 alt={ebook.title}
                                 className="h-full w-full object-cover"
                                 onError={(e) => {
