@@ -120,6 +120,11 @@ export interface CourseTargetAudience {
   points: string[];
 }
 
+export interface EbookFile {
+  label: string;
+  url: string;
+}
+
 // ---------- Wizard State Types ----------
 export interface WizardStepsCompleted {
   metadata: boolean;
@@ -171,6 +176,7 @@ export interface Course {
   // ---------- E-book specific fields ----------
   ebookPdfUrl?: string;  // URL to the PDF file (Supabase Storage or external)
   ebookPageCount?: number;  // Number of pages in the e-book
+  ebookFiles?: EbookFile[];  // Multiple downloadable files (PDF, answer key, etc.)
   // ---------- Footer visibility fields ----------
   showInFooter?: boolean;  // Whether to show this product in the footer
   footerOrder?: number;  // Order in footer (lower = first)

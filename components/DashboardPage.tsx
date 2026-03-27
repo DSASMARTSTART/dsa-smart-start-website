@@ -476,10 +476,12 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {localizedEbooks.map((ebook, idx) => {
-                    // Get download URL from the first module's first lesson or homework PDF
-                    const downloadUrl = ebook.modules?.[0]?.lessons?.[0]?.pdfUrl 
-                      || ebook.modules?.[0]?.homework?.[0]?.pdfUrl
-                      || '';
+                    // Get downloadable files from ebookFiles array, fall back to ebookPdfUrl
+                    const downloadFiles = ebook.ebookFiles && ebook.ebookFiles.length > 0
+                      ? ebook.ebookFiles.filter(f => f.url)
+                      : ebook.ebookPdfUrl 
+                        ? [{ label: t('ebooks.download'), url: ebook.ebookPdfUrl }]
+                        : [];
                     
                     return (
                       <div 
@@ -512,17 +514,22 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
                             {ebook.description}
                           </p>
 
-                          {/* Download Button */}
-                          {downloadUrl ? (
-                            <a
-                              href={downloadUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-emerald-600 text-white font-black text-[10px] uppercase tracking-widest hover:bg-emerald-700 transition-all active:scale-95"
-                            >
-                              <Download size={14} />
-                              {t('ebooks.download')}
-                            </a>
+                          {/* Download Buttons */}
+                          {downloadFiles.length > 0 ? (
+                            <div className="space-y-2">
+                              {downloadFiles.map((file, fileIdx) => (
+                                <a
+                                  key={fileIdx}
+                                  href={file.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-emerald-600 text-white font-black text-[10px] uppercase tracking-widest hover:bg-emerald-700 transition-all active:scale-95"
+                                >
+                                  <Download size={14} />
+                                  {file.label || t('ebooks.download')}
+                                </a>
+                              ))}
+                            </div>
                           ) : (
                             <button
                               disabled

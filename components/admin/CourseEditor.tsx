@@ -16,7 +16,7 @@ import {
 } from './AdminUIComponents';
 import { coursesApi, videoHelpers, categoriesApi } from '../../data/supabaseStore';
 import { storageHelpers } from '../../lib/supabase';
-import { Course, Module, Lesson, Homework, VideoLink, CoursePricing, QuizQuestion, QuizOption, QuizQuestionType, CourseInstructor, CourseTargetAudience, Category, ProductType, TargetAudience, ContentFormat, WizardStep, WizardStepsCompleted } from '../../types';
+import { Course, Module, Lesson, Homework, VideoLink, CoursePricing, QuizQuestion, QuizOption, QuizQuestionType, CourseInstructor, CourseTargetAudience, Category, ProductType, TargetAudience, ContentFormat, WizardStep, WizardStepsCompleted, EbookFile } from '../../types';
 
 // ============================================
 // Wizard Step Configuration
@@ -840,9 +840,16 @@ const MetadataEditor: React.FC<{
   // E-book specific fields
   const [ebookPdfUrl, setEbookPdfUrl] = useState<string>(course.ebookPdfUrl || '');
   const [ebookPageCount, setEbookPageCount] = useState<number>(course.ebookPageCount || 0);
+  const [ebookFiles, setEbookFiles] = useState<EbookFile[]>(() => {
+    if (course.ebookFiles && course.ebookFiles.length > 0) return course.ebookFiles;
+    if (course.ebookPdfUrl) return [{ label: 'E-book PDF', url: course.ebookPdfUrl }];
+    return [];
+  });
   const [uploadingPdf, setUploadingPdf] = useState(false);
+  const [uploadingFileIndex, setUploadingFileIndex] = useState<number | null>(null);
   const [pdfUploadError, setPdfUploadError] = useState('');
   const pdfInputRef = useRef<HTMLInputElement>(null);
+  const [activeFileUploadIndex, setActiveFileUploadIndex] = useState<number | null>(null);
   
   // Footer visibility
   const [showInFooter, setShowInFooter] = useState<boolean>(course.showInFooter !== false);
@@ -947,43 +954,67 @@ const MetadataEditor: React.FC<{
     setThumbnailUrl('');
   };
   
-  // PDF upload handler for e-books
+  // PDF upload handler for e-book files
   const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || activeFileUploadIndex === null) return;
     
-    // Validate file type
     if (file.type !== 'application/pdf') {
       setPdfUploadError('Please select a PDF file');
       return;
     }
     
-    // Validate file size (max 50MB for PDFs)
     if (file.size > 50 * 1024 * 1024) {
       setPdfUploadError('PDF must be smaller than 50MB');
       return;
     }
     
     setUploadingPdf(true);
+    setUploadingFileIndex(activeFileUploadIndex);
     setPdfUploadError('');
     
     const { url, error } = await storageHelpers.uploadImage(file, 'ebooks');
     
     setUploadingPdf(false);
+    setUploadingFileIndex(null);
     
     if (error) {
       setPdfUploadError(error);
       return;
     }
     
-    setEbookPdfUrl(url);
+    const updated = [...ebookFiles];
+    updated[activeFileUploadIndex] = { ...updated[activeFileUploadIndex], url };
+    setEbookFiles(updated);
+    setEbookPdfUrl(updated[0]?.url || '');
+    setActiveFileUploadIndex(null);
   };
   
-  const handleRemovePdf = async () => {
-    if (ebookPdfUrl && storageHelpers.isSupabaseStorageUrl(ebookPdfUrl)) {
-      await storageHelpers.deleteImage(ebookPdfUrl);
+  const handleRemoveEbookFile = async (index: number) => {
+    const file = ebookFiles[index];
+    if (file.url && storageHelpers.isSupabaseStorageUrl(file.url)) {
+      await storageHelpers.deleteImage(file.url);
     }
-    setEbookPdfUrl('');
+    const updated = ebookFiles.filter((_, i) => i !== index);
+    setEbookFiles(updated);
+    setEbookPdfUrl(updated[0]?.url || '');
+  };
+  
+  const handleAddEbookFile = (label: string) => {
+    setEbookFiles([...ebookFiles, { label, url: '' }]);
+  };
+  
+  const handleUpdateEbookFileUrl = (index: number, url: string) => {
+    const updated = [...ebookFiles];
+    updated[index] = { ...updated[index], url };
+    setEbookFiles(updated);
+    if (index === 0) setEbookPdfUrl(url);
+  };
+  
+  const handleUpdateEbookFileLabel = (index: number, label: string) => {
+    const updated = [...ebookFiles];
+    updated[index] = { ...updated[index], label };
+    setEbookFiles(updated);
   };
 
   const handleSave = async (): Promise<void> => {
@@ -999,8 +1030,9 @@ const MetadataEditor: React.FC<{
       contentFormat,
       teachingMaterialsPrice: productType === 'service' ? teachingMaterialsPrice : undefined,
       // E-book fields
-      ebookPdfUrl: productType === 'ebook' ? ebookPdfUrl : undefined,
+      ebookPdfUrl: productType === 'ebook' ? (ebookFiles[0]?.url || ebookPdfUrl) : undefined,
       ebookPageCount: productType === 'ebook' ? ebookPageCount : undefined,
+      ebookFiles: productType === 'ebook' ? ebookFiles.filter(f => f.url) : undefined,
       // Footer visibility
       showInFooter,
       footerOrder,
@@ -1342,122 +1374,130 @@ const MetadataEditor: React.FC<{
         </div>
       </div>
       
-      {/* E-book PDF Upload Section - Only shown for e-book product type */}
+      {/* E-book Files Section - Only shown for e-book product type */}
       {productType === 'ebook' && (
         <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-6 space-y-4 border border-blue-100">
-          <div className="flex items-center gap-2 mb-2">
-            <FileDown size={16} className="text-blue-600" />
-            <span className="text-[10px] font-black uppercase tracking-widest text-blue-700">
-              E-book PDF File
-            </span>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <FileDown size={16} className="text-blue-600" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-blue-700">
+                E-book Downloadable Files
+              </span>
+            </div>
+            <span className="text-xs text-gray-500">{ebookFiles.length} file(s)</span>
           </div>
           
-          <div className="flex flex-col md:flex-row gap-4">
-            {/* PDF Preview / Upload Area */}
-            <div 
-              className={`relative w-full md:w-64 h-40 rounded-2xl overflow-hidden border-2 border-dashed transition-all ${
-                ebookPdfUrl 
-                  ? 'border-blue-300 bg-blue-50' 
-                  : 'border-gray-200 hover:border-blue-300 cursor-pointer bg-white'
-              }`}
-              onClick={() => !ebookPdfUrl && pdfInputRef.current?.click()}
-            >
-              {ebookPdfUrl ? (
-                <div className="flex flex-col items-center justify-center h-full text-blue-600">
-                  <Book size={32} className="mb-2" />
-                  <span className="text-xs font-bold">PDF Uploaded</span>
-                  <a 
-                    href={ebookPdfUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-[10px] text-blue-500 underline mt-1"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    Preview PDF
-                  </a>
+          {/* File list */}
+          <div className="space-y-3">
+            {ebookFiles.map((file, idx) => (
+              <div key={idx} className="bg-white rounded-xl p-4 border border-blue-100 space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="flex-1">
+                    <Input
+                      label="File Label"
+                      value={file.label}
+                      onChange={(e) => handleUpdateEbookFileLabel(idx, e.target.value)}
+                      placeholder="e.g., E-book PDF, Answer Key, Introduction"
+                    />
+                  </div>
                   <button
-                    onClick={(e) => { e.stopPropagation(); handleRemovePdf(); }}
-                    className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                    onClick={() => handleRemoveEbookFile(idx)}
+                    className="mt-5 p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Remove file"
                   >
-                    <X size={14} />
+                    <Trash2 size={16} />
                   </button>
                 </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full text-gray-400">
-                  {uploadingPdf ? (
-                    <Loader2 size={24} className="animate-spin text-blue-600" />
-                  ) : (
-                    <>
-                      <FileDown size={32} className="mb-2" />
-                      <span className="text-xs font-bold">Click to upload PDF</span>
-                      <span className="text-[10px]">Max 50MB</span>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-            
-            {/* PDF Upload Controls */}
-            <div className="flex-1 space-y-3">
-              <input
-                ref={pdfInputRef}
-                type="file"
-                accept=".pdf,application/pdf"
-                onChange={handlePdfUpload}
-                className="hidden"
-              />
-              
-              <div className="flex gap-2">
-                <Button 
-                  variant="secondary" 
-                  size="sm" 
-                  icon={Upload}
-                  onClick={() => pdfInputRef.current?.click()}
-                  loading={uploadingPdf}
-                >
-                  Upload PDF
-                </Button>
-                {ebookPdfUrl && (
-                  <Button 
-                    variant="secondary" 
-                    size="sm" 
-                    icon={Trash2}
-                    onClick={handleRemovePdf}
+                
+                <div className="flex items-center gap-2">
+                  <div className="flex-1">
+                    <Input
+                      label="File URL"
+                      value={file.url}
+                      onChange={(e) => handleUpdateEbookFileUrl(idx, e.target.value)}
+                      placeholder="https://drive.google.com/... or direct PDF URL"
+                    />
+                  </div>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    icon={Upload}
+                    onClick={() => {
+                      setActiveFileUploadIndex(idx);
+                      pdfInputRef.current?.click();
+                    }}
+                    loading={uploadingPdf && uploadingFileIndex === idx}
+                    className="mt-5"
                   >
-                    Remove
+                    Upload
                   </Button>
+                </div>
+                
+                {file.url && (
+                  <a
+                    href={file.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-[10px] text-blue-500 hover:underline"
+                  >
+                    <ExternalLink size={10} /> Preview
+                  </a>
                 )}
               </div>
-              
-              <div className="text-xs text-gray-400">Or paste a PDF URL (Google Drive, Dropbox, etc.):</div>
-              <Input
-                value={ebookPdfUrl}
-                onChange={(e) => setEbookPdfUrl(e.target.value)}
-                placeholder="https://drive.google.com/... or direct PDF URL"
-              />
-              
-              <div className="w-32">
-                <Input
-                  label="Page Count"
-                  type="number"
-                  value={ebookPageCount || ''}
-                  onChange={(e) => setEbookPageCount(Number(e.target.value))}
-                  placeholder="e.g., 120"
-                />
-              </div>
-              
-              {pdfUploadError && (
-                <div className="flex items-center gap-2 text-red-500 text-xs">
-                  <AlertCircle size={14} />
-                  {pdfUploadError}
-                </div>
-              )}
-              
-              <div className="bg-blue-100 rounded-xl p-3 text-xs text-blue-700">
-                <strong>Note:</strong> For Google Drive files, make sure the sharing is set to "Anyone with the link can view". 
-                The system will handle secure delivery to purchased users only.
-              </div>
+            ))}
+          </div>
+          
+          {/* Add file buttons */}
+          <div className="flex flex-wrap gap-2">
+            {[
+              { label: 'E-book PDF', show: !ebookFiles.some(f => f.label === 'E-book PDF') },
+              { label: 'Answer Key', show: !ebookFiles.some(f => f.label === 'Answer Key') },
+              { label: 'Introduction', show: !ebookFiles.some(f => f.label === 'Introduction') },
+            ].filter(o => o.show).map(opt => (
+              <button
+                key={opt.label}
+                onClick={() => handleAddEbookFile(opt.label)}
+                className="flex items-center gap-1 px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg text-xs font-bold hover:bg-blue-200 transition-colors"
+              >
+                <Plus size={12} /> {opt.label}
+              </button>
+            ))}
+            <button
+              onClick={() => handleAddEbookFile('')}
+              className="flex items-center gap-1 px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-xs font-bold hover:bg-gray-200 transition-colors"
+            >
+              <Plus size={12} /> Custom File
+            </button>
+          </div>
+          
+          <input
+            ref={pdfInputRef}
+            type="file"
+            accept=".pdf,application/pdf"
+            onChange={handlePdfUpload}
+            className="hidden"
+          />
+          
+          {pdfUploadError && (
+            <div className="flex items-center gap-2 text-red-500 text-xs">
+              <AlertCircle size={14} />
+              {pdfUploadError}
             </div>
+          )}
+          
+          <div className="w-32">
+            <Input
+              label="Page Count"
+              type="number"
+              value={ebookPageCount || ''}
+              onChange={(e) => setEbookPageCount(Number(e.target.value))}
+              placeholder="e.g., 120"
+            />
+          </div>
+          
+          <div className="bg-blue-100 rounded-xl p-3 text-xs text-blue-700">
+            <strong>Tip:</strong> For Google Drive files, set sharing to "Anyone with the link can view". 
+            Use the direct download format: <code>https://drive.google.com/uc?export=download&id=FILE_ID</code>
           </div>
         </div>
       )}

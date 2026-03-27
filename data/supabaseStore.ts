@@ -9,7 +9,7 @@ import type {
   KPIMetrics, AnalyticsTrends, UserFilters, CourseFilters,
   PaginatedResponse, UserDetail, AuditAction, Module, Lesson, Homework,
   CoursePricing, Category, ProductType, TargetAudience, ContentFormat,
-  CatalogFilters, WizardStepsCompleted, WizardStep, PaymentProvider
+  CatalogFilters, WizardStepsCompleted, WizardStep, PaymentProvider, EbookFile
 } from '../types';
 
 // ============================================
@@ -573,6 +573,7 @@ export const coursesApi = {
       // E-book fields
       ebookPdfUrl: data.ebook_pdf_url as string | undefined,
       ebookPageCount: data.ebook_page_count as number | undefined,
+      ebookFiles: (data.ebook_files as EbookFile[]) || [],
       // Footer visibility
       showInFooter: data.show_in_footer !== false,
       footerOrder: data.footer_order || 0,
@@ -626,6 +627,7 @@ export const coursesApi = {
       // E-book fields
       ebookPdfUrl: c.ebook_pdf_url as string | undefined,
       ebookPageCount: c.ebook_page_count as number | undefined,
+      ebookFiles: (c.ebook_files as EbookFile[]) || [],
       // Footer visibility
       showInFooter: c.show_in_footer !== false,
       footerOrder: (c.footer_order as number) || 0,
@@ -728,6 +730,7 @@ export const coursesApi = {
     // E-book specific fields
     if ((updates as any).ebookPdfUrl !== undefined) dbUpdates.ebook_pdf_url = (updates as any).ebookPdfUrl;
     if ((updates as any).ebookPageCount !== undefined) dbUpdates.ebook_page_count = (updates as any).ebookPageCount;
+    if ((updates as any).ebookFiles !== undefined) dbUpdates.ebook_files = (updates as any).ebookFiles;
     // Footer visibility fields
     if ((updates as any).showInFooter !== undefined) dbUpdates.show_in_footer = (updates as any).showInFooter;
     if ((updates as any).footerOrder !== undefined) dbUpdates.footer_order = (updates as any).footerOrder;
@@ -764,6 +767,7 @@ export const coursesApi = {
       relatedMaterialsId: data.related_materials_id as string | undefined,
       ebookPdfUrl: data.ebook_pdf_url as string | undefined,
       ebookPageCount: data.ebook_page_count as number | undefined,
+      ebookFiles: (data.ebook_files as EbookFile[]) || [],
       showInFooter: data.show_in_footer !== false,
       footerOrder: data.footer_order || 0,
       learningOutcomes: data.learning_outcomes || [],
@@ -831,6 +835,7 @@ export const coursesApi = {
     if (courseData.teachingMaterialsPrice !== undefined) dbUpdates.teaching_materials_price = courseData.teachingMaterialsPrice;
     if (courseData.ebookPdfUrl !== undefined) dbUpdates.ebook_pdf_url = courseData.ebookPdfUrl;
     if (courseData.ebookPageCount !== undefined) dbUpdates.ebook_page_count = courseData.ebookPageCount;
+    if (courseData.ebookFiles !== undefined) dbUpdates.ebook_files = courseData.ebookFiles;
     if (courseData.showInFooter !== undefined) dbUpdates.show_in_footer = courseData.showInFooter;
     if (courseData.footerOrder !== undefined) dbUpdates.footer_order = courseData.footerOrder;
     if (courseData.syllabusContent !== undefined) dbUpdates.syllabus_content = courseData.syllabusContent;
