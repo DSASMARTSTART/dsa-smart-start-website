@@ -62,7 +62,7 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
   isInCart,
   isAddingToCart = false
 }) => {
-  const { t } = useTranslation('courses');
+  const { t, i18n } = useTranslation('courses');
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [rawCourse, setRawCourse] = useState<Course | null>(null);
   const course = useLocalizedCourse(rawCourse);
@@ -443,16 +443,46 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
                 <div className="relative aspect-video rounded-3xl overflow-hidden mb-4 bg-black">
                   <iframe
                     src={(() => {
-                      const vimeoMap: Record<string, string> = {
-                        'A1': 'https://player.vimeo.com/video/76979871',
-                        'A2': 'https://player.vimeo.com/video/76979872',
-                        'B1': 'https://player.vimeo.com/video/76979873',
-                        'B2': 'https://player.vimeo.com/video/76979874',
-                        'kids-basic': 'https://player.vimeo.com/video/76979875',
-                        'kids-medium': 'https://player.vimeo.com/video/76979876',
-                        'kids-advanced': 'https://player.vimeo.com/video/76979877',
+                      const vimeoMap: Record<string, Record<string, string>> = {
+                        en: {
+                          'A1': 'https://player.vimeo.com/video/76979871',
+                          'A2': 'https://player.vimeo.com/video/76979872',
+                          'B1': 'https://player.vimeo.com/video/76979873',
+                          'B2': 'https://player.vimeo.com/video/76979874',
+                          'kids-basic': 'https://player.vimeo.com/video/76979875',
+                          'kids-medium': 'https://player.vimeo.com/video/76979876',
+                          'kids-advanced': 'https://player.vimeo.com/video/76979877',
+                        },
+                        it: {
+                          'A1': 'https://player.vimeo.com/video/TODO_IT_A1',
+                          'A2': 'https://player.vimeo.com/video/TODO_IT_A2',
+                          'B1': 'https://player.vimeo.com/video/TODO_IT_B1',
+                          'B2': 'https://player.vimeo.com/video/TODO_IT_B2',
+                          'kids-basic': 'https://player.vimeo.com/video/TODO_IT_KIDS_BASIC',
+                          'kids-medium': 'https://player.vimeo.com/video/TODO_IT_KIDS_MEDIUM',
+                          'kids-advanced': 'https://player.vimeo.com/video/TODO_IT_KIDS_ADVANCED',
+                        },
+                        sr: {
+                          'A1': 'https://player.vimeo.com/video/TODO_SR_A1',
+                          'A2': 'https://player.vimeo.com/video/TODO_SR_A2',
+                          'B1': 'https://player.vimeo.com/video/TODO_SR_B1',
+                          'B2': 'https://player.vimeo.com/video/TODO_SR_B2',
+                          'kids-basic': 'https://player.vimeo.com/video/TODO_SR_KIDS_BASIC',
+                          'kids-medium': 'https://player.vimeo.com/video/TODO_SR_KIDS_MEDIUM',
+                          'kids-advanced': 'https://player.vimeo.com/video/TODO_SR_KIDS_ADVANCED',
+                        },
+                        es: {
+                          'A1': 'https://player.vimeo.com/video/TODO_ES_A1',
+                          'A2': 'https://player.vimeo.com/video/TODO_ES_A2',
+                          'B1': 'https://player.vimeo.com/video/TODO_ES_B1',
+                          'B2': 'https://player.vimeo.com/video/TODO_ES_B2',
+                          'kids-basic': 'https://player.vimeo.com/video/TODO_ES_KIDS_BASIC',
+                          'kids-medium': 'https://player.vimeo.com/video/TODO_ES_KIDS_MEDIUM',
+                          'kids-advanced': 'https://player.vimeo.com/video/TODO_ES_KIDS_ADVANCED',
+                        },
                       };
-                      return vimeoMap[course.level] || 'https://player.vimeo.com/video/76979871';
+                      const lang = i18n.language;
+                      return vimeoMap[lang]?.[course.level] || vimeoMap['en']?.[course.level] || 'https://player.vimeo.com/video/76979871';
                     })()}
                     className="absolute inset-0 w-full h-full"
                     frameBorder="0"

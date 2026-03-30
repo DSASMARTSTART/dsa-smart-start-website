@@ -35,7 +35,7 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
   isInCart,
   isAddingToCart = false,
 }) => {
-  const { t } = useTranslation('courses');
+  const { t, i18n } = useTranslation('courses');
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [rawCourse, setRawCourse] = useState<Course | null>(null);
   const course = useLocalizedCourse(rawCourse);
@@ -310,17 +310,38 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
             {/* Right: Video & Card */}
             <div className="relative animate-reveal stagger-1">
               <div className="relative bg-white/5 rounded-[3rem] p-6 border border-white/10 shadow-2xl shadow-purple-500/10">
-                {/* Vimeo Video Placeholder */}
+                {/* Vimeo Video */}
                 <div className="relative aspect-video rounded-3xl overflow-hidden mb-4 bg-black">
                   <iframe
                     src={(() => {
-                      const vimeoMap: Record<string, string> = {
-                        'starter-path': 'https://player.vimeo.com/video/76979871',
-                        'language-lab': 'https://player.vimeo.com/video/76979872',
-                        'language-lab-pro': 'https://player.vimeo.com/video/76979873',
-                        'hybrid-pack': 'https://player.vimeo.com/video/76979874',
+                      const vimeoMap: Record<string, Record<string, string>> = {
+                        en: {
+                          'starter-path': 'https://player.vimeo.com/video/76979871',
+                          'language-lab': 'https://player.vimeo.com/video/76979872',
+                          'language-lab-pro': 'https://player.vimeo.com/video/76979873',
+                          'hybrid-pack': 'https://player.vimeo.com/video/76979874',
+                        },
+                        it: {
+                          'starter-path': 'https://player.vimeo.com/video/TODO_IT_STARTER',
+                          'language-lab': 'https://player.vimeo.com/video/TODO_IT_LAB',
+                          'language-lab-pro': 'https://player.vimeo.com/video/TODO_IT_LAB_PRO',
+                          'hybrid-pack': 'https://player.vimeo.com/video/TODO_IT_HYBRID',
+                        },
+                        sr: {
+                          'starter-path': 'https://player.vimeo.com/video/TODO_SR_STARTER',
+                          'language-lab': 'https://player.vimeo.com/video/TODO_SR_LAB',
+                          'language-lab-pro': 'https://player.vimeo.com/video/TODO_SR_LAB_PRO',
+                          'hybrid-pack': 'https://player.vimeo.com/video/TODO_SR_HYBRID',
+                        },
+                        es: {
+                          'starter-path': 'https://player.vimeo.com/video/TODO_ES_STARTER',
+                          'language-lab': 'https://player.vimeo.com/video/TODO_ES_LAB',
+                          'language-lab-pro': 'https://player.vimeo.com/video/TODO_ES_LAB_PRO',
+                          'hybrid-pack': 'https://player.vimeo.com/video/TODO_ES_HYBRID',
+                        },
                       };
-                      return vimeoMap[course.level] || 'https://player.vimeo.com/video/76979871';
+                      const lang = i18n.language;
+                      return vimeoMap[lang]?.[course.level] || vimeoMap['en']?.[course.level] || 'https://player.vimeo.com/video/76979871';
                     })()}
                     className="absolute inset-0 w-full h-full"
                     frameBorder="0"

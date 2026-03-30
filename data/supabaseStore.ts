@@ -327,11 +327,15 @@ export const usersApi = {
 
   updateRole: async (id: string, role: 'student' | 'admin' | 'editor'): Promise<void> => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase as any)
+    const { data, error } = await (supabase as any)
       .from('users')
       .update({ role, updated_at: now() })
-      .eq('id', id);
+      .eq('id', id)
+      .select('id');
     if (error) throw error;
+    if (!data || data.length === 0) {
+      throw new Error('Role update failed — no rows affected. Check that the "Admins can manage all users" RLS policy exists.');
+    }
     await createAuditLog('user_notes_updated', 'user', id, `User role changed to ${role}`);
   },
 
