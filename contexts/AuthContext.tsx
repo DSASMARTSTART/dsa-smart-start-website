@@ -96,37 +96,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
           
           // Clean up query string, then navigate to dashboard
-          // Use window.location.href so the hash actually changes and triggers routing
           window.history.replaceState({}, '', window.location.pathname);
           window.location.hash = '#dashboard';
         }
 
+        // getSession() reads from localStorage only — no network call, can't hang.
+        // Do NOT use getUser() here: it makes a network request that browser
+        // extensions can intercept/block, causing an infinite loading spinner.
         const { data: { session } } = await supabase.auth.getSession();
         
         if (!isMounted) return;
         
-        if (session) {
-          // Validate the token is still valid by calling the server
-          // getSession() only reads localStorage — the token may be expired
-          const { data: { user: validUser }, error: userError } = await supabase.auth.getUser();
-          
-          if (!isMounted) return;
-          
-          if (userError || !validUser) {
-            // Session token is expired/invalid — clear it so requests fall back to anonymous
-            console.warn('Stored session is invalid, clearing:', userError?.message);
-            await supabase.auth.signOut();
-            setSession(null);
-            setUser(null);
-            setProfile(null);
-          } else {
-            setSession(session);
-            setUser(validUser);
-            await fetchProfile(validUser.id);
-          }
-        } else {
-          setSession(null);
-          setUser(null);
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          // Fire profile fetch in background — don't block auth loading
+          fetchProfile(session.user.id).catch((err) => {
+            console.warn('Background profile fetch failed:', err);
+          });
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
@@ -135,7 +123,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    initAuth();
+    // Safety timeout: if initAuth somehow hangs (e.g. PKCE exchange blocked by extension),
+    // force authLoading to false after 5 seconds so the app is never stuck on a spinner.
+    const safetyTimer = setTimeout(() => {
+      if (isMounted && loading) {
+        console.warn('Auth init safety timeout — forcing loading to false');
+        setLoading(false);
+      }
+    }, 5000);
+
+    initAuth().finally(() => clearTimeout(safetyTimer));
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -163,6 +160,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => {
       isMounted = false;
+      clearTimeout(safetyTimer);
       subscription.unsubscribe();
     };
   }, []);
