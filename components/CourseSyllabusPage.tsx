@@ -90,6 +90,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
   const [rawCourse, setRawCourse] = useState<Course | null>(null);
   const course = useLocalizedCourse(rawCourse);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
   const { isAdmin, isEditor } = useAuth();
 
@@ -115,6 +116,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
         setRawCourse(data);
       } catch (error) {
         console.error('Error loading course:', error);
+        setLoadError(true);
       } finally {
         setLoading(false);
       }
@@ -189,11 +191,18 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
           <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/10">
             <BookOpen size={32} className="text-gray-500" />
           </div>
-          <h3 className="text-2xl font-black text-white mb-4">{t('shared.courseNotFound')}</h3>
-          <p className="text-gray-400 mb-8">{t('shared.courseNotFoundDesc')}</p>
-          <button onClick={onBack} className="px-8 py-4 bg-purple-600 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-colors">
-            {t('shared.backToCourses')}
-          </button>
+          <h3 className="text-2xl font-black text-white mb-4">{loadError ? t('shared.loadError', { defaultValue: 'Failed to load course' }) : t('shared.courseNotFound')}</h3>
+          <p className="text-gray-400 mb-8">{loadError ? t('shared.loadErrorDesc', { defaultValue: 'Something went wrong. Please try again.' }) : t('shared.courseNotFoundDesc')}</p>
+          <div className="flex gap-4 justify-center">
+            {loadError && (
+              <button onClick={() => window.location.reload()} className="px-8 py-4 bg-purple-600 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-colors">
+                {t('shared.retry', { defaultValue: 'Try Again' })}
+              </button>
+            )}
+            <button onClick={onBack} className="px-8 py-4 bg-purple-600 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-colors">
+              {t('shared.backToCourses')}
+            </button>
+          </div>
         </div>
       </div>
     );

@@ -130,6 +130,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           await fetchProfile(session.user.id);
         } else {
           setProfile(null);
+          // Clear user-specific caches when session ends
+          localStorage.removeItem('dsa_progress');
+          localStorage.removeItem('dsa_cart');
+          localStorage.removeItem('dsa_materials');
+          sessionStorage.removeItem('pending_order');
         }
 
         // Handle password recovery redirect
@@ -210,6 +215,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error };
   };
 
+  const clearUserCaches = () => {
+    localStorage.removeItem('dsa_progress');
+    localStorage.removeItem('dsa_cart');
+    localStorage.removeItem('dsa_materials');
+    sessionStorage.removeItem('pending_order');
+  };
+
   const signOut = async () => {
     if (supabase) {
       await supabase.auth.signOut();
@@ -217,6 +229,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     setSession(null);
     setProfile(null);
+    clearUserCaches();
   };
 
   const resetPassword = async (email: string) => {

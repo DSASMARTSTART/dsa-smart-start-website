@@ -74,6 +74,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
   const [purchasedEbooks, setPurchasedEbooks] = useState<PurchasedEbook[]>([]);
   const [pendingPurchases, setPendingPurchases] = useState<PendingPurchase[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showSetPasswordPrompt, setShowSetPasswordPrompt] = useState(false);
   const [passwordResetSent, setPasswordResetSent] = useState(false);
 
@@ -121,9 +122,20 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
 
       // Reset loading to true for fresh fetch (important for remounts!)
       // Only show loading spinner on initial load, not on poll refreshes
-      if (!isPolling && !isCancelled) setLoading(true);
+      if (!isPolling && !isCancelled) {
+        setLoading(true);
+        setError(null);
+      }
 
       try {
+        // Validate that the session is still valid before fetching data
+        const { data: { user: validUser }, error: sessionError } = await supabase.auth.getUser();
+        if (sessionError || !validUser) {
+          console.error('Session invalid, signing out:', sessionError?.message);
+          await supabase.auth.signOut();
+          if (!isCancelled) setLoading(false);
+          return;
+        }
         // SELF-HEALING: Repair any completed purchases that are missing enrollments
         // This handles edge cases where webhook confirmed payment but enrollment wasn't created
         try {
@@ -214,8 +226,11 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
             pollInterval = null;
           }
         }
-      } catch (error) {
-        console.error('Error loading enrolled courses:', error);
+      } catch (err) {
+        console.error('Error loading enrolled courses:', err);
+        if (!isCancelled) {
+          setError(t('errorLoading', { defaultValue: 'Failed to load your courses. Please try again.' }));
+        }
       } finally {
         if (!isCancelled) setLoading(false);
       }
@@ -241,6 +256,14 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
   const localizedEnrolledCourses = useLocalizedCourses(enrolledCourses);
   const localizedEbooks = useLocalizedCourses(purchasedEbooks);
 
+  // Retry handler for error state
+  const handleRetry = () => {
+    setError(null);
+    setLoading(true);
+    // Trigger re-fetch by toggling a dependency — simplest: reload
+    window.location.reload();
+  };
+
   if (loading && authLoading) {
     // Only show loading spinner if both are loading (initial load)
     return (
@@ -248,6 +271,31 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-400 font-medium">{t('loading')}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state - show error with retry
+  if (error && !loading) {
+    return (
+      <div className="bg-black min-h-screen pt-32 pb-20 flex items-center justify-center">
+        <div className="max-w-lg mx-auto text-center px-6">
+          <div className="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-8">
+            <AlertCircle size={40} className="text-red-400" />
+          </div>
+          <h1 className="text-3xl md:text-4xl font-black text-white mb-4 uppercase tracking-tight">
+            {t('errorTitle', { defaultValue: 'Something went wrong' })}
+          </h1>
+          <p className="text-gray-400 text-lg mb-8">
+            {error}
+          </p>
+          <button 
+            onClick={handleRetry}
+            className="px-12 py-5 bg-purple-600 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-colors shadow-xl shadow-purple-500/20"
+          >
+            {t('retry', { defaultValue: 'Try Again' })}
+          </button>
         </div>
       </div>
     );

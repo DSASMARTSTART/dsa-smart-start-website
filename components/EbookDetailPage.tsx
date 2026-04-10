@@ -68,6 +68,7 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
   const [rawCourse, setRawCourse] = useState<Course | null>(null);
   const course = useLocalizedCourse(rawCourse);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
 
   const toggleModule = (moduleId: string) => {
@@ -89,6 +90,7 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
         setRawCourse(data);
       } catch (error) {
         console.error('Failed to load e-book:', error);
+        setLoadError(true);
       } finally {
         setLoading(false);
       }
@@ -164,11 +166,18 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
           <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/10">
             <FileText size={32} className="text-gray-500" />
           </div>
-          <h3 className="text-2xl font-black text-white mb-4">{t('shared.ebookNotFound')}</h3>
-          <p className="text-gray-400 mb-8">{t('shared.ebookNotFoundDesc')}</p>
-          <button onClick={onBack} className="px-8 py-4 bg-purple-600 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-colors">
-            {t('shared.backToProducts')}
-          </button>
+          <h3 className="text-2xl font-black text-white mb-4">{loadError ? t('shared.loadError', { defaultValue: 'Failed to load product' }) : t('shared.ebookNotFound')}</h3>
+          <p className="text-gray-400 mb-8">{loadError ? t('shared.loadErrorDesc', { defaultValue: 'Something went wrong. Please try again.' }) : t('shared.ebookNotFoundDesc')}</p>
+          <div className="flex gap-4 justify-center">
+            {loadError && (
+              <button onClick={() => window.location.reload()} className="px-8 py-4 bg-purple-600 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-colors">
+                {t('shared.retry', { defaultValue: 'Try Again' })}
+              </button>
+            )}
+            <button onClick={onBack} className="px-8 py-4 bg-purple-600 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-colors">
+              {t('shared.backToProducts')}
+            </button>
+          </div>
         </div>
       </div>
     );
