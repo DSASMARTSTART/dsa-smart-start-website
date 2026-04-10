@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, CheckCircle2, Star, Clock, Sparkles, BookOpen, Target, GraduationCap, ChevronRight, ChevronDown, Zap, Lock, ShoppingCart, Check, Rocket, Shield, FileText, Play, Users, Layers, Award, TrendingUp, Crown, Diamond, Video, Brain, Headphones, FileCheck, MessageCircle, Flame, BadgeCheck, Heart, RefreshCcw, UserCheck, Eye } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Star, Clock, Sparkles, BookOpen, GraduationCap, ChevronRight, ChevronDown, Zap, Lock, ShoppingCart, Check, Rocket, Shield, FileText, Play, Users, Layers, Award, TrendingUp, Crown, Diamond, Video, Brain, Headphones, FileCheck, MessageCircle, Flame, BadgeCheck, Heart, RefreshCcw, UserCheck, Eye } from 'lucide-react';
 import { coursesApi } from '../data/supabaseStore';
 import { Course, Module } from '../types';
 import { useLocalizedCourse } from '../hooks/useLocalizedCourse';
@@ -221,22 +221,6 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
   const hardcodedContent = (typeof rawContent === 'object' && rawContent !== null) ? rawContent as CourseContentData : undefined;
   const syllabusContent = course.syllabusContent;
   
-  // PRIORITY: Use course's syllabusContent first > learningOutcomes field > COURSE_CONTENT > extracted from modules > generic
-  // Learning outcomes
-  let outcomes: string[] = [];
-  if (syllabusContent?.learningOutcomes && syllabusContent.learningOutcomes.length > 0) {
-    outcomes = syllabusContent.learningOutcomes;
-  } else if (course.learningOutcomes && course.learningOutcomes.length > 0) {
-    outcomes = course.learningOutcomes;
-  } else if (hardcodedContent?.learningOutcomes) {
-    outcomes = hardcodedContent.learningOutcomes;
-  } else if (modules.length > 0) {
-    outcomes = modules.slice(0, 4).map(m => m.lessons?.[0]?.title || m.title).filter(Boolean);
-  }
-  if (outcomes.length === 0) {
-    outcomes = t('syllabusPage.defaultOutcomes', { returnObjects: true }) as string[];
-  }
-
   // Target audience: syllabusContent > course data > COURSE_CONTENT > generic
   let targetAudiencePoints: string[] = [];
   if (syllabusContent?.targetAudience && syllabusContent.targetAudience.length > 0) {
@@ -545,34 +529,8 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
       <section className="pb-32 px-6 relative z-30">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
           
-          {/* Left: Outcomes & Highlights */}
+          {/* Left: Highlights */}
           <div className="lg:col-span-5 space-y-16 animate-reveal">
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-3 bg-purple-500/20 rounded-2xl text-purple-400 border border-purple-500/30">
-                  <Target size={28} />
-                </div>
-                <h3 className="text-3xl font-black text-white tracking-tight uppercase">
-                  {course.level.startsWith('kids') ? t('shared.whatYoullAchieveKids') : t('shared.whatYoullAchieveShort')}
-                </h3>
-              </div>
-              <p className="text-gray-400 text-lg mb-8 font-medium">
-                {course.level.startsWith('kids')
-                  ? t('shared.outcomesIntroKids')
-                  : t('shared.outcomesIntroShort')}
-              </p>
-              <div className="space-y-4">
-                {outcomes.slice(0, 4).map((item, i) => (
-                  <div key={i} className="flex items-center gap-4 p-5 bg-white/5 rounded-[2rem] border border-white/10 group hover:bg-white/10 hover:border-purple-500/30 hover:shadow-lg hover:shadow-purple-500/10 transition-all">
-                    <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
-                      <CheckCircle2 className="text-green-400" size={18} />
-                    </div>
-                    <span className="text-base font-bold text-gray-300">{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
             <div className="p-10 bg-gradient-to-br from-[#1a1c2d] to-black rounded-[3rem] text-white relative overflow-hidden group border border-white/10">
               <div className="absolute top-0 right-0 w-32 h-32 bg-purple-600/30 rounded-full blur-[60px] translate-x-1/2 -translate-y-1/2"></div>
               <div className="relative z-10">

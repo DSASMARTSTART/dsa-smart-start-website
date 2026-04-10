@@ -1,6 +1,6 @@
 ﻿import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, BookOpen, Download, FileText, CheckCircle2, Star, ShoppingCart, Check, ArrowRight, Layers, TrendingUp, Award, Music, Play, Clock, Shield, RefreshCcw, Sparkles, Target, GraduationCap, ChevronRight, ChevronDown, Heart, BadgeCheck, UserCheck, Rocket, Lock, FileCheck } from 'lucide-react';
+import { ArrowLeft, BookOpen, Download, FileText, CheckCircle2, Star, ShoppingCart, Check, ArrowRight, Layers, TrendingUp, Award, Music, Play, Clock, Shield, RefreshCcw, Sparkles, GraduationCap, ChevronRight, ChevronDown, Heart, BadgeCheck, UserCheck, Rocket, Lock, FileCheck } from 'lucide-react';
 import { coursesApi } from '../data/supabaseStore';
 import { Course } from '../types';
 import { useLocalizedCourse } from '../hooks/useLocalizedCourse';
@@ -197,19 +197,6 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
 
   // Description
   const ebookDescription = course.description || hardcodedContent?.description || t('shared.defaultDescription', { label: t('shared.levelLabels.' + course.level, { defaultValue: config.label }) });
-
-  // Learning outcomes
-  let outcomes: string[] = [];
-  if (syllabusContent?.learningOutcomes && syllabusContent.learningOutcomes.length > 0) {
-    outcomes = syllabusContent.learningOutcomes;
-  } else if (course.learningOutcomes && course.learningOutcomes.length > 0) {
-    outcomes = course.learningOutcomes;
-  } else if (hardcodedContent?.learningOutcomes) {
-    outcomes = hardcodedContent.learningOutcomes;
-  }
-  if (outcomes.length === 0) {
-    outcomes = t('ebookDetail.defaultOutcomes', { returnObjects: true }) as string[];
-  }
 
   // What you'll find
   let whatYoullFind: string[] = [];
@@ -542,35 +529,8 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
       <section className="pb-32 px-6 relative z-30">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
           
-          {/* Left: Outcomes & Highlights */}
+          {/* Left: Highlights */}
           <div className="lg:col-span-5 space-y-16 animate-reveal">
-            
-            {/* ---- What You'll Achieve ---- */}
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-3 bg-purple-500/20 rounded-2xl text-purple-400 border border-purple-500/30">
-                  <Target size={28} />
-                </div>
-                <h3 className="text-3xl font-black text-white tracking-tight uppercase">
-                  {course.level.startsWith('kids') ? t('shared.whatYoullAchieveKids') : t('shared.whatYoullAchieve')}
-                </h3>
-              </div>
-              <p className="text-gray-400 text-lg mb-8 font-medium">
-                {course.level.startsWith('kids')
-                  ? t('shared.outcomesIntroKids')
-                  : t('shared.outcomesIntro')}
-              </p>
-              <div className="space-y-4">
-                {outcomes.slice(0, 6).map((item, i) => (
-                  <div key={i} className="flex items-center gap-4 p-5 bg-white/5 rounded-[2rem] border border-white/10 group hover:bg-white/10 hover:border-purple-500/30 hover:shadow-lg hover:shadow-purple-500/10 transition-all">
-                    <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
-                      <CheckCircle2 className="text-green-400" size={18} />
-                    </div>
-                    <span className="text-base font-bold text-gray-300">{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
 
             {/* ---- Eduway Academy Advantage ---- */}
             <div className="p-10 bg-gradient-to-br from-[#1a1c2d] to-black rounded-[3rem] text-white relative overflow-hidden group border border-white/10">

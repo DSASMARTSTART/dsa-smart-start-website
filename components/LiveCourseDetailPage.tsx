@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, CheckCircle2, Star, ShoppingCart, Check, ChevronRight, ChevronDown, Layers, TrendingUp, Award, Clock, Shield, RefreshCcw, Sparkles, Target, GraduationCap, Heart, BadgeCheck, UserCheck, Rocket, Lock, Users, Crown, Diamond, Compass, Video, BookOpen, Brain, Headphones, FileCheck, MessageCircle, X, Calendar, Zap } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Star, ShoppingCart, Check, ChevronRight, ChevronDown, Layers, TrendingUp, Award, Clock, Shield, RefreshCcw, Sparkles, GraduationCap, Heart, BadgeCheck, UserCheck, Rocket, Lock, Users, Crown, Diamond, Compass, Video, BookOpen, Brain, Headphones, FileCheck, MessageCircle, X, Calendar, Zap } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { coursesApi } from '../data/supabaseStore';
 import { Course } from '../types';
@@ -159,7 +159,6 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
 
   const includes = contentData?.includes || [];
   const notIncluded = contentData?.notIncluded || [];
-  const outcomes = contentData?.learningOutcomes || [];
   const targetAudiencePoints = contentData?.targetAudience || [];
   const duration = contentData?.duration || '';
   const lessons = contentData?.lessons || '';
@@ -409,29 +408,6 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
 
           {/* Left Column — Outcomes, Advantages, Who-it's-for, Our Promise */}
           <div className="lg:col-span-5 space-y-16 animate-reveal">
-
-            {/* ---- What You'll Achieve ---- */}
-            {outcomes.length > 0 && (
-              <div>
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="p-3 bg-purple-500/20 rounded-2xl text-purple-400 border border-purple-500/30">
-                    <Target size={28} />
-                  </div>
-                  <h3 className="text-3xl font-black text-white tracking-tight uppercase">{t('shared.whatYoullAchieveShort')}</h3>
-                </div>
-                <p className="text-gray-400 text-lg mb-8 font-medium">{t('shared.outcomesIntroShort')}</p>
-                <div className="space-y-4">
-                  {outcomes.map((item, i) => (
-                    <div key={i} className="flex items-center gap-4 p-5 bg-white/5 rounded-[2rem] border border-white/10 group hover:bg-white/10 hover:border-purple-500/30 hover:shadow-lg hover:shadow-purple-500/10 transition-all">
-                      <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
-                        <CheckCircle2 className="text-green-400" size={18} />
-                      </div>
-                      <span className="text-base font-bold text-gray-300">{item}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* ---- Eduway Academy Advantage ---- */}
             <div className="p-10 bg-gradient-to-br from-[#1a1c2d] to-black rounded-[3rem] text-white relative overflow-hidden group border border-white/10">
