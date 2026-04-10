@@ -473,7 +473,7 @@ export const coursesApi = {
     
     if (error) {
       console.error('Error fetching courses:', error);
-      return []; // Return empty array instead of throwing for public-facing pages
+      throw new Error(`Failed to load courses: ${error.message}`);
     }
 
     const courses = (data || []).map((c: Record<string, unknown>) => ({

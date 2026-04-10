@@ -16,7 +16,7 @@ if (import.meta.env.DEV) {
 
 // Log warning instead of throwing to prevent blank page
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Missing Supabase environment variables. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY');
+  console.error('⚠️ CRITICAL: Missing Supabase environment variables (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY). All database queries will fail silently.');
 }
 
 // Create typed client (will fail gracefully if credentials missing)

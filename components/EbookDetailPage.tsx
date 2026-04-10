@@ -4,6 +4,7 @@ import { ArrowLeft, BookOpen, Download, FileText, CheckCircle2, Star, ShoppingCa
 import { coursesApi } from '../data/supabaseStore';
 import { Course } from '../types';
 import { useLocalizedCourse } from '../hooks/useLocalizedCourse';
+import { ebookVimeoMap, getVimeoEmbedUrl } from '../data/videoConfig';
 
 // Fallback cover images for e-books (local assets)
 const EBOOK_COVERS: Record<string, string> = {
@@ -439,63 +440,32 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
                   </div>
                 )}
 
-                {/* Vimeo Video */}
-                <div className="relative aspect-video rounded-3xl overflow-hidden mb-4 bg-black">
-                  <iframe
-                    src={(() => {
-                      const vimeoMap: Record<string, Record<string, string>> = {
-                        en: {
-                          'A1': 'https://player.vimeo.com/video/76979871',
-                          'A2': 'https://player.vimeo.com/video/76979872',
-                          'B1': 'https://player.vimeo.com/video/76979873',
-                          'B2': 'https://player.vimeo.com/video/76979874',
-                          'kids-basic': 'https://player.vimeo.com/video/76979875',
-                          'kids-medium': 'https://player.vimeo.com/video/76979876',
-                          'kids-advanced': 'https://player.vimeo.com/video/76979877',
-                        },
-                        it: {
-                          'A1': 'https://player.vimeo.com/video/TODO_IT_A1',
-                          'A2': 'https://player.vimeo.com/video/TODO_IT_A2',
-                          'B1': 'https://player.vimeo.com/video/TODO_IT_B1',
-                          'B2': 'https://player.vimeo.com/video/TODO_IT_B2',
-                          'kids-basic': 'https://player.vimeo.com/video/TODO_IT_KIDS_BASIC',
-                          'kids-medium': 'https://player.vimeo.com/video/TODO_IT_KIDS_MEDIUM',
-                          'kids-advanced': 'https://player.vimeo.com/video/TODO_IT_KIDS_ADVANCED',
-                        },
-                        sr: {
-                          'A1': 'https://player.vimeo.com/video/TODO_SR_A1',
-                          'A2': 'https://player.vimeo.com/video/TODO_SR_A2',
-                          'B1': 'https://player.vimeo.com/video/TODO_SR_B1',
-                          'B2': 'https://player.vimeo.com/video/TODO_SR_B2',
-                          'kids-basic': 'https://player.vimeo.com/video/TODO_SR_KIDS_BASIC',
-                          'kids-medium': 'https://player.vimeo.com/video/TODO_SR_KIDS_MEDIUM',
-                          'kids-advanced': 'https://player.vimeo.com/video/TODO_SR_KIDS_ADVANCED',
-                        },
-                        es: {
-                          'A1': 'https://player.vimeo.com/video/TODO_ES_A1',
-                          'A2': 'https://player.vimeo.com/video/TODO_ES_A2',
-                          'B1': 'https://player.vimeo.com/video/TODO_ES_B1',
-                          'B2': 'https://player.vimeo.com/video/TODO_ES_B2',
-                          'kids-basic': 'https://player.vimeo.com/video/TODO_ES_KIDS_BASIC',
-                          'kids-medium': 'https://player.vimeo.com/video/TODO_ES_KIDS_MEDIUM',
-                          'kids-advanced': 'https://player.vimeo.com/video/TODO_ES_KIDS_ADVANCED',
-                        },
-                      };
-                      const lang = i18n.language;
-                      return vimeoMap[lang]?.[course.level] || vimeoMap['en']?.[course.level] || 'https://player.vimeo.com/video/76979871';
-                    })()}
-                    className="absolute inset-0 w-full h-full"
-                    frameBorder="0"
-                    allow="autoplay; fullscreen; picture-in-picture"
-                    allowFullScreen
-                    title={`${course.title} preview`}
-                  />
-                </div>
-                <p className="text-sm text-gray-400 text-center mb-4 font-medium">
-                  {course.level.startsWith('kids')
-                    ? t('ebookDetail.videoDescriptionKids')
-                    : t('ebookDetail.videoDescription')}
-                </p>
+                {/* Vimeo Video — only shown when a video exists for this language+level */}
+                {(() => {
+                  const videoId = ebookVimeoMap[i18n.language]?.[course.level] || '';
+                  const embedUrl = getVimeoEmbedUrl(videoId);
+                  if (!embedUrl) return null;
+                  return (
+                    <>
+                      <div className="relative aspect-video rounded-3xl overflow-hidden mb-4 bg-black">
+                        <iframe
+                          src={embedUrl}
+                          className="absolute inset-0 w-full h-full"
+                          frameBorder="0"
+                          allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
+                          allowFullScreen
+                          referrerPolicy="strict-origin-when-cross-origin"
+                          title={`${course.title} preview`}
+                        />
+                      </div>
+                      <p className="text-sm text-gray-400 text-center mb-4 font-medium">
+                        {course.level.startsWith('kids')
+                          ? t('ebookDetail.videoDescriptionKids')
+                          : t('ebookDetail.videoDescription')}
+                      </p>
+                    </>
+                  );
+                })()}
 
                 {/* Quick highlights */}
                 <div className="space-y-3 px-2 pb-2">

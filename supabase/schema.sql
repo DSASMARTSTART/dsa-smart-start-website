@@ -240,6 +240,25 @@ ALTER TABLE progress ENABLE ROW LEVEL SECURITY;
 ALTER TABLE discount_codes ENABLE ROW LEVEL SECURITY;
 
 -- ============================================
+-- RLS HELPER FUNCTION
+-- ============================================
+-- SECURITY DEFINER function bypasses RLS to avoid infinite recursion
+-- when policies on the `users` table subquery `users` itself.
+CREATE OR REPLACE FUNCTION public.is_admin_or_editor()
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+STABLE
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.users
+    WHERE id::text = auth.uid()::text
+    AND role IN ('admin', 'editor')
+  );
+$$;
+
+-- ============================================
 -- RLS POLICIES
 -- ============================================
 -- Drop existing policies first (safe to run multiple times)
@@ -277,55 +296,31 @@ CREATE POLICY "Users can update own profile" ON users
   FOR UPDATE USING (auth.uid()::text = id::text);
 
 CREATE POLICY "Admins can manage all users" ON users
-  FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM users WHERE id::text = auth.uid()::text AND role IN ('admin', 'editor')
-    )
-  );
+  FOR ALL USING (public.is_admin_or_editor());
 
 -- Courses policies
 CREATE POLICY "Anyone can view published courses" ON courses
-  FOR SELECT USING (is_published = true OR 
-    EXISTS (
-      SELECT 1 FROM users WHERE id::text = auth.uid()::text AND role IN ('admin', 'editor')
-    )
-  );
+  FOR SELECT USING (is_published = true OR public.is_admin_or_editor());
 
 CREATE POLICY "Admins can manage courses" ON courses
-  FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM users WHERE id::text = auth.uid()::text AND role IN ('admin', 'editor')
-    )
-  );
+  FOR ALL USING (public.is_admin_or_editor());
 
 -- Enrollments policies
 CREATE POLICY "Users can view own enrollments" ON enrollments
-  FOR SELECT USING (user_id::text = auth.uid()::text OR
-    EXISTS (
-      SELECT 1 FROM users WHERE id::text = auth.uid()::text AND role IN ('admin', 'editor')
-    )
-  );
+  FOR SELECT USING (user_id::text = auth.uid()::text OR public.is_admin_or_editor());
 
 CREATE POLICY "Admins can manage enrollments" ON enrollments
-  FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM users WHERE id::text = auth.uid()::text AND role IN ('admin', 'editor')
-    )
-  );
+  FOR ALL USING (public.is_admin_or_editor());
 
 -- Purchases policies
 CREATE POLICY "Users can view own purchases" ON purchases
-  FOR SELECT USING (user_id::text = auth.uid()::text OR
-    EXISTS (
-      SELECT 1 FROM users WHERE id::text = auth.uid()::text AND role IN ('admin', 'editor')
-    )
-  );
+  FOR SELECT USING (user_id::text = auth.uid()::text OR public.is_admin_or_editor());
 
 -- Audit logs policies (admin only)
 CREATE POLICY "Admins can view audit logs" ON audit_logs
   FOR SELECT USING (
     EXISTS (
-      SELECT 1 FROM users WHERE id::text = auth.uid()::text AND role = 'admin'
+      SELECT 1 FROM public.users WHERE id::text = auth.uid()::text AND role = 'admin'
     )
   );
 
@@ -334,10 +329,7 @@ CREATE POLICY "System can insert audit logs" ON audit_logs
 
 -- Activities policies
 CREATE POLICY "Admins can view all activities" ON activities
-  FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM users WHERE id::text = auth.uid()::text AND role IN ('admin', 'editor')
-    )
+  FOR SELECT USING (public.is_admin_or_editor()
   );
 
 CREATE POLICY "System can insert activities" ON activities
@@ -345,11 +337,7 @@ CREATE POLICY "System can insert activities" ON activities
 
 -- Progress policies
 CREATE POLICY "Users can view own progress" ON progress
-  FOR SELECT USING (user_id::text = auth.uid()::text OR
-    EXISTS (
-      SELECT 1 FROM users WHERE id::text = auth.uid()::text AND role IN ('admin', 'editor')
-    )
-  );
+  FOR SELECT USING (user_id::text = auth.uid()::text OR public.is_admin_or_editor());
 
 CREATE POLICY "Users can update own progress" ON progress
   FOR INSERT WITH CHECK (user_id::text = auth.uid()::text);
@@ -364,7 +352,7 @@ CREATE POLICY "Anyone can read active discount codes for validation" ON discount
 CREATE POLICY "Admins can manage discount codes" ON discount_codes
   FOR ALL USING (
     EXISTS (
-      SELECT 1 FROM users WHERE id::text = auth.uid()::text AND role = 'admin'
+      SELECT 1 FROM public.users WHERE id::text = auth.uid()::text AND role = 'admin'
     )
   );
 
@@ -375,16 +363,12 @@ CREATE POLICY "Anyone can insert contact messages" ON contact_messages
   FOR INSERT WITH CHECK (true);
 
 CREATE POLICY "Admins can view contact messages" ON contact_messages
-  FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM users WHERE id::text = auth.uid()::text AND role IN ('admin', 'editor')
-    )
-  );
+  FOR SELECT USING (public.is_admin_or_editor());
 
 CREATE POLICY "Admins can manage contact messages" ON contact_messages
   FOR ALL USING (
     EXISTS (
-      SELECT 1 FROM users WHERE id::text = auth.uid()::text AND role = 'admin'
+      SELECT 1 FROM public.users WHERE id::text = auth.uid()::text AND role = 'admin'
     )
   );
 

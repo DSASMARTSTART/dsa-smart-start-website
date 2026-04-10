@@ -42,14 +42,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
-    if (!supabase) return;
+    if (!supabase) {
+      console.warn('fetchProfile: Supabase client not initialized');
+      return;
+    }
     const { data, error } = await supabase
       .from('users')
       .select('*')
       .eq('id', userId)
       .single();
     
-    if (!error && data) {
+    if (error) {
+      console.error('fetchProfile: Failed to load user profile:', error.message, error.details);
+      return;
+    }
+
+    if (data) {
       const userData = data as UserRow;
       setProfile({
         id: userData.id,
@@ -101,8 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Fetch profile but don't block loading
-          fetchProfile(session.user.id);
+          await fetchProfile(session.user.id);
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
@@ -120,7 +127,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          fetchProfile(session.user.id); // Don't await - let it run in background
+          await fetchProfile(session.user.id);
         } else {
           setProfile(null);
         }
@@ -152,7 +159,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .eq('id', data.user.id)
         .single();
       
-      if (!profileError && profileData) {
+      if (profileError) {
+        console.error('signIn: Failed to check user status:', profileError.message);
+      } else if (profileData) {
         const userStatus = (profileData as Pick<UserRow, 'status'>).status;
         if (userStatus === 'paused') {
           await supabase.auth.signOut();
