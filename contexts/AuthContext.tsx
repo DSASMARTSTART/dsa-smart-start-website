@@ -105,11 +105,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         if (!isMounted) return;
         
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          await fetchProfile(session.user.id);
+        if (session) {
+          // Validate the token is still valid by calling the server
+          // getSession() only reads localStorage — the token may be expired
+          const { data: { user: validUser }, error: userError } = await supabase.auth.getUser();
+          
+          if (!isMounted) return;
+          
+          if (userError || !validUser) {
+            // Session token is expired/invalid — clear it so requests fall back to anonymous
+            console.warn('Stored session is invalid, clearing:', userError?.message);
+            await supabase.auth.signOut();
+            setSession(null);
+            setUser(null);
+            setProfile(null);
+          } else {
+            setSession(session);
+            setUser(validUser);
+            await fetchProfile(validUser.id);
+          }
+        } else {
+          setSession(null);
+          setUser(null);
         }
       } catch (error) {
         console.error('Error initializing auth:', error);

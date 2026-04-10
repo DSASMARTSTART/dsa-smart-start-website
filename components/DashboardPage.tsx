@@ -128,14 +128,6 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
       }
 
       try {
-        // Validate that the session is still valid before fetching data
-        const { data: { user: validUser }, error: sessionError } = await supabase.auth.getUser();
-        if (sessionError || !validUser) {
-          console.error('Session invalid, signing out:', sessionError?.message);
-          await supabase.auth.signOut();
-          if (!isCancelled) setLoading(false);
-          return;
-        }
         // SELF-HEALING: Repair any completed purchases that are missing enrollments
         // This handles edge cases where webhook confirmed payment but enrollment wasn't created
         try {
