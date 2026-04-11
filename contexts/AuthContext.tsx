@@ -41,7 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = async (userId: string, retries = 2) => {
     if (!supabase) {
       console.warn('fetchProfile: Supabase client not initialized');
       return;
@@ -53,6 +53,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .single();
     
     if (error) {
+      // AbortError is transient (navigator.locks contention) — retry once
+      if (error.message?.includes('AbortError') && retries > 0) {
+        console.warn('fetchProfile: retrying after AbortError…');
+        return fetchProfile(userId, retries - 1);
+      }
       console.error('fetchProfile: Failed to load user profile:', error.message, error.details);
       return;
     }
@@ -81,67 +86,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Initialize auth state - run once on mount
     let isMounted = true;
-    
-    const initAuth = async () => {
-      try {
-        // Handle PKCE auth callback: exchange code for session after email confirmation/password reset
-        const params = new URLSearchParams(window.location.search);
-        const code = params.get('code');
-        if (code) {
-          const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
-          if (exchangeError) {
-            console.error('Error exchanging auth code for session:', exchangeError);
+    let initialised = false;
+
+    // Check if we arrived with a PKCE code (email confirmation / password reset).
+    // detectSessionInUrl: true handles the actual exchange; we just need to
+    // redirect to #dashboard afterwards.
+    const params = new URLSearchParams(window.location.search);
+    const hadPkceCode = params.has('code');
+
+    // Use onAuthStateChange as the SOLE mechanism for session state.
+    // This avoids calling getSession() / exchangeCodeForSession() manually,
+    // which compete for the navigator.locks auth lock held by the client's
+    // internal _initialize() and cause AbortError cascades.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (!isMounted) return;
+
+        // INITIAL_SESSION fires once after the client finishes initialising
+        // (including automatic PKCE code exchange when detectSessionInUrl is true).
+        if (event === 'INITIAL_SESSION') {
+          initialised = true;
+
+          if (hadPkceCode) {
+            // Clean up the ?code= query string, then navigate to dashboard
+            window.history.replaceState({}, '', window.location.pathname);
+            window.location.hash = '#dashboard';
           }
-          
-          // Clean up query string, then navigate to dashboard
-          window.history.replaceState({}, '', window.location.pathname);
-          window.location.hash = '#dashboard';
         }
 
-        // getSession() reads from localStorage only — no network call, can't hang.
-        // Do NOT use getUser() here: it makes a network request that browser
-        // extensions can intercept/block, causing an infinite loading spinner.
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (!isMounted) return;
-        
         setSession(session);
         setUser(session?.user ?? null);
-        
+
         if (session?.user) {
           // Fire profile fetch in background — don't block auth loading
           fetchProfile(session.user.id).catch((err) => {
             console.warn('Background profile fetch failed:', err);
           });
-        }
-      } catch (error) {
-        console.error('Error initializing auth:', error);
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    };
-
-    // Safety timeout: if initAuth somehow hangs (e.g. PKCE exchange blocked by extension),
-    // force authLoading to false after 5 seconds so the app is never stuck on a spinner.
-    const safetyTimer = setTimeout(() => {
-      if (isMounted && loading) {
-        console.warn('Auth init safety timeout — forcing loading to false');
-        setLoading(false);
-      }
-    }, 5000);
-
-    initAuth().finally(() => clearTimeout(safetyTimer));
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (!isMounted) return;
-        
-        setSession(session);
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          await fetchProfile(session.user.id);
         } else {
           setProfile(null);
           // Clear user-specific caches when session ends
@@ -155,8 +136,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (event === 'PASSWORD_RECOVERY') {
           window.location.hash = '#reset-password';
         }
+
+        // Stop loading spinner once initial session is resolved
+        if (event === 'INITIAL_SESSION' && isMounted) {
+          setLoading(false);
+        }
       }
     );
+
+    // Safety timeout: if INITIAL_SESSION never fires (e.g. network issue),
+    // force loading to false so the app is never stuck on a spinner.
+    const safetyTimer = setTimeout(() => {
+      if (isMounted && !initialised) {
+        console.warn('Auth init safety timeout — forcing loading to false');
+        setLoading(false);
+      }
+    }, 8000);
 
     return () => {
       isMounted = false;
@@ -173,24 +168,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     // Check user status after successful authentication
     if (data.user) {
-      const { data: profileData, error: profileError } = await supabase
-        .from('users')
-        .select('status')
-        .eq('id', data.user.id)
-        .single();
-      
-      if (profileError) {
-        console.error('signIn: Failed to check user status:', profileError.message);
-      } else if (profileData) {
-        const userStatus = (profileData as Pick<UserRow, 'status'>).status;
-        if (userStatus === 'paused') {
-          await supabase.auth.signOut();
-          return { error: new Error('Your account has been paused. Please contact support.') };
+      try {
+        const { data: profileData, error: profileError } = await supabase
+          .from('users')
+          .select('status')
+          .eq('id', data.user.id)
+          .single();
+        
+        if (profileError) {
+          // AbortError is transient (navigator.locks contention) — don't block login
+          if (profileError.message?.includes('AbortError')) {
+            console.warn('signIn: Status check aborted, proceeding with login');
+          } else {
+            console.error('signIn: Failed to check user status:', profileError.message);
+          }
+        } else if (profileData) {
+          const userStatus = (profileData as Pick<UserRow, 'status'>).status;
+          if (userStatus === 'paused') {
+            await supabase.auth.signOut();
+            return { error: new Error('Your account has been paused. Please contact support.') };
+          }
+          if (userStatus === 'deleted') {
+            await supabase.auth.signOut();
+            return { error: new Error('This account has been deactivated.') };
+          }
         }
-        if (userStatus === 'deleted') {
-          await supabase.auth.signOut();
-          return { error: new Error('This account has been deactivated.') };
-        }
+      } catch (e) {
+        // Network / AbortError — profile will be checked via onAuthStateChange anyway
+        console.warn('signIn: Status check exception, proceeding:', e);
       }
     }
     
