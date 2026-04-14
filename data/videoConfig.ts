@@ -26,7 +26,7 @@ export const ebookVimeoMap: VimeoMap = {
     'B2': '',
     'kids-basic': '1181773462',
     'kids-medium': '1181773849',
-    'kids-advanced': '1181773071',
+    'kids-advanced': '1182976526',
   },
   sr: {
     'A1': '',
