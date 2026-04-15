@@ -9,7 +9,7 @@ import WaveSeparator from './WaveSeparator';
 import AssessmentPopup from './AssessmentPopup';
 
 // Tab type for navigation
-type CatalogTab = 'live' | 'ebooks';
+type CatalogTab = 'live' | 'ebooks' | 'interactive';
 
 // Category Selector Component — Two large visual cards matching the design
 const CategorySelector: React.FC<{ activeTab: CatalogTab; onTabChange: (tab: CatalogTab) => void }> = ({ activeTab, onTabChange }) => {
@@ -46,18 +46,20 @@ const CategorySelector: React.FC<{ activeTab: CatalogTab; onTabChange: (tab: Cat
         <span className="text-sm sm:text-base font-black text-white uppercase tracking-widest leading-tight text-center">{t('coursesPage.tabs.ebook')}</span>
       </button>
 
-      {/* Interactive Courses Card — Coming Soon */}
-      <div
-        className="group relative flex flex-col items-center justify-center p-6 sm:p-8 rounded-3xl border-2 border-white/20 bg-white/5 opacity-60 cursor-default"
+      {/* Interactive Courses Card */}
+      <button
+        onClick={() => onTabChange('interactive')}
+        className={`group relative flex flex-col items-center justify-center p-6 sm:p-8 rounded-3xl border-2 transition-all duration-300 ${
+          activeTab === 'interactive'
+            ? 'border-cyan-400 bg-cyan-400/10 shadow-lg shadow-cyan-400/20 scale-[1.02]'
+            : 'border-white/20 bg-white/5 hover:border-cyan-400/50 hover:bg-white/10'
+        }`}
       >
-        <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-[#AB8FFF] text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider">
-          {t('coursesPage.tabs.comingSoon')}
-        </span>
-        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center mb-4 shadow-lg">
+        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center mb-4 shadow-lg group-hover:scale-105 transition-transform">
           <MonitorPlay size={36} className="text-white" />
         </div>
         <span className="text-sm sm:text-base font-black text-white uppercase tracking-widest leading-tight text-center">{t('coursesPage.tabs.interactiveCourses').split('\n').map((l, i) => <React.Fragment key={i}>{i > 0 && <br/>}{l}</React.Fragment>)}</span>
-      </div>
+      </button>
     </div>
   );
 };
@@ -832,105 +834,121 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
               </div>
             )}
 
-            {/* Interactive Courses Sub-section */}
-            {(adultLearndash.length > 0 || kidsLearndash.length > 0) && (
-              <div className="mt-24">
-                <div className="text-center mb-16">
-                  <div className="flex items-center justify-center gap-4 mb-6">
-                    <div className="h-[1px] w-16 bg-gradient-to-r from-transparent to-[#AB8FFF]"></div>
-                    <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#AB8FFF]/20 border border-[#AB8FFF]/30">
-                      <MonitorPlay size={14} className="text-[#AB8FFF]" />
-                      <span className="text-[10px] font-black uppercase tracking-widest text-[#AB8FFF]">{t('coursesPage.interactiveSection.badge')}</span>
-                    </div>
-                    <div className="h-[1px] w-16 bg-gradient-to-l from-transparent to-[#AB8FFF]"></div>
+          </div>
+        )}
+
+        {/* ============================================ */}
+        {/* INTERACTIVE COURSES TAB                      */}
+        {/* ============================================ */}
+        {activeTab === 'interactive' && (
+          <div className="animate-fadeIn">
+            <div className="text-center mb-16">
+              <div className="flex items-center justify-center gap-4 mb-6">
+                <div className="h-[1px] w-16 bg-gradient-to-r from-transparent to-cyan-400"></div>
+                <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/20 border border-cyan-500/30">
+                  <MonitorPlay size={14} className="text-cyan-400" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400">{t('coursesPage.interactiveSection.badge')}</span>
+                </div>
+                <div className="h-[1px] w-16 bg-gradient-to-l from-transparent to-cyan-400"></div>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
+                {t('coursesPage.interactiveSection.title', { returnObjects: false }).split('<1>').map((part: string, i: number) => {
+                  if (i === 0) return part;
+                  const [highlighted, rest] = part.split('</1>');
+                  return <React.Fragment key={i}><span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">{highlighted}</span>{rest}</React.Fragment>;
+                })}
+              </h2>
+              <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+                {t('coursesPage.interactiveSection.description')}
+              </p>
+            </div>
+
+            {/* Adults & Teens Interactive */}
+            {adultLearndash.length > 0 && (
+              <div className="mb-16">
+                <div className="flex items-center gap-6 mb-6">
+                  <div className="flex items-center gap-3">
+                    <MonitorPlay size={20} className="text-cyan-400" />
+                    <h3 className="text-2xl font-black text-white whitespace-nowrap">{t('coursesPage.audienceLabels.adultsTeens')}</h3>
                   </div>
-                  <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
-                    {t('coursesPage.interactiveSection.title', { returnObjects: false }).split('<1>').map((part: string, i: number) => {
-                      if (i === 0) return part;
-                      const [highlighted, rest] = part.split('</1>');
-                      return <React.Fragment key={i}><span className="text-transparent bg-clip-text bg-gradient-to-r from-[#AB8FFF] to-pink-500">{highlighted}</span>{rest}</React.Fragment>;
-                    })}
-                  </h2>
-                  <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-                    {t('coursesPage.interactiveSection.description')}
-                  </p>
+                  <div className="h-[2px] flex-grow bg-gradient-to-r from-cyan-400 to-transparent rounded-full"></div>
                 </div>
 
-                {/* Adults & Teens Interactive */}
-                {adultLearndash.length > 0 && (
-                  <div className="mb-16">
-                    <div className="flex items-center gap-6 mb-6">
-                      <div className="flex items-center gap-3">
-                        <MonitorPlay size={20} className="text-[#AB8FFF]" />
-                        <h3 className="text-2xl font-black text-white whitespace-nowrap">{t('coursesPage.audienceLabels.adultsTeens')}</h3>
-                      </div>
-                      <div className="h-[2px] flex-grow bg-gradient-to-r from-[#AB8FFF] to-transparent rounded-full"></div>
-                    </div>
+                <div className="mb-8 flex justify-center">
+                  <button 
+                    onClick={() => handleOpenAssessment('teens_adults')}
+                    className="inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
+                  >
+                    <GraduationCap size={20} />
+                    {t('coursesPage.assessmentButtons.takeTestTeens')}
+                  </button>
+                </div>
 
-                    <div className="mb-8 flex justify-center">
-                      <button 
-                        onClick={() => handleOpenAssessment('teens_adults')}
-                        className="inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
-                      >
-                        <GraduationCap size={20} />
-                        {t('coursesPage.assessmentButtons.takeTestTeens')}
-                      </button>
-                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-reveal stagger-1">
+                  {adultLearndash.map((course, idx) => (
+                    <CourseCard 
+                      key={course.id || idx} 
+                      course={course} 
+                      idx={idx}
+                      isInCart={cartIds.includes(course.id)}
+                      onAddToCart={addToCart}
+                      onRemoveFromCart={removeFromCart}
+                      onDetail={onNavigate ? () => onNavigate('ebook', course.id) : undefined}
+                      onBuyNow={onEnroll ? () => onEnroll(course.id) : undefined}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-reveal stagger-1">
-                      {adultLearndash.map((course, idx) => (
-                        <CourseCard 
-                          key={course.id || idx} 
-                          course={course} 
-                          idx={idx}
-                          isInCart={cartIds.includes(course.id)}
-                          onAddToCart={addToCart}
-                          onRemoveFromCart={removeFromCart}
-                          onDetail={onNavigate ? () => onNavigate('ebook', course.id) : undefined}
-                          onBuyNow={onEnroll ? () => onEnroll(course.id) : undefined}
-                        />
-                      ))}
-                    </div>
+            {/* Kids Interactive */}
+            {kidsLearndash.length > 0 && (
+              <div className="mb-16">
+                <div className="flex items-center gap-6 mb-6">
+                  <div className="flex items-center gap-3">
+                    <MonitorPlay size={20} className="text-pink-400" />
+                    <h3 className="text-2xl font-black text-white whitespace-nowrap">{t('coursesPage.audienceLabels.kids')}</h3>
                   </div>
-                )}
+                  <div className="h-[2px] flex-grow bg-gradient-to-r from-pink-400 to-transparent rounded-full"></div>
+                </div>
 
-                {/* Kids Interactive */}
-                {kidsLearndash.length > 0 && (
-                  <div className="mb-16">
-                    <div className="flex items-center gap-6 mb-6">
-                      <div className="flex items-center gap-3">
-                        <MonitorPlay size={20} className="text-pink-400" />
-                        <h3 className="text-2xl font-black text-white whitespace-nowrap">{t('coursesPage.audienceLabels.kids')}</h3>
-                      </div>
-                      <div className="h-[2px] flex-grow bg-gradient-to-r from-pink-400 to-transparent rounded-full"></div>
-                    </div>
+                <div className="mb-8 flex justify-center">
+                  <button 
+                    onClick={() => handleOpenAssessment('kids')}
+                    className="inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
+                  >
+                    <Baby size={20} />
+                    {t('coursesPage.assessmentButtons.takeTestKids')}
+                  </button>
+                </div>
 
-                    <div className="mb-8 flex justify-center">
-                      <button 
-                        onClick={() => handleOpenAssessment('kids')}
-                        className="inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#25D366]/30 active:scale-95"
-                      >
-                        <Baby size={20} />
-                        {t('coursesPage.assessmentButtons.takeTestKids')}
-                      </button>
-                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-reveal stagger-1">
+                  {kidsLearndash.map((course, idx) => (
+                    <CourseCard 
+                      key={course.id || idx} 
+                      course={course} 
+                      idx={idx}
+                      isInCart={cartIds.includes(course.id)}
+                      onAddToCart={addToCart}
+                      onRemoveFromCart={removeFromCart}
+                      onDetail={onNavigate ? () => onNavigate('ebook', course.id) : undefined}
+                      onBuyNow={onEnroll ? () => onEnroll(course.id) : undefined}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-reveal stagger-1">
-                      {kidsLearndash.map((course, idx) => (
-                        <CourseCard 
-                          key={course.id || idx} 
-                          course={course} 
-                          idx={idx}
-                          isInCart={cartIds.includes(course.id)}
-                          onAddToCart={addToCart}
-                          onRemoveFromCart={removeFromCart}
-                          onDetail={onNavigate ? () => onNavigate('ebook', course.id) : undefined}
-                          onBuyNow={onEnroll ? () => onEnroll(course.id) : undefined}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
+            {/* Empty State */}
+            {adultLearndash.length === 0 && kidsLearndash.length === 0 && (
+              <div className="text-center py-20 bg-white/5 rounded-3xl border border-dashed border-white/10">
+                <div className="w-16 h-16 bg-cyan-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-cyan-400">
+                  <MonitorPlay size={24} />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">{t('coursesPage.emptyStates.coursesComingSoonTitle')}</h3>
+                <p className="text-gray-400 font-medium max-w-md mx-auto">
+                  {t('coursesPage.emptyStates.coursesComingSoonDesc')}
+                </p>
               </div>
             )}
           </div>
