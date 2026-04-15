@@ -57,6 +57,12 @@
     "purchased": "Kupljeno {{date}}"
   },
 
+  "quizResults": {
+    "quiz1Label": "Provera 1",
+    "quiz2Label": "Provera 2",
+    "quiz3Label": "Provera 3"
+  },
+
   "stats": {
     "title": "Statistike uživo",
     "itemsCompleted": "Stavke završene",

@@ -1,11 +1,13 @@
 
-import React, { useState, useEffect } from 'react';
-import { ArrowLeft, CheckCircle2, Circle, ChevronRight, PlayCircle, BookOpen, Clock, FileText, ChevronDown, ChevronUp, ClipboardCheck, Download, ExternalLink, Lock } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { ArrowLeft, CheckCircle2, Circle, ChevronRight, PlayCircle, BookOpen, Clock, FileText, ChevronDown, ChevronUp, ClipboardCheck, Download, ExternalLink, Lock, Trophy } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { coursesApi, enrollmentsApi, videoHelpers } from '../data/supabaseStore';
-import { Course, Module, Lesson, Homework } from '../types';
+import { Course, Module, Lesson, Homework, QuizResult } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { useUserProgress } from '../hooks/useUserProgress';
+import QuizRenderer from './QuizRenderer';
+import { getQuizForModule } from '../data/quizHelpers';
 
 interface CourseViewerProps {
   courseId: string;
@@ -22,6 +24,31 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
   const [isEnrolled, setIsEnrolled] = useState<boolean | null>(null); // null = checking
   const [activeModuleId, setActiveModuleId] = useState<string>('');
   const [selectedItemId, setSelectedItemId] = useState<string>('');
+  const [quizAttempts, setQuizAttempts] = useState<Record<string, QuizResult[]>>({});
+
+  // Quiz completion handler
+  const handleQuizComplete = useCallback((moduleId: string, result: Pick<QuizResult, 'score' | 'totalQuestions' | 'exerciseScores' | 'answers'>) => {
+    const newResult: QuizResult = {
+      id: crypto.randomUUID(),
+      userId: user?.id ?? '',
+      courseId,
+      moduleId,
+      score: result.score,
+      totalQuestions: result.totalQuestions,
+      exerciseScores: result.exerciseScores,
+      answers: result.answers,
+      attemptNumber: (quizAttempts[moduleId]?.length ?? 0) + 1,
+      completedAt: new Date().toISOString(),
+    };
+    setQuizAttempts(prev => ({
+      ...prev,
+      [moduleId]: [...(prev[moduleId] ?? []), newResult],
+    }));
+    // Mark checkpoint as completed in progress
+    if (!progress[`${courseId}_${moduleId}`]) {
+      toggleProgress(courseId, moduleId);
+    }
+  }, [user, courseId, quizAttempts, progress, toggleProgress]);
 
   // Load course and check enrollment IN PARALLEL for faster loading
   useEffect(() => {
@@ -181,19 +208,45 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
   const selectedHomework = moduleHomework.find(h => h.id === selectedItemId);
   const selectedItem = selectedLesson || selectedHomework || moduleLessons[0];
 
+  // Checkpoint quiz detection
+  const isCheckpointActive = !!currentModule?.isCheckpoint;
+  const quizQuestions = isCheckpointActive ? getQuizForModule(currentModule.id) : undefined;
+
   const isCompleted = (id: string) => !!progress[`${courseId}_${id}`];
   
   const calculateCourseProgress = () => {
     let total = 0;
     let done = 0;
     course.modules.forEach(m => {
-      (m.lessons || []).forEach(l => { total++; if (isCompleted(l.id)) done++; });
-      (m.homework || []).forEach(h => { total++; if (isCompleted(h.id)) done++; });
+      if (m.isCheckpoint) {
+        total++;
+        if (isCompleted(m.id)) done++;
+      } else {
+        (m.lessons || []).forEach(l => { total++; if (isCompleted(l.id)) done++; });
+        (m.homework || []).forEach(h => { total++; if (isCompleted(h.id)) done++; });
+      }
     });
     return total > 0 ? Math.round((done / total) * 100) : 0;
   };
 
   const handleNext = () => {
+    // If currently on a checkpoint, go to next module
+    if (isCheckpointActive) {
+      if (currentModuleIndex < course.modules.length - 1) {
+        const nextModule = course.modules[currentModuleIndex + 1];
+        setActiveModuleId(nextModule.id);
+        if (nextModule.isCheckpoint) {
+          setSelectedItemId(nextModule.id);
+        } else {
+          setSelectedItemId((nextModule.lessons || [])[0]?.id || '');
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        onBack();
+      }
+      return;
+    }
+
     const currentItems = [...moduleLessons, ...moduleHomework];
     const currentIndex = currentItems.findIndex(item => item.id === selectedItemId);
 
@@ -203,7 +256,11 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
     } else if (currentModuleIndex < course.modules.length - 1) {
       const nextModule = course.modules[currentModuleIndex + 1];
       setActiveModuleId(nextModule.id);
-      setSelectedItemId((nextModule.lessons || [])[0]?.id || '');
+      if (nextModule.isCheckpoint) {
+        setSelectedItemId(nextModule.id);
+      } else {
+        setSelectedItemId((nextModule.lessons || [])[0]?.id || '');
+      }
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       onBack();
@@ -211,6 +268,14 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
   };
 
   const getNextLabel = () => {
+    // If on checkpoint, next is the next module
+    if (isCheckpointActive) {
+      if (currentModuleIndex < course.modules.length - 1) {
+        return t('courseViewer.nextModule', { title: course.modules[currentModuleIndex + 1].title });
+      }
+      return t('courseViewer.courseComplete');
+    }
+
     const currentItems = [...moduleLessons, ...moduleHomework];
     const currentIndex = currentItems.findIndex(item => item.id === selectedItemId);
 
@@ -275,7 +340,56 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
         {/* Sidebar */}
         <div className="lg:col-span-4 bg-white/5 border-r border-white/10 h-full lg:sticky lg:top-[184px] lg:h-[calc(100vh-184px)] overflow-y-auto custom-scrollbar p-6">
           <div className="space-y-6">
-            {course.modules.map((module, idx) => (
+            {course.modules.map((module, idx) => {
+              // ── Checkpoint Module ──
+              if (module.isCheckpoint) {
+                const checkpointCompleted = isCompleted(module.id);
+                const bestScore = quizAttempts[module.id]?.reduce((best, a) => a.score > best ? a.score : best, 0);
+                const bestTotal = quizAttempts[module.id]?.[0]?.totalQuestions;
+                return (
+                  <div key={module.id}>
+                    <button
+                      onClick={() => { setActiveModuleId(module.id); setSelectedItemId(module.id); }}
+                      className={`w-full text-left p-4 rounded-2xl flex items-center justify-between transition-all ${
+                        activeModuleId === module.id
+                          ? 'bg-amber-500/10 border border-amber-500/20'
+                          : 'hover:bg-white/5'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                          activeModuleId === module.id ? 'bg-amber-500 text-black' : 'bg-amber-500/10 text-amber-400'
+                        }`}>
+                          <ClipboardCheck size={16} />
+                        </div>
+                        <div>
+                          <h4 className={`text-sm font-black uppercase tracking-tight ${
+                            activeModuleId === module.id ? 'text-amber-300' : 'text-white'
+                          }`}>
+                            {module.title}
+                          </h4>
+                          <span className="text-[9px] font-bold text-amber-500/60 uppercase tracking-widest">
+                            {t('courseViewer.stopAndCheck', 'Stop & Check')}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {checkpointCompleted && bestScore != null && bestTotal && (
+                          <span className="text-[10px] font-black text-green-400">{bestScore}/{bestTotal}</span>
+                        )}
+                        {checkpointCompleted ? (
+                          <CheckCircle2 size={16} className="text-green-400" />
+                        ) : (
+                          <Trophy size={16} className="text-amber-500/40" />
+                        )}
+                      </div>
+                    </button>
+                  </div>
+                );
+              }
+
+              // ── Regular Module ──
+              return (
               <div key={module.id} className="space-y-3">
                 <button 
                   onClick={() => setActiveModuleId(module.id)}
@@ -340,7 +454,8 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
                   </div>
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -351,9 +466,24 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
             <ChevronRight size={10} className="text-gray-600" />
             <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">{course.title}</span>
             <ChevronRight size={10} className="text-gray-600" />
-            <span className="text-[9px] font-bold text-purple-400 uppercase tracking-widest">{selectedItem?.title}</span>
+            <span className={`text-[9px] font-bold uppercase tracking-widest ${isCheckpointActive ? 'text-amber-400' : 'text-purple-400'}`}>
+              {isCheckpointActive ? currentModule.title : selectedItem?.title}
+            </span>
           </div>
 
+          {/* ── Checkpoint Quiz View ── */}
+          {isCheckpointActive && quizQuestions ? (
+            <div className="bg-white/5 rounded-[3rem] border border-amber-500/20 shadow-xl shadow-amber-500/10 overflow-hidden mb-12">
+              <QuizRenderer
+                courseId={courseId}
+                module={currentModule}
+                quizQuestions={quizQuestions}
+                onComplete={(result) => handleQuizComplete(currentModule.id, result)}
+                previousAttempts={quizAttempts[currentModule.id] ?? []}
+              />
+            </div>
+          ) : (
+          <>
           <div className="bg-white/5 rounded-[3rem] border border-white/10 shadow-xl shadow-purple-500/10 overflow-hidden mb-12">
             {selectedLesson ? (
               selectedLesson.type === 'video' ? (
@@ -484,6 +614,8 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
                </button>
             </div>
           </div>
+          </>
+          )}
 
           <button 
             onClick={handleNext}

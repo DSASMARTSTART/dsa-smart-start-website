@@ -119,10 +119,21 @@ const A1_MODULES: Module[] = [
     ]
   },
   {
+    id: 'a1-quiz1',
+    title: 'Stop & Check: Units 1-5',
+    description: 'Test your knowledge from Units 1-5 with image-word matching, multiple choice, and fill-in-the-blank exercises.',
+    order: 2,
+    isCheckpoint: true,
+    lessons: [
+      { id: 'a1-quiz1-l1', title: 'Stop & Check: Units 1-5', duration: '20m', type: 'quiz', order: 1 }
+    ],
+    homework: []
+  },
+  {
     id: 'a1-m2',
     title: 'Daily Expression',
     description: 'Learn everyday English expressions and tenses',
-    order: 2,
+    order: 3,
     lessons: [
       { id: 'a1-l6', title: 'Unit 6: Saxon Genitive', duration: '18m', type: 'video', order: 1 },
       { id: 'a1-l7', title: 'Unit 7: Demonstratives', duration: '14m', type: 'video', order: 2 },
@@ -135,10 +146,21 @@ const A1_MODULES: Module[] = [
     ]
   },
   {
+    id: 'a1-quiz2',
+    title: 'Stop & Check: Units 6-10',
+    description: 'Test your knowledge from Units 6-10 with image-word matching, multiple choice, and fill-in-the-blank exercises.',
+    order: 4,
+    isCheckpoint: true,
+    lessons: [
+      { id: 'a1-quiz2-l1', title: 'Stop & Check: Units 6-10', duration: '20m', type: 'quiz', order: 1 }
+    ],
+    homework: []
+  },
+  {
     id: 'a1-m3',
     title: 'Advanced Foundations',
     description: 'Build on your foundation with more complex structures',
-    order: 3,
+    order: 5,
     lessons: [
       { id: 'a1-l11', title: 'Unit 11: Imperative Forms', duration: '10m', type: 'reading', order: 1 },
       { id: 'a1-l12', title: 'Unit 12: Modal Verb WILL', duration: '15m', type: 'video', order: 2 },
@@ -147,10 +169,21 @@ const A1_MODULES: Module[] = [
       { id: 'a1-l15', title: 'Unit 15: Present Continuous', duration: '22m', type: 'video', order: 5 },
     ],
     homework: []
+  },
+  {
+    id: 'a1-quiz3',
+    title: 'Stop & Check: Units 11-15',
+    description: 'Test your knowledge from Units 11-15 with image-word matching, multiple choice, and fill-in-the-blank exercises.',
+    order: 6,
+    isCheckpoint: true,
+    lessons: [
+      { id: 'a1-quiz3-l1', title: 'Stop & Check: Units 11-15', duration: '20m', type: 'quiz', order: 1 }
+    ],
+    homework: []
   }
 ];
 
-// A1 Grammar Topics Modules (15 units)
+// A1 Grammar Topics Modules (15 units + 3 Stop & Check quizzes)
 const A1_GRAMMAR_MODULES: Module[] = [
   {
     id: 'a1-grammar-m1',
@@ -169,10 +202,21 @@ const A1_GRAMMAR_MODULES: Module[] = [
     ]
   },
   {
+    id: 'a1-quiz1',
+    title: 'Stop & Check: Units 1-5',
+    description: 'Test your knowledge from Units 1-5 with image-word matching, multiple choice, and fill-in-the-blank exercises.',
+    order: 2,
+    isCheckpoint: true,
+    lessons: [
+      { id: 'a1-quiz1-l1', title: 'Stop & Check: Units 1-5', duration: '20m', type: 'quiz', order: 1 }
+    ],
+    homework: []
+  },
+  {
     id: 'a1-grammar-m2',
     title: 'Daily Expression',
     description: 'Learn everyday English expressions and tenses',
-    order: 2,
+    order: 3,
     lessons: [
       { id: 'a1-g6', title: 'Unit 6: Past simple of the verb TO BE affirmative, negative, and question form', duration: '15m', type: 'video', order: 1 },
       { id: 'a1-g7', title: 'Unit 7: Present simple affirmative, negative, and question form; adverbs of frequency', duration: '18m', type: 'video', order: 2 },
@@ -185,16 +229,38 @@ const A1_GRAMMAR_MODULES: Module[] = [
     ]
   },
   {
+    id: 'a1-quiz2',
+    title: 'Stop & Check: Units 6-10',
+    description: 'Test your knowledge from Units 6-10 with image-word matching, multiple choice, and fill-in-the-blank exercises.',
+    order: 4,
+    isCheckpoint: true,
+    lessons: [
+      { id: 'a1-quiz2-l1', title: 'Stop & Check: Units 6-10', duration: '20m', type: 'quiz', order: 1 }
+    ],
+    homework: []
+  },
+  {
     id: 'a1-grammar-m3',
     title: 'Advanced Foundations',
     description: 'Build on your foundation with more complex structures',
-    order: 3,
+    order: 5,
     lessons: [
       { id: 'a1-g11', title: 'Unit 11: The modal verbs CAN and COULD used in present and past simple', duration: '15m', type: 'video', order: 1 },
       { id: 'a1-g12', title: 'Unit 12: Object pronouns', duration: '12m', type: 'video', order: 2 },
       { id: 'a1-g13', title: 'Unit 13: Have and have got affirmative, negative, and question form', duration: '14m', type: 'video', order: 3 },
       { id: 'a1-g14', title: 'Unit 14: Prepositions of time and prepositions of place', duration: '12m', type: 'reading', order: 4 },
       { id: 'a1-g15', title: 'Unit 15: Present continuous affirmative, negative, and question form', duration: '18m', type: 'video', order: 5 },
+    ],
+    homework: []
+  },
+  {
+    id: 'a1-quiz3',
+    title: 'Stop & Check: Units 11-15',
+    description: 'Test your knowledge from Units 11-15 with image-word matching, multiple choice, and fill-in-the-blank exercises.',
+    order: 6,
+    isCheckpoint: true,
+    lessons: [
+      { id: 'a1-quiz3-l1', title: 'Stop & Check: Units 11-15', duration: '20m', type: 'quiz', order: 1 }
     ],
     homework: []
   }

@@ -1930,6 +1930,87 @@ export const categoriesApi = {
 };
 
 // ============================================
+// QUIZ RESULTS API
+// ============================================
+export const quizResultsApi = {
+  /** Save a quiz attempt (inserts a new row each time). */
+  saveResult: async (result: {
+    userId: string;
+    courseId: string;
+    moduleId: string;
+    score: number;
+    totalQuestions: number;
+    exerciseScores: Record<number, { correct: number; total: number }>;
+    answers: Record<string, string>;
+    attemptNumber: number;
+  }): Promise<void> => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase as any)
+      .from('quiz_results')
+      .insert({
+        user_id: result.userId,
+        course_id: result.courseId,
+        module_id: result.moduleId,
+        score: result.score,
+        total_questions: result.totalQuestions,
+        exercise_scores: result.exerciseScores,
+        answers: result.answers,
+        attempt_number: result.attemptNumber,
+        completed_at: now(),
+      });
+
+    if (error) throw new Error(error.message);
+  },
+
+  /** Fetch all quiz attempts for a user in a specific course. */
+  getResults: async (userId: string, courseId: string): Promise<import('../types').QuizResult[]> => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
+      .from('quiz_results')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('course_id', courseId)
+      .order('completed_at', { ascending: false });
+
+    if (error) return [];
+
+    return (data || []).map((row: Record<string, unknown>) => toCamelCase<import('../types').QuizResult>(row));
+  },
+
+  /** Fetch the best (highest-score) attempt for a specific quiz module. */
+  getBestResult: async (userId: string, courseId: string, moduleId: string): Promise<import('../types').QuizResult | null> => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
+      .from('quiz_results')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('course_id', courseId)
+      .eq('module_id', moduleId)
+      .order('score', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (error || !data) return null;
+
+    return toCamelCase<import('../types').QuizResult>(data as Record<string, unknown>);
+  },
+
+  /** Get the number of attempts a user has made for a specific quiz module. */
+  getAttemptCount: async (userId: string, courseId: string, moduleId: string): Promise<number> => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { count, error } = await (supabase as any)
+      .from('quiz_results')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('course_id', courseId)
+      .eq('module_id', moduleId);
+
+    if (error) return 0;
+    return count || 0;
+  },
+};
+
+// ============================================
 // CATALOG API - Products & Services
 // ============================================
 export const catalogApi = {

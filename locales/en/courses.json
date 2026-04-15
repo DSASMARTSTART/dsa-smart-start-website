@@ -1298,5 +1298,33 @@
         "Anyone committed to achieving English fluency"
       ]
     }
+  },
+  "quiz": {
+    "exercises": "Exercises",
+    "questions": "Questions",
+    "bestScore": "Best Score",
+    "ex1Desc": "Exercise 1: Write the correct word under each image",
+    "ex2Desc": "Exercise 2: Choose the correct answer (a, b, or c)",
+    "ex3Desc": "Exercise 3: Fill in the missing word",
+    "startQuiz": "Start Quiz",
+    "exerciseOf": "Exercise {{current}} of {{total}}",
+    "exercise1Title": "Image & Word",
+    "exercise2Title": "Multiple Choice",
+    "exercise3Title": "Fill in the Blank",
+    "exercise1Instruction": "Write the correct word under each image.",
+    "exercise2Instruction": "Choose the correct answer.",
+    "exercise3Instruction": "Fill in the missing word in each sentence.",
+    "answered": "answered",
+    "prevExercise": "Previous",
+    "nextExercise": "Next Exercise",
+    "submitQuiz": "Submit Quiz",
+    "confirmSubmit": "Are you sure?",
+    "cancel": "Cancel",
+    "confirmYes": "Submit",
+    "greatJob": "Great Job!",
+    "keepPracticing": "Keep Practicing!",
+    "correct": "correct",
+    "reviewAnswers": "Review Answers",
+    "retakeQuiz": "Retake Quiz"
   }
 }

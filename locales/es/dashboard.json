@@ -57,6 +57,12 @@
     "purchased": "Comprado el {{date}}"
   },
 
+  "quizResults": {
+    "quiz1Label": "Evaluación 1",
+    "quiz2Label": "Evaluación 2",
+    "quiz3Label": "Evaluación 3"
+  },
+
   "stats": {
     "title": "Estadísticas en Vivo",
     "itemsCompleted": "Ítems Completados",

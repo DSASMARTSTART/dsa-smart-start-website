@@ -57,6 +57,12 @@
     "purchased": "Acquistato il {{date}}"
   },
 
+  "quizResults": {
+    "quiz1Label": "Verifica 1",
+    "quiz2Label": "Verifica 2",
+    "quiz3Label": "Verifica 3"
+  },
+
   "stats": {
     "title": "Statistiche in tempo reale",
     "itemsCompleted": "Elementi completati",

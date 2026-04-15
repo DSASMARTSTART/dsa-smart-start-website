@@ -52,7 +52,7 @@ export interface QuizOption {
   isCorrect: boolean;
 }
 
-export type QuizQuestionType = 'multiple-choice' | 'true-false' | 'photo';
+export type QuizQuestionType = 'multiple-choice' | 'true-false' | 'photo' | 'fill-in-blank' | 'image-word';
 
 export interface QuizQuestion {
   id: string;
@@ -60,7 +60,9 @@ export interface QuizQuestion {
   question: string;
   imageUrl?: string;
   options?: QuizOption[];
-  correctAnswer?: boolean; // For simple boolean logic
+  correctAnswer?: string;
+  acceptableAnswers?: string[];
+  exerciseGroup?: number;
   explanation?: string;
   order: number;
 }
@@ -95,6 +97,7 @@ export interface Module {
   description?: string;
   lessons: Lesson[];
   homework: Homework[];
+  isCheckpoint?: boolean;
   order: number;
 }
 
@@ -239,6 +242,19 @@ export interface Progress {
   homeworkId?: string;
   isCompleted: boolean;
   completedAt?: string;
+}
+
+export interface QuizResult {
+  id: string;
+  userId: string;
+  courseId: string;
+  moduleId: string;
+  score: number;
+  totalQuestions: number;
+  exerciseScores: Record<number, { correct: number; total: number }>;
+  answers: Record<string, string>;
+  attemptNumber: number;
+  completedAt: string;
 }
 
 // ---------- Audit Types ----------

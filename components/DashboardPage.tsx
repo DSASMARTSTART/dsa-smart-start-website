@@ -1,9 +1,9 @@
 
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Rocket, Clock, ChevronRight, Star, BookOpen, Layout, Zap, Layers, Compass, Music, CheckCircle2, LogIn, Download, FileText, AlertCircle, Loader2, Key, X, Mail } from 'lucide-react';
+import { ArrowLeft, Rocket, Clock, ChevronRight, Star, BookOpen, Layout, Zap, Layers, Compass, Music, CheckCircle2, LogIn, Download, FileText, AlertCircle, Loader2, Key, X, Mail, ClipboardCheck } from 'lucide-react';
 import { useTranslation, Trans } from 'react-i18next';
-import { enrollmentsApi, purchasesApi, coursesApi } from '../data/supabaseStore';
-import { Course, Enrollment, Purchase } from '../types';
+import { enrollmentsApi, purchasesApi, coursesApi, quizResultsApi } from '../data/supabaseStore';
+import { Course, Enrollment, Purchase, QuizResult } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { useLocalizedCourses, getLocalizedTitle } from '../hooks/useLocalizedCourse';
 import { useUserProgress } from '../hooks/useUserProgress';
@@ -73,6 +73,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
   const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
   const [purchasedEbooks, setPurchasedEbooks] = useState<PurchasedEbook[]>([]);
   const [pendingPurchases, setPendingPurchases] = useState<PendingPurchase[]>([]);
+  const [quizResults, setQuizResults] = useState<Record<string, QuizResult[]>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showSetPasswordPrompt, setShowSetPasswordPrompt] = useState(false);
@@ -195,6 +196,18 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
           setEnrolledCourses(courses);
           setPurchasedEbooks(ebooks);
           setPendingPurchases(pendingWithCourses);
+
+          // Fetch quiz results for all enrolled interactive courses
+          const qrMap: Record<string, QuizResult[]> = {};
+          await Promise.all(
+            courses.map(async (c) => {
+              try {
+                const results = await quizResultsApi.getResults(userId, c.id);
+                if (results.length > 0) qrMap[c.id] = results;
+              } catch { /* non-critical */ }
+            })
+          );
+          if (!isCancelled) setQuizResults(qrMap);
 
           // AUTO-POLL: If there are pending purchases, start polling every 5s
           // so the dashboard auto-updates when webhook confirms payment
@@ -491,6 +504,44 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
                             style={{ width: `${completion}%` }}
                           ></div>
                         </div>
+
+                        {/* Quiz result badges */}
+                        {(() => {
+                          const courseQuizResults = quizResults[course.id];
+                          if (!courseQuizResults || courseQuizResults.length === 0) return null;
+
+                          // Group by moduleId and pick best score for each
+                          const bestByModule = new Map<string, QuizResult>();
+                          for (const r of courseQuizResults) {
+                            const existing = bestByModule.get(r.moduleId);
+                            if (!existing || r.score > existing.score) {
+                              bestByModule.set(r.moduleId, r);
+                            }
+                          }
+
+                          return (
+                            <div className="flex flex-wrap gap-2 mt-3">
+                              {Array.from(bestByModule.entries()).map(([moduleId, result]) => {
+                                const quizLabel = moduleId.includes('quiz1')
+                                  ? t('quizResults.quiz1Label', { defaultValue: 'Stop & Check 1' })
+                                  : moduleId.includes('quiz2')
+                                  ? t('quizResults.quiz2Label', { defaultValue: 'Stop & Check 2' })
+                                  : t('quizResults.quiz3Label', { defaultValue: 'Stop & Check 3' });
+
+                                return (
+                                  <span
+                                    key={moduleId}
+                                    className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300"
+                                  >
+                                    <ClipboardCheck size={10} />
+                                    {quizLabel}: {result.score}/{result.totalQuestions}
+                                    <CheckCircle2 size={9} className="text-emerald-400" />
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          );
+                        })()}
                       </div>
 
                       <button 

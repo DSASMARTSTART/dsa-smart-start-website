@@ -57,6 +57,12 @@
     "purchased": "Purchased {{date}}"
   },
 
+  "quizResults": {
+    "quiz1Label": "Stop & Check 1",
+    "quiz2Label": "Stop & Check 2",
+    "quiz3Label": "Stop & Check 3"
+  },
+
   "stats": {
     "title": "Live Stats",
     "itemsCompleted": "Items Completed",
