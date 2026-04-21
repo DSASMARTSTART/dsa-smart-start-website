@@ -22,7 +22,7 @@ SET modules = modules || '[
     "homework": []
   }
 ]'::jsonb
-WHERE id = 'a1'
+WHERE level = 'A1'
   AND modules IS NOT NULL
   AND NOT EXISTS (
     SELECT 1 FROM jsonb_array_elements(modules) elem
