@@ -27,6 +27,12 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
   const [activeModuleId, setActiveModuleId] = useState<string>('');
   const [selectedItemId, setSelectedItemId] = useState<string>('');
   const [quizAttempts, setQuizAttempts] = useState<Record<string, QuizResult[]>>({});
+  const [finalTestPassed, setFinalTestPassed] = useState(false);
+
+  // A1 Final Test passed flag (localStorage) — drives certificate pill in sidebar.
+  useEffect(() => {
+    try { setFinalTestPassed(localStorage.getItem(A1_FINAL_TEST_PASSED_KEY) === 'true'); } catch { /* ignore */ }
+  }, []);
 
   // Quiz completion handler
   const handleQuizComplete = useCallback((moduleId: string, result: Pick<QuizResult, 'score' | 'totalQuestions' | 'exerciseScores' | 'answers'>) => {
@@ -214,12 +220,6 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
   const isCheckpointActive = !!currentModule?.isCheckpoint;
   const isFinalTestActive = !!currentModule?.isFinalTest;
   const quizQuestions = isCheckpointActive && !isFinalTestActive ? getQuizForModule(currentModule.id) : undefined;
-
-  // A1 Final Test passed flag (localStorage) — drives certificate pill in sidebar.
-  const [finalTestPassed, setFinalTestPassed] = useState(false);
-  useEffect(() => {
-    try { setFinalTestPassed(localStorage.getItem(A1_FINAL_TEST_PASSED_KEY) === 'true'); } catch { /* ignore */ }
-  }, []);
 
   const isCompleted = (id: string) => !!progress[`${courseId}_${id}`];
   
