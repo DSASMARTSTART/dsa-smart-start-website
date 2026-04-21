@@ -273,34 +273,23 @@ Deno.serve(async (req) => {
     }
 
     // Return 200 to acknowledge receipt (most providers require this)
-    // If payment was successful, trigger purchase confirmation email (best-effort)
+    // If payment was successful, generate invoice and email it to the customer + accountants (best-effort)
     if (isSuccess && result?.success) {
       try {
-        // Look up the purchase to get userId for the email
-        const { data: purchaseRow } = await supabase
-          .from('purchases')
-          .select('user_id')
-          .eq('transaction_id', transactionId)
-          .limit(1)
-          .single()
-
-        if (purchaseRow?.user_id) {
-          const emailFnUrl = `${supabaseUrl}/functions/v1/send-purchase-email`
-          fetch(emailFnUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${supabaseServiceKey}`,
-            },
-            body: JSON.stringify({
-              userId: purchaseRow.user_id,
-              transactionId,
-              paymentMethod: provider,
-            }),
-          }).catch(err => console.warn('Non-blocking: purchase email trigger failed:', err))
-        }
-      } catch (emailErr) {
-        console.warn('Non-blocking: could not trigger purchase email:', emailErr)
+        const invoiceFnUrl = `${supabaseUrl}/functions/v1/generate-invoice`
+        fetch(invoiceFnUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${supabaseServiceKey}`,
+          },
+          body: JSON.stringify({
+            transactionId,
+            paymentMethod: provider,
+          }),
+        }).catch(err => console.warn('Non-blocking: invoice generation trigger failed:', err))
+      } catch (invoiceErr) {
+        console.warn('Non-blocking: could not trigger invoice generation:', invoiceErr)
       }
     }
 

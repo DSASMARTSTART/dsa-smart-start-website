@@ -114,6 +114,17 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
   const [emailTouched, setEmailTouched] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [termsError, setTermsError] = useState(false);
+
+  // Billing details (required for invoicing). Snapshotted onto purchases + invoice.
+  const [billingAddress, setBillingAddress] = useState('');
+  const [billingCity, setBillingCity] = useState('');
+  const [billingPostalCode, setBillingPostalCode] = useState('');
+  const [billingCountry, setBillingCountry] = useState('Serbia');
+  const [billingIsCompany, setBillingIsCompany] = useState(false);
+  const [billingCompanyName, setBillingCompanyName] = useState('');
+  const [billingPib, setBillingPib] = useState('');
+  const [billingVatId, setBillingVatId] = useState('');
+  const [billingError, setBillingError] = useState<string | null>(null);
   
   // Auth modal state (shown when unauthenticated user tries to pay)
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -288,6 +299,31 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
     // For now, just dismiss the warning - user activity is implicit extension
     setSessionWarning({ show: false, minutesLeft: 0 });
   }, []);
+
+  // Billing snapshot (threaded into payment flows + persisted on purchases for invoicing)
+  const billing = useMemo(() => ({
+    name: customerName.trim(),
+    address: billingAddress.trim(),
+    city: billingCity.trim(),
+    postalCode: billingPostalCode.trim(),
+    country: billingCountry.trim(),
+    companyName: billingIsCompany ? billingCompanyName.trim() || undefined : undefined,
+    pib: billingIsCompany ? billingPib.trim() || undefined : undefined,
+    vatId: billingIsCompany ? billingVatId.trim() || undefined : undefined,
+  }), [customerName, billingAddress, billingCity, billingPostalCode, billingCountry, billingIsCompany, billingCompanyName, billingPib, billingVatId]);
+
+  const validateBilling = useCallback((): string | null => {
+    if (!customerName.trim()) return t('billingInfo.errors.nameRequired', 'Full name is required');
+    if (!billingAddress.trim()) return t('billingInfo.errors.addressRequired', 'Address is required');
+    if (!billingCity.trim()) return t('billingInfo.errors.cityRequired', 'City is required');
+    if (!billingPostalCode.trim()) return t('billingInfo.errors.postalCodeRequired', 'Postal code is required');
+    if (!billingCountry.trim()) return t('billingInfo.errors.countryRequired', 'Country is required');
+    if (billingIsCompany) {
+      if (!billingCompanyName.trim()) return t('billingInfo.errors.companyNameRequired', 'Company name is required');
+      if (!billingPib.trim()) return t('billingInfo.errors.pibRequired', 'Tax ID (PIB) is required for company purchases');
+    }
+    return null;
+  }, [customerName, billingAddress, billingCity, billingPostalCode, billingCountry, billingIsCompany, billingCompanyName, billingPib, t]);
 
   // Validate email on change (for non-logged-in users)
   useEffect(() => {
@@ -511,6 +547,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
             discountCode: appliedDiscount?.code,
             includeTeachingMaterials,
             teachingMaterialsAmount: teachingMaterialsCost,
+            billing,
           });
         }
       } else {
@@ -602,6 +639,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
       ...paypalRequest,
       customerEmail,
       customerName,
+      billing,
     };
 
     let buttonsInstance: { close?: () => Promise<void> } | null = null;
@@ -642,6 +680,13 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
             setError(t('errors.acceptTerms'));
             return actions.reject();
           }
+          const billingErr = validateBilling();
+          if (billingErr) {
+            setBillingError(billingErr);
+            setError(billingErr);
+            return actions.reject();
+          }
+          setBillingError(null);
           setTermsError(false);
           return actions.resolve();
         }
@@ -659,7 +704,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
         });
       }
     };
-  }, [paypalLoaded, selectedPaymentMethod, paypalRequest, handlePaymentSuccess, customerEmail, customerName, termsAccepted]);
+  }, [paypalLoaded, selectedPaymentMethod, paypalRequest, handlePaymentSuccess, customerEmail, customerName, termsAccepted, billing, validateBilling]);
 
   // Load cart items from store
   useEffect(() => {
@@ -867,6 +912,14 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
       return;
     }
 
+    const billingErr = validateBilling();
+    if (billingErr) {
+      setBillingError(billingErr);
+      setError(billingErr);
+      return;
+    }
+    setBillingError(null);
+
     setLoading(true);
 
     try {
@@ -931,6 +984,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
         userId,
         purchaseItems: rsdPurchaseItems,
         paymentMethod: 'card',
+        billing,
       };
 
       // Store order info for callback verification
@@ -1184,6 +1238,138 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                       )}
                     </div>
                   </div>
+                </div>
+
+                {/* Billing Information (required for invoicing) */}
+                <div className="bg-white/5 p-6 sm:p-10 md:p-14 rounded-[2rem] sm:rounded-[3.5rem] border border-white/10 shadow-xl">
+                  <h3 className="text-lg sm:text-xl font-black text-white mb-2 uppercase tracking-tight flex items-center gap-3">
+                    <Building2 size={20} className="text-purple-400" />
+                    {t('billingInfo.title', 'Billing Information')}
+                  </h3>
+                  <p className="text-xs text-gray-400 mb-6 sm:mb-8 leading-relaxed">
+                    {t('billingInfo.description', 'Required for your invoice, which will be emailed to you after payment.')}
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                    <div className="flex flex-col gap-2 md:col-span-2">
+                      <label htmlFor="billing-address" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">
+                        {t('billingInfo.address', 'Address')}
+                      </label>
+                      <input
+                        id="billing-address"
+                        type="text"
+                        placeholder={t('billingInfo.addressPlaceholder', 'Street address')}
+                        value={billingAddress}
+                        onChange={(e) => setBillingAddress(e.target.value)}
+                        className="w-full px-5 sm:px-8 py-4 sm:py-5 rounded-2xl sm:rounded-[2rem] bg-white/5 border border-white/10 focus:bg-white/10 focus:border-purple-500 outline-none transition-all font-bold text-base text-white placeholder:text-gray-500"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label htmlFor="billing-city" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">
+                        {t('billingInfo.city', 'City')}
+                      </label>
+                      <input
+                        id="billing-city"
+                        type="text"
+                        placeholder={t('billingInfo.cityPlaceholder', 'Belgrade')}
+                        value={billingCity}
+                        onChange={(e) => setBillingCity(e.target.value)}
+                        className="w-full px-5 sm:px-8 py-4 sm:py-5 rounded-2xl sm:rounded-[2rem] bg-white/5 border border-white/10 focus:bg-white/10 focus:border-purple-500 outline-none transition-all font-bold text-base text-white placeholder:text-gray-500"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label htmlFor="billing-postal" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">
+                        {t('billingInfo.postalCode', 'Postal code')}
+                      </label>
+                      <input
+                        id="billing-postal"
+                        type="text"
+                        placeholder="11000"
+                        value={billingPostalCode}
+                        onChange={(e) => setBillingPostalCode(e.target.value)}
+                        className="w-full px-5 sm:px-8 py-4 sm:py-5 rounded-2xl sm:rounded-[2rem] bg-white/5 border border-white/10 focus:bg-white/10 focus:border-purple-500 outline-none transition-all font-bold text-base text-white placeholder:text-gray-500"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2 md:col-span-2">
+                      <label htmlFor="billing-country" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">
+                        {t('billingInfo.country', 'Country')}
+                      </label>
+                      <input
+                        id="billing-country"
+                        type="text"
+                        placeholder={t('billingInfo.countryPlaceholder', 'Serbia')}
+                        value={billingCountry}
+                        onChange={(e) => setBillingCountry(e.target.value)}
+                        className="w-full px-5 sm:px-8 py-4 sm:py-5 rounded-2xl sm:rounded-[2rem] bg-white/5 border border-white/10 focus:bg-white/10 focus:border-purple-500 outline-none transition-all font-bold text-base text-white placeholder:text-gray-500"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Company toggle */}
+                  <label className="mt-6 flex items-center gap-3 p-3 sm:p-4 rounded-2xl border border-white/10 cursor-pointer hover:bg-white/5 transition-all">
+                    <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                      billingIsCompany ? 'bg-purple-600 border-purple-600' : 'border-gray-500'
+                    }`}>
+                      {billingIsCompany && <Check size={14} className="text-white" />}
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={billingIsCompany}
+                      onChange={(e) => setBillingIsCompany(e.target.checked)}
+                      className="sr-only"
+                    />
+                    <span className="text-sm text-gray-300 font-medium">
+                      {t('billingInfo.isCompany', 'I am purchasing on behalf of a company')}
+                    </span>
+                  </label>
+
+                  {billingIsCompany && (
+                    <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                      <div className="flex flex-col gap-2 md:col-span-2">
+                        <label htmlFor="billing-company-name" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">
+                          {t('billingInfo.companyName', 'Company legal name')}
+                        </label>
+                        <input
+                          id="billing-company-name"
+                          type="text"
+                          value={billingCompanyName}
+                          onChange={(e) => setBillingCompanyName(e.target.value)}
+                          className="w-full px-5 sm:px-8 py-4 sm:py-5 rounded-2xl sm:rounded-[2rem] bg-white/5 border border-white/10 focus:bg-white/10 focus:border-purple-500 outline-none transition-all font-bold text-base text-white placeholder:text-gray-500"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <label htmlFor="billing-pib" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">
+                          {t('billingInfo.pib', 'Tax ID (PIB)')}
+                        </label>
+                        <input
+                          id="billing-pib"
+                          type="text"
+                          value={billingPib}
+                          onChange={(e) => setBillingPib(e.target.value)}
+                          className="w-full px-5 sm:px-8 py-4 sm:py-5 rounded-2xl sm:rounded-[2rem] bg-white/5 border border-white/10 focus:bg-white/10 focus:border-purple-500 outline-none transition-all font-bold text-base text-white placeholder:text-gray-500"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <label htmlFor="billing-vat-id" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">
+                          {t('billingInfo.vatId', 'VAT ID (optional)')}
+                        </label>
+                        <input
+                          id="billing-vat-id"
+                          type="text"
+                          value={billingVatId}
+                          onChange={(e) => setBillingVatId(e.target.value)}
+                          className="w-full px-5 sm:px-8 py-4 sm:py-5 rounded-2xl sm:rounded-[2rem] bg-white/5 border border-white/10 focus:bg-white/10 focus:border-purple-500 outline-none transition-all font-bold text-base text-white placeholder:text-gray-500"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {billingError && (
+                    <p className="mt-4 text-red-400 text-xs font-medium ml-4 flex items-center gap-1" role="alert">
+                      <AlertCircle size={12} />
+                      {billingError}
+                    </p>
+                  )}
                 </div>
 
                 {/* Payment Method Selection */}

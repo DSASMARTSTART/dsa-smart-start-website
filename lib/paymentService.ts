@@ -58,6 +58,17 @@ export interface PaymentRequest {
     teachingMaterialsPrice?: number;
   }>;
   paymentMethod?: string;
+  // Billing details captured at checkout — snapshotted onto purchases and the invoice.
+  billing?: {
+    name: string;
+    address: string;
+    city: string;
+    postalCode: string;
+    country: string;
+    companyName?: string;
+    pib?: string;
+    vatId?: string;
+  };
 }
 
 export interface PaymentResult {
@@ -190,6 +201,7 @@ export class RaiAcceptPayment {
           userId: request.userId,
           purchaseItems: request.purchaseItems,
           paymentMethod: request.paymentMethod || 'card',
+          billing: request.billing,
         }),
       }
     );

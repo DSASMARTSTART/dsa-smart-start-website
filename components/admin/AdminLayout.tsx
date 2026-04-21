@@ -73,6 +73,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPath, onNavi
     { id: 'admin-transactions', label: 'Transactions', icon: CreditCard, path: 'admin-transactions' },
     { id: 'admin-discounts', label: 'Discount Codes', icon: Tag, path: 'admin-discounts' },
     { id: 'admin-audit', label: 'Audit Log', icon: History, path: 'admin-audit' },
+    { id: 'admin-settings', label: 'Settings', icon: Settings, path: 'admin-settings' },
   ];
 
   const isActive = (path: string) => {

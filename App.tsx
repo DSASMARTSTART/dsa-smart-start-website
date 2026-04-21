@@ -33,7 +33,7 @@ import { useTranslation } from 'react-i18next';
 // Admin Dashboard Components
 import { 
   AdminLayout, AdminHome, AdminUsers, AdminCourses, 
-  CourseEditor, AdminAudit, AdminDiscountCodes, AdminTransactions 
+  CourseEditor, AdminAudit, AdminDiscountCodes, AdminTransactions, AdminSettings 
 } from './components/admin';
 
 // Toast notification type
@@ -160,6 +160,7 @@ const App: React.FC = () => {
       else if (hash === '#admin-transactions') setCurrentPath('admin-transactions');
       else if (hash === '#admin-discounts') setCurrentPath('admin-discounts');
       else if (hash === '#admin-audit') setCurrentPath('admin-audit');
+      else if (hash === '#admin-settings') setCurrentPath('admin-settings');
       else if (hash.startsWith('#admin-course-edit-')) {
         setCurrentPath('admin-course-edit');
         setSelectedCourseId(hash.replace('#admin-course-edit-', ''));
@@ -463,6 +464,7 @@ const App: React.FC = () => {
             <CourseEditor courseId={selectedCourseId} onNavigate={navigateTo} />
           )}
           {currentPath === 'admin-audit' && <AdminAudit onNavigate={navigateTo} />}
+          {currentPath === 'admin-settings' && <AdminSettings onNavigate={navigateTo} />}
         </AdminLayout>
       )}
 

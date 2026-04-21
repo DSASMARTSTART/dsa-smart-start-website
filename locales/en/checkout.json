@@ -28,6 +28,31 @@
     "emailPlaceholder": "email@example.com"
   },
 
+  "billingInfo": {
+    "title": "Billing Information",
+    "description": "Required for your invoice, which will be emailed to you after payment.",
+    "address": "Address",
+    "addressPlaceholder": "Street address",
+    "city": "City",
+    "cityPlaceholder": "Belgrade",
+    "postalCode": "Postal code",
+    "country": "Country",
+    "countryPlaceholder": "Serbia",
+    "isCompany": "I am purchasing on behalf of a company",
+    "companyName": "Company legal name",
+    "pib": "Tax ID (PIB)",
+    "vatId": "VAT ID (optional)",
+    "errors": {
+      "nameRequired": "Full name is required",
+      "addressRequired": "Address is required",
+      "cityRequired": "City is required",
+      "postalCodeRequired": "Postal code is required",
+      "countryRequired": "Country is required",
+      "companyNameRequired": "Company name is required",
+      "pibRequired": "Tax ID (PIB) is required for company purchases"
+    }
+  },
+
   "loginBanner": {
     "title": "Log in to complete your purchase",
     "description": "An account is required so your courses appear on your dashboard after purchase.",

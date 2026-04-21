@@ -1410,6 +1410,16 @@ export const purchasesApi = {
     discountCode?: string;
     includeTeachingMaterials?: boolean;
     teachingMaterialsAmount?: number;
+    billing?: {
+      name: string;
+      address: string;
+      city: string;
+      postalCode: string;
+      country: string;
+      companyName?: string;
+      pib?: string;
+      vatId?: string;
+    };
   }): Promise<Purchase> => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase as any)
@@ -1428,6 +1438,14 @@ export const purchasesApi = {
         teaching_materials_amount: purchaseData.teachingMaterialsAmount || 0,
         status: 'pending', // Start as pending, webhook will confirm
         webhook_verified: false,
+        billing_name: purchaseData.billing?.name || null,
+        billing_address: purchaseData.billing?.address || null,
+        billing_city: purchaseData.billing?.city || null,
+        billing_postal_code: purchaseData.billing?.postalCode || null,
+        billing_country: purchaseData.billing?.country || null,
+        billing_company_name: purchaseData.billing?.companyName || null,
+        billing_pib: purchaseData.billing?.pib || null,
+        billing_vat_id: purchaseData.billing?.vatId || null,
       })
       .select()
       .single();

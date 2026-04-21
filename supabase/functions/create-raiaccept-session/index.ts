@@ -43,6 +43,17 @@ interface SessionRequest {
     teachingMaterialsPrice?: number;
   }>;
   paymentMethod?: string;
+  // Billing details snapshot for invoicing
+  billing?: {
+    name: string;
+    address: string;
+    city: string;
+    postalCode: string;
+    country: string;
+    companyName?: string;
+    pib?: string;
+    vatId?: string;
+  };
 }
 
 // Step 1: Authenticate with RaiAccept via Amazon Cognito
@@ -278,6 +289,14 @@ Deno.serve(async (req) => {
             p_transaction_id: body.orderId,
             p_teaching_materials_included: item.teachingMaterialsIncluded || false,
             p_teaching_materials_price: item.teachingMaterialsPrice || 0,
+            p_billing_name: body.billing?.name || null,
+            p_billing_address: body.billing?.address || null,
+            p_billing_city: body.billing?.city || null,
+            p_billing_postal_code: body.billing?.postalCode || null,
+            p_billing_country: body.billing?.country || null,
+            p_billing_company_name: body.billing?.companyName || null,
+            p_billing_pib: body.billing?.pib || null,
+            p_billing_vat_id: body.billing?.vatId || null,
           });
           
           if (error) {

@@ -5,12 +5,13 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Search, Filter, Download, Calendar, CreditCard, Tag, User as UserIcon,
-  ChevronLeft, ChevronRight, RefreshCw, FileText, DollarSign, TrendingUp
+  ChevronLeft, ChevronRight, RefreshCw, FileText, DollarSign, TrendingUp, Mail, Check
 } from 'lucide-react';
 import { 
   DataTable, StatusBadge, Button, Input, Select, KPICard
 } from './AdminUIComponents';
 import { supabase } from '../../lib/supabase';
+import { generateAndSendInvoice } from '../../lib/emailService';
 
 // Types for transactions view
 interface TransactionWithDetails {
@@ -30,6 +31,8 @@ interface TransactionWithDetails {
   paymentMethod: string;
   transactionId: string;
   purchasedAt: string;
+  invoiceNumber: string | null;
+  invoiceEmailSentAt: string | null;
 }
 
 interface TransactionFilters {
@@ -70,6 +73,8 @@ const AdminTransactions: React.FC<AdminTransactionsProps> = ({ onNavigate }) => 
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 15;
+  const [invoiceBusy, setInvoiceBusy] = useState<Record<string, boolean>>({});
+  const [invoiceSuccess, setInvoiceSuccess] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     loadTransactions();
@@ -133,8 +138,34 @@ const AdminTransactions: React.FC<AdminTransactionsProps> = ({ onNavigate }) => 
         currency: p.currency || 'EUR',
         paymentMethod: p.payment_method || 'unknown',
         transactionId: p.transaction_id || p.id,
-        purchasedAt: p.purchased_at
+        purchasedAt: p.purchased_at,
+        invoiceNumber: null,
+        invoiceEmailSentAt: null
       }));
+
+      // Fetch invoices for this page's transactions and merge
+      const txnIds = Array.from(new Set(transformed.map(t => t.transactionId).filter(Boolean)));
+      if (txnIds.length > 0) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data: invs } = await (supabase as any)
+          .from('invoices')
+          .select('transaction_id, invoice_number, email_sent_to_customer_at')
+          .in('transaction_id', txnIds);
+        const invMap = new Map<string, { invoice_number: string; email_sent_to_customer_at: string | null }>();
+        for (const inv of (invs || [])) {
+          invMap.set(inv.transaction_id, {
+            invoice_number: inv.invoice_number,
+            email_sent_to_customer_at: inv.email_sent_to_customer_at
+          });
+        }
+        transformed.forEach(t => {
+          const inv = invMap.get(t.transactionId);
+          if (inv) {
+            t.invoiceNumber = inv.invoice_number;
+            t.invoiceEmailSentAt = inv.email_sent_to_customer_at;
+          }
+        });
+      }
 
       // Filter by product type client-side (since it's in the joined table)
       const filtered = filters.productType === 'all' 
@@ -234,6 +265,28 @@ const AdminTransactions: React.FC<AdminTransactionsProps> = ({ onNavigate }) => 
     return style;
   };
 
+  const handleGenerateOrResendInvoice = async (t: TransactionWithDetails) => {
+    if (!t.transactionId) return;
+    setInvoiceBusy((prev) => ({ ...prev, [t.id]: true }));
+    try {
+      await generateAndSendInvoice({
+        transactionId: t.transactionId,
+        userId: t.userId,
+        paymentMethod: t.paymentMethod,
+        resend: !!t.invoiceNumber,
+      });
+      setInvoiceSuccess((prev) => ({ ...prev, [t.id]: true }));
+      setTimeout(() => {
+        setInvoiceSuccess((prev) => { const n = { ...prev }; delete n[t.id]; return n; });
+      }, 2500);
+      await loadTransactions();
+    } catch (err) {
+      console.error('Invoice action failed:', err);
+    } finally {
+      setInvoiceBusy((prev) => { const n = { ...prev }; delete n[t.id]; return n; });
+    }
+  };
+
   const columns = [
     {
       key: 'date',
@@ -308,6 +361,45 @@ const AdminTransactions: React.FC<AdminTransactionsProps> = ({ onNavigate }) => 
           {t.transactionId.substring(0, 12)}...
         </p>
       )
+    },
+    {
+      key: 'invoice',
+      header: 'Invoice',
+      width: '200px',
+      render: (t: TransactionWithDetails) => {
+        const busy = !!invoiceBusy[t.id];
+        const ok = !!invoiceSuccess[t.id];
+        return (
+          <div className="flex items-center gap-2">
+            <div className="min-w-0 flex-1">
+              {t.invoiceNumber ? (
+                <>
+                  <p className="text-[11px] font-bold text-gray-900 truncate" title={t.invoiceNumber}>
+                    {t.invoiceNumber}
+                  </p>
+                  <p className="text-[9px] text-gray-400">
+                    {t.invoiceEmailSentAt ? `Sent ${new Date(t.invoiceEmailSentAt).toLocaleDateString('en-GB')}` : 'Not sent'}
+                  </p>
+                </>
+              ) : (
+                <p className="text-[10px] text-gray-400 italic">Not issued</p>
+              )}
+            </div>
+            <button
+              onClick={() => handleGenerateOrResendInvoice(t)}
+              disabled={busy}
+              title={t.invoiceNumber ? 'Resend invoice' : 'Generate & send invoice'}
+              className={`p-2 rounded-lg border transition-all ${
+                ok
+                  ? 'bg-green-50 border-green-200 text-green-600'
+                  : 'bg-white border-gray-200 text-gray-600 hover:border-purple-300 hover:text-purple-600 disabled:opacity-50'
+              }`}
+            >
+              {ok ? <Check size={14} /> : <Mail size={14} />}
+            </button>
+          </div>
+        );
+      }
     }
   ];
 

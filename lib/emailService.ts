@@ -9,8 +9,42 @@
 import { supabase } from './supabase';
 
 /**
- * Send a purchase confirmation email after successful payment.
- * Looks up purchase details from the DB by userId + transactionId.
+ * Generate and send an invoice after successful payment.
+ * This replaces the legacy purchase-confirmation email: the invoice IS the receipt,
+ * and it is sent to the customer (To:) with the accountant(s) in BCC.
+ *
+ * Idempotent: if an invoice already exists for the transaction, no new one is created.
+ * Pass `resend: true` to re-send an existing invoice.
+ */
+export async function generateAndSendInvoice(params: {
+  transactionId: string;
+  userId?: string;
+  paymentMethod?: string;
+  resend?: boolean;
+}): Promise<void> {
+  if (!supabase) return;
+
+  try {
+    const { error } = await supabase.functions.invoke('generate-invoice', {
+      body: {
+        transactionId: params.transactionId,
+        userId: params.userId,
+        paymentMethod: params.paymentMethod,
+        resend: params.resend,
+      }
+    });
+
+    if (error) {
+      console.error('Failed to generate/send invoice:', error.message);
+    }
+  } catch (err) {
+    console.error('Error generating/sending invoice:', err);
+  }
+}
+
+/**
+ * @deprecated Use generateAndSendInvoice instead. Kept as a thin wrapper
+ * so existing call sites continue to work during migration.
  */
 export async function sendPurchaseConfirmationEmail(params: {
   userId: string;
@@ -21,27 +55,15 @@ export async function sendPurchaseConfirmationEmail(params: {
   discountCode?: string;
   discountAmount?: number;
 }): Promise<void> {
-  if (!supabase) return;
-
-  try {
-    const { error } = await supabase.functions.invoke('send-purchase-email', {
-      body: {
-        userId: params.userId,
-        transactionId: params.transactionId,
-        customerEmail: params.customerEmail,
-        customerName: params.customerName,
-        paymentMethod: params.paymentMethod,
-        discountCode: params.discountCode,
-        discountAmount: params.discountAmount,
-      }
-    });
-
-    if (error) {
-      console.error('Failed to send purchase confirmation email:', error.message);
-    }
-  } catch (err) {
-    console.error('Error sending purchase confirmation email:', err);
+  if (!params.transactionId) {
+    console.warn('sendPurchaseConfirmationEmail: no transactionId, cannot generate invoice');
+    return;
   }
+  return generateAndSendInvoice({
+    transactionId: params.transactionId,
+    userId: params.userId,
+    paymentMethod: params.paymentMethod,
+  });
 }
 
 /**
