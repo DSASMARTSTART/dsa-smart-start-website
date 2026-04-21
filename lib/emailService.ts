@@ -35,7 +35,15 @@ export async function generateAndSendInvoice(params: {
     });
 
     if (error) {
-      console.error('Failed to generate/send invoice:', error.message);
+      // Surface the real response body so gateway-level 401s are diagnosable.
+      // supabase.functions.invoke wraps a Response on `error.context`.
+      let detail = '';
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const ctx = (error as any).context as Response | undefined;
+        if (ctx && typeof ctx.text === 'function') detail = await ctx.text();
+      } catch { /* ignore */ }
+      console.error('Failed to generate/send invoice:', error.message, detail);
     }
   } catch (err) {
     console.error('Error generating/sending invoice:', err);
