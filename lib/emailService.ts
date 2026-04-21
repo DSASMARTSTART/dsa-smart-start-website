@@ -21,6 +21,7 @@ export async function generateAndSendInvoice(params: {
   userId?: string;
   paymentMethod?: string;
   resend?: boolean;
+  force?: boolean;
 }): Promise<void> {
   if (!supabase) return;
 
@@ -31,6 +32,7 @@ export async function generateAndSendInvoice(params: {
         userId: params.userId,
         paymentMethod: params.paymentMethod,
         resend: params.resend,
+        force: params.force,
       }
     });
 

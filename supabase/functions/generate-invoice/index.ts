@@ -29,6 +29,7 @@ interface InvoiceRequest {
   userId?: string
   paymentMethod?: string
   resend?: boolean
+  force?: boolean
 }
 
 function fmtEur(n: number): string {
@@ -243,7 +244,7 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     const body: InvoiceRequest = await req.json()
-    const { transactionId, paymentMethod, resend } = body
+    const { transactionId, paymentMethod, resend, force } = body
     if (!transactionId) {
       return new Response(JSON.stringify({ success: false, error: 'Missing transactionId' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
@@ -283,11 +284,32 @@ Deno.serve(async (req) => {
           { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
       }
 
-      // Allow issuing only for completed purchases (at least one must be completed)
+      // Allow issuing for completed purchases. For legacy rows that never got
+      // flipped to 'completed' by the webhook, fall back to checking active
+      // enrollments. Admin-initiated calls may pass `force: true` to bypass
+      // these checks entirely (e.g. to retroactively issue invoices for old
+      // transactions whose status/enrollment data is incomplete).
       const anyCompleted = purchases.some((p: Record<string, unknown>) => p.status === 'completed')
-      if (!anyCompleted) {
-        return new Response(JSON.stringify({ success: false, error: 'Transaction not yet completed' }),
-          { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+      if (!anyCompleted && !force) {
+        const userId = (purchases[0] as { user_id: string }).user_id
+        const courseIds = purchases
+          .map((p: Record<string, unknown>) => p.course_id as string | null)
+          .filter((x): x is string => !!x)
+        let hasEnrollment = false
+        if (userId && courseIds.length > 0) {
+          const { data: enrolls } = await supabase
+            .from('enrollments')
+            .select('id')
+            .eq('user_id', userId)
+            .in('course_id', courseIds)
+            .eq('status', 'active')
+            .limit(1)
+          hasEnrollment = !!(enrolls && enrolls.length > 0)
+        }
+        if (!hasEnrollment) {
+          return new Response(JSON.stringify({ success: false, error: 'Transaction not yet completed' }),
+            { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+        }
       }
 
       // ── Buyer info: prefer billing snapshot on purchases; fall back to user record ──

@@ -274,6 +274,7 @@ const AdminTransactions: React.FC<AdminTransactionsProps> = ({ onNavigate }) => 
         userId: t.userId,
         paymentMethod: t.paymentMethod,
         resend: !!t.invoiceNumber,
+        force: true,
       });
       setInvoiceSuccess((prev) => ({ ...prev, [t.id]: true }));
       setTimeout(() => {
