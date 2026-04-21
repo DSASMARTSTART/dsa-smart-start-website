@@ -1,13 +1,15 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { ArrowLeft, CheckCircle2, Circle, ChevronRight, PlayCircle, BookOpen, Clock, FileText, ChevronDown, ChevronUp, ClipboardCheck, Download, ExternalLink, Lock, Trophy } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Circle, ChevronRight, PlayCircle, BookOpen, Clock, FileText, ChevronDown, ChevronUp, ClipboardCheck, Download, ExternalLink, Lock, Trophy, Award } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { coursesApi, enrollmentsApi, videoHelpers } from '../data/supabaseStore';
 import { Course, Module, Lesson, Homework, QuizResult } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { useUserProgress } from '../hooks/useUserProgress';
 import QuizRenderer from './QuizRenderer';
+import FinalTestRenderer from './FinalTestRenderer';
 import { getQuizForModule } from '../data/quizHelpers';
+import { A1_FINAL_TEST_PASSED_KEY } from '../data/finalTestData';
 
 interface CourseViewerProps {
   courseId: string;
@@ -210,7 +212,14 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
 
   // Checkpoint quiz detection
   const isCheckpointActive = !!currentModule?.isCheckpoint;
-  const quizQuestions = isCheckpointActive ? getQuizForModule(currentModule.id) : undefined;
+  const isFinalTestActive = !!currentModule?.isFinalTest;
+  const quizQuestions = isCheckpointActive && !isFinalTestActive ? getQuizForModule(currentModule.id) : undefined;
+
+  // A1 Final Test passed flag (localStorage) — drives certificate pill in sidebar.
+  const [finalTestPassed, setFinalTestPassed] = useState(false);
+  useEffect(() => {
+    try { setFinalTestPassed(localStorage.getItem(A1_FINAL_TEST_PASSED_KEY) === 'true'); } catch { /* ignore */ }
+  }, []);
 
   const isCompleted = (id: string) => !!progress[`${courseId}_${id}`];
   
@@ -346,6 +355,7 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
                 const checkpointCompleted = isCompleted(module.id);
                 const bestScore = quizAttempts[module.id]?.reduce((best, a) => a.score > best ? a.score : best, 0);
                 const bestTotal = quizAttempts[module.id]?.[0]?.totalQuestions;
+                const isFinal = !!module.isFinalTest;
                 return (
                   <div key={module.id}>
                     <button
@@ -360,7 +370,7 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
                           activeModuleId === module.id ? 'bg-amber-500 text-black' : 'bg-amber-500/10 text-amber-400'
                         }`}>
-                          <ClipboardCheck size={16} />
+                          {isFinal ? <Award size={16} /> : <ClipboardCheck size={16} />}
                         </div>
                         <div>
                           <h4 className={`text-sm font-black uppercase tracking-tight ${
@@ -368,8 +378,15 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
                           }`}>
                             {module.title}
                           </h4>
-                          <span className="text-[9px] font-bold text-amber-500/60 uppercase tracking-widest">
-                            {t('courseViewer.stopAndCheck', 'Stop & Check')}
+                          <span className="text-[9px] font-bold text-amber-500/60 uppercase tracking-widest flex items-center gap-1.5">
+                            {isFinal
+                              ? t('courseViewer.finalTest', 'Final Test')
+                              : t('courseViewer.stopAndCheck', 'Stop & Check')}
+                            {isFinal && finalTestPassed && (
+                              <span className="px-1.5 py-0.5 rounded bg-green-500/20 text-green-400 text-[8px]">
+                                {t('courseViewer.certificateUnlocked', 'CERT UNLOCKED')}
+                              </span>
+                            )}
                           </span>
                         </div>
                       </div>
@@ -471,8 +488,21 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
             </span>
           </div>
 
-          {/* ── Checkpoint Quiz View ── */}
-          {isCheckpointActive && quizQuestions ? (
+          {/* ── Final Test View ── */}
+          {isFinalTestActive ? (
+            <div className="bg-white/5 rounded-[3rem] border border-amber-500/20 shadow-xl shadow-amber-500/10 overflow-hidden mb-12">
+              <FinalTestRenderer
+                courseId={courseId}
+                module={currentModule}
+                onPassed={() => {
+                  setFinalTestPassed(true);
+                  if (!progress[`${courseId}_${currentModule.id}`]) {
+                    toggleProgress(courseId, currentModule.id);
+                  }
+                }}
+              />
+            </div>
+          ) : isCheckpointActive && quizQuestions ? (
             <div className="bg-white/5 rounded-[3rem] border border-amber-500/20 shadow-xl shadow-amber-500/10 overflow-hidden mb-12">
               <QuizRenderer
                 courseId={courseId}

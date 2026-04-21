@@ -1325,6 +1325,34 @@
     "keepPracticing": "Keep Practicing!",
     "correct": "correct",
     "reviewAnswers": "Review Answers",
-    "retakeQuiz": "Retake Quiz"
+    "retakeQuiz": "Retake Quiz",
+    "finalTest": {
+      "label": "Final Test",
+      "start": "Start Final Test",
+      "passThreshold": "To Pass",
+      "passThresholdLine": "{{n}}% required to pass",
+      "passed": "Congratulations — A1 Level Complete!",
+      "failed": "Almost there — try again!",
+      "alreadyPassed": "You have already passed this test — your certificate is unlocked.",
+      "wordBank": "Word Bank",
+      "certificateTitle": "A1 Completion Certificate Unlocked",
+      "certificateSubtitle": "Download your official A1 completion certificate.",
+      "downloadCertificate": "Download Certificate",
+      "sections": {
+        "vocabulary": "Vocabulary",
+        "grammar": "Grammar"
+      },
+      "exercise": {
+        "1":  { "title": "Vocabulary 1: Picture Words",        "instruction": "Write the correct word under each image." },
+        "2":  { "title": "Vocabulary 2: Fix the Spelling",     "instruction": "Correct the spelling of each word, using the image as a reference." },
+        "3":  { "title": "Vocabulary 3: Choose the Right Word","instruction": "Choose the correct alternative to complete the sentence." },
+        "4":  { "title": "Vocabulary 4: A Day at the Café",    "instruction": "Use the Word Bank above to complete the text. Each word is used once." },
+        "5":  { "title": "Vocabulary 5: Complete the Sentence","instruction": "Choose the correct ending (a, b, or c) to complete the sentence." },
+        "6":  { "title": "Grammar 1: Choose the Right Form",   "instruction": "Choose the correct alternative to complete the sentence." },
+        "7":  { "title": "Grammar 2: Anna's Busy Day",         "instruction": "Use the Word Bank above to complete the text. Each word is used once." },
+        "8":  { "title": "Grammar 3: Complete the Sentence",   "instruction": "Complete the sentence so it is grammatically correct." },
+        "9":  { "title": "Grammar 4: Choose the Right Ending", "instruction": "Choose the correct ending (a, b, or c) to complete the sentence." }
+      }
+    }
   }
 }

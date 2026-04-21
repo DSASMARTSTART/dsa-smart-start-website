@@ -78,7 +78,7 @@ function checkAnswer(question: QuizQuestion, studentAnswer: string): boolean {
     return normalize(studentAnswer) === normalize(question.correctAnswer ?? '');
   }
 
-  // For image-word and fill-in-blank, check against correctAnswer and acceptableAnswers
+  // image-word, fill-in-blank, spelling-correction, word-bank → text compare
   const correct = question.correctAnswer ? normalize(question.correctAnswer) : '';
   const acceptable = question.acceptableAnswers?.map(normalize) ?? [];
 
@@ -88,4 +88,45 @@ function checkAnswer(question: QuizQuestion, studentAnswer: string): boolean {
   if (acceptable.includes(normalizedStudent)) return true;
 
   return false;
+}
+
+/**
+ * Grades a comprehensive multi-exercise final test.
+ * `exercises` is the descriptor array; `answers` maps questionId → student answer.
+ */
+export function gradeFinalTest(
+  exercises: import('../types').FinalTestExercise[],
+  answers: Record<string, string>,
+): {
+  score: number;
+  totalQuestions: number;
+  exerciseScores: Record<number, { correct: number; total: number }>;
+  answers: Record<string, string>;
+  percentage: number;
+} {
+  let totalCorrect = 0;
+  let total = 0;
+  const exerciseScores: Record<number, { correct: number; total: number }> = {};
+
+  for (const ex of exercises) {
+    exerciseScores[ex.group] = { correct: 0, total: ex.questions.length };
+    for (const q of ex.questions) {
+      total++;
+      const studentAnswer = (answers[q.id] ?? '').trim();
+      if (checkAnswer(q, studentAnswer)) {
+        totalCorrect++;
+        exerciseScores[ex.group].correct++;
+      }
+    }
+  }
+
+  const percentage = total > 0 ? Math.round((totalCorrect / total) * 100) : 0;
+
+  return {
+    score: totalCorrect,
+    totalQuestions: total,
+    exerciseScores,
+    answers,
+    percentage,
+  };
 }

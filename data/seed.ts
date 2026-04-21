@@ -263,6 +263,18 @@ const A1_GRAMMAR_MODULES: Module[] = [
       { id: 'a1-quiz3-l1', title: 'Stop & Check: Units 11-15', duration: '20m', type: 'quiz', order: 1 }
     ],
     homework: []
+  },
+  {
+    id: 'a1-final-test',
+    title: 'A1 Final Test',
+    description: 'A comprehensive final test covering all A1 vocabulary and grammar. Score 70% or higher to unlock your A1 completion certificate.',
+    order: 7,
+    isCheckpoint: true,
+    isFinalTest: true,
+    lessons: [
+      { id: 'a1-final-test-l1', title: 'A1 Final Test', duration: '60m', type: 'quiz', order: 1 }
+    ],
+    homework: []
   }
 ];
 

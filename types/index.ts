@@ -52,7 +52,14 @@ export interface QuizOption {
   isCorrect: boolean;
 }
 
-export type QuizQuestionType = 'multiple-choice' | 'true-false' | 'photo' | 'fill-in-blank' | 'image-word';
+export type QuizQuestionType =
+  | 'multiple-choice'
+  | 'true-false'
+  | 'photo'
+  | 'fill-in-blank'
+  | 'image-word'
+  | 'spelling-correction'
+  | 'word-bank';
 
 export interface QuizQuestion {
   id: string;
@@ -64,7 +71,27 @@ export interface QuizQuestion {
   acceptableAnswers?: string[];
   exerciseGroup?: number;
   explanation?: string;
+  /** For 'spelling-correction' — the misspelled word displayed to the student. */
+  displayedWord?: string;
+  /** For 'word-bank' — list of choices shown above the passage (shared per exercise). */
+  wordBank?: string[];
   order: number;
+}
+
+/** Descriptor for a single exercise in a comprehensive multi-exercise test (e.g. A1 Final Test). */
+export interface FinalTestExercise {
+  group: number;
+  section: 'vocabulary' | 'grammar';
+  type: QuizQuestionType;
+  /** i18n key under courses.quiz.finalTest.exercise.<group>.title (English fallback in component). */
+  titleKey: string;
+  instructionKey: string;
+  /** Default English title/instruction if i18n key missing. */
+  titleFallback: string;
+  instructionFallback: string;
+  /** Shared word bank for 'word-bank' exercises (display order). */
+  wordBank?: string[];
+  questions: QuizQuestion[];
 }
 
 export interface Lesson {
@@ -98,6 +125,8 @@ export interface Module {
   lessons: Lesson[];
   homework: Homework[];
   isCheckpoint?: boolean;
+  /** When true, this checkpoint module is the comprehensive end-of-course final test. */
+  isFinalTest?: boolean;
   order: number;
 }
 
