@@ -22,7 +22,7 @@ import {
   PaymentMethod,
   PaymentRequest
 } from '../lib/paymentService';
-import { sendPurchaseConfirmationEmail } from '../lib/emailService';
+import { generateAndSendInvoice } from '../lib/emailService';
 
 // Level-based color gradients
 const LEVEL_COLORS: Record<string, string> = {
@@ -615,16 +615,19 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
         console.error('ensure_enrollment_exists error:', ensureErr);
       }
 
-      // Send purchase confirmation email (fire-and-forget — don't block checkout)
+      // Auto-issue invoice (fire-and-forget — don't block checkout).
+      // The generate-invoice edge function is idempotent on transaction_id, so it's
+      // safe to race with the payment-webhook auto-trigger: whichever arrives first
+      // creates the invoice row and emails it; the other call detects the existing
+      // row and returns without sending a duplicate. `force: true` bypasses the
+      // "transaction not yet completed" guard in case Postgres visibility lags
+      // behind the just-committed confirm_purchases_by_transaction RPC.
       if (userId) {
-        sendPurchaseConfirmationEmail({
-          userId,
+        generateAndSendInvoice({
           transactionId,
-          customerEmail,
-          customerName,
+          userId,
           paymentMethod: method,
-          discountCode: appliedDiscount?.code,
-          discountAmount: appliedDiscount?.amount,
+          force: true,
         });
       }
 
