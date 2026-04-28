@@ -236,34 +236,16 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
         // is already charged at the gateway level, regardless of enrollment state.
         onClearCart();
 
-        // Now confirm purchases server-side.
-        // The webhook may or may not fire (sandbox often doesn't), so we
-        // call confirm_purchases_by_transaction as a client-side fallback.
+        // Now confirm purchases server-side via handlePaymentSuccess, which
+        // AWAITS confirm_purchases_by_transaction + ensure_enrollment_exists
+        // before navigating to the success page. This guarantees the success
+        // page (and downstream dashboard) sees status='completed' immediately
+        // instead of briefly flashing "pending" while a fire-and-forget RPC
+        // races with navigation.
         const orderId = raiAcceptOrderIdRef.current;
         const userId = authUser?.id || profile?.id;
-        
+
         if (orderId && userId) {
-          // Client-side confirmation: confirm ALL pending purchases for this transaction
-          supabase.rpc('confirm_purchases_by_transaction', {
-            p_transaction_id: orderId,
-            p_user_id: userId,
-          }).then(({ data, error }) => {
-            if (error) {
-              console.error('Client-side confirmation failed:', error);
-            } else {
-              console.log('Client-side confirmation result:', data);
-            }
-          }).catch((err) => {
-            console.error('Client-side confirmation error:', err);
-          });
-
-          // Self-heal: ensure enrollment exists for any completed purchase. Safe to
-          // call even if the webhook already created the enrollment (idempotent).
-          supabase.rpc('ensure_enrollment_exists', { p_user_id: userId })
-            .then(({ error }) => { if (error) console.error('ensure_enrollment_exists failed:', error); })
-            .catch((err) => console.error('ensure_enrollment_exists error:', err));
-
-          // Also call handlePaymentSuccess to record purchase and redirect
           handlePaymentSuccess(orderId, 'card').then(() => {
             setPaymentSuccess(true);
             announce(t('announcements.paymentSuccess'));

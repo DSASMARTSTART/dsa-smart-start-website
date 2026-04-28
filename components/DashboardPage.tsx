@@ -144,6 +144,17 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
           console.warn('Enrollment repair check failed (non-critical):', repairErr);
         }
 
+        // HOUSEKEEPING: Auto-expire stale pending purchases (>24h old) so the
+        // dashboard alert doesn't show abandoned/failed checkouts forever.
+        // Idempotent + non-blocking: failures are silently ignored.
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await (supabase as any).rpc('cleanup_stale_pending_purchases', { p_hours_threshold: 24 });
+        } catch (cleanupErr) {
+          // RPC may not exist on older deployments — non-critical.
+          console.warn('cleanup_stale_pending_purchases skipped (non-critical):', cleanupErr);
+        }
+
         // Optimized: Get enrollments WITH course data in a single query (no N+1!)
         const enrollmentsWithCourses = await enrollmentsApi.getByUserWithCourses(userId);
         
@@ -176,9 +187,16 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
           }
         });
 
-        // Also fetch pending purchases (awaiting payment confirmation)
+        // Also fetch pending purchases (awaiting payment confirmation).
+        // Only surface RECENT pending rows (last 1 hour) — older ones are almost
+        // always abandoned/failed checkouts that the cleanup job will mark
+        // 'failed' on its next run. Showing them as "verifying" forever confuses
+        // users who just completed a successful payment.
         const userPurchases = await purchasesApi.getByUser(userId);
-        const pendingOnes = userPurchases.filter(p => p.status === 'pending');
+        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+        const pendingOnes = userPurchases.filter(p =>
+          p.status === 'pending' && new Date(p.purchasedAt) > oneHourAgo
+        );
         
         // Fetch course details for pending purchases
         const pendingWithCourses: PendingPurchase[] = await Promise.all(

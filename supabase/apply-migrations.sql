@@ -726,6 +726,37 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- ============================================
+-- 8b. cleanup_stale_pending_purchases — auto-expire abandoned checkouts
+-- Pending rows older than the threshold (default 24h) are marked 'failed'
+-- so the dashboard's "verifying" alert doesn't show them forever.
+-- Idempotent and safe to call from the client on dashboard load.
+-- ============================================
+CREATE OR REPLACE FUNCTION cleanup_stale_pending_purchases(
+  p_hours_threshold INTEGER DEFAULT 24
+) RETURNS JSONB AS $$
+DECLARE
+  v_cleaned INTEGER := 0;
+BEGIN
+  UPDATE purchases
+  SET status = 'failed',
+      payment_provider_response = COALESCE(payment_provider_response, '{}'::jsonb) || jsonb_build_object(
+        'auto_expired', true,
+        'reason', 'Pending purchase exceeded ' || p_hours_threshold || ' hour threshold',
+        'expired_at', NOW()::text
+      )
+  WHERE status = 'pending'
+    AND purchased_at < NOW() - (p_hours_threshold || ' hours')::interval;
+
+  GET DIAGNOSTICS v_cleaned = ROW_COUNT;
+
+  RETURN jsonb_build_object(
+    'success', true,
+    'cleaned_count', v_cleaned
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ============================================
 -- 9. get_payment_orphans / resolve_payment_orphan (admin-only)
 -- ============================================
 CREATE OR REPLACE FUNCTION get_payment_orphans(
