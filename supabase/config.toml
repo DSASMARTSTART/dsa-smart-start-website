@@ -382,6 +382,14 @@ deno_version = 2
 [functions.generate-invoice]
 verify_jwt = false
 
+# payment-webhook is called by third-party payment providers (RaiAccept,
+# PayPal) which cannot send a Supabase JWT. Authentication is performed
+# inside the function via provider-side verification (RaiAccept merchant API
+# re-fetch / PayPal event structure). Without this flag the gateway returns
+# 401 to every webhook POST and pending purchases never confirm.
+[functions.payment-webhook]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327
