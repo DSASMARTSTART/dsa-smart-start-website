@@ -599,6 +599,58 @@ export const coursesApi = {
     };
   },
 
+  // Fetch a course for an authenticated, enrolled user — bypasses is_published.
+  // Server-side RPC enforces enrollment / admin role before returning the row.
+  getForEnrolledUser: async (id: string): Promise<Course | null> => {
+    if (!supabase) {
+      console.warn('Supabase client not initialized');
+      return null;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any).rpc('get_course_for_enrolled_user', {
+      p_course_id: id,
+    });
+
+    if (error) {
+      console.error('Error fetching course for enrolled user:', error);
+      return null;
+    }
+
+    const row = Array.isArray(data) ? data[0] : data;
+    if (!row) return null;
+
+    return {
+      ...toCamelCase<Course>(row),
+      modules: (row.modules as Module[]) || [],
+      pricing: row.pricing as CoursePricing,
+      productType: (row.product_type as ProductType) || 'learndash',
+      targetAudience: (row.target_audience as TargetAudience) || 'adults_teens',
+      contentFormat: (row.content_format as ContentFormat) || 'interactive',
+      teachingMaterialsPrice: row.teaching_materials_price as number | undefined,
+      teachingMaterialsIncluded: (row.teaching_materials_included as boolean) || false,
+      relatedMaterialsId: row.related_materials_id as string | undefined,
+      ebookPdfUrl: row.ebook_pdf_url as string | undefined,
+      ebookPageCount: row.ebook_page_count as number | undefined,
+      ebookFiles: (row.ebook_files as EbookFile[]) || [],
+      showInFooter: row.show_in_footer !== false,
+      footerOrder: row.footer_order || 0,
+      learningOutcomes: row.learning_outcomes || [],
+      prerequisites: row.prerequisites || [],
+      targetAudienceInfo: row.target_audience_info || undefined,
+      instructor: row.instructor || undefined,
+      estimatedWeeklyHours: row.estimated_weekly_hours || undefined,
+      previewVideoUrl: row.preview_video_url || undefined,
+      totalStudentsEnrolled: row.total_students_enrolled || 0,
+      syllabusContent: row.syllabus_content || undefined,
+      wizardStep: (row.wizard_step as WizardStep) || 1,
+      stepsCompleted: (row.steps_completed as WizardStepsCompleted) || { metadata: false, pricing: false, syllabus: false, content: false },
+      wizardCompleted: (row.wizard_completed as boolean) || false,
+      paymentProductId: row.payment_product_id as string | undefined,
+      paymentProvider: (row.payment_provider as PaymentProvider) || 'paypal',
+    };
+  },
+
   // Get all courses for admin (including unpublished)
   listForAdmin: async (): Promise<Course[]> => {
     if (!supabase) {
@@ -1331,8 +1383,11 @@ export const enrollmentsApi = {
       throw error;
     }
     
+    // NOTE: Do NOT filter by is_published here. Enrolled users keep access
+    // to courses even if they are subsequently unpublished. is_published only
+    // controls catalog discoverability.
     return (data || [])
-      .filter((e: Record<string, unknown>) => e.courses && (e.courses as Record<string, unknown>).is_published)
+      .filter((e: Record<string, unknown>) => !!e.courses)
       .map((e: Record<string, unknown>) => {
         const courseData = e.courses as Record<string, unknown>;
         return {
@@ -2126,4 +2181,97 @@ export const catalogApi = {
       currency: items[0]?.course.pricing.currency || 'EUR'
     };
   }
+};
+
+// ============================================
+// PAYMENT ORPHANS API (admin-only reconciliation)
+// Orphans are unmatched provider notifications. Reads/resolves go through
+// SECURITY DEFINER RPCs that enforce role checks server-side.
+// ============================================
+
+export interface PaymentOrphan {
+  id: string;
+  provider: string;
+  transactionId: string | null;
+  orderIdentification: string | null;
+  merchantOrderReference: string | null;
+  amount: number | null;
+  currency: string | null;
+  customerEmail: string | null;
+  customerName: string | null;
+  reason: string;
+  notes: string | null;
+  providerResponse: Record<string, unknown>;
+  resolved: boolean;
+  resolvedAt: string | null;
+  resolvedBy: string | null;
+  resolutionNotes: string | null;
+  createdAt: string;
+}
+
+export type PaymentOrphanResolveAction = 'confirm' | 'refunded' | 'dismiss';
+
+export const paymentOrphansApi = {
+  /** List orphans (unresolved by default). Admin-only via RPC role check. */
+  list: async (includeResolved = false): Promise<PaymentOrphan[]> => {
+    if (!supabase) return [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any).rpc('get_payment_orphans', {
+      p_include_resolved: includeResolved,
+    });
+    if (error) {
+      console.error('Error fetching payment orphans:', error);
+      return [];
+    }
+    return ((data as Record<string, unknown>[]) || []).map(row => toCamelCase<PaymentOrphan>(row));
+  },
+
+  /** Count of unresolved orphans (for badges). Returns 0 on any error. */
+  countUnresolved: async (): Promise<number> => {
+    if (!supabase) return 0;
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await (supabase as any).rpc('get_payment_orphans', {
+        p_include_resolved: false,
+      });
+      if (error) return 0;
+      return Array.isArray(data) ? data.length : 0;
+    } catch {
+      return 0;
+    }
+  },
+
+  /**
+   * Resolve an orphan.
+   *  - 'confirm'  → creates the missing purchase + enrollment (requires user/course).
+   *  - 'refunded' → marks resolved with notes; no enrollment created.
+   *  - 'dismiss'  → marks resolved as test/noise.
+   */
+  resolve: async (params: {
+    orphanId: string;
+    action: PaymentOrphanResolveAction;
+    userId?: string;
+    courseId?: string;
+    notes?: string;
+  }): Promise<{ success: boolean; error?: string; purchaseId?: string }> => {
+    if (!supabase) return { success: false, error: 'Supabase not initialized' };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any).rpc('resolve_payment_orphan', {
+      p_id: params.orphanId,
+      p_action: params.action,
+      p_user_id: params.userId ?? null,
+      p_course_id: params.courseId ?? null,
+      p_notes: params.notes ?? null,
+    });
+    if (error) {
+      console.error('Error resolving payment orphan:', error);
+      return { success: false, error: error.message };
+    }
+    const result = (data || {}) as { success?: boolean; error?: string; purchase_id?: string };
+    return {
+      success: !!result.success,
+      error: result.error,
+      purchaseId: result.purchase_id,
+    };
+  },
 };

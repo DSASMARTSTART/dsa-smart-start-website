@@ -7,6 +7,7 @@ import { ArrowLeft, CheckCircle2, Download, BookOpen, ArrowRight, Sparkles, Mail
 import { useTranslation, Trans } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { purchasesApi, coursesApi } from '../data/supabaseStore';
+import { supabase } from '../lib/supabase';
 import { Course, Purchase } from '../types';
 
 interface CheckoutSuccessPageProps {
@@ -23,6 +24,9 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
   const { user, profile } = useAuth();
   const [recentPurchases, setRecentPurchases] = useState<PurchaseWithCourse[]>([]);
   const [loading, setLoading] = useState(true);
+  // Set to true when polling stops with at least one purchase still pending
+  // — we surface a "payment is processing" message so the user knows what's next.
+  const [pollTimedOut, setPollTimedOut] = useState(false);
 
   const userId = user?.id || profile?.id;
   const userName = profile?.name || 'there';
@@ -30,11 +34,27 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
   useEffect(() => {
     let isCancelled = false;
     let pollInterval: ReturnType<typeof setInterval> | null = null;
+    let pollTimeout: ReturnType<typeof setTimeout> | null = null;
+    const POLL_TIMEOUT_MS = 60_000; // Stop polling after 60 seconds.
+
+    const stopPolling = () => {
+      if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+      if (pollTimeout) { clearTimeout(pollTimeout); pollTimeout = null; }
+    };
 
     const loadRecentPurchases = async () => {
       if (!userId) {
         setLoading(false);
         return;
+      }
+
+      // Self-heal enrollments first — ensures any completed purchase has
+      // a matching enrollment row before we render the list. Idempotent.
+      try {
+        const { error: ensureErr } = await supabase.rpc('ensure_enrollment_exists', { p_user_id: userId });
+        if (ensureErr) console.error('ensure_enrollment_exists failed:', ensureErr);
+      } catch (ensureErr) {
+        console.error('ensure_enrollment_exists error:', ensureErr);
       }
 
       try {
@@ -63,6 +83,13 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
           // Check if any purchases are still pending — if so, start polling
           const hasPending = purchasesWithCourses.some(p => p.status === 'pending');
           if (hasPending && !pollInterval) {
+            // Hard 60-second cap so we don't poll forever if the webhook never fires.
+            pollTimeout = setTimeout(() => {
+              if (isCancelled) return;
+              stopPolling();
+              setPollTimedOut(true);
+            }, POLL_TIMEOUT_MS);
+
             pollInterval = setInterval(async () => {
               try {
                 const refreshed = await purchasesApi.getByUser(userId);
@@ -80,12 +107,11 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
                 
                 if (!isCancelled) {
                   setRecentPurchases(withCourses);
-                  
+
                   // Stop polling if all purchases are confirmed
                   const stillPending = withCourses.some(p => p.status === 'pending');
-                  if (!stillPending && pollInterval) {
-                    clearInterval(pollInterval);
-                    pollInterval = null;
+                  if (!stillPending) {
+                    stopPolling();
                   }
                 }
               } catch (err) {
@@ -106,9 +132,7 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
     // Cleanup: stop polling on unmount
     return () => {
       isCancelled = true;
-      if (pollInterval) {
-        clearInterval(pollInterval);
-      }
+      stopPolling();
     };
   }, [userId]);
 
@@ -271,7 +295,9 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
                 <div className="flex items-center gap-3 p-4 bg-amber-500/10 rounded-xl border border-amber-500/30 mt-4">
                   <Clock size={20} className="text-amber-400" />
                   <p className="text-sm text-amber-300/80">
-                    {t('successPage.pendingNotice')}
+                    {pollTimedOut
+                      ? t('successPage.pendingTimedOut', 'Your payment is still processing. We will email you the moment it confirms — you can also check your dashboard later.')
+                      : t('successPage.pendingNotice')}
                   </p>
                 </div>
               )}

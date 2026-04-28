@@ -58,6 +58,10 @@ export interface PaymentRequest {
     teachingMaterialsPrice?: number;
   }>;
   paymentMethod?: string;
+  // Client-generated idempotency key forwarded to the create-raiaccept-session
+  // Edge Function. Dedupes rapid double-clicks on Pay so we never create
+  // two pending purchase rows / two RaiAccept orders for the same attempt.
+  idempotencyKey?: string;
   // Billing details captured at checkout — snapshotted onto purchases and the invoice.
   billing?: {
     name: string;
@@ -125,8 +129,13 @@ export function isPaymentConfigured(): boolean {
  * RaiAccept merchant account is configured for RSD only.
  * Prices are displayed in EUR throughout the site; converted to RSD at payment time.
  *
- * Update this rate periodically based on the NBS middle exchange rate.
- * Current NBS middle rate as of 2026-02-18: ~117.15 RSD/EUR
+ * SINGLE SOURCE OF TRUTH — do not duplicate this constant elsewhere.
+ * TODO(payment): Replace with a live FX feed (NBS daily middle rate or
+ * a RaiAccept-supplied per-order rate) before production launch outside
+ * the current ~1% drift tolerance. See payment-flow-plan.md "Further
+ * considerations" item 3.
+ *
+ * Last manual update — NBS middle rate 2026-02-18: ~117.15 RSD/EUR.
  */
 export const EUR_TO_RSD_RATE = 117.15;
 
@@ -178,14 +187,19 @@ export class RaiAcceptPayment {
       throw new Error('Supabase configuration missing for payment processing');
     }
 
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${supabaseKey}`,
+    };
+    if (request.idempotencyKey) {
+      headers['Idempotency-Key'] = request.idempotencyKey;
+    }
+
     const response = await fetch(
       `${supabaseUrl}/functions/v1/create-raiaccept-session`,
       {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${supabaseKey}`,
-        },
+        headers,
         body: JSON.stringify({
           orderId: request.orderId,
           amount: request.amount,
@@ -242,14 +256,16 @@ export class PayPalPayment {
     this.config = getPaymentConfig().paypal;
   }
 
-  // Load PayPal SDK with timeout
+  // Load PayPal SDK with timeout. Throws a descriptive Error on failure so
+  // the caller can surface a banner to the user. Backwards-compatible: a
+  // resolved `false` is still possible only when PayPal is not configured.
   async loadSDK(): Promise<boolean> {
     if (this.sdkLoaded) return true;
     if (!this.config.isConfigured) return false;
 
     const TIMEOUT_MS = 15000; // 15 second timeout
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       // Check if already loaded
       if (window.paypal) {
         this.sdkLoaded = true;
@@ -272,8 +288,9 @@ export class PayPalPayment {
         setTimeout(() => {
           clearInterval(checkInterval);
           if (!this.sdkLoaded) {
-            console.error('PayPal SDK loading timeout (existing script)');
-            resolve(false);
+            const err = new Error('PayPal SDK failed to load (timeout waiting for existing script).');
+            console.error(err.message);
+            reject(err);
           }
         }, TIMEOUT_MS);
         return;
@@ -282,11 +299,12 @@ export class PayPalPayment {
       const script = document.createElement('script');
       script.src = `https://www.paypal.com/sdk/js?client-id=${this.config.clientId}&currency=EUR&intent=capture`;
       script.async = true;
-      
+
       // Set up timeout
       const timeoutId = setTimeout(() => {
-        console.error('PayPal SDK loading timeout');
-        resolve(false);
+        const err = new Error('PayPal SDK failed to load within 15 seconds. Check your network connection or try a different payment method.');
+        console.error(err.message);
+        reject(err);
       }, TIMEOUT_MS);
 
       script.onload = () => {
@@ -296,8 +314,9 @@ export class PayPalPayment {
       };
       script.onerror = () => {
         clearTimeout(timeoutId);
-        console.error('Failed to load PayPal SDK');
-        resolve(false);
+        const err = new Error('Failed to load PayPal SDK. The PayPal service may be temporarily unavailable.');
+        console.error(err.message);
+        reject(err);
       };
       document.body.appendChild(script);
     });

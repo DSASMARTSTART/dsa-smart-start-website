@@ -74,15 +74,39 @@ async function verifyRaiAcceptOrder(
 
 const RAIACCEPT_PAID_STATUSES = ['PAID', 'SUCCESS'];
 
+// Validate required env up-front. Missing secrets are an operator config
+// problem, not a customer-facing one — surface a generic 500 to the
+// provider so it can retry, but log loudly for the dashboard.
+function getRequiredEnv(): { url: string; key: string } | { error: string } {
+  const url = Deno.env.get('SUPABASE_URL') || ''
+  const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
+  const missing: string[] = []
+  if (!url) missing.push('SUPABASE_URL')
+  if (!key) missing.push('SUPABASE_SERVICE_ROLE_KEY')
+  if (missing.length > 0) {
+    return { error: `Missing required edge function secrets: ${missing.join(', ')}` }
+  }
+  return { url, key }
+}
+
 Deno.serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
+  const env = getRequiredEnv()
+  if ('error' in env) {
+    console.error('payment-webhook env config error:', env.error)
+    return new Response(
+      JSON.stringify({ success: false, error: 'Webhook receiver is not configured' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+  }
+
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    const supabaseUrl = env.url
+    const supabaseServiceKey = env.key
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     const url = new URL(req.url)
@@ -91,6 +115,9 @@ Deno.serve(async (req) => {
     let transactionId: string | null = null
     let isSuccess = false
     let providerResponse: Record<string, unknown> = {}
+    // Number of items the provider says were paid for in this single
+    // transaction. Used to detect partial confirmation (multi-item txns).
+    let providerItemCount = 1
 
     // ── RaiAccept webhook (JSON POST) ──────────────────────────────────
     if (provider === 'raiaccept' && req.method === 'POST') {
@@ -109,7 +136,10 @@ Deno.serve(async (req) => {
         body?.order?.invoice?.merchantOrderReference ||
         body?.invoice?.merchantOrderReference || ''
 
-      console.log(`RaiAccept webhook received: order=${orderIdentification}, tx=${webhookTransactionId}, status=${transactionStatus}, merchantRef=${merchantOrderReference}`)
+      // Log raw provider + transactionId immediately for audit (Phase 2 plan).
+      const raiaItems = body?.order?.invoice?.items || body?.invoice?.items || []
+      providerItemCount = Array.isArray(raiaItems) && raiaItems.length > 0 ? raiaItems.length : 1
+      console.log(`[webhook:raiaccept] order=${orderIdentification} tx=${webhookTransactionId} status=${transactionStatus} merchantRef=${merchantOrderReference} items=${providerItemCount}`)
 
       // Use merchantOrderReference as our transactionId (matches our orderId from checkout)
       transactionId = merchantOrderReference || orderIdentification
@@ -154,6 +184,9 @@ Deno.serve(async (req) => {
                           null
           isSuccess = body.event_type === 'PAYMENT.CAPTURE.COMPLETED' ||
                       body.event_type === 'CHECKOUT.ORDER.APPROVED'
+          const units = body.resource?.purchase_units
+          if (Array.isArray(units) && units.length > 0) providerItemCount = units.length
+          console.log(`[webhook:paypal] event=${body.event_type} tx=${transactionId} units=${providerItemCount}`)
         }
       }
 
@@ -167,14 +200,75 @@ Deno.serve(async (req) => {
 
     // ── Process the result ─────────────────────────────────────────────
     if (!transactionId) {
+      // Record as orphan so an admin can investigate, then ACK 200 so the
+      // provider does not retry forever (Phase 2: always-200 policy).
       console.error('No transaction ID in webhook payload:', JSON.stringify(providerResponse).substring(0, 500))
-      return new Response(JSON.stringify({ error: 'Missing transaction ID' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      })
+      await recordOrphan(
+        'missing_transaction_id',
+        'Webhook payload had no recognizable transaction/order identifier.'
+      )
+      return new Response(
+        JSON.stringify({ success: false, error: 'Missing transaction ID — recorded for review' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
     console.log(`Processing webhook: provider=${provider}, transactionId=${transactionId}, success=${isSuccess}`)
+
+    // Helper: record an unmatched-but-paid event so admins can manually
+    // reconcile (refund or grant access). Best-effort — never throw.
+    const recordOrphan = async (
+      reason: string,
+      notes: string,
+      extra: Record<string, unknown> = {}
+    ) => {
+      try {
+        const resource = (providerResponse as Record<string, any>)?.resource || {}
+        const order = (providerResponse as Record<string, any>)?.order || {}
+        const txn = (providerResponse as Record<string, any>)?.transaction || {}
+        const consumer = order?.consumer || resource?.payer || {}
+        const invoice = order?.invoice || resource?.purchase_units?.[0] || {}
+
+        const orphan = {
+          provider,
+          transaction_id: transactionId,
+          order_identification: order?.orderIdentification || resource?.id || null,
+          merchant_order_reference:
+            order?.invoice?.merchantOrderReference ||
+            resource?.purchase_units?.[0]?.reference_id ||
+            null,
+          amount: Number(invoice?.amount ?? resource?.amount?.value ?? txn?.amount ?? 0) || null,
+          currency: invoice?.currency || resource?.amount?.currency_code || null,
+          customer_email:
+            consumer?.email ||
+            consumer?.email_address ||
+            resource?.payer?.email_address ||
+            null,
+          customer_name: [consumer?.firstName, consumer?.lastName].filter(Boolean).join(' ') || null,
+          reason,
+          notes,
+          provider_response: providerResponse,
+          ...extra,
+        }
+        const { error: orphanErr } = await supabase.from('payment_orphans').insert(orphan)
+        if (orphanErr) {
+          console.error('Failed to record payment orphan:', orphanErr)
+        } else {
+          console.warn('Recorded payment orphan for manual reconciliation:', reason, transactionId)
+        }
+      } catch (err) {
+        console.error('recordOrphan threw:', err)
+      }
+    }
+
+    // Helper: did the RPC confirm at least one row, AND did it cover every
+    // item the provider charged for? Treat partial confirmation as orphaned
+    // remainder so admins can reconcile.
+    const isFullyConfirmed = (data: any): boolean => {
+      if (!data?.success) return false
+      const confirmed = Number(data.purchases_confirmed ?? 0)
+      return confirmed > 0 && confirmed >= providerItemCount
+    }
 
     let result
     if (isSuccess) {
@@ -184,8 +278,24 @@ Deno.serve(async (req) => {
       })
 
       if (error) {
+        // Includes RAISE EXCEPTION from partial-failure rollback inside the RPC.
         console.error('Error confirming purchase:', error)
+        await recordOrphan(
+          'rpc_error',
+          `confirm_purchase_webhook returned error: ${error.message}`
+        )
         result = { success: false, error: error.message }
+      } else if (data?.success && !isFullyConfirmed(data)) {
+        // Partial confirmation — provider charged for N items but we only
+        // matched M < N pending purchases. Record the gap as an orphan.
+        const confirmed = Number(data.purchases_confirmed ?? 0)
+        console.warn(`Partial confirmation: confirmed=${confirmed}, providerItems=${providerItemCount}, tx=${transactionId}`)
+        await recordOrphan(
+          'partial_confirmation',
+          `Provider charged for ${providerItemCount} item(s) but only ${confirmed} pending purchase(s) matched.`,
+          { merchant_order_reference: transactionId }
+        )
+        result = data
       } else if (!data?.success) {
         // Purchase not found by transaction_id — try broader lookup
         // This handles PayPal where the webhook sends a different ID (capture ID)
@@ -216,6 +326,14 @@ Deno.serve(async (req) => {
             
             if (!refError && refData?.success) {
               console.log('PayPal fallback succeeded via reference_id:', referenceId)
+              if (!isFullyConfirmed(refData)) {
+                const confirmed = Number(refData.purchases_confirmed ?? 0)
+                await recordOrphan(
+                  'partial_confirmation',
+                  `PayPal reference_id matched ${confirmed}/${providerItemCount} items.`,
+                  { merchant_order_reference: referenceId }
+                )
+              }
               result = refData
             } else {
               // Last resort: try to find by custom_id (we set this to userId|courseId)
@@ -243,14 +361,41 @@ Deno.serve(async (req) => {
               result = ucData
             } else {
               console.error('All PayPal fallback attempts failed')
+              await recordOrphan(
+                'paypal_no_match',
+                'PayPal reported a captured payment but no purchase row matched ' +
+                  'transaction_id, reference_id, or user+course custom_id.'
+              )
               result = data // Return original "not found" response
             }
           }
           
           if (!result) {
+            await recordOrphan(
+              'paypal_no_reference',
+              'PayPal webhook had no reference_id or custom_id we could match on.'
+            )
             result = data
           }
+        } else if (provider === 'raiaccept') {
+          // RaiAccept fallback: the webhook normally already gives us the
+          // merchantOrderReference (our orderId) and we re-fetch via the API
+          // for security. If the RPC still says "not found", it means
+          // create-raiaccept-session never created the pending row (silent
+          // failure on a previous deploy, or a DB outage at session-create
+          // time). We record an orphan so an admin can reconcile manually.
+          await recordOrphan(
+            'raiaccept_no_pending_purchase',
+            'RaiAccept reported a paid order but no matching pending purchase row exists. ' +
+              'Likely cause: create-raiaccept-session failed to insert the pending row before redirect. ' +
+              'Verify the charge in the RaiAccept merchant portal and grant access manually.'
+          )
+          result = data
         } else {
+          await recordOrphan(
+            'unknown_provider_no_match',
+            `Provider "${provider}" reported success but no purchase row matched.`
+          )
           result = data
         }
       } else {
@@ -272,9 +417,11 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Return 200 to acknowledge receipt (most providers require this)
-    // If payment was successful, generate invoice and email it to the customer + accountants (best-effort)
-    if (isSuccess && result?.success) {
+    // Return 200 to acknowledge receipt (most providers require this).
+    // Only fire invoice generation when we are FULLY confirmed (every paid
+    // item has a matching enrollment). Partial confirmations / orphans must
+    // not trigger an invoice — admin reconciliation will re-trigger later.
+    if (isSuccess && isFullyConfirmed(result)) {
       try {
         const invoiceFnUrl = `${supabaseUrl}/functions/v1/generate-invoice`
         fetch(invoiceFnUrl, {
@@ -299,10 +446,14 @@ Deno.serve(async (req) => {
     })
 
   } catch (error) {
-    console.error('Webhook error:', error)
-    return new Response(JSON.stringify({ error: 'Internal server error' }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    })
+    // Phase 2 policy: always ACK 200 so the provider stops retrying. The
+    // failure is logged for ops; if any state was persisted it will be
+    // reconciled by ensure_enrollment_exists (dashboard self-heal) or by
+    // the admin orphan UI.
+    console.error('Webhook error (returning 200 to suppress provider retries):', error)
+    return new Response(
+      JSON.stringify({ success: false, error: 'Internal error — recorded for review' }),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
   }
 })

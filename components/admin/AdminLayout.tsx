@@ -2,12 +2,14 @@
 // Admin Layout - Reuses Student Dashboard patterns
 // ============================================
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   LayoutDashboard, Users, BookOpen, History, Settings, LogOut, 
-  ChevronRight, Menu, X, Bell, Search, Shield, AlertTriangle, Tag, CreditCard
+  ChevronRight, Menu, X, Bell, Search, Shield, AlertTriangle, Tag, CreditCard,
+  FileWarning
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { paymentOrphansApi } from '../../data/supabaseStore';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -19,6 +21,25 @@ interface AdminLayoutProps {
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPath, onNavigate, onLogout }) => {
   const { profile, loading, canAccessAdmin } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [orphanCount, setOrphanCount] = useState(0);
+
+  // Poll unresolved payment-orphan count for the sidebar badge.
+  // Only fetch once admin access is verified to avoid spurious 403s.
+  useEffect(() => {
+    if (!canAccessAdmin()) return;
+    let cancelled = false;
+    const refresh = async () => {
+      const n = await paymentOrphansApi.countUnresolved();
+      if (!cancelled) setOrphanCount(n);
+    };
+    void refresh();
+    const interval = window.setInterval(refresh, 60_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.id]);
 
   // Show loading state while auth is being checked
   if (loading) {
@@ -66,11 +87,18 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPath, onNavi
     );
   }
 
-  const navItems = [
+  const navItems: Array<{
+    id: string;
+    label: string;
+    icon: typeof LayoutDashboard;
+    path: string;
+    badge?: number;
+  }> = [
     { id: 'admin', label: 'Dashboard', icon: LayoutDashboard, path: 'admin' },
     { id: 'admin-users', label: 'Users', icon: Users, path: 'admin-users' },
     { id: 'admin-courses', label: 'Courses', icon: BookOpen, path: 'admin-courses' },
     { id: 'admin-transactions', label: 'Transactions', icon: CreditCard, path: 'admin-transactions' },
+    { id: 'admin-payment-orphans', label: 'Payment Orphans', icon: FileWarning, path: 'admin-payment-orphans', badge: orphanCount },
     { id: 'admin-discounts', label: 'Discount Codes', icon: Tag, path: 'admin-discounts' },
     { id: 'admin-audit', label: 'Audit Log', icon: History, path: 'admin-audit' },
     { id: 'admin-settings', label: 'Settings', icon: Settings, path: 'admin-settings' },
@@ -167,7 +195,16 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPath, onNavi
               >
                 <item.icon size={18} />
                 <span className="text-xs font-black uppercase tracking-widest">{item.label}</span>
-                {isActive(item.path) && <ChevronRight size={14} className="ml-auto" />}
+                {item.badge && item.badge > 0 ? (
+                  <span
+                    className="ml-auto min-w-[20px] h-5 px-1.5 inline-flex items-center justify-center rounded-full bg-pink-500 text-white text-[9px] font-black"
+                    aria-label={`${item.badge} unresolved`}
+                  >
+                    {item.badge > 99 ? '99+' : item.badge}
+                  </span>
+                ) : (
+                  isActive(item.path) && <ChevronRight size={14} className="ml-auto" />
+                )}
               </button>
             ))}
           </nav>

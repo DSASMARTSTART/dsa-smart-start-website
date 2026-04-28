@@ -56,36 +56,65 @@ interface SessionRequest {
   };
 }
 
-// Step 1: Authenticate with RaiAccept via Amazon Cognito
+// Step 1: Authenticate with RaiAccept via Amazon Cognito.
+// Retries up to 3 times with exponential backoff to absorb transient Cognito
+// blips (Phase 2 plan). Throws after the final attempt.
 async function authenticate(username: string, password: string): Promise<string> {
-  const response = await fetch(AUTH_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-amz-json-1.1',
-      'X-Amz-Target': 'AWSCognitoIdentityProviderService.InitiateAuth',
-    },
-    body: JSON.stringify({
-      AuthFlow: 'USER_PASSWORD_AUTH',
-      AuthParameters: {
-        USERNAME: username,
-        PASSWORD: password,
-      },
-      ClientId: AUTH_CLIENT_ID,
-    }),
-  });
+  const maxAttempts = 3;
+  let lastErr: unknown = null;
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error('RaiAccept auth failed:', response.status, errorText);
-    throw new Error(`Authentication failed: ${response.status}`);
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const response = await fetch(AUTH_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-amz-json-1.1',
+          'X-Amz-Target': 'AWSCognitoIdentityProviderService.InitiateAuth',
+        },
+        body: JSON.stringify({
+          AuthFlow: 'USER_PASSWORD_AUTH',
+          AuthParameters: {
+            USERNAME: username,
+            PASSWORD: password,
+          },
+          ClientId: AUTH_CLIENT_ID,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        // 4xx (esp. 400 NotAuthorizedException for bad creds) is not a
+        // transient error — fail fast, don't burn the retry budget.
+        if (response.status >= 400 && response.status < 500) {
+          console.error('RaiAccept auth failed (non-retryable):', response.status, errorText);
+          throw new Error(`Authentication failed: ${response.status}`);
+        }
+        lastErr = new Error(`Authentication failed: ${response.status} ${errorText}`);
+        console.warn(`RaiAccept auth attempt ${attempt}/${maxAttempts} failed (${response.status}); will retry`);
+      } else {
+        const data = await response.json();
+        const idToken = data?.AuthenticationResult?.IdToken;
+        if (!idToken) {
+          throw new Error('No IdToken in authentication response');
+        }
+        return idToken;
+      }
+    } catch (err) {
+      lastErr = err;
+      // Only retry on network-style failures, not on the bad-creds throw above.
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.startsWith('Authentication failed: 4')) throw err;
+      console.warn(`RaiAccept auth attempt ${attempt}/${maxAttempts} threw: ${msg}`);
+    }
+
+    if (attempt < maxAttempts) {
+      // Exponential backoff: 250ms, 750ms
+      const delay = 250 * Math.pow(3, attempt - 1);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
   }
 
-  const data = await response.json();
-  const idToken = data?.AuthenticationResult?.IdToken;
-  if (!idToken) {
-    throw new Error('No IdToken in authentication response');
-  }
-  return idToken;
+  throw lastErr instanceof Error ? lastErr : new Error('RaiAccept authentication exhausted retries');
 }
 
 // Step 2: Create order entry in RaiAccept
@@ -227,18 +256,46 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Validate ALL required env at boot — fail fast with a single explicit
+    // error rather than half-configured behaviour deeper in the flow.
     const username = Deno.env.get('RAIACCEPT_API_USERNAME');
     const password = Deno.env.get('RAIACCEPT_API_PASSWORD');
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
-    if (!username || !password) {
-      console.error('RAIACCEPT_API_USERNAME or RAIACCEPT_API_PASSWORD not configured in Edge Function secrets');
+    const missingEnv: string[] = [];
+    if (!username) missingEnv.push('RAIACCEPT_API_USERNAME');
+    if (!password) missingEnv.push('RAIACCEPT_API_PASSWORD');
+    if (!supabaseUrl) missingEnv.push('SUPABASE_URL');
+    if (!supabaseServiceKey) missingEnv.push('SUPABASE_SERVICE_ROLE_KEY');
+
+    if (missingEnv.length > 0) {
+      console.error('create-raiaccept-session missing env:', missingEnv.join(', '));
+      // Operator-level error — do not leak which secrets are missing.
       return new Response(
         JSON.stringify({ error: 'Payment service not configured', success: false }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
       );
     }
 
+    // Idempotency key: client should send a stable UUID per checkout attempt
+    // so rapid double-clicks do not create two pending purchases. Falls back
+    // to body.orderId for backward compatibility.
+    const idempotencyKey = (req.headers.get('idempotency-key') || '').trim() || null;
+
     const body: SessionRequest = await req.json();
+
+    // Prefer the header-supplied idempotency key as the canonical orderId.
+    if (idempotencyKey) {
+      if (!body.orderId) {
+        body.orderId = idempotencyKey;
+      } else if (body.orderId !== idempotencyKey) {
+        console.log(
+          `Idempotency-Key header (${idempotencyKey}) differs from body.orderId (${body.orderId}); using header value`
+        );
+        body.orderId = idempotencyKey;
+      }
+    }
 
     // Validate required fields
     const missingFields: string[] = [];
@@ -261,11 +318,8 @@ Deno.serve(async (req) => {
     // ── Create pending purchase records server-side (RACE CONDITION FIX) ──
     // This ensures the purchase record exists BEFORE the webhook fires
     // Requires authenticated user — no guest path
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    
     if (body.purchaseItems && body.purchaseItems.length > 0) {
-      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+      const supabase = createClient(supabaseUrl!, supabaseServiceKey!);
       const userId = body.userId;
       
       if (!userId) {
@@ -275,9 +329,15 @@ Deno.serve(async (req) => {
         );
       }
 
+      // CRITICAL: every pending purchase MUST be created BEFORE we hand the
+      // user off to RaiAccept's payment form. If even one RPC call fails we
+      // abort the whole session — otherwise the customer would be charged
+      // with no `purchases` row to confirm against on the webhook (orphan
+      // payment, no access granted, no admin visibility).
       for (const item of body.purchaseItems) {
+        let rpcResult: { data: any; error: any };
         try {
-          const { data, error } = await supabase.rpc('create_pending_purchase', {
+          rpcResult = await supabase.rpc('create_pending_purchase', {
             p_user_id: userId,
             p_course_id: item.courseId,
             p_amount: item.amount,
@@ -298,18 +358,78 @@ Deno.serve(async (req) => {
             p_billing_pib: body.billing?.pib || null,
             p_billing_vat_id: body.billing?.vatId || null,
           });
-          
-          if (error) {
-            console.error('Error creating pending purchase for course', item.courseId, ':', error);
-          } else {
-            console.log('Pending purchase created for course', item.courseId, ':', data);
-          }
         } catch (purchaseErr) {
-          // Log but don't fail - the payment should still proceed
-          // Client-side handlePaymentSuccess will also try to create the purchase
-          console.error('Failed to create server-side pending purchase:', purchaseErr);
+          console.error('Failed to call create_pending_purchase for course', item.courseId, ':', purchaseErr);
+          // Sanitized: do NOT include the raw DB / network error in the
+          // response body — it can leak schema or infra details to the browser.
+          return new Response(
+            JSON.stringify({
+              success: false,
+              error: 'We could not start your order. Please try again or contact support if the problem persists.',
+              code: 'pending_purchase_rpc_threw',
+              courseId: item.courseId,
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+          );
         }
+
+        const { data, error } = rpcResult;
+
+        if (error) {
+          console.error('create_pending_purchase RPC error for course', item.courseId, ':', error);
+          // Sanitized: drop `detail` so DB error text never reaches the client.
+          return new Response(
+            JSON.stringify({
+              success: false,
+              error: 'We could not start your order. Please try again or contact support if the problem persists.',
+              code: 'pending_purchase_rpc_error',
+              courseId: item.courseId,
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+          );
+        }
+
+        if (!data || data.success !== true) {
+          // Already enrolled is a graceful soft-fail surfaced as 409 so the
+          // client can suggest visiting the dashboard instead of redirecting.
+          if (data?.already_enrolled) {
+            return new Response(
+              JSON.stringify({
+                success: false,
+                error: data.error || 'You already own this item.',
+                code: 'already_enrolled',
+                courseId: item.courseId,
+              }),
+              { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 409 }
+            );
+          }
+
+          console.error('create_pending_purchase returned failure for course', item.courseId, ':', data);
+          return new Response(
+            JSON.stringify({
+              success: false,
+              error: data?.error || 'We could not start your order. Please try again.',
+              code: 'pending_purchase_failed',
+              courseId: item.courseId,
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+          );
+        }
+
+        console.log('Pending purchase ready for course', item.courseId, ':', data);
       }
+    } else {
+      // Defensive: refuse to create a payment session without purchaseItems.
+      // The client always sends them; an empty payload would mean the webhook
+      // has nothing to confirm and we'd create another orphan.
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'No items to purchase.',
+          code: 'no_purchase_items',
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
     }
 
     // Step 1: Authenticate with RaiAccept
@@ -333,11 +453,13 @@ Deno.serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     );
   } catch (error) {
+    // Sanitized 5xx response: log full detail server-side, return generic
+    // message to the browser so we don't leak infra/DB internals.
     console.error('Error creating RaiAccept session:', error);
     return new Response(
       JSON.stringify({
-        error: error instanceof Error ? error.message : 'Unknown error',
         success: false,
+        error: 'We could not start your payment session. Please try again.',
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     );

@@ -102,13 +102,26 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
 
       // PARALLEL fetch: enrollment check + course data at the same time!
       try {
-        const [enrolled, data] = await Promise.all([
+        const [enrolled, publishedData] = await Promise.all([
           enrollmentsApi.checkEnrollment(user.id, courseId),
           coursesApi.getById(courseId)
         ]);
-        
+
         setIsEnrolled(enrolled);
-        
+
+        // If enrolled, also try the enrolled-user RPC so we can render
+        // courses that have since been unpublished. Fall back to the
+        // published copy when the RPC is unavailable.
+        let data = publishedData;
+        if (enrolled) {
+          try {
+            const enrolledData = await coursesApi.getForEnrolledUser(courseId);
+            if (enrolledData) data = enrolledData;
+          } catch (rpcErr) {
+            console.warn('get_course_for_enrolled_user fallback to public:', rpcErr);
+          }
+        }
+
         if (data) {
           setCourse(data);
           if (enrolled && data.modules.length > 0) {

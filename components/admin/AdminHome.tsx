@@ -7,10 +7,10 @@ import {
   Users, UserCheck, UserX, GraduationCap, DollarSign, TrendingUp,
   Activity, BarChart3, ArrowRight, Zap, PieChart, Clock, Target,
   Award, BookOpen, Monitor, Smartphone, Tablet, Calendar, ArrowUpRight,
-  ArrowDownRight, Eye, ChevronRight
+  ArrowDownRight, Eye, ChevronRight, FileWarning
 } from 'lucide-react';
 import { KPICard, ActivityItem, Button, ProgressBar } from './AdminUIComponents';
-import { analyticsApi } from '../../data/supabaseStore';
+import { analyticsApi, paymentOrphansApi } from '../../data/supabaseStore';
 import { KPIMetrics, AnalyticsTrends, Activity as ActivityType } from '../../types';
 
 interface AdminHomeProps {
@@ -59,9 +59,11 @@ const AdminHome: React.FC<AdminHomeProps> = ({ onNavigate }) => {
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState<'7d' | '30d'>('7d');
   const [activeTab, setActiveTab] = useState<'overview' | 'courses' | 'revenue' | 'engagement'>('overview');
+  const [orphanCount, setOrphanCount] = useState(0);
 
   useEffect(() => {
     loadData();
+    void paymentOrphansApi.countUnresolved().then(setOrphanCount);
   }, []);
 
   const loadData = async () => {
@@ -105,6 +107,36 @@ const AdminHome: React.FC<AdminHomeProps> = ({ onNavigate }) => {
 
   return (
     <div className="space-y-8 animate-reveal">
+      {/* Unresolved payment-orphan banner — surfaced on every dashboard load */}
+      {orphanCount > 0 && (
+        <div className="bg-gradient-to-r from-amber-50 to-pink-50 border border-amber-200 rounded-[2rem] p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-amber-100 border border-amber-200 flex items-center justify-center shrink-0">
+              <FileWarning size={20} className="text-amber-600" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-amber-700 mb-1">
+                Action Required
+              </p>
+              <p className="text-sm font-bold text-gray-900">
+                {orphanCount} unresolved payment {orphanCount === 1 ? 'orphan' : 'orphans'}
+              </p>
+              <p className="text-xs text-gray-600 font-medium">
+                Provider notifications without a matching purchase. Review and reconcile to grant access.
+              </p>
+            </div>
+          </div>
+          <Button
+            variant="primary"
+            size="sm"
+            icon={ArrowRight}
+            onClick={() => onNavigate('admin-payment-orphans')}
+          >
+            Review now
+          </Button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>

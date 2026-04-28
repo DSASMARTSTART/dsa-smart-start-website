@@ -94,6 +94,11 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
   
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  // Locks Pay/Continue once a payment attempt has been dispatched (covers iframe
+  // initialization and the gap between PayPal capture and our redirect).
+  const [paymentDispatched, setPaymentDispatched] = useState(false);
+  // PayPal SDK load error — surfaced as a banner so user can switch methods.
+  const [paypalSdkError, setPaypalSdkError] = useState<string | null>(null);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartLoading, setCartLoading] = useState(true); // Track cart items loading
   const [error, setError] = useState<string | null>(null);
@@ -197,9 +202,20 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
 
   // Session timeout warning state
   const [sessionWarning, setSessionWarning] = useState<{ show: boolean; minutesLeft: number }>({ show: false, minutesLeft: 0 });
-  const [checkoutStartTime] = useState(() => Date.now());
+  const [checkoutStartTime, setCheckoutStartTime] = useState(() => Date.now());
   const CHECKOUT_TIMEOUT_MINUTES = 30; // Warn after 25 minutes, timeout at 30
   const WARNING_THRESHOLD_MINUTES = 5;
+
+  // Idempotency key generated per checkout attempt. Reset on cart change so a
+  // genuinely new attempt gets a new key, but stable across rapid double-clicks.
+  const [idempotencyKey, setIdempotencyKey] = useState<string>(() => {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+    return `idem-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  });
+  useEffect(() => {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') setIdempotencyKey(crypto.randomUUID());
+    else setIdempotencyKey(`idem-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`);
+  }, [cart]);
 
   // Listen for RaiAccept iframe postMessage events (payment completion)
   useEffect(() => {
@@ -240,7 +256,13 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
           }).catch((err) => {
             console.error('Client-side confirmation error:', err);
           });
-          
+
+          // Self-heal: ensure enrollment exists for any completed purchase. Safe to
+          // call even if the webhook already created the enrollment (idempotent).
+          supabase.rpc('ensure_enrollment_exists', { p_user_id: userId })
+            .then(({ error }) => { if (error) console.error('ensure_enrollment_exists failed:', error); })
+            .catch((err) => console.error('ensure_enrollment_exists error:', err));
+
           // Also call handlePaymentSuccess to record purchase and redirect
           handlePaymentSuccess(orderId, 'card').then(() => {
             setPaymentSuccess(true);
@@ -257,11 +279,13 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
         }
       } else if (status === 'cancel') {
         setLoading(false);
+        setPaymentDispatched(false);
         setError(t('errors.paymentCancelled'));
         announce(t('announcements.paymentCancelled'));
       } else {
         // failure / exception
         setLoading(false);
+        setPaymentDispatched(false);
         setError(payload.errorMessage || t('errors.paymentFailed'));
         announce(t('announcements.paymentFailed'));
       }
@@ -293,12 +317,18 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
     return () => clearInterval(intervalId);
   }, [checkoutStartTime]);
 
-  // Extend session / dismiss warning
+  // Extend session / dismiss warning. Resets the start time so the user gets
+  // another full window before the warning re-appears.
   const extendSession = useCallback(() => {
-    // Reset the warning by updating checkoutStartTime would require state setter
-    // For now, just dismiss the warning - user activity is implicit extension
+    setCheckoutStartTime(Date.now());
     setSessionWarning({ show: false, minutesLeft: 0 });
   }, []);
+
+  // Cancel checkout from the session-warning modal — navigate user away.
+  const cancelFromSessionWarning = useCallback(() => {
+    setSessionWarning({ show: false, minutesLeft: 0 });
+    onBack();
+  }, [onBack]);
 
   // Billing snapshot (threaded into payment flows + persisted on purchases for invoicing)
   const billing = useMemo(() => ({
@@ -352,9 +382,13 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
   // Load PayPal SDK when PayPal is selected
   useEffect(() => {
     if (selectedPaymentMethod === 'paypal' && paymentConfig.paypal.isConfigured) {
-      paypalPayment.loadSDK().then(loaded => {
-        setPaypalLoaded(loaded);
-      });
+      setPaypalSdkError(null);
+      paypalPayment.loadSDK()
+        .then(loaded => { setPaypalLoaded(loaded); })
+        .catch((err: Error) => {
+          setPaypalLoaded(false);
+          setPaypalSdkError(err?.message || 'PayPal failed to load. Please try card payment.');
+        });
     }
   }, [selectedPaymentMethod, paymentConfig.paypal.isConfigured]);
 
@@ -571,6 +605,15 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
       } catch (confirmErr) {
         console.error('Client-side purchase confirmation error:', confirmErr);
         // Non-fatal: webhook may still confirm later
+      }
+
+      // Self-heal enrollments for any completed purchases. Idempotent and safe to
+      // run alongside the webhook — guarantees the dashboard shows the new item.
+      try {
+        const { error: ensureErr } = await supabase.rpc('ensure_enrollment_exists', { p_user_id: userId });
+        if (ensureErr) console.error('ensure_enrollment_exists failed:', ensureErr);
+      } catch (ensureErr) {
+        console.error('ensure_enrollment_exists error:', ensureErr);
       }
 
       // Send purchase confirmation email (fire-and-forget — don't block checkout)
@@ -985,6 +1028,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
         purchaseItems: rsdPurchaseItems,
         paymentMethod: 'card',
         billing,
+        idempotencyKey,
       };
 
       // Store order info for callback verification
@@ -1002,6 +1046,8 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
       setPaymentOrderId(orderIdentification);
       setPaymentIframeUrl(paymentFormUrl);
       setShowPaymentIframe(true);
+      // Lock the Pay button: payment attempt is now in flight at the gateway.
+      setPaymentDispatched(true);
     } catch (err) {
       console.error('Payment error:', err);
       setError(err instanceof Error ? err.message : t('errors.paymentFailed'));
@@ -1467,7 +1513,15 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                         {termsError && <p className="text-red-400 text-xs font-bold mt-2 ml-2">{t('terms.required')}</p>}
                       </div>
 
-                      {paypalLoaded ? (
+                      {paypalSdkError ? (
+                        <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-2xl flex items-start gap-3">
+                          <AlertCircle className="text-red-400 flex-shrink-0 mt-0.5" size={20} />
+                          <div>
+                            <p className="text-red-400 text-sm font-bold">{t('paymentMethod.paypalUnavailable', 'PayPal is currently unavailable')}</p>
+                            <p className="text-red-300/80 text-xs mt-1">{paypalSdkError}</p>
+                          </div>
+                        </div>
+                      ) : paypalLoaded ? (
                         <div ref={paypalContainerRef} className="paypal-button-container" />
                       ) : (
                         <div className="flex items-center justify-center p-8">
@@ -1517,10 +1571,10 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                       <button 
                         type="button"
                         onClick={handleRaiffeisenPayment}
-                        disabled={loading || !customerName || !customerEmail}
+                        disabled={loading || paymentDispatched || !customerName || !customerEmail}
                         className="group w-full flex items-center justify-center gap-4 bg-[#8a3ffc] text-white py-6 rounded-[2.5rem] font-black uppercase tracking-[0.2em] shadow-2xl shadow-purple-500/20 hover:bg-[#7a2fec] hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                       >
-                        {loading ? (
+                        {loading || paymentDispatched ? (
                           <>
                             <Loader2 className="animate-spin" size={20} />
                             {t('paymentMethod.redirecting')}
@@ -1885,6 +1939,53 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
         onClose={() => setShowAuthModal(false)}
         onLoginSuccess={handleAuthModalSuccess}
       />
+
+      {/* ── Session Expiring Modal — Extend / Cancel ───────────── */}
+      {sessionWarning.show && (
+        <div
+          className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="session-warning-title"
+        >
+          <div className="relative w-full max-w-md mx-4 bg-[#13131c] border border-amber-500/30 rounded-3xl shadow-2xl p-8">
+            <div className="flex items-start gap-4 mb-6">
+              <div className="w-12 h-12 bg-amber-500/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <h2 id="session-warning-title" className="text-lg font-black text-white uppercase tracking-tight">
+                  {t('session.expiringSoon')}
+                </h2>
+                <p className="text-sm text-amber-300/80 mt-2">
+                  {t('session.expiresIn', { minutes: sessionWarning.minutesLeft })}
+                </p>
+                <p className="text-xs text-gray-400 mt-3">
+                  {t('session.modalDescription', 'For your security we will clear sensitive checkout data when the session ends. Extend to keep going, or cancel to leave checkout.')}
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                type="button"
+                onClick={extendSession}
+                className="flex-1 px-5 py-3 bg-amber-500 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20"
+              >
+                {t('session.extend', 'Extend session')}
+              </button>
+              <button
+                type="button"
+                onClick={cancelFromSessionWarning}
+                className="flex-1 px-5 py-3 bg-white/5 text-gray-300 rounded-xl text-xs font-black uppercase tracking-widest border border-white/10 hover:bg-white/10 transition-all"
+              >
+                {t('session.cancel', 'Cancel checkout')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style dangerouslySetInnerHTML={{ __html: `
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }

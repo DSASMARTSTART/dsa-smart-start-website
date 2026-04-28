@@ -33,7 +33,8 @@ import { useTranslation } from 'react-i18next';
 // Admin Dashboard Components
 import { 
   AdminLayout, AdminHome, AdminUsers, AdminCourses, 
-  CourseEditor, AdminAudit, AdminDiscountCodes, AdminTransactions, AdminSettings 
+  CourseEditor, AdminAudit, AdminDiscountCodes, AdminTransactions,
+  AdminPaymentOrphans, AdminSettings 
 } from './components/admin';
 
 // Toast notification type
@@ -158,6 +159,7 @@ const App: React.FC = () => {
       else if (hash === '#admin-users') setCurrentPath('admin-users');
       else if (hash === '#admin-courses') setCurrentPath('admin-courses');
       else if (hash === '#admin-transactions') setCurrentPath('admin-transactions');
+      else if (hash === '#admin-payment-orphans') setCurrentPath('admin-payment-orphans');
       else if (hash === '#admin-discounts') setCurrentPath('admin-discounts');
       else if (hash === '#admin-audit') setCurrentPath('admin-audit');
       else if (hash === '#admin-settings') setCurrentPath('admin-settings');
@@ -459,6 +461,7 @@ const App: React.FC = () => {
           {currentPath === 'admin-users' && <AdminUsers onNavigate={navigateTo} />}
           {currentPath === 'admin-courses' && <AdminCourses onNavigate={navigateTo} />}
           {currentPath === 'admin-transactions' && <AdminTransactions onNavigate={navigateTo} />}
+          {currentPath === 'admin-payment-orphans' && <AdminPaymentOrphans onNavigate={navigateTo} />}
           {currentPath === 'admin-discounts' && <AdminDiscountCodes onNavigate={navigateTo} />}
           {currentPath === 'admin-course-edit' && selectedCourseId && (
             <CourseEditor courseId={selectedCourseId} onNavigate={navigateTo} />

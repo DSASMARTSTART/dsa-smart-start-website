@@ -1,10 +1,11 @@
 ﻿import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, BookOpen, Download, FileText, CheckCircle2, Star, ShoppingCart, Check, ArrowRight, Layers, TrendingUp, Award, Music, Play, Clock, Shield, RefreshCcw, Sparkles, GraduationCap, ChevronRight, ChevronDown, Heart, BadgeCheck, UserCheck, Rocket, Lock, FileCheck } from 'lucide-react';
-import { coursesApi } from '../data/supabaseStore';
+import { coursesApi, enrollmentsApi } from '../data/supabaseStore';
 import { Course } from '../types';
 import { useLocalizedCourse } from '../hooks/useLocalizedCourse';
 import { ebookVimeoMap, getVimeoEmbedUrl } from '../data/videoConfig';
+import { useAuth } from '../contexts/AuthContext';
 
 // Fallback cover images for e-books (local assets)
 const EBOOK_COVERS: Record<string, string> = {
@@ -65,10 +66,15 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
 }) => {
   const { t, i18n } = useTranslation('courses');
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { user } = useAuth();
   const [rawCourse, setRawCourse] = useState<Course | null>(null);
   const course = useLocalizedCourse(rawCourse);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
+  // True only when an authenticated user has an active enrollment for this ebook.
+  // Used to gate the PDF download URL — it must NEVER be present in the DOM
+  // for non-owners (anonymous, logged-in non-owners, search engines).
+  const [isOwned, setIsOwned] = useState(false);
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
 
   const toggleModule = (moduleId: string) => {
@@ -87,7 +93,14 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
     const loadCourse = async () => {
       try {
         const data = await coursesApi.getById(courseId);
-        setRawCourse(data);
+        // Defensive: strip the PDF URL before placing on state when the viewer
+        // is not authenticated. The CTA renders a Buy button in that case;
+        // the URL must not appear in the DOM for non-owners.
+        if (data && !user) {
+          setRawCourse({ ...data, ebookPdfUrl: undefined });
+        } else {
+          setRawCourse(data);
+        }
       } catch (error) {
         console.error('Failed to load e-book:', error);
         setLoadError(true);
@@ -96,7 +109,34 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
       }
     };
     loadCourse();
-  }, [courseId]);
+  }, [courseId, user]);
+
+  // Runtime enrollment check — the only path that should expose the PDF URL.
+  useEffect(() => {
+    let cancelled = false;
+    const check = async () => {
+      if (!user || !rawCourse) {
+        if (!cancelled) setIsOwned(false);
+        return;
+      }
+      try {
+        const enrolled = await enrollmentsApi.checkEnrollment(user.id, courseId);
+        if (!cancelled) {
+          setIsOwned(enrolled);
+          // If user is not enrolled, scrub the PDF URL from state so no
+          // descendant component can leak it.
+          if (!enrolled && rawCourse.ebookPdfUrl) {
+            setRawCourse(prev => prev ? { ...prev, ebookPdfUrl: undefined } : prev);
+          }
+        }
+      } catch (err) {
+        console.error('Enrollment check failed:', err);
+        if (!cancelled) setIsOwned(false);
+      }
+    };
+    check();
+    return () => { cancelled = true; };
+  }, [user, courseId, rawCourse?.id]);
 
   // Particle canvas animation (matching CourseSyllabusPage)
   useEffect(() => {
