@@ -91,6 +91,11 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
   const paypalContainerRef = useRef<HTMLDivElement>(null);
   const isProcessingRef = useRef(false); // Prevent double-execution of handlePaymentSuccess
   const raiAcceptOrderIdRef = useRef<string | null>(null); // Store orderId for iframe handler
+  // Holds the latest handlePaymentSuccess so the iframe postMessage listener
+  // (subscribed once on mount) always invokes the current closure with up-to-date
+  // cartItems / appliedDiscount / billing — fixes a stale-closure bug that caused
+  // "You already own all items in your cart: ." after a successful card payment.
+  const handlePaymentSuccessRef = useRef<((transactionId: string, method: PaymentMethod) => Promise<void>) | null>(null);
   
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -246,7 +251,14 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
         const userId = authUser?.id || profile?.id;
 
         if (orderId && userId) {
-          handlePaymentSuccess(orderId, 'card').then(() => {
+          const handler = handlePaymentSuccessRef.current;
+          if (!handler) {
+            console.error('handlePaymentSuccess ref not yet initialized');
+            setPaymentSuccess(true);
+            announce(t('announcements.paymentSuccessShort'));
+            return;
+          }
+          handler(orderId, 'card').then(() => {
             setPaymentSuccess(true);
             announce(t('announcements.paymentSuccess'));
           }).catch((err) => {
@@ -275,7 +287,12 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
 
     window.addEventListener('message', handleIframeMessage);
     return () => window.removeEventListener('message', handleIframeMessage);
-  }, [announce]);
+    // Listener subscribes once; it invokes handlePaymentSuccess via
+    // handlePaymentSuccessRef so the latest closure (with current cartItems,
+    // appliedDiscount, billing) is always used. authUser/profile/onClearCart are
+    // safe to read directly because they are referenced inside this effect and
+    // the listener re-subscribes when they change.
+  }, [announce, onClearCart, authUser, profile, t]);
 
   // Session/checkout timeout monitoring
   useEffect(() => {
@@ -623,6 +640,14 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
       isProcessingRef.current = false;
     }
   }, [authUser, profile, cartItems, appliedDiscount, onClearCart, subtotal, teachingMaterialsSelections, teachingMaterialsTotal, revalidateDiscountCode]);
+
+  // Keep the ref in sync so the iframe postMessage listener (subscribed once on
+  // mount) always invokes the latest handlePaymentSuccess closure. Without this
+  // the listener would call a stale closure with an empty cart and throw
+  // "You already own all items in your cart: ." after a successful card payment.
+  useEffect(() => {
+    handlePaymentSuccessRef.current = handlePaymentSuccess;
+  }, [handlePaymentSuccess]);
 
   // Memoize PayPal request to prevent unnecessary re-renders
   // Only rebuild when cart items or total actually change
