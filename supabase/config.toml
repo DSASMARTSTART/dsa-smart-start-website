@@ -390,6 +390,12 @@ verify_jwt = false
 [functions.payment-webhook]
 verify_jwt = false
 
+# raiffeisen-installment-notify is called directly by the bank/UPC terminal
+# and cannot include a Supabase JWT. The function verifies the bank signature
+# with the configured UPC server certificate/public key before approving.
+[functions.raiffeisen-installment-notify]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327

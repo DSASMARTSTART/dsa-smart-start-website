@@ -15,7 +15,9 @@
  * - RAIACCEPT_API_PASSWORD
  */
 
-export type PaymentMethod = 'card' | 'paypal';
+import { supabase } from './supabase';
+
+export type PaymentMethod = 'card' | 'paypal' | 'card_installments';
 export type PaymentStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled' | 'refunded';
 
 export interface PaymentConfig {
@@ -26,6 +28,10 @@ export interface PaymentConfig {
   paypal: {
     clientId: string;
     mode: 'sandbox' | 'live';
+    isConfigured: boolean;
+  };
+  installments: {
+    enabled: boolean;
     isConfigured: boolean;
   };
 }
@@ -90,12 +96,20 @@ export interface RaiAcceptSessionResult {
   orderIdentification: string;
 }
 
+/** Result returned by the create-raiffeisen-installment-session Edge Function */
+export interface RaiffeisenInstallmentSessionResult {
+  actionUrl: string;
+  fields: Record<string, string>;
+  orderId: string;
+}
+
 // ── Configuration helpers ───────────────────────────────────────────
 
 export function getPaymentConfig(): PaymentConfig {
   const raiAcceptEnabled = import.meta.env.VITE_RAIACCEPT_ENABLED === 'true';
   const paypalClientId = import.meta.env.VITE_PAYPAL_CLIENT_ID || '';
   const paypalMode = (import.meta.env.VITE_PAYPAL_MODE as 'sandbox' | 'live') || 'sandbox';
+  const installmentsEnabled = import.meta.env.VITE_RAIFFEISEN_INSTALLMENTS_ENABLED === 'true';
 
   return {
     raiaccept: {
@@ -107,6 +121,10 @@ export function getPaymentConfig(): PaymentConfig {
       mode: paypalMode,
       isConfigured: !!paypalClientId,
     },
+    installments: {
+      enabled: installmentsEnabled,
+      isConfigured: installmentsEnabled,
+    },
   };
 }
 
@@ -115,6 +133,7 @@ export function getAvailablePaymentMethods(): PaymentMethod[] {
   const methods: PaymentMethod[] = [];
   if (config.raiaccept.isConfigured) methods.push('card');
   if (config.paypal.isConfigured) methods.push('paypal');
+  if (config.installments.isConfigured) methods.push('card_installments');
   return methods;
 }
 
@@ -235,6 +254,74 @@ export class RaiAcceptPayment {
       paymentFormUrl: data.paymentFormUrl,
       orderIdentification: data.orderIdentification,
     };
+  }
+}
+
+/**
+ * Raiffeisen/UPC hosted form-post integration for bank-managed installment
+ * payments. This is a separate rail from the existing RaiAccept REST flow.
+ */
+export class RaiffeisenInstallmentPayment {
+  private config: PaymentConfig['installments'];
+
+  constructor() {
+    this.config = getPaymentConfig().installments;
+  }
+
+  async createInstallmentSession(request: PaymentRequest): Promise<RaiffeisenInstallmentSessionResult> {
+    if (!this.config.isConfigured) {
+      throw new Error('Installment card payment is not enabled');
+    }
+
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error('Supabase configuration missing for installment payment processing');
+    }
+
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData.session?.access_token || supabaseKey;
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    };
+    if (request.idempotencyKey) {
+      headers['Idempotency-Key'] = request.idempotencyKey;
+    }
+
+    const response = await fetch(
+      `${supabaseUrl}/functions/v1/create-raiffeisen-installment-session`,
+      {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          orderId: request.orderId,
+          amount: request.amount,
+          currency: request.currency,
+          description: request.description,
+          customerEmail: request.customerEmail,
+          customerName: request.customerName,
+          items: request.items,
+          userId: request.userId,
+          purchaseItems: request.purchaseItems,
+          billing: request.billing,
+        }),
+      }
+    );
+
+    const data = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      throw new Error(data?.error || `Installment session creation failed (${response.status})`);
+    }
+
+    if (!data?.actionUrl || !data?.fields || !data?.orderId) {
+      throw new Error('Invalid response from installment session service');
+    }
+
+    return data as RaiffeisenInstallmentSessionResult;
   }
 }
 
@@ -451,6 +538,7 @@ declare global {
 
 // Export singleton instances
 export const raiAcceptPayment = new RaiAcceptPayment();
+export const raiffeisenInstallmentPayment = new RaiffeisenInstallmentPayment();
 export const paypalPayment = new PayPalPayment();
 
 // Backward-compatible alias so existing imports keep working

@@ -67,7 +67,11 @@ CREATE TABLE IF NOT EXISTS courses (
   preview_video_url TEXT,
   total_students_enrolled INTEGER DEFAULT 0,
   -- Syllabus content for dynamic syllabus pages
-  syllabus_content JSONB
+  syllabus_content JSONB,
+  -- Payment eligibility
+  payment_product_id TEXT,
+  payment_provider TEXT DEFAULT 'paypal',
+  allowed_payment_methods JSONB NOT NULL DEFAULT '["card","paypal"]'::jsonb
 );
 
 -- Create index for common queries
@@ -77,6 +81,15 @@ CREATE INDEX IF NOT EXISTS idx_courses_product_type ON courses(product_type);
 CREATE INDEX IF NOT EXISTS idx_courses_target_audience ON courses(target_audience);
 CREATE INDEX IF NOT EXISTS idx_courses_show_in_footer ON courses(show_in_footer);
 CREATE INDEX IF NOT EXISTS idx_courses_footer_order ON courses(footer_order);
+CREATE INDEX IF NOT EXISTS idx_courses_allowed_payment_methods ON courses USING GIN (allowed_payment_methods);
+
+ALTER TABLE courses DROP CONSTRAINT IF EXISTS courses_allowed_payment_methods_array;
+ALTER TABLE courses ADD CONSTRAINT courses_allowed_payment_methods_array
+  CHECK (jsonb_typeof(allowed_payment_methods) = 'array');
+
+ALTER TABLE courses DROP CONSTRAINT IF EXISTS courses_allowed_payment_methods_known_values;
+ALTER TABLE courses ADD CONSTRAINT courses_allowed_payment_methods_known_values
+  CHECK (allowed_payment_methods <@ '["card","paypal","card_installments"]'::jsonb);
 
 -- ============================================
 -- ENROLLMENTS TABLE

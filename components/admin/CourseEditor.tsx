@@ -16,7 +16,7 @@ import {
 } from './AdminUIComponents';
 import { coursesApi, videoHelpers, categoriesApi } from '../../data/supabaseStore';
 import { storageHelpers } from '../../lib/supabase';
-import { Course, Module, Lesson, Homework, VideoLink, CoursePricing, QuizQuestion, QuizOption, QuizQuestionType, CourseInstructor, CourseTargetAudience, Category, ProductType, TargetAudience, ContentFormat, WizardStep, WizardStepsCompleted, EbookFile } from '../../types';
+import { Course, Module, Lesson, Homework, VideoLink, CoursePricing, QuizQuestion, QuizOption, QuizQuestionType, CourseInstructor, CourseTargetAudience, Category, ProductType, TargetAudience, ContentFormat, WizardStep, WizardStepsCompleted, EbookFile, CourseAllowedPaymentMethod } from '../../types';
 
 // ============================================
 // Wizard Step Configuration
@@ -346,10 +346,13 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ courseId, onNavigate }) => 
     }
   };
 
-  const handleSavePricing = async (pricing: CoursePricing) => {
+  const handleSavePricing = async (
+    pricing: CoursePricing,
+    allowedPaymentMethods?: CourseAllowedPaymentMethod[]
+  ) => {
     if (!course) return;
     try {
-      await coursesApi.updatePricing(course.id, pricing);
+      await coursesApi.updatePricing(course.id, pricing, allowedPaymentMethods);
       setHasChanges(true);
       await loadCourse();
     } catch (error: any) {
@@ -690,6 +693,7 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ courseId, onNavigate }) => 
           onSave={handleSavePricing}
           productType={course.productType}
           teachingMaterialsPrice={course.teachingMaterialsPrice}
+          allowedPaymentMethods={course.allowedPaymentMethods}
           onStepComplete={async () => await completeCurrentStep(true)}
           isWizardMode={true}
         />
@@ -1589,12 +1593,14 @@ const MetadataEditor: React.FC<{
 // ============================================
 const PricingEditor: React.FC<{
   pricing: CoursePricing;
-  onSave: (pricing: CoursePricing) => Promise<void> | void;
+  onSave: (pricing: CoursePricing, allowedPaymentMethods?: CourseAllowedPaymentMethod[]) => Promise<void> | void;
   productType?: ProductType;
   teachingMaterialsPrice?: number;
+  allowedPaymentMethods?: CourseAllowedPaymentMethod[];
   onStepComplete?: () => Promise<void> | void;
   isWizardMode?: boolean;
-}> = ({ pricing, onSave, productType, teachingMaterialsPrice, onStepComplete, isWizardMode = false }) => {
+}> = ({ pricing, onSave, productType, teachingMaterialsPrice, allowedPaymentMethods, onStepComplete, isWizardMode = false }) => {
+  const defaultPaymentMethods: CourseAllowedPaymentMethod[] = ['card', 'paypal'];
   const [price, setPrice] = useState(pricing.price);
   const [currency, setCurrency] = useState(pricing.currency);
   const [isFree, setIsFree] = useState(pricing.isFree);
@@ -1602,7 +1608,18 @@ const PricingEditor: React.FC<{
   const [discountPrice, setDiscountPrice] = useState(pricing.discountPrice || 0);
   const [discountStart, setDiscountStart] = useState(pricing.discountStartDate?.split('T')[0] || '');
   const [discountEnd, setDiscountEnd] = useState(pricing.discountEndDate?.split('T')[0] || '');
+  const [selectedPaymentMethods, setSelectedPaymentMethods] = useState<CourseAllowedPaymentMethod[]>(
+    allowedPaymentMethods && allowedPaymentMethods.length > 0 ? allowedPaymentMethods : defaultPaymentMethods
+  );
   const [error, setError] = useState('');
+
+  const togglePaymentMethod = (method: CourseAllowedPaymentMethod) => {
+    setSelectedPaymentMethods(prev =>
+      prev.includes(method)
+        ? prev.filter(item => item !== method)
+        : [...prev, method]
+    );
+  };
 
   const handleSave = async (): Promise<boolean> => {
     setError('');
@@ -1622,6 +1639,11 @@ const PricingEditor: React.FC<{
       return false;
     }
 
+    if (!isFree && selectedPaymentMethods.length === 0) {
+      setError('Select at least one payment method for paid products');
+      return false;
+    }
+
     await onSave({
       price: isFree ? 0 : price,
       currency,
@@ -1629,7 +1651,7 @@ const PricingEditor: React.FC<{
       discountPrice: hasDiscount ? discountPrice : undefined,
       discountStartDate: hasDiscount && discountStart ? `${discountStart}T00:00:00Z` : undefined,
       discountEndDate: hasDiscount && discountEnd ? `${discountEnd}T23:59:59Z` : undefined,
-    });
+    }, selectedPaymentMethods);
     return true;
   };
 
@@ -1750,6 +1772,46 @@ const PricingEditor: React.FC<{
                 </div>
               </div>
             )}
+          </div>
+
+          {/* Payment Method Eligibility */}
+          <div className="border-t border-gray-100 pt-6">
+            <div className="mb-4">
+              <h4 className="text-sm font-black text-gray-900 uppercase tracking-widest">Payment methods</h4>
+              <p className="text-xs text-gray-500 mt-1">
+                These options control what customers can use for this product at checkout.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {[
+                { value: 'card' as CourseAllowedPaymentMethod, label: 'Normal card', description: 'Current RaiAccept card flow' },
+                { value: 'paypal' as CourseAllowedPaymentMethod, label: 'PayPal', description: 'PayPal wallet checkout' },
+                { value: 'card_installments' as CourseAllowedPaymentMethod, label: 'Installments', description: 'Raiffeisen/UPC installment flow' },
+              ].map(method => (
+                <button
+                  key={method.value}
+                  type="button"
+                  onClick={() => togglePaymentMethod(method.value)}
+                  className={`text-left p-4 rounded-2xl border-2 transition-all ${
+                    selectedPaymentMethods.includes(method.value)
+                      ? 'border-purple-500 bg-purple-50'
+                      : 'border-gray-200 bg-white hover:border-purple-200'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center ${
+                      selectedPaymentMethods.includes(method.value)
+                        ? 'bg-purple-600 border-purple-600 text-white'
+                        : 'border-gray-300 text-transparent'
+                    }`}>
+                      <Check size={13} />
+                    </div>
+                    <span className="text-sm font-bold text-gray-800">{method.label}</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">{method.description}</p>
+                </button>
+              ))}
+            </div>
           </div>
         </>
       )}

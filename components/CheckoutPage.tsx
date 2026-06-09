@@ -15,6 +15,7 @@ import {
   getAvailablePaymentMethods,
   paypalPayment,
   raiAcceptPayment,
+  raiffeisenInstallmentPayment,
   generateOrderId,
   eurToRsd,
   formatRsdAmount,
@@ -50,6 +51,7 @@ interface CartItem {
   teachingMaterialsPrice?: number;
   includeTeachingMaterials?: boolean;
   productType?: string;
+  allowedPaymentMethods?: PaymentMethod[];
 }
 
 interface CheckoutProps {
@@ -367,16 +369,25 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
     }
   }, [customerEmail, emailTouched, authUser, profile]);
 
-  // Check available payment methods
+  // Check available payment methods for the current cart. Installments are
+  // shown only when every cart item explicitly allows card_installments.
   useEffect(() => {
-    const methods = getAvailablePaymentMethods();
-    setAvailableMethods(methods);
-    
-    // Auto-select if only one method available
-    if (methods.length === 1) {
-      setSelectedPaymentMethod(methods[0]);
+    const globallyConfigured = getAvailablePaymentMethods();
+    const defaultAllowed: PaymentMethod[] = ['card', 'paypal'];
+    const cartAllowed = cartItems.length === 0
+      ? globallyConfigured
+      : globallyConfigured.filter(method =>
+          cartItems.every(item => (item.allowedPaymentMethods || defaultAllowed).includes(method))
+        );
+
+    setAvailableMethods(cartAllowed);
+
+    if (selectedPaymentMethod && !cartAllowed.includes(selectedPaymentMethod)) {
+      setSelectedPaymentMethod(cartAllowed.length === 1 ? cartAllowed[0] : null);
+    } else if (!selectedPaymentMethod && cartAllowed.length === 1) {
+      setSelectedPaymentMethod(cartAllowed[0]);
     }
-  }, []);
+  }, [cartItems, selectedPaymentMethod]);
 
   // Load PayPal SDK when PayPal is selected
   useEffect(() => {
@@ -782,7 +793,8 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
               color: LEVEL_COLORS[course.level] || 'from-purple-600 to-indigo-800',
               // New fields for teaching materials
               teachingMaterialsPrice: course.teachingMaterialsPrice,
-              productType: course.productType
+              productType: course.productType,
+              allowedPaymentMethods: course.allowedPaymentMethods as PaymentMethod[] | undefined
             });
           }
         } catch (error) {
@@ -1061,6 +1073,129 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
     } catch (err) {
       console.error('Payment error:', err);
       setError(err instanceof Error ? err.message : t('errors.paymentFailed'));
+      setLoading(false);
+    }
+  };
+
+  const submitBankPostForm = (actionUrl: string, fields: Record<string, string>) => {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = actionUrl;
+    form.style.display = 'none';
+
+    Object.entries(fields).forEach(([name, value]) => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = name;
+      input.value = value;
+      form.appendChild(input);
+    });
+
+    document.body.appendChild(form);
+    form.submit();
+  };
+
+  // Handle Raiffeisen/UPC installment payment (hosted full-page form flow)
+  const handleInstallmentPayment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    const userId = authUser?.id || profile?.id;
+    if (!userId) {
+      setShowAuthModal(true);
+      return;
+    }
+
+    if (!availableMethods.includes('card_installments')) {
+      setError(t('paymentMethod.installmentsUnavailable', 'Installment payment is not available for every item in this cart.'));
+      return;
+    }
+
+    if (!termsAccepted) {
+      setTermsError(true);
+      setError(t('errors.acceptTerms'));
+      return;
+    }
+
+    if (!customerName.trim() || !customerEmail.trim()) {
+      setError(t('errors.fillNameEmail'));
+      return;
+    }
+
+    const billingErr = validateBilling();
+    if (billingErr) {
+      setBillingError(billingErr);
+      setError(billingErr);
+      return;
+    }
+    setBillingError(null);
+
+    setLoading(true);
+
+    try {
+      const discountValid = await revalidateDiscountCode();
+      if (!discountValid) {
+        setLoading(false);
+        return;
+      }
+
+      const orderId = generateOrderId();
+      const orderTotal = subtotal + teachingMaterialsTotal;
+      const purchaseItems = cartItems.map(item => {
+        const includeTeachingMaterials = !!(teachingMaterialsSelections[item.id] && item.teachingMaterialsPrice);
+        const teachingMaterialsCost = includeTeachingMaterials ? item.teachingMaterialsPrice! : 0;
+        const itemTotalPrice = item.price + teachingMaterialsCost;
+        const itemDiscountAmount = appliedDiscount
+          ? (itemTotalPrice / orderTotal) * appliedDiscount.amount
+          : 0;
+        return {
+          courseId: item.id,
+          amount: itemTotalPrice - itemDiscountAmount,
+          originalAmount: item.price,
+          discountAmount: itemDiscountAmount,
+          discountCodeId: appliedDiscount?.discountCodeId,
+          teachingMaterialsIncluded: includeTeachingMaterials,
+          teachingMaterialsPrice: teachingMaterialsCost,
+        };
+      });
+
+      const request: PaymentRequest = {
+        orderId,
+        amount: total,
+        currency: 'EUR',
+        description: `Eduway Academy - ${cartItems.length} course(s)`,
+        customerEmail,
+        customerName,
+        items: cartItems.map(item => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: 1,
+        })),
+        returnUrl: `${window.location.origin}/#checkout-success?orderId=${orderId}`,
+        cancelUrl: `${window.location.origin}/#checkout`,
+        userId,
+        purchaseItems,
+        paymentMethod: 'card_installments',
+        billing,
+        idempotencyKey,
+      };
+
+      sessionStorage.setItem('pending_order', JSON.stringify({
+        orderId,
+        items: cartItems,
+        total,
+        discountCode: appliedDiscount?.code,
+        paymentMethod: 'card_installments',
+      }));
+
+      const { actionUrl, fields } = await raiffeisenInstallmentPayment.createInstallmentSession(request);
+      setPaymentDispatched(true);
+      submitBankPostForm(actionUrl, fields);
+    } catch (err) {
+      console.error('Installment payment error:', err);
+      setError(err instanceof Error ? err.message : t('errors.paymentFailed'));
+      setPaymentDispatched(false);
       setLoading(false);
     }
   };
@@ -1440,7 +1575,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
 
                   <div className="space-y-3 sm:space-y-4">
                     {/* Card Payment Option (RaiAccept) */}
-                    {paymentConfig.raiaccept.isConfigured && (
+                    {availableMethods.includes('card') && (
                       <button
                         type="button"
                         onClick={() => setSelectedPaymentMethod('card')}
@@ -1469,7 +1604,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                     )}
 
                     {/* PayPal Option */}
-                    {paymentConfig.paypal.isConfigured && (
+                    {availableMethods.includes('paypal') && (
                       <button
                         type="button"
                         onClick={() => setSelectedPaymentMethod('paypal')}
@@ -1491,6 +1626,48 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                         </div>
                         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/200px-PayPal.svg.png" alt="PayPal" className="h-5 sm:h-6 object-contain shrink-0" />
                       </button>
+                    )}
+
+                    {/* Installment Card Option (Raiffeisen/UPC hosted form) */}
+                    {availableMethods.includes('card_installments') && (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedPaymentMethod('card_installments')}
+                        className={`w-full p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-2 transition-all flex items-center gap-3 sm:gap-4 min-h-[72px] ${
+                          selectedPaymentMethod === 'card_installments'
+                            ? 'border-purple-500 bg-purple-500/10'
+                            : 'border-white/10 hover:border-white/20 bg-white/5'
+                        }`}
+                      >
+                        <div className={`w-10 sm:w-12 h-10 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 ${
+                          selectedPaymentMethod === 'card_installments' ? 'bg-emerald-600 text-white' : 'bg-white/10 text-gray-400'
+                        }`}>
+                          <Building2 size={20} className="sm:hidden" />
+                          <Building2 size={24} className="hidden sm:block" />
+                        </div>
+                        <div className="text-left flex-grow min-w-0">
+                          <p className="font-black text-white uppercase tracking-wide text-xs sm:text-sm">
+                            {t('paymentMethod.installments', 'Pay by installments')}
+                          </p>
+                          <p className="text-[10px] sm:text-xs text-gray-400 mt-0.5 sm:mt-1">
+                            {t('paymentMethod.installmentsDescription', 'Bank-managed installment card payment')}
+                          </p>
+                        </div>
+                        <div className="hidden sm:flex items-center gap-2 shrink-0">
+                          <img src="/assets/images/visa-logo.jpg" alt="Visa" className="h-5 sm:h-6 object-contain" />
+                          <img src="/assets/images/mastercard-logo.png" alt="Mastercard" className="h-5 sm:h-6 object-contain" />
+                          <img src="/assets/images/dinacard-logo.jpg" alt="DinaCard" className="h-5 sm:h-6 object-contain" />
+                        </div>
+                      </button>
+                    )}
+
+                    {cartItems.length > 0 && availableMethods.length === 0 && (
+                      <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-start gap-3">
+                        <AlertCircle className="text-amber-400 flex-shrink-0 mt-0.5" size={20} />
+                        <p className="text-amber-200 text-sm">
+                          {t('paymentMethod.noAvailableMethods', 'No configured payment method is available for this cart. Please contact us or adjust the cart.')}
+                        </p>
+                      </div>
                     )}
                   </div>
 
@@ -1592,6 +1769,62 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                         ) : (
                           <>
                             {t('paymentMethod.proceedToPayment', { total: formatCurrency(total) })}
+                            <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Installment Card Payment Form - Raiffeisen/UPC hosted redirect */}
+                  {selectedPaymentMethod === 'card_installments' && (
+                    <div className="mt-8">
+                      <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 mb-6">
+                        <p className="text-sm text-emerald-300">
+                          <Building2 className="inline mr-2" size={16} />
+                          {t('paymentMethod.installmentsNotice', 'You will be redirected to Raiffeisen Bank to complete an installment card payment.')}
+                        </p>
+                      </div>
+
+                      <div className="mb-6">
+                        <label className={`flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl border transition-all cursor-pointer hover:bg-white/5 ${
+                          termsError ? 'border-red-500/30 bg-red-500/10' : 'border-white/10'
+                        }`}>
+                          <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-colors mt-0.5 ${
+                            termsAccepted ? 'bg-purple-600 border-purple-600' : 'border-gray-500'
+                          }`}>
+                            {termsAccepted && <Check size={14} className="text-white" />}
+                          </div>
+                          <input
+                            type="checkbox"
+                            checked={termsAccepted}
+                            onChange={(e) => {
+                              setTermsAccepted(e.target.checked);
+                              if(e.target.checked) setTermsError(false);
+                            }}
+                            className="sr-only"
+                          />
+                          <div className="text-sm text-gray-400 leading-relaxed max-w-[90%]">
+                            {t('terms.acceptPlain', 'I accept the Terms & Conditions and Privacy Policy')}
+                          </div>
+                        </label>
+                        {termsError && <p className="text-red-400 text-xs font-bold mt-2 ml-2">{t('terms.required')}</p>}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleInstallmentPayment}
+                        disabled={loading || paymentDispatched || !customerName || !customerEmail}
+                        className="group w-full flex items-center justify-center gap-4 bg-emerald-600 text-white py-6 rounded-[2.5rem] font-black uppercase tracking-[0.2em] shadow-2xl shadow-emerald-500/20 hover:bg-emerald-700 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                      >
+                        {loading || paymentDispatched ? (
+                          <>
+                            <Loader2 className="animate-spin" size={20} />
+                            {t('paymentMethod.redirecting')}
+                          </>
+                        ) : (
+                          <>
+                            {t('paymentMethod.proceedToInstallments', { defaultValue: 'PAY BY INSTALLMENTS ({{total}})', total: formatCurrency(total) })}
                             <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
                           </>
                         )}

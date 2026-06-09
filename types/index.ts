@@ -168,6 +168,7 @@ export interface WizardStepsCompleted {
 export type WizardStep = 1 | 2 | 3 | 4;
 
 export type PaymentProvider = 'paypal' | 'raiffeisen';
+export type CourseAllowedPaymentMethod = 'card' | 'paypal' | 'card_installments';
 
 export interface Course {
   id: string;
@@ -191,6 +192,7 @@ export interface Course {
   // ---------- Payment integration ----------
   paymentProductId?: string;  // Product ID from PayPal/Raiffeisen
   paymentProvider?: PaymentProvider;  // Which payment provider
+  allowedPaymentMethods?: CourseAllowedPaymentMethod[];  // Checkout methods enabled for this product
   // ---------- NEW: Catalog fields ----------
   productType: ProductType;  // 'ebook' | 'learndash' | 'service'
   targetAudience: TargetAudience;  // 'adults_teens' | 'kids'

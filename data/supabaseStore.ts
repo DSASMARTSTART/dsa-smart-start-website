@@ -9,7 +9,8 @@ import type {
   KPIMetrics, AnalyticsTrends, UserFilters, CourseFilters,
   PaginatedResponse, UserDetail, AuditAction, Module, Lesson, Homework,
   CoursePricing, Category, ProductType, TargetAudience, ContentFormat,
-  CatalogFilters, WizardStepsCompleted, WizardStep, PaymentProvider, EbookFile
+  CatalogFilters, WizardStepsCompleted, WizardStep, PaymentProvider, EbookFile,
+  CourseAllowedPaymentMethod
 } from '../types';
 
 // ============================================
@@ -41,6 +42,16 @@ export const clearCoursesCache = () => {
 // HELPERS
 // ============================================
 const now = () => new Date().toISOString();
+const DEFAULT_ALLOWED_PAYMENT_METHODS: CourseAllowedPaymentMethod[] = ['card', 'paypal'];
+const KNOWN_PAYMENT_METHODS = new Set<CourseAllowedPaymentMethod>(['card', 'paypal', 'card_installments']);
+
+const normalizeAllowedPaymentMethods = (value: unknown): CourseAllowedPaymentMethod[] => {
+  if (!Array.isArray(value)) return DEFAULT_ALLOWED_PAYMENT_METHODS;
+  const methods = value.filter((method): method is CourseAllowedPaymentMethod =>
+    typeof method === 'string' && KNOWN_PAYMENT_METHODS.has(method as CourseAllowedPaymentMethod)
+  );
+  return methods.length > 0 ? methods : DEFAULT_ALLOWED_PAYMENT_METHODS;
+};
 
 // Convert snake_case DB row to camelCase
 const toCamelCase = <T>(obj: Record<string, unknown>): T => {
@@ -595,7 +606,8 @@ export const coursesApi = {
       stepsCompleted: (data.steps_completed as WizardStepsCompleted) || { metadata: false, pricing: false, syllabus: false, content: false },
       wizardCompleted: (data.wizard_completed as boolean) || false,
       paymentProductId: data.payment_product_id as string | undefined,
-      paymentProvider: (data.payment_provider as PaymentProvider) || 'paypal'
+      paymentProvider: (data.payment_provider as PaymentProvider) || 'paypal',
+      allowedPaymentMethods: normalizeAllowedPaymentMethods(data.allowed_payment_methods)
     };
   },
 
@@ -648,6 +660,7 @@ export const coursesApi = {
       wizardCompleted: (row.wizard_completed as boolean) || false,
       paymentProductId: row.payment_product_id as string | undefined,
       paymentProvider: (row.payment_provider as PaymentProvider) || 'paypal',
+      allowedPaymentMethods: normalizeAllowedPaymentMethods(row.allowed_payment_methods),
     };
   },
 
@@ -701,7 +714,8 @@ export const coursesApi = {
       stepsCompleted: (c.steps_completed as WizardStepsCompleted) || { metadata: false, pricing: false, syllabus: false, content: false },
       wizardCompleted: (c.wizard_completed as boolean) || false,
       paymentProductId: c.payment_product_id as string | undefined,
-      paymentProvider: (c.payment_provider as PaymentProvider) || 'paypal'
+      paymentProvider: (c.payment_provider as PaymentProvider) || 'paypal',
+      allowedPaymentMethods: normalizeAllowedPaymentMethods(c.allowed_payment_methods)
     }));
   },
 
@@ -740,7 +754,8 @@ export const coursesApi = {
         steps_completed: courseData.stepsCompleted || defaultStepsCompleted,
         wizard_completed: false,
         payment_product_id: null,
-        payment_provider: 'paypal'
+        payment_provider: 'paypal',
+        allowed_payment_methods: courseData.allowedPaymentMethods || DEFAULT_ALLOWED_PAYMENT_METHODS
       })
       .select()
       .single();
@@ -765,7 +780,8 @@ export const coursesApi = {
       stepsCompleted: (data.steps_completed as WizardStepsCompleted) || { metadata: false, pricing: false, syllabus: false, content: false },
       wizardCompleted: (data.wizard_completed as boolean) || false,
       paymentProductId: data.payment_product_id as string | undefined,
-      paymentProvider: (data.payment_provider as PaymentProvider) || 'paypal'
+      paymentProvider: (data.payment_provider as PaymentProvider) || 'paypal',
+      allowedPaymentMethods: normalizeAllowedPaymentMethods(data.allowed_payment_methods)
     };
   },
 
@@ -799,6 +815,7 @@ export const coursesApi = {
     if (updates.previewVideoUrl !== undefined) dbUpdates.preview_video_url = updates.previewVideoUrl;
     // Syllabus content
     if (updates.syllabusContent !== undefined) dbUpdates.syllabus_content = updates.syllabusContent;
+    if (updates.allowedPaymentMethods !== undefined) dbUpdates.allowed_payment_methods = updates.allowedPaymentMethods;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase as any)
@@ -831,7 +848,8 @@ export const coursesApi = {
       targetAudienceInfo: data.target_audience_info || undefined,
       instructor: data.instructor || undefined,
       estimatedWeeklyHours: data.estimated_weekly_hours || undefined,
-      previewVideoUrl: data.preview_video_url || undefined
+      previewVideoUrl: data.preview_video_url || undefined,
+      allowedPaymentMethods: normalizeAllowedPaymentMethods(data.allowed_payment_methods)
     };
   },
 
@@ -897,6 +915,7 @@ export const coursesApi = {
     if (courseData.syllabusContent !== undefined) dbUpdates.syllabus_content = courseData.syllabusContent;
     if (courseData.learningOutcomes !== undefined) dbUpdates.learning_outcomes = courseData.learningOutcomes;
     if (courseData.prerequisites !== undefined) dbUpdates.prerequisites = courseData.prerequisites;
+    if (courseData.allowedPaymentMethods !== undefined) dbUpdates.allowed_payment_methods = courseData.allowedPaymentMethods;
     
     // Wizard state
     if (courseData.wizardStep !== undefined) dbUpdates.wizard_step = courseData.wizardStep;
@@ -923,16 +942,26 @@ export const coursesApi = {
       contentFormat: (data.content_format as ContentFormat) || 'interactive',
       wizardStep: (data.wizard_step as WizardStep) || 1,
       stepsCompleted: (data.steps_completed as WizardStepsCompleted) || { metadata: false, pricing: false, syllabus: false, content: false },
-      wizardCompleted: (data.wizard_completed as boolean) || false
+      wizardCompleted: (data.wizard_completed as boolean) || false,
+      allowedPaymentMethods: normalizeAllowedPaymentMethods(data.allowed_payment_methods)
     };
   },
 
-  updatePricing: async (id: string, pricing: CoursePricing): Promise<Course> => {
+  updatePricing: async (
+    id: string,
+    pricing: CoursePricing,
+    allowedPaymentMethods?: CourseAllowedPaymentMethod[]
+  ): Promise<Course> => {
     clearCoursesCache(); // Invalidate cache on update
+    const dbUpdates: Record<string, unknown> = { pricing, is_draft: true, updated_at: now() };
+    if (allowedPaymentMethods !== undefined) {
+      dbUpdates.allowed_payment_methods = allowedPaymentMethods;
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase as any)
       .from('courses')
-      .update({ pricing, is_draft: true, updated_at: now() })
+      .update(dbUpdates)
       .eq('id', id)
       .select()
       .single();
@@ -943,7 +972,8 @@ export const coursesApi = {
     return {
       ...toCamelCase<Course>(data),
       modules: data.modules || [],
-      pricing: data.pricing
+      pricing: data.pricing,
+      allowedPaymentMethods: normalizeAllowedPaymentMethods(data.allowed_payment_methods)
     };
   },
 
@@ -974,7 +1004,8 @@ export const coursesApi = {
     return {
       ...toCamelCase<Course>(data),
       modules: data.modules || [],
-      pricing: data.pricing
+      pricing: data.pricing,
+      allowedPaymentMethods: normalizeAllowedPaymentMethods(data.allowed_payment_methods)
     };
   },
 
@@ -995,7 +1026,8 @@ export const coursesApi = {
     return {
       ...toCamelCase<Course>(data),
       modules: data.modules || [],
-      pricing: data.pricing
+      pricing: data.pricing,
+      allowedPaymentMethods: normalizeAllowedPaymentMethods(data.allowed_payment_methods)
     };
   },
 
