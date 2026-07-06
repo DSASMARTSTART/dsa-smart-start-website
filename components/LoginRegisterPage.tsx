@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, Mail, Lock, User, ChevronRight, Eye, EyeOff, AlertCircle, Loader2, X } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 
 interface LoginProps {
@@ -393,7 +393,9 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                   <Mail className="text-green-400" size={32} />
                 </div>
                 <h3 className="text-lg font-bold text-white mb-2">{t('checkYourEmail')}</h3>
-                <p className="text-gray-400 text-sm mb-6" dangerouslySetInnerHTML={{ __html: t('resetLinkSentDesc', { email: resetEmail }) }} />
+                <p className="text-gray-400 text-sm mb-6">
+                  <Trans i18nKey="resetLinkSentDesc" ns="auth" values={{ email: resetEmail }} components={{ strong: <strong className="text-white" /> }} />
+                </p>
                 <button
                   onClick={closeForgotPasswordModal}
                   className="w-full py-4 bg-purple-600 text-white rounded-2xl font-bold hover:bg-purple-700 transition-colors"

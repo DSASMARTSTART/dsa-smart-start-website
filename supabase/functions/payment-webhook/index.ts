@@ -114,6 +114,10 @@ Deno.serve(async (req) => {
 
     let transactionId: string | null = null
     let isSuccess = false
+    // Set when RaiAccept says "paid" in the raw payload but we were unable to
+    // independently re-verify it (no creds, or the merchant API was unreachable).
+    // Such a claim is NEVER auto-confirmed — it is orphaned for admin reconciliation.
+    let raiaUnverifiedPaidClaim = false
     let providerResponse: Record<string, unknown> = {}
     // Number of items the provider says were paid for in this single
     // transaction. Used to detect partial confirmation (multi-item txns).
@@ -146,6 +150,7 @@ Deno.serve(async (req) => {
 
       // SECURITY: Verify the order status by calling RaiAccept API directly
       // Don't just trust the webhook payload — call Retrieve Order Details to confirm
+      const payloadClaimsPaid = RAIACCEPT_PAID_STATUSES.includes(transactionStatus.toUpperCase())
       const token = await getRaiAcceptToken()
       if (token && orderIdentification) {
         const verified = await verifyRaiAcceptOrder(token, orderIdentification)
@@ -156,12 +161,18 @@ Deno.serve(async (req) => {
             transactionId = verified.merchantOrderReference
           }
         } else {
-          console.warn('RaiAccept API verification failed, falling back to webhook status')
-          isSuccess = RAIACCEPT_PAID_STATUSES.includes(transactionStatus.toUpperCase())
+          // SECURITY: the merchant API re-fetch failed. We must NOT trust the raw
+          // webhook body — a forged POST could otherwise confirm a purchase. Leave
+          // isSuccess=false; if the payload *claimed* paid, flag it for orphaning so
+          // an admin can reconcile against the RaiAccept portal.
+          console.warn('RaiAccept API verification failed — NOT trusting webhook payload')
+          if (payloadClaimsPaid) raiaUnverifiedPaidClaim = true
         }
       } else {
-        console.warn('RaiAccept credentials not available for verification')
-        isSuccess = RAIACCEPT_PAID_STATUSES.includes(transactionStatus.toUpperCase())
+        // No credentials / no order id → cannot verify. Same policy: never confirm
+        // on an unverified paid claim.
+        console.warn('RaiAccept verification unavailable (missing creds or orderIdentification) — NOT trusting webhook payload')
+        if (payloadClaimsPaid) raiaUnverifiedPaidClaim = true
       }
 
     // ── PayPal webhook (JSON POST) ─────────────────────────────────────
@@ -198,25 +209,10 @@ Deno.serve(async (req) => {
       isSuccess = params.status === 'success'
     }
 
-    // ── Process the result ─────────────────────────────────────────────
-    if (!transactionId) {
-      // Record as orphan so an admin can investigate, then ACK 200 so the
-      // provider does not retry forever (Phase 2: always-200 policy).
-      console.error('No transaction ID in webhook payload:', JSON.stringify(providerResponse).substring(0, 500))
-      await recordOrphan(
-        'missing_transaction_id',
-        'Webhook payload had no recognizable transaction/order identifier.'
-      )
-      return new Response(
-        JSON.stringify({ success: false, error: 'Missing transaction ID — recorded for review' }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    console.log(`Processing webhook: provider=${provider}, transactionId=${transactionId}, success=${isSuccess}`)
-
     // Helper: record an unmatched-but-paid event so admins can manually
     // reconcile (refund or grant access). Best-effort — never throw.
+    // Defined before first use (the missing_transaction_id path below) so it is
+    // not called inside its own temporal dead zone.
     const recordOrphan = async (
       reason: string,
       notes: string,
@@ -261,6 +257,23 @@ Deno.serve(async (req) => {
       }
     }
 
+    // ── Process the result ─────────────────────────────────────────────
+    if (!transactionId) {
+      // Record as orphan so an admin can investigate, then ACK 200 so the
+      // provider does not retry forever (Phase 2: always-200 policy).
+      console.error('No transaction ID in webhook payload:', JSON.stringify(providerResponse).substring(0, 500))
+      await recordOrphan(
+        'missing_transaction_id',
+        'Webhook payload had no recognizable transaction/order identifier.'
+      )
+      return new Response(
+        JSON.stringify({ success: false, error: 'Missing transaction ID — recorded for review' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    console.log(`Processing webhook: provider=${provider}, transactionId=${transactionId}, success=${isSuccess}`)
+
     // Helper: did the RPC confirm at least one row, AND did it cover every
     // item the provider charged for? Treat partial confirmation as orphaned
     // remainder so admins can reconcile.
@@ -268,6 +281,23 @@ Deno.serve(async (req) => {
       if (!data?.success) return false
       const confirmed = Number(data.purchases_confirmed ?? 0)
       return confirmed > 0 && confirmed >= providerItemCount
+    }
+
+    // SECURITY GATE (audit B2): a RaiAccept webhook claimed the order was paid but
+    // we could not independently verify it via the merchant API. Do NOT confirm the
+    // purchase from an unverifiable payload — record an orphan and ACK 200. If the
+    // charge is real, the dashboard self-heal / admin orphan UI will reconcile it.
+    if (raiaUnverifiedPaidClaim) {
+      await recordOrphan(
+        'raiaccept_unverified_paid_claim',
+        'RaiAccept webhook reported a paid status but the merchant-API re-verification ' +
+          'could not be performed (missing credentials or API unreachable). Not auto-confirmed. ' +
+          'Verify the charge in the RaiAccept merchant portal and reconcile manually.'
+      )
+      return new Response(
+        JSON.stringify({ success: false, error: 'Payment could not be verified — recorded for review' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
     let result

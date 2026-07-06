@@ -272,7 +272,7 @@ const PremiumCourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, o
             <div className="grid grid-cols-2 gap-3">
               {/* Add to Cart */}
               <button 
-                onClick={(e) => { e.stopPropagation(); isInCart ? onRemoveFromCart(course.id) : onAddToCart(course); }}
+                onClick={(e) => { e.stopPropagation(); if (isInCart) { onRemoveFromCart(course.id); } else { onAddToCart(course); } }}
                 className={`flex items-center justify-center gap-2 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${
                   isInCart
                     ? 'bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30'
@@ -356,9 +356,10 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, onAddToC
         onClick={navigateToDetail}
       >
         {getEbookCover(course) ? (
-          <img 
-            src={getEbookCover(course)} 
+          <img
+            src={getEbookCover(course)}
             alt={course.title}
+            loading="lazy"
             className="w-full h-full object-cover"
           />
         ) : (
@@ -405,8 +406,8 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, onAddToC
         {!isComingSoon && (
           <div className="grid grid-cols-2 gap-2 mt-auto">
             {/* Add to Cart */}
-            <button 
-              onClick={(e) => { e.stopPropagation(); isInCart ? onRemoveFromCart(course.id) : onAddToCart(course); }}
+            <button
+              onClick={(e) => { e.stopPropagation(); if (isInCart) { onRemoveFromCart(course.id); } else { onAddToCart(course); } }}
               className={`flex items-center justify-center gap-1.5 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${
                 isInCart
                   ? 'bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30'

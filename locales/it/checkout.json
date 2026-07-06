@@ -2,7 +2,6 @@
   "title": "Pagamento",
   "backButton": "Torna alla pagina precedente",
   "backButtonMobile": "Indietro",
-
   "emptyCart": {
     "title": "Il tuo carrello è vuoto",
     "description": "Inizia il tuo percorso di apprendimento oggi! Sfoglia i nostri corsi progettati specificamente per studenti con differenze di apprendimento.",
@@ -12,14 +11,12 @@
     "choice3": "Percorsi Premium e Gold per l'apprendimento intensivo",
     "browseCourses": "Sfoglia i corsi"
   },
-
   "paymentNotConfigured": {
     "title": "Configurazione pagamento necessaria",
     "description": "L'elaborazione dei pagamenti non è ancora configurata. Contattaci per completare la tua iscrizione.",
     "yourCourses": "I tuoi corsi:",
     "contactButton": "Contattaci per iscriverti"
   },
-
   "studentInfo": {
     "title": "Informazioni studente",
     "fullName": "Nome completo",
@@ -27,13 +24,11 @@
     "namePlaceholder": "Il tuo nome",
     "emailPlaceholder": "email@esempio.com"
   },
-
   "loginBanner": {
     "title": "Accedi per completare il tuo acquisto",
     "description": "È necessario un account affinché i tuoi corsi appaiano nella dashboard dopo l'acquisto.",
     "button": "Accedi / Registrati"
   },
-
   "paymentMethod": {
     "title": "Metodo di pagamento",
     "card": "Carta di credito / debito",
@@ -46,7 +41,6 @@
     "redirecting": "REINDIRIZZAMENTO AL PAGAMENTO...",
     "proceedToPayment": "PROCEDI AL PAGAMENTO ({{total}})"
   },
-
   "terms": {
     "accept": "Accetto i <termsLink>Termini e condizioni</termsLink> e l'<privacyLink>Informativa sulla privacy</privacyLink>",
     "required": "Devi accettare i termini per continuare",
@@ -54,7 +48,6 @@
     "privacyPolicy": "Informativa sulla privacy",
     "acceptPlain": "Accetto i Termini e condizioni e l'Informativa sulla privacy"
   },
-
   "orderSummary": {
     "title": "I tuoi corsi",
     "noItems": "Nessun corso selezionato",
@@ -66,18 +59,15 @@
     "currencyNotice": "Tutti i prezzi sono indicati in EUR. I pagamenti con carta vengono elaborati in RSD (Dinari serbi) a un tasso fisso di 1 EUR = {{rate}} RSD. La tua carta verrà addebitata circa <strong>{{rsdAmount}}</strong> per questo ordine.",
     "currencyNoticeLabel": "Avviso valuta:"
   },
-
   "teachingMaterialsAddon": {
     "title": "Materiale didattico",
     "description": "Guide allo studio e quaderni di lavoro"
   },
-
   "removal": {
     "removing": "Rimozione: {{name}}",
     "removedIn5s": "Verrà rimosso tra 5 secondi",
     "undo": "Annulla"
   },
-
   "promoCode": {
     "label": "Codice promozionale",
     "placeholder": "INSERISCI CODICE",
@@ -95,7 +85,6 @@
     "usageLimitReview": "Il tuo codice sconto ha raggiunto il limite di utilizzo. Rivedi il tuo ordine.",
     "deactivatedReview": "Il tuo codice sconto è stato disattivato. Rivedi il tuo ordine."
   },
-
   "sellerInfo": {
     "title": "Informazioni venditore",
     "seller": "Venditore:",
@@ -110,30 +99,25 @@
     "rightToWithdrawValue": "14 giorni (vedi condizioni)",
     "fullTerms": "Termini e condizioni completi →"
   },
-
   "benefits": {
     "lifetimeUpdates": "Aggiornamenti dei corsi a vita",
     "certificate": "Certificato ufficiale Eduway Academy",
     "support": "Supporto specialistico prioritario 24/7",
     "satisfaction": "Garanzia di soddisfazione"
   },
-
   "emailConfirmation": "La conferma dell'ordine verrà inviata a <strong>{{email}}</strong>",
-
   "security": {
     "sslSecured": "Protetto da SSL",
     "3dSecure": "3D Secure",
     "raiffeisenProcessing": "Elaborazione pagamenti tramite Raiffeisen Bank",
     "securePayment": "Pagamento sicuro – Raiffeisen Bank"
   },
-
   "session": {
     "expiringSoon": "Sessione in scadenza",
     "expiresIn": "La tua sessione di checkout scadrà tra {{minutes}} minuto/i. Completa il tuo acquisto.",
     "expired": "La tua sessione di checkout è scaduta. Aggiorna la pagina e riprova.",
     "dismiss": "Chiudi"
   },
-
   "errors": {
     "paymentCancelled": "Il pagamento è stato annullato. Puoi riprovare.",
     "paymentFailed": "Il pagamento non è andato a buon fine. Riprova.",
@@ -144,7 +128,6 @@
     "emailRequired": "L'email è obbligatoria",
     "emailInvalid": "Inserisci un indirizzo email valido"
   },
-
   "announcements": {
     "paymentSuccess": "Pagamento effettuato con successo! Il tuo acquisto è confermato.",
     "paymentSuccessShort": "Pagamento effettuato! I tuoi corsi saranno disponibili a breve.",
@@ -157,13 +140,11 @@
     "removalCancelled": "Rimozione di {{name}} annullata",
     "discountApplied": "Codice sconto applicato! Risparmi {{amount}}"
   },
-
   "success": {
     "title": "Pagamento effettuato con successo!",
     "description": "I tuoi corsi sono ora sbloccati. Benvenuto nella famiglia Eduway Academy! Un'email di conferma è stata inviata a {{email}}.",
     "goToCourses": "Vai ai miei corsi"
   },
-
   "successPage": {
     "title": "Pagamento ricevuto!",
     "thankYou": "Grazie per il tuo acquisto, <strong>{{name}}</strong>!",
@@ -182,5 +163,29 @@
     "goToDashboard": "Vai alla mia Dashboard",
     "browseMore": "Sfoglia altri corsi",
     "needHelp": "Hai bisogno di aiuto? <contactLink>Contatta il nostro team di supporto</contactLink>"
+  },
+  "billingInfo": {
+    "title": "Dati di fatturazione",
+    "description": "Necessari per la fattura, che ti invieremo via email dopo il pagamento.",
+    "address": "Indirizzo",
+    "addressPlaceholder": "Via e numero civico",
+    "city": "Città",
+    "cityPlaceholder": "Belgrado",
+    "postalCode": "Codice postale",
+    "country": "Paese",
+    "countryPlaceholder": "Serbia",
+    "isCompany": "Acquisto per conto di un’azienda",
+    "companyName": "Ragione sociale dell’azienda",
+    "pib": "Codice fiscale (PIB)",
+    "vatId": "Partita IVA (facoltativa)",
+    "errors": {
+      "nameRequired": "Il nome completo è obbligatorio",
+      "addressRequired": "L’indirizzo è obbligatorio",
+      "cityRequired": "La città è obbligatoria",
+      "postalCodeRequired": "Il codice postale è obbligatorio",
+      "countryRequired": "Il paese è obbligatorio",
+      "companyNameRequired": "Il nome dell’azienda è obbligatorio",
+      "pibRequired": "Il codice fiscale (PIB) è obbligatorio per gli acquisti aziendali"
+    }
   }
 }

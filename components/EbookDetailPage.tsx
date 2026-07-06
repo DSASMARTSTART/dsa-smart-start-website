@@ -456,9 +456,10 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
                 {/* Cover Photo */}
                 {getEbookCover(course) ? (
                   <div className="relative w-full aspect-[3/4] rounded-3xl overflow-hidden mb-4 shadow-lg">
-                    <img 
-                      src={getEbookCover(course)} 
+                    <img
+                      src={getEbookCover(course)}
                       alt={course.title}
+                      loading="lazy"
                       className="w-full h-full object-cover"
                     />
                     {/* Level badge on cover */}

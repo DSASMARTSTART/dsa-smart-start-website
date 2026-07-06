@@ -2,7 +2,6 @@
   "title": "Plaćanje",
   "backButton": "Vrati se na prethodnu stranicu",
   "backButtonMobile": "Nazad",
-
   "emptyCart": {
     "title": "Vaša korpa je prazna",
     "description": "Započnite svoje putovanje učenja danas! Pregledajte naše kurseve posebno dizajnirane za učenike sa teškoćama u učenju.",
@@ -12,14 +11,12 @@
     "choice3": "Premium i Gold programi za intenzivno učenje",
     "browseCourses": "Pregledaj kurseve"
   },
-
   "paymentNotConfigured": {
     "title": "Potrebno je podesiti plaćanje",
     "description": "Obrada plaćanja još nije konfigurisana. Kontaktirajte nas kako biste završili upis.",
     "yourCourses": "Vaši kursevi:",
     "contactButton": "Kontaktirajte nas za upis"
   },
-
   "studentInfo": {
     "title": "Podaci o učeniku",
     "fullName": "Ime i prezime",
@@ -27,13 +24,11 @@
     "namePlaceholder": "Vaše ime",
     "emailPlaceholder": "email@primer.com"
   },
-
   "loginBanner": {
     "title": "Prijavite se da biste završili kupovinu",
     "description": "Nalog je potreban kako bi vaši kursevi bili vidljivi na kontrolnoj tabli nakon kupovine.",
     "button": "Prijava / Registracija"
   },
-
   "paymentMethod": {
     "title": "Način plaćanja",
     "card": "Kreditna / Debitna kartica",
@@ -46,7 +41,6 @@
     "redirecting": "PREUSMERAVANJE NA PLAĆANJE...",
     "proceedToPayment": "NASTAVI NA PLAĆANJE ({{total}})"
   },
-
   "terms": {
     "accept": "Prihvatam <termsLink>Uslove korišćenja</termsLink> i <privacyLink>Politiku privatnosti</privacyLink>",
     "required": "Morate prihvatiti uslove da biste nastavili",
@@ -54,7 +48,6 @@
     "privacyPolicy": "Politika privatnosti",
     "acceptPlain": "Prihvatam Uslove korišćenja i Politiku privatnosti"
   },
-
   "orderSummary": {
     "title": "Vaši kursevi",
     "noItems": "Nema izabranih kurseva",
@@ -66,18 +59,15 @@
     "currencyNotice": "Sve cene su prikazane u EUR. Plaćanja karticom se obrađuju u RSD (srpski dinari) po fiksnom kursu od 1 EUR = {{rate}} RSD. Vaša kartica će biti zadužena za približno <strong>{{rsdAmount}}</strong> za ovu narudžbinu.",
     "currencyNoticeLabel": "Napomena o valuti:"
   },
-
   "teachingMaterialsAddon": {
     "title": "Nastavni materijali",
     "description": "Priručnici i radne sveske"
   },
-
   "removal": {
     "removing": "Uklanjanje: {{name}}",
     "removedIn5s": "Biće uklonjeno za 5 sekundi",
     "undo": "Poništi"
   },
-
   "promoCode": {
     "label": "Promo kod",
     "placeholder": "UNESITE KOD",
@@ -95,7 +85,6 @@
     "usageLimitReview": "Vaš kod za popust je dostigao limit korišćenja. Molimo pregledajte vašu narudžbinu.",
     "deactivatedReview": "Vaš kod za popust je deaktiviran. Molimo pregledajte vašu narudžbinu."
   },
-
   "sellerInfo": {
     "title": "Podaci o prodavcu",
     "seller": "Prodavac:",
@@ -110,30 +99,25 @@
     "rightToWithdrawValue": "14 dana (pogledajte uslove)",
     "fullTerms": "Kompletni Uslovi korišćenja →"
   },
-
   "benefits": {
     "lifetimeUpdates": "Doživotna ažuriranja kurseva",
     "certificate": "Zvanični Eduway Academy sertifikat",
     "support": "Prioritetna specijalizovana podrška 24/7",
     "satisfaction": "Garancija zadovoljstva"
   },
-
   "emailConfirmation": "Potvrda narudžbine biće poslata na <strong>{{email}}</strong>",
-
   "security": {
     "sslSecured": "SSL zaštićeno",
     "3dSecure": "3D Secure",
     "raiffeisenProcessing": "Obradu plaćanja vrši Raiffeisen Bank",
     "securePayment": "Sigurno plaćanje – Raiffeisen Bank"
   },
-
   "session": {
     "expiringSoon": "Sesija uskoro ističe",
     "expiresIn": "Vaša sesija za plaćanje ističe za {{minutes}} minut(a). Molimo završite kupovinu.",
     "expired": "Vaša sesija za plaćanje je istekla. Molimo osvežite stranicu i pokušajte ponovo.",
     "dismiss": "Zatvori"
   },
-
   "errors": {
     "paymentCancelled": "Plaćanje je otkazano. Možete pokušati ponovo.",
     "paymentFailed": "Plaćanje nije uspelo. Molimo pokušajte ponovo.",
@@ -144,7 +128,6 @@
     "emailRequired": "Email je obavezan",
     "emailInvalid": "Molimo unesite ispravnu email adresu"
   },
-
   "announcements": {
     "paymentSuccess": "Plaćanje uspešno! Vaša kupovina je potvrđena.",
     "paymentSuccessShort": "Plaćanje uspešno! Vaši kursevi će uskoro biti dostupni.",
@@ -157,13 +140,11 @@
     "removalCancelled": "Uklanjanje {{name}} je otkazano",
     "discountApplied": "Kod za popust primenjen! Uštedeli ste {{amount}}"
   },
-
   "success": {
     "title": "Plaćanje uspešno!",
     "description": "Vaši kursevi su sada otključani. Dobrodošli u Eduway Academy porodicu! Email za potvrdu je poslat na {{email}}.",
     "goToCourses": "Idi na Moje kurseve"
   },
-
   "successPage": {
     "title": "Uplata primljena!",
     "thankYou": "Hvala vam na kupovini, <strong>{{name}}</strong>!",
@@ -182,5 +163,29 @@
     "goToDashboard": "Idi na kontrolnu tablu",
     "browseMore": "Pregledaj još kurseva",
     "needHelp": "Potrebna vam je pomoć? <contactLink>Kontaktirajte naš tim za podršku</contactLink>"
+  },
+  "billingInfo": {
+    "title": "Podaci za naplatu",
+    "description": "Neophodni za vaš račun, koji ćemo vam poslati e-poštom nakon plaćanja.",
+    "address": "Adresa",
+    "addressPlaceholder": "Ulica i broj",
+    "city": "Grad",
+    "cityPlaceholder": "Beograd",
+    "postalCode": "Poštanski broj",
+    "country": "Država",
+    "countryPlaceholder": "Srbija",
+    "isCompany": "Kupujem u ime firme",
+    "companyName": "Pun naziv firme",
+    "pib": "Poreski broj (PIB)",
+    "vatId": "PDV broj (opciono)",
+    "errors": {
+      "nameRequired": "Puno ime i prezime je obavezno",
+      "addressRequired": "Adresa je obavezna",
+      "cityRequired": "Grad je obavezan",
+      "postalCodeRequired": "Poštanski broj je obavezan",
+      "countryRequired": "Država je obavezna",
+      "companyNameRequired": "Naziv firme je obavezan",
+      "pibRequired": "Poreski broj (PIB) je obavezan za kupovine firme"
+    }
   }
 }

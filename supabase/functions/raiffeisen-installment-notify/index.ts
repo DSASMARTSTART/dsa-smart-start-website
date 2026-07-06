@@ -178,7 +178,19 @@ Deno.serve(async (req) => {
     Deno.env.get('RAIFFEISEN_UPC_SERVER_PUBLIC_KEY_PEM') ||
     Deno.env.get('RAIFFEISEN_UPC_SERVER_CERT_PEM') ||
     ''
-  const skipSignatureVerify = Deno.env.get('RAIFFEISEN_UPC_SKIP_SIGNATURE_VERIFY') === 'true'
+  // Signature verification may only be skipped in an explicitly non-production
+  // sandbox: BOTH the skip flag AND RAIFFEISEN_UPC_ENV=sandbox must be set (audit
+  // I2). This prevents a single stray env var from silently disabling the only
+  // authentication on the installment rail in production.
+  const skipRequested = Deno.env.get('RAIFFEISEN_UPC_SKIP_SIGNATURE_VERIFY') === 'true'
+  const isSandbox = (Deno.env.get('RAIFFEISEN_UPC_ENV') || '').toLowerCase() === 'sandbox'
+  const skipSignatureVerify = skipRequested && isSandbox
+  if (skipRequested && !isSandbox) {
+    console.error('SECURITY: RAIFFEISEN_UPC_SKIP_SIGNATURE_VERIFY is set but RAIFFEISEN_UPC_ENV is not "sandbox" — signature verification will NOT be skipped.')
+  }
+  if (skipSignatureVerify) {
+    console.warn('SECURITY: installment NOTIFY signature verification is DISABLED (sandbox mode).')
+  }
   const signatureHash = (Deno.env.get('RAIFFEISEN_UPC_SIGNATURE_HASH') || 'SHA-1').toUpperCase() === 'SHA-256'
     ? 'SHA-256'
     : 'SHA-1'

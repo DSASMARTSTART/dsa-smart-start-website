@@ -1,4 +1,5 @@
 
+import './index.css'; // Tailwind (build-time) + app base styles — replaces the CDN dev script
 import { i18nReady } from './lib/i18n'; // i18n must be imported before React renders
 import React, { Suspense } from 'react';
 import ReactDOM from 'react-dom/client';

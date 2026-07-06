@@ -973,22 +973,30 @@ const MetadataEditor: React.FC<{
       return;
     }
     
+    if (!actualCourseId || actualCourseId === 'new') {
+      setPdfUploadError('Please save the course once before uploading e-book files.');
+      return;
+    }
+
     setUploadingPdf(true);
     setUploadingFileIndex(activeFileUploadIndex);
     setPdfUploadError('');
-    
-    const { url, error } = await storageHelpers.uploadImage(file, 'ebooks');
-    
+
+    // Upload to the PRIVATE `ebooks` bucket (audit S2). We store the storage PATH,
+    // not a public URL — the dashboard exchanges it for a short-lived signed URL
+    // via get-ebook-download after verifying the buyer's enrollment.
+    const { path, error } = await storageHelpers.uploadEbookFile(file, actualCourseId);
+
     setUploadingPdf(false);
     setUploadingFileIndex(null);
-    
+
     if (error) {
       setPdfUploadError(error);
       return;
     }
-    
+
     const updated = [...ebookFiles];
-    updated[activeFileUploadIndex] = { ...updated[activeFileUploadIndex], url };
+    updated[activeFileUploadIndex] = { ...updated[activeFileUploadIndex], url: path };
     setEbookFiles(updated);
     setEbookPdfUrl(updated[0]?.url || '');
     setActiveFileUploadIndex(null);
@@ -997,7 +1005,11 @@ const MetadataEditor: React.FC<{
   const handleRemoveEbookFile = async (index: number) => {
     const file = ebookFiles[index];
     if (file.url && storageHelpers.isSupabaseStorageUrl(file.url)) {
+      // Legacy public-bucket file.
       await storageHelpers.deleteImage(file.url);
+    } else if (file.url && storageHelpers.isEbookStoragePath(file.url)) {
+      // New private-bucket storage path (audit S2).
+      await storageHelpers.deleteEbookFile(file.url);
     }
     const updated = ebookFiles.filter((_, i) => i !== index);
     setEbookFiles(updated);

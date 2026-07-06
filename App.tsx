@@ -1,5 +1,6 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
+// Eager: the landing page + always-visible chrome (first paint needs these).
 import Navbar from './components/Navbar';
 import HeroSection from './components/HeroSection';
 import AboutSection from './components/AboutSection';
@@ -9,33 +10,41 @@ import MethodSection from './components/MethodSection';
 import PathwaysDetail from './components/PathwaysDetail';
 import TestimonialsSection from './components/TestimonialsSection';
 import Footer from './components/Footer';
-import FaqPage from './components/FaqPage';
-import WhoWeAre from './components/WhoWeAre';
-import ContactPage from './components/ContactPage';
-import LoginRegisterPage from './components/LoginRegisterPage';
-import CoursesPage from './components/CoursesPage';
-import CourseSyllabusPage from './components/CourseSyllabusPage';
-import EbookDetailPage from './components/EbookDetailPage';
-import LiveCourseDetailPage from './components/LiveCourseDetailPage';
-import CheckoutPage from './components/CheckoutPage';
-import CheckoutSuccessPage from './components/CheckoutSuccessPage';
 import WhatsAppButton from './components/WhatsAppButton';
 import CartBubble from './components/CartBubble';
-import DashboardPage from './components/DashboardPage';
-import CourseViewer from './components/CourseViewer';
-import PolicyPage from './components/PolicyPage';
-import ResetPasswordPage from './components/ResetPasswordPage';
+
+// Lazy: everything behind a route change. Keeps these out of the initial bundle
+// (audit P3 — main chunk was ~817 kB). React.lazy needs a default export.
+const FaqPage = lazy(() => import('./components/FaqPage'));
+const WhoWeAre = lazy(() => import('./components/WhoWeAre'));
+const ContactPage = lazy(() => import('./components/ContactPage'));
+const LoginRegisterPage = lazy(() => import('./components/LoginRegisterPage'));
+const CoursesPage = lazy(() => import('./components/CoursesPage'));
+const CourseSyllabusPage = lazy(() => import('./components/CourseSyllabusPage'));
+const EbookDetailPage = lazy(() => import('./components/EbookDetailPage'));
+const LiveCourseDetailPage = lazy(() => import('./components/LiveCourseDetailPage'));
+const CheckoutPage = lazy(() => import('./components/CheckoutPage'));
+const CheckoutSuccessPage = lazy(() => import('./components/CheckoutSuccessPage'));
+const DashboardPage = lazy(() => import('./components/DashboardPage'));
+const CourseViewer = lazy(() => import('./components/CourseViewer'));
+const PolicyPage = lazy(() => import('./components/PolicyPage'));
+const ResetPasswordPage = lazy(() => import('./components/ResetPasswordPage'));
 import { useAuth } from './contexts/AuthContext';
 import { clearCoursesCache, enrollmentsApi } from './data/supabaseStore';
 import { CheckCircle, AlertCircle, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-// Admin Dashboard Components
-import { 
-  AdminLayout, AdminHome, AdminUsers, AdminCourses, 
-  CourseEditor, AdminAudit, AdminDiscountCodes, AdminTransactions,
-  AdminPaymentOrphans, AdminSettings 
-} from './components/admin';
+// Admin Dashboard Components — lazy-loaded as one chunk (rarely the first page).
+const AdminLayout = lazy(() => import('./components/admin').then(m => ({ default: m.AdminLayout })));
+const AdminHome = lazy(() => import('./components/admin').then(m => ({ default: m.AdminHome })));
+const AdminUsers = lazy(() => import('./components/admin').then(m => ({ default: m.AdminUsers })));
+const AdminCourses = lazy(() => import('./components/admin').then(m => ({ default: m.AdminCourses })));
+const CourseEditor = lazy(() => import('./components/admin').then(m => ({ default: m.CourseEditor })));
+const AdminAudit = lazy(() => import('./components/admin').then(m => ({ default: m.AdminAudit })));
+const AdminDiscountCodes = lazy(() => import('./components/admin').then(m => ({ default: m.AdminDiscountCodes })));
+const AdminTransactions = lazy(() => import('./components/admin').then(m => ({ default: m.AdminTransactions })));
+const AdminPaymentOrphans = lazy(() => import('./components/admin').then(m => ({ default: m.AdminPaymentOrphans })));
+const AdminSettings = lazy(() => import('./components/admin').then(m => ({ default: m.AdminSettings })));
 
 // Toast notification type
 interface Toast {
@@ -184,13 +193,48 @@ const App: React.FC = () => {
         setCurrentPath('viewer');
         setSelectedCourseId(hash.replace('#viewer-', ''));
       }
-      else setCurrentPath('home');
+      // Any hash that matches no known route → 404 (audit U4). Every valid route,
+      // including prefix routes and admin, is matched above, so this is a true
+      // catch-all and cannot swallow a legitimate deep link.
+      else setCurrentPath('not-found');
     };
 
     window.addEventListener('hashchange', handleHash);
-    handleHash(); 
+    handleHash();
     return () => window.removeEventListener('hashchange', handleHash);
   }, []);
+
+  // Dynamic per-route document title (audit P4). The SPA previously kept a single
+  // static <title> on every route, which hurts SEO and shareability.
+  useEffect(() => {
+    const BRAND = 'Eduway Academy';
+    const titles: Record<string, string> = {
+      home: 'Eduway Academy | English Learning for Dyslexia',
+      courses: `Products & Courses — ${BRAND}`,
+      faq: `FAQ — ${BRAND}`,
+      'who-we-are': `Who We Are — ${BRAND}`,
+      contact: `Contact — ${BRAND}`,
+      login: `Log In / Register — ${BRAND}`,
+      checkout: `Checkout — ${BRAND}`,
+      'checkout-success': `Order Confirmed — ${BRAND}`,
+      dashboard: `My Dashboard — ${BRAND}`,
+      viewer: `Course — ${BRAND}`,
+      syllabus: `Course Syllabus — ${BRAND}`,
+      ebook: `E-book — ${BRAND}`,
+      'live-course': `Live Course — ${BRAND}`,
+      terms: `Terms & Conditions — ${BRAND}`,
+      privacy: `Privacy Policy — ${BRAND}`,
+      'privacy-policy': `Privacy Policy — ${BRAND}`,
+      'cookie-policy': `Cookie Policy — ${BRAND}`,
+      'refund-policy': `Refund Policy — ${BRAND}`,
+      'reset-password': `Reset Password — ${BRAND}`,
+      'not-found': `Page Not Found — ${BRAND}`,
+    };
+    const key = currentPath.startsWith('admin') ? 'admin' : currentPath;
+    document.title = key === 'admin'
+      ? `Admin — ${BRAND}`
+      : (titles[currentPath] || `${BRAND} | English Learning for Dyslexia`);
+  }, [currentPath]);
 
   const navigateTo = (path: string, params?: string) => {
     if (path === 'syllabus' && params) {
@@ -334,6 +378,11 @@ const App: React.FC = () => {
       
       {/* Main content area - skip link target */}
       <div id="main-content">
+        <Suspense fallback={
+          <div className="min-h-[60vh] flex items-center justify-center bg-black">
+            <div className="w-10 h-10 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
+          </div>
+        }>
         {currentPath === 'home' && (
           <>
             <HeroSection onNavigate={navigateTo} />
@@ -454,6 +503,27 @@ const App: React.FC = () => {
         <PolicyPage type="refund" onBack={() => navigateTo('home')} />
       )}
 
+      {/* 404 — unknown route (audit U4) */}
+      {currentPath === 'not-found' && (
+        <div className="min-h-[70vh] flex items-center justify-center bg-black px-6">
+          <div className="text-center max-w-md">
+            <p className="text-7xl font-black text-purple-500 mb-4">404</p>
+            <h1 className="text-2xl font-black text-white uppercase tracking-tight mb-3">
+              {t('notFound.title', 'Page not found')}
+            </h1>
+            <p className="text-gray-400 mb-8">
+              {t('notFound.message', "The page you're looking for doesn't exist or has moved.")}
+            </p>
+            <button
+              onClick={() => navigateTo('home')}
+              className="px-8 py-4 bg-purple-600 text-white rounded-full font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-all"
+            >
+              {t('notFound.goHome', 'Back to home')}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Admin Routes */}
       {isAdminPath && isAdmin && (
         <AdminLayout currentPath={currentPath} onNavigate={navigateTo} onLogout={handleLogout}>
@@ -486,6 +556,7 @@ const App: React.FC = () => {
           </div>
         </div>
       )}
+        </Suspense>
       </div>{/* End main-content */}
       
       {!isAdminPath && <Footer onNavigate={navigateTo} />}

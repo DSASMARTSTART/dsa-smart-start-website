@@ -54,6 +54,7 @@ export const checkSupabaseConnection = async (): Promise<boolean> => {
 // STORAGE HELPERS
 // ============================================
 const COURSE_IMAGES_BUCKET = 'course-images';
+const EBOOKS_BUCKET = 'ebooks';
 
 export const storageHelpers = {
   /**
@@ -135,5 +136,81 @@ export const storageHelpers = {
    */
   isSupabaseStorageUrl: (url: string): boolean => {
     return url.includes('/storage/v1/object/public/course-images/');
-  }
+  },
+
+  /**
+   * Upload a paid e-book file to the PRIVATE `ebooks` bucket (audit S2).
+   * Unlike uploadImage, this does NOT return a public URL — it returns the
+   * storage PATH, which the dashboard exchanges for a short-lived signed URL via
+   * the get-ebook-download edge function after enrollment is verified.
+   *
+   * @param file     the PDF (or other) file to upload
+   * @param courseId the owning course id — becomes the first path segment so the
+   *                 edge function / storage RLS can scope access per course.
+   */
+  uploadEbookFile: async (
+    file: File,
+    courseId: string
+  ): Promise<{ path: string; error: string | null }> => {
+    if (!supabase) return { path: '', error: 'Supabase client not initialized' };
+    if (!courseId) return { path: '', error: 'A course id is required to upload an e-book file' };
+
+    try {
+      const fileExt = file.name.split('.').pop()?.toLowerCase() || 'pdf';
+      const path = `${courseId}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+
+      const { data, error } = await supabase.storage
+        .from(EBOOKS_BUCKET)
+        .upload(path, file, { cacheControl: '3600', upsert: false });
+
+      if (error) {
+        console.error('E-book upload error:', error);
+        return { path: '', error: error.message };
+      }
+      return { path: data.path, error: null };
+    } catch (err) {
+      console.error('E-book upload exception:', err);
+      return { path: '', error: 'Failed to upload e-book file' };
+    }
+  },
+
+  /** True when a stored e-book "url" is actually a private-bucket storage path. */
+  isEbookStoragePath: (value: string): boolean => {
+    return !!value && !/^https?:\/\//i.test(value);
+  },
+
+  /** Delete an e-book file from the private `ebooks` bucket by its storage path. */
+  deleteEbookFile: async (path: string): Promise<{ success: boolean; error: string | null }> => {
+    if (!supabase) return { success: false, error: 'Supabase client not initialized' };
+    if (!path || /^https?:\/\//i.test(path)) return { success: false, error: 'Not a storage path' };
+    try {
+      const { error } = await supabase.storage.from(EBOOKS_BUCKET).remove([path]);
+      if (error) return { success: false, error: error.message };
+      return { success: true, error: null };
+    } catch (err) {
+      console.error('E-book delete exception:', err);
+      return { success: false, error: 'Failed to delete e-book file' };
+    }
+  },
+
+  /**
+   * Resolve a downloadable URL for an e-book file. External http(s) links are
+   * returned as-is; private storage paths are exchanged for a short-lived signed
+   * URL via the enrollment-gated get-ebook-download edge function.
+   */
+  resolveEbookDownloadUrl: async (
+    courseId: string,
+    urlOrPath: string
+  ): Promise<{ url: string; error: string | null }> => {
+    if (!urlOrPath) return { url: '', error: 'No file' };
+    if (/^https?:\/\//i.test(urlOrPath)) return { url: urlOrPath, error: null };
+    if (!supabase) return { url: '', error: 'Supabase client not initialized' };
+
+    const { data, error } = await supabase.functions.invoke('get-ebook-download', {
+      body: { courseId, path: urlOrPath },
+    });
+    if (error) return { url: '', error: error.message };
+    if (!data?.success || !data?.url) return { url: '', error: data?.error || 'Download not available' };
+    return { url: data.url, error: null };
+  },
 };

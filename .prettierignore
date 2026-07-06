@@ -1,0 +1,6 @@
+dist
+node_modules
+locales
+public
+package-lock.json
+*.md

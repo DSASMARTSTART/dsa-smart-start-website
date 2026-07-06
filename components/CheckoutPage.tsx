@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
-import { ArrowLeft, ShieldCheck, Lock, CreditCard, CheckCircle2, ChevronRight, ShoppingCart, User, X, Tag, Ticket, AlertCircle, Loader2, Building2, Wallet, BookOpen, Plus, Minus, Mail, Check, LogIn } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, Lock, CreditCard, CheckCircle2, ChevronRight, ShoppingCart, User, X, Tag, Ticket, AlertCircle, Loader2, Building2, Wallet, BookOpen, Plus, Minus, Mail, Check, LogIn, Clock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLocaleFormat } from '../hooks/useLocaleFormat';
 import { coursesApi, purchasesApi, enrollmentsApi } from '../data/supabaseStore';
@@ -23,7 +23,9 @@ import {
   PaymentMethod,
   PaymentRequest
 } from '../lib/paymentService';
-import { generateAndSendInvoice } from '../lib/emailService';
+
+// sessionStorage key for the checkout idempotency token (audit B5).
+const IDEMPOTENCY_STORAGE_KEY = 'checkout_idempotency_v1';
 
 // Level-based color gradients
 const LEVEL_COLORS: Record<string, string> = {
@@ -126,6 +128,10 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
   const [emailTouched, setEmailTouched] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [termsError, setTermsError] = useState(false);
+  // Dedicated consent for the bank-managed installment rail (audit I1). Separate
+  // from the general T&C so the shopper explicitly acknowledges how installments work.
+  const [installmentAck, setInstallmentAck] = useState(false);
+  const [installmentAckError, setInstallmentAckError] = useState(false);
 
   // Billing details (required for invoicing). Snapshotted onto purchases + invoice.
   const [billingAddress, setBillingAddress] = useState('');
@@ -213,16 +219,36 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
   const CHECKOUT_TIMEOUT_MINUTES = 30; // Warn after 25 minutes, timeout at 30
   const WARNING_THRESHOLD_MINUTES = 5;
 
-  // Idempotency key generated per checkout attempt. Reset on cart change so a
-  // genuinely new attempt gets a new key, but stable across rapid double-clicks.
-  const [idempotencyKey, setIdempotencyKey] = useState<string>(() => {
-    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return crypto.randomUUID();
-    return `idem-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-  });
+  // Idempotency key for this checkout attempt. Persisted in sessionStorage and
+  // keyed to the cart's contents so it stays STABLE across component remounts and
+  // back-button navigation (audit B5) — a shopper who pays, then hits Back, reuses
+  // the same key instead of minting a new one and creating a duplicate order. It
+  // rotates only when the cart contents actually change, and is cleared on a
+  // successful payment (see handlePaymentSuccess).
+  const cartSignature = useMemo(
+    () => (cart || []).map((i: CartItem) => `${i.id}`).slice().sort().join(','),
+    [cart]
+  );
+  const genIdempotencyKey = () =>
+    (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
+      ? crypto.randomUUID()
+      : `idem-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  const [idempotencyKey, setIdempotencyKey] = useState<string>(genIdempotencyKey);
   useEffect(() => {
-    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') setIdempotencyKey(crypto.randomUUID());
-    else setIdempotencyKey(`idem-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`);
-  }, [cart]);
+    try {
+      const raw = sessionStorage.getItem(IDEMPOTENCY_STORAGE_KEY);
+      const parsed = raw ? JSON.parse(raw) : null;
+      if (parsed?.key && parsed.sig === cartSignature) {
+        setIdempotencyKey(parsed.key);
+        return;
+      }
+    } catch { /* sessionStorage unavailable — fall through to a fresh key */ }
+    const key = genIdempotencyKey();
+    setIdempotencyKey(key);
+    try {
+      sessionStorage.setItem(IDEMPOTENCY_STORAGE_KEY, JSON.stringify({ sig: cartSignature, key }));
+    } catch { /* ignore persistence failure */ }
+  }, [cartSignature]);
 
   // Listen for RaiAccept iframe postMessage events (payment completion)
   useEffect(() => {
@@ -626,23 +652,15 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
         console.error('ensure_enrollment_exists error:', ensureErr);
       }
 
-      // Auto-issue invoice (fire-and-forget — don't block checkout).
-      // The generate-invoice edge function is idempotent on transaction_id, so it's
-      // safe to race with the payment-webhook auto-trigger: whichever arrives first
-      // creates the invoice row and emails it; the other call detects the existing
-      // row and returns without sending a duplicate. `force: true` bypasses the
-      // "transaction not yet completed" guard in case Postgres visibility lags
-      // behind the just-committed confirm_purchases_by_transaction RPC.
-      if (userId) {
-        generateAndSendInvoice({
-          transactionId,
-          userId,
-          paymentMethod: method,
-          force: true,
-        });
-      }
+      // Invoice issuance is intentionally NOT triggered here. The payment-webhook
+      // (RaiAccept) and raiffeisen-installment-notify edge functions are the single
+      // source of truth for invoicing: they call generate-invoice only after a FULLY
+      // confirmed payment. Triggering it from the client too raced the webhook and
+      // could double-send the invoice email. See audit finding B3.
 
-      // Clear cart and redirect to success page
+      // Clear cart and the idempotency token (audit B5) so the next purchase
+      // starts a fresh attempt, then redirect to the success page.
+      try { sessionStorage.removeItem(IDEMPOTENCY_STORAGE_KEY); } catch { /* ignore */ }
       onClearCart();
       if (onNavigate) { onNavigate('checkout-success'); } else { window.location.hash = '#checkout-success'; }
     } catch (err) {
@@ -1117,6 +1135,12 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
       return;
     }
 
+    if (!installmentAck) {
+      setInstallmentAckError(true);
+      setError(t('installments.ackRequired', 'Please confirm you understand how the installment payment works.'));
+      return;
+    }
+
     if (!customerName.trim() || !customerEmail.trim()) {
       setError(t('errors.fillNameEmail'));
       return;
@@ -1229,6 +1253,48 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
 
   return (
     <div className="bg-black min-h-screen pt-32 pb-20 relative">
+      {/* Session-timeout warning modal (audit U2). State was tracked but never
+          surfaced, so checkout could silently expire. */}
+      {sessionWarning.show && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm px-6"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="session-timeout-title"
+        >
+          <div className="bg-[#0f0f12] border border-white/10 rounded-[2rem] p-8 max-w-md w-full text-center shadow-2xl">
+            <div className="w-14 h-14 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto mb-5">
+              <Clock size={26} className="text-amber-400" />
+            </div>
+            <h2 id="session-timeout-title" className="text-xl font-black text-white uppercase tracking-tight mb-3">
+              {t('session.warningTitle', 'Your checkout is about to expire')}
+            </h2>
+            <p className="text-sm text-gray-400 mb-6">
+              {t('session.warningBody', {
+                defaultValue: 'For your security, this checkout will reset in about {{count}} minute(s). Do you want to keep going?',
+                count: sessionWarning.minutesLeft,
+              })}
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button
+                type="button"
+                onClick={extendSession}
+                className="px-6 py-3 rounded-full bg-purple-600 text-white font-black text-xs uppercase tracking-widest hover:bg-purple-700 transition-all"
+              >
+                {t('session.keepGoing', 'Keep going')}
+              </button>
+              <button
+                type="button"
+                onClick={cancelFromSessionWarning}
+                className="px-6 py-3 rounded-full bg-white/5 text-gray-300 font-black text-xs uppercase tracking-widest border border-white/10 hover:bg-white/10 transition-all"
+              >
+                {t('session.cancelCheckout', 'Cancel')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Screen reader announcements - visually hidden live region */}
       <div
         role="status"
@@ -1784,6 +1850,61 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                           <Building2 className="inline mr-2" size={16} />
                           {t('paymentMethod.installmentsNotice', 'You will be redirected to Raiffeisen Bank to complete an installment card payment.')}
                         </p>
+                      </div>
+
+                      {/* How installments work — disclosure before payment (audit I1) */}
+                      <div className="bg-white/5 border border-white/10 rounded-2xl p-5 mb-6">
+                        <p className="text-xs font-black uppercase tracking-widest text-gray-400 mb-3">
+                          {t('installments.howItWorksTitle', 'How installment payment works')}
+                        </p>
+                        <ul className="space-y-2 text-sm text-gray-300">
+                          <li className="flex items-start gap-2">
+                            <Check size={16} className="text-emerald-400 mt-0.5 shrink-0" />
+                            <span>{t('installments.pointTotal', { defaultValue: 'Your order total is {{total}}. You are charged this full amount once — your bank then splits it into monthly installments on your card.', total: formatCurrency(total) })}</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <Check size={16} className="text-emerald-400 mt-0.5 shrink-0" />
+                            <span>{t('installments.pointChoosePlan', 'You choose the number of monthly installments on Raiffeisen Bank’s secure page during checkout.')}</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <Check size={16} className="text-emerald-400 mt-0.5 shrink-0" />
+                            <span>{t('installments.pointEligibility', 'Installment availability, the number of months, and any interest or fees are set by your card issuer, not by Eduway Academy.')}</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <Check size={16} className="text-emerald-400 mt-0.5 shrink-0" />
+                            <span>{t('installments.pointAccess', 'Your access is activated as soon as the first installment is approved — you keep full access for the whole plan.')}</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <Check size={16} className="text-emerald-400 mt-0.5 shrink-0" />
+                            <span>{t('installments.pointCurrency', 'The amount is charged in RSD at your bank; prices shown in EUR are converted at checkout.')}</span>
+                          </li>
+                        </ul>
+                      </div>
+
+                      {/* Dedicated installment acknowledgement */}
+                      <div className="mb-6">
+                        <label className={`flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl border transition-all cursor-pointer hover:bg-white/5 ${
+                          installmentAckError ? 'border-red-500/30 bg-red-500/10' : 'border-white/10'
+                        }`}>
+                          <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-colors mt-0.5 ${
+                            installmentAck ? 'bg-emerald-600 border-emerald-600' : 'border-gray-500'
+                          }`}>
+                            {installmentAck && <Check size={14} className="text-white" />}
+                          </div>
+                          <input
+                            type="checkbox"
+                            checked={installmentAck}
+                            onChange={(e) => {
+                              setInstallmentAck(e.target.checked);
+                              if (e.target.checked) setInstallmentAckError(false);
+                            }}
+                            className="sr-only"
+                          />
+                          <div className="text-sm text-gray-400 leading-relaxed max-w-[90%]">
+                            {t('installments.ackLabel', 'I understand this is a bank-managed installment payment and that the number of installments and any interest are set by my card issuer.')}
+                          </div>
+                        </label>
+                        {installmentAckError && <p className="text-red-400 text-xs font-bold mt-2 ml-2">{t('installments.ackRequired', 'Please confirm you understand how the installment payment works.')}</p>}
                       </div>
 
                       <div className="mb-6">

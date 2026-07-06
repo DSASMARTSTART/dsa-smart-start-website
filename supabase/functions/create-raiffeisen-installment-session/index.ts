@@ -309,6 +309,14 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Persist the EUR→RSD rate used for this order so the charged RSD amount can be
+    // reproduced for reconciliation and invoices (audit B7/I3). Best-effort.
+    const { error: rateErr } = await serviceClient
+      .from('purchases')
+      .update({ currency_exchange_rate: eurToRsdRate })
+      .eq('transaction_id', body.orderId)
+    if (rateErr) console.error('Could not persist currency_exchange_rate:', rateErr)
+
     const rsdTotal = toRsd(body.amount, eurToRsdRate)
     const totalAmount = String(Math.round(rsdTotal * amountMultiplier))
     const time = purchaseTime()

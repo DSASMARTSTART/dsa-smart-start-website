@@ -8,7 +8,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useLocalizedCourses, getLocalizedTitle } from '../hooks/useLocalizedCourse';
 import { useUserProgress } from '../hooks/useUserProgress';
 import { useLocaleFormat } from '../hooks/useLocaleFormat';
-import { supabase } from '../lib/supabase';
+import { supabase, storageHelpers } from '../lib/supabase';
 
 // Fallback cover images for e-books (local assets)
 const EBOOK_COVERS: Record<string, string> = {
@@ -278,6 +278,35 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
 
   const localizedEnrolledCourses = useLocalizedCourses(enrolledCourses);
   const localizedEbooks = useLocalizedCourses(purchasedEbooks);
+
+  // Tracks which e-book file is currently being resolved to a signed URL, so we
+  // can show a spinner and prevent double clicks. Keyed by `${courseId}:${index}`.
+  const [downloadingKey, setDownloadingKey] = useState<string | null>(null);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
+
+  // Resolve a paid e-book file to a downloadable URL and open it. External links
+  // open directly; private-bucket storage paths are exchanged for a short-lived
+  // signed URL via the enrollment-gated get-ebook-download edge function (audit S2).
+  const handleEbookDownload = async (courseId: string, urlOrPath: string, key: string) => {
+    if (!urlOrPath || downloadingKey) return;
+    setDownloadError(null);
+    // Fast path: already a full external URL — no round-trip needed.
+    if (!storageHelpers.isEbookStoragePath(urlOrPath)) {
+      window.open(urlOrPath, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    setDownloadingKey(key);
+    try {
+      const { url, error } = await storageHelpers.resolveEbookDownloadUrl(courseId, urlOrPath);
+      if (error || !url) {
+        setDownloadError(error || t('ebooks.downloadError', 'Could not prepare your download. Please try again.'));
+        return;
+      }
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } finally {
+      setDownloadingKey(null);
+    }
+  };
 
   // Retry handler for error state
   const handleRetry = () => {
@@ -621,9 +650,10 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
                         <div className="relative h-48 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 flex items-center justify-center">
                           {coverUrl ? (
                             <>
-                              <img 
-                                src={coverUrl} 
+                              <img
+                                src={coverUrl}
                                 alt={ebook.title}
+                                loading="lazy"
                                 className="h-full w-full object-cover"
                                 onError={(e) => {
                                   // Hide broken image and show fallback icon
@@ -655,18 +685,25 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
                           {/* Download Buttons */}
                           {downloadFiles.length > 0 ? (
                             <div className="space-y-2">
-                              {downloadFiles.map((file, fileIdx) => (
-                                <a
-                                  key={fileIdx}
-                                  href={file.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-emerald-600 text-white font-black text-[10px] uppercase tracking-widest hover:bg-emerald-700 transition-all active:scale-95"
-                                >
-                                  <Download size={14} />
-                                  {file.label || t('ebooks.download')}
-                                </a>
-                              ))}
+                              {downloadFiles.map((file, fileIdx) => {
+                                const dlKey = `${ebook.id}:${fileIdx}`;
+                                const isResolving = downloadingKey === dlKey;
+                                return (
+                                  <button
+                                    key={fileIdx}
+                                    type="button"
+                                    onClick={() => handleEbookDownload(ebook.id, file.url, dlKey)}
+                                    disabled={isResolving}
+                                    className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-emerald-600 text-white font-black text-[10px] uppercase tracking-widest hover:bg-emerald-700 transition-all active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
+                                  >
+                                    {isResolving ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+                                    {file.label || t('ebooks.download')}
+                                  </button>
+                                );
+                              })}
+                              {downloadError && (
+                                <p className="text-red-400 text-[9px] font-bold text-center mt-1">{downloadError}</p>
+                              )}
                             </div>
                           ) : (
                             <button

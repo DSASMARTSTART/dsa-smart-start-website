@@ -281,8 +281,9 @@ const ContactPage: React.FC = () => {
                     )}
 
                     <div className="flex flex-col gap-2">
-                      <label className="text-[11px] font-black uppercase tracking-widest text-gray-500 ml-4">{t('form.firstNameLabel')}</label>
-                      <input 
+                      <label htmlFor="contact-firstName" className="text-[11px] font-black uppercase tracking-widest text-gray-500 ml-4">{t('form.firstNameLabel')}</label>
+                      <input
+                        id="contact-firstName"
                         type="text"
                         name="firstName"
                         value={formData.firstName}
@@ -293,8 +294,9 @@ const ContactPage: React.FC = () => {
                       />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-[11px] font-black uppercase tracking-widest text-gray-500 ml-4">{t('form.lastNameLabel')}</label>
-                      <input 
+                      <label htmlFor="contact-lastName" className="text-[11px] font-black uppercase tracking-widest text-gray-500 ml-4">{t('form.lastNameLabel')}</label>
+                      <input
+                        id="contact-lastName"
                         type="text"
                         name="lastName"
                         value={formData.lastName}
@@ -304,8 +306,9 @@ const ContactPage: React.FC = () => {
                       />
                     </div>
                     <div className="flex flex-col gap-2 md:col-span-2">
-                      <label className="text-[11px] font-black uppercase tracking-widest text-gray-500 ml-4">{t('form.emailLabel')}</label>
-                      <input 
+                      <label htmlFor="contact-email" className="text-[11px] font-black uppercase tracking-widest text-gray-500 ml-4">{t('form.emailLabel')}</label>
+                      <input
+                        id="contact-email"
                         type="email"
                         name="email"
                         value={formData.email}
@@ -316,8 +319,9 @@ const ContactPage: React.FC = () => {
                       />
                     </div>
                     <div className="flex flex-col gap-2 md:col-span-2">
-                      <label className="text-[11px] font-black uppercase tracking-widest text-gray-500 ml-4">{t('form.messageLabel')}</label>
-                      <textarea 
+                      <label htmlFor="contact-message" className="text-[11px] font-black uppercase tracking-widest text-gray-500 ml-4">{t('form.messageLabel')}</label>
+                      <textarea
+                        id="contact-message"
                         name="message"
                         value={formData.message}
                         onChange={handleInputChange}

@@ -1,19 +1,25 @@
 import path from 'path';
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
-    const env = loadEnv(mode, '.', '');
     return {
       server: {
-        port: 3000,
+        // Respect an injected PORT (e.g. preview/CI harnesses) but default to 3000.
+        port: process.env.PORT ? Number(process.env.PORT) : 3000,
         host: '0.0.0.0',
       },
       plugins: [react()],
-      define: {
-        'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
+      // Strip noisy console.log/info/debug from PRODUCTION bundles (audit: 150+
+      // console calls leaking internal flow). console.error/console.warn are kept
+      // so genuine failures remain visible in production.
+      esbuild: {
+        pure: mode === 'production' ? ['console.log', 'console.info', 'console.debug'] : [],
       },
+      // NOTE: no `define` for GEMINI_API_KEY here. Nothing in the app uses it, and
+      // injecting it via define would bundle the key into client JS (audit S4). If a
+      // Gemini feature is ever added, call it from a Supabase Edge Function with the
+      // key kept server-side — never expose it to the browser.
       resolve: {
         alias: {
           '@': path.resolve(__dirname, '.'),

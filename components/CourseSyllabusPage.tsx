@@ -471,9 +471,10 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
                 {/* Thumbnail */}
                 <div className="relative aspect-video rounded-3xl overflow-hidden mb-6 bg-white/5 shadow-inner">
                   {course.thumbnailUrl ? (
-                    <img 
-                      src={course.thumbnailUrl} 
+                    <img
+                      src={course.thumbnailUrl}
                       alt={course.title}
+                      loading="lazy"
                       className="w-full h-full object-cover"
                     />
                   ) : (

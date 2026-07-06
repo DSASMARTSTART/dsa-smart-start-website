@@ -5,7 +5,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Mail, Lock, User, ChevronRight, Eye, EyeOff, AlertCircle, Loader2, X } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 
 interface AuthModalProps {
@@ -219,7 +219,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
                 <div className="w-14 h-14 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Mail className="text-green-400" size={28} />
                 </div>
-                <p className="text-gray-300 text-sm mb-5" dangerouslySetInnerHTML={{ __html: t('resetLinkSentTo', { email: resetEmail }) }} />
+                <p className="text-gray-300 text-sm mb-5">
+                  <Trans i18nKey="resetLinkSentTo" ns="auth" values={{ email: resetEmail }} components={{ strong: <strong className="text-white" /> }} />
+                </p>
                 <button onClick={closeForgotPassword} className="w-full py-4 bg-purple-600 text-white rounded-2xl font-bold hover:bg-purple-700 transition-colors">
                   {t('backToLogin')}
                 </button>
