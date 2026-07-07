@@ -396,6 +396,29 @@ verify_jwt = false
 [functions.raiffeisen-installment-notify]
 verify_jwt = false
 
+# create-raiffeisen-installment-session verifies the caller's Supabase JWT
+# itself (userClient.auth.getUser()). Without this flag the platform gateway
+# also enforces a JWT check on every request INCLUDING the browser's CORS
+# preflight (OPTIONS), which carries no Authorization value — so the gateway
+# rejects the preflight with 401 before our OPTIONS handler ever runs,
+# surfacing to the browser as a CORS error ("preflight doesn't pass access
+# control check"). Skip gateway verification; the function's own auth check
+# still requires a real logged-in user for the actual POST.
+[functions.create-raiffeisen-installment-session]
+verify_jwt = false
+
+# create-raiaccept-session now verifies the caller's JWT internally
+# (userClient.auth.getUser() + userId match) — same reason as above: skip the
+# gateway check so the CORS preflight isn't rejected. Auth is still enforced.
+[functions.create-raiaccept-session]
+verify_jwt = false
+
+# get-ebook-download verifies the caller's JWT internally and checks active
+# enrollment before signing a download URL — skip the gateway check so the
+# browser CORS preflight isn't rejected.
+[functions.get-ebook-download]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327

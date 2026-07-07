@@ -206,9 +206,14 @@ export class RaiAcceptPayment {
       throw new Error('Supabase configuration missing for payment processing');
     }
 
+    // Send the logged-in user's access token (not the public anon key) so the
+    // Edge Function can verify who is purchasing and reject spoofed user ids.
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData.session?.access_token || supabaseKey;
+
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${supabaseKey}`,
+      Authorization: `Bearer ${accessToken}`,
     };
     if (request.idempotencyKey) {
       headers['Idempotency-Key'] = request.idempotencyKey;

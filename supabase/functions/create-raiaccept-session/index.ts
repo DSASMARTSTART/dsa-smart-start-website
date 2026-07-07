@@ -264,12 +264,14 @@ Deno.serve(async (req) => {
     const password = Deno.env.get('RAIACCEPT_API_PASSWORD');
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
 
     const missingEnv: string[] = [];
     if (!username) missingEnv.push('RAIACCEPT_API_USERNAME');
     if (!password) missingEnv.push('RAIACCEPT_API_PASSWORD');
     if (!supabaseUrl) missingEnv.push('SUPABASE_URL');
     if (!supabaseServiceKey) missingEnv.push('SUPABASE_SERVICE_ROLE_KEY');
+    if (!supabaseAnonKey) missingEnv.push('SUPABASE_ANON_KEY');
 
     if (missingEnv.length > 0) {
       console.error('create-raiaccept-session missing env:', missingEnv.join(', '));
@@ -299,6 +301,30 @@ Deno.serve(async (req) => {
       }
     }
 
+    // ── AUTHENTICATION ──────────────────────────────────────────────────
+    // Verify the caller's Supabase JWT and derive the trusted user id from it.
+    // We must NOT trust body.userId on its own: the browser authenticates with
+    // the public anon key, so a request could otherwise claim any account id.
+    // (Same proven pattern as create-raiffeisen-installment-session.)
+    const authHeader = req.headers.get('authorization') || '';
+    const userClient = createClient(supabaseUrl!, supabaseAnonKey!, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: userData, error: userAuthError } = await userClient.auth.getUser();
+    if (userAuthError || !userData?.user) {
+      return new Response(
+        JSON.stringify({ error: 'Authentication required. Please log in before purchasing.', success: false }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      );
+    }
+    const authedUserId = userData.user.id;
+    if (body.userId && body.userId !== authedUserId) {
+      return new Response(
+        JSON.stringify({ error: 'Authenticated user does not match checkout user.', success: false }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
+      );
+    }
+
     // Validate required fields
     const missingFields: string[] = [];
     if (!body.orderId) missingFields.push('orderId');
@@ -322,14 +348,8 @@ Deno.serve(async (req) => {
     // Requires authenticated user — no guest path
     if (body.purchaseItems && body.purchaseItems.length > 0) {
       const supabase = createClient(supabaseUrl!, supabaseServiceKey!);
-      const userId = body.userId;
-      
-      if (!userId) {
-        return new Response(
-          JSON.stringify({ error: 'Authentication required. Please log in before purchasing.', success: false }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-        );
-      }
+      // Trusted user id derived from the verified JWT above — never body.userId.
+      const userId = authedUserId;
 
       // CRITICAL: every pending purchase MUST be created BEFORE we hand the
       // user off to RaiAccept's payment form. If even one RPC call fails we
