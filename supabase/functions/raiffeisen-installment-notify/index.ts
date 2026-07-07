@@ -14,17 +14,24 @@ const corsHeaders = {
 type NotifyParams = Record<string, string>
 
 function formResponse(params: NotifyParams, action: 'approve' | 'reverse', reason = '', forwardUrl = '') {
+  // Output format mirrors the bank's reference notify.php byte-for-byte: echoed
+  // fields use "Key = Value" (spaces around '='), the Delay field is included, and
+  // the Response.* lines use "Response.x= value " (space after '=' and a trailing
+  // space). Matching the reference exactly avoids the UPC gateway rejecting our
+  // approve/reverse reply on a strict parse.
+  const echoReason = reason || (action === 'approve' ? 'ok' : 'something goes wrong')
   const lines = [
-    `MerchantID=${params.MerchantID || ''}`,
-    `TerminalID=${params.TerminalID || ''}`,
-    `OrderID=${params.OrderID || ''}`,
-    `Currency=${params.Currency || ''}`,
-    `TotalAmount=${params.TotalAmount || ''}`,
-    `XID=${params.XID || ''}`,
-    `PurchaseTime=${params.PurchaseTime || ''}`,
-    `Response.action=${action}`,
-    `Response.reason=${reason}`,
-    `Response.forwardUrl=${forwardUrl}`,
+    `MerchantID = ${params.MerchantID || ''}`,
+    `TerminalID = ${params.TerminalID || ''}`,
+    `OrderID = ${params.OrderID || ''}`,
+    `Delay = ${params.Delay || ''}`,
+    `Currency = ${params.Currency || ''}`,
+    `TotalAmount = ${params.TotalAmount || ''}`,
+    `XID = ${params.XID || ''}`,
+    `PurchaseTime = ${params.PurchaseTime || ''}`,
+    `Response.action= ${action} `,
+    `Response.reason= ${echoReason} `,
+    `Response.forwardUrl= ${forwardUrl} `,
   ]
 
   return new Response(lines.join('\n'), {
