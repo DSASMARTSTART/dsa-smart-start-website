@@ -108,7 +108,9 @@ function pkcs1PrivateKeyToPkcs8(pkcs1: Uint8Array): Uint8Array {
   ]))
 }
 
-async function importPrivateKey(pem: string, hash: 'SHA-1' | 'SHA-256'): Promise<CryptoKey> {
+type SignatureHash = 'SHA-1' | 'SHA-256' | 'SHA-512'
+
+async function importPrivateKey(pem: string, hash: SignatureHash): Promise<CryptoKey> {
   const isPkcs1 = pem.includes('BEGIN RSA PRIVATE KEY')
   const der = isPkcs1 ? pkcs1PrivateKeyToPkcs8(pemToDer(pem)) : pemToDer(pem)
   return crypto.subtle.importKey(
@@ -120,7 +122,7 @@ async function importPrivateKey(pem: string, hash: 'SHA-1' | 'SHA-256'): Promise
   )
 }
 
-async function signData(data: string, privateKeyPem: string, hash: 'SHA-1' | 'SHA-256'): Promise<string> {
+async function signData(data: string, privateKeyPem: string, hash: SignatureHash): Promise<string> {
   const key = await importPrivateKey(privateKeyPem, hash)
   const signature = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', key, textEncoder.encode(data))
   const bytes = new Uint8Array(signature)
@@ -140,6 +142,20 @@ function toRsd(eurAmount: number, rate: number): number {
 
 function cents(amount: number): number {
   return Math.round(amount * 100)
+}
+
+// The client's Idempotency-Key header is a full UUID (36 chars) shared across
+// all payment rails so rapid double-clicks don't create duplicate sessions.
+// UPC's OrderID field is capped at 20 characters, so we can't use the raw
+// idempotency key as-is. Derive a short, DETERMINISTIC id from it instead —
+// the same idempotency key always produces the same 16-char order id, so the
+// dedup guarantee (same checkout attempt -> same order) still holds.
+async function shortOrderIdFrom(source: string): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', textEncoder.encode(source))
+  const bytes = new Uint8Array(digest)
+  let hex = ''
+  for (let i = 0; i < 8; i++) hex += bytes[i].toString(16).padStart(2, '0')
+  return hex.toUpperCase()
 }
 
 Deno.serve(async (req) => {
@@ -163,9 +179,9 @@ Deno.serve(async (req) => {
     const locale = Deno.env.get('RAIFFEISEN_UPC_LOCALE') || 'RS'
     const version = Deno.env.get('RAIFFEISEN_UPC_VERSION') || '1'
     const delay = Deno.env.get('RAIFFEISEN_UPC_DELAY') || ''
-    const signatureHash = (Deno.env.get('RAIFFEISEN_UPC_SIGNATURE_HASH') || 'SHA-1').toUpperCase() === 'SHA-256'
-      ? 'SHA-256'
-      : 'SHA-1'
+    const signatureHashEnv = (Deno.env.get('RAIFFEISEN_UPC_SIGNATURE_HASH') || 'SHA-1').toUpperCase()
+    const signatureHash: SignatureHash =
+      signatureHashEnv === 'SHA-512' ? 'SHA-512' : signatureHashEnv === 'SHA-256' ? 'SHA-256' : 'SHA-1'
     const eurToRsdRate = Number(Deno.env.get('RAIFFEISEN_UPC_EUR_TO_RSD_RATE') || '117.15')
     const amountMultiplier = Number(Deno.env.get('RAIFFEISEN_UPC_AMOUNT_MULTIPLIER') || '100')
 
@@ -195,7 +211,7 @@ Deno.serve(async (req) => {
 
     const body: SessionRequest = await req.json()
     const idempotencyKey = (req.headers.get('idempotency-key') || '').trim() || null
-    if (idempotencyKey) body.orderId = idempotencyKey
+    if (idempotencyKey) body.orderId = await shortOrderIdFrom(idempotencyKey)
 
     if (!body.orderId || body.orderId.length > 20) {
       return json({ success: false, error: 'Order ID is required and must be 20 characters or fewer.' }, 400)

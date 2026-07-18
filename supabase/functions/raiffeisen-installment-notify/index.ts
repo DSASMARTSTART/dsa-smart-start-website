@@ -110,7 +110,9 @@ function spkiFromCertificate(certPem: string): Uint8Array {
   return der.slice(spki.start, spki.end)
 }
 
-async function importPublicKey(pem: string, hash: 'SHA-1' | 'SHA-256'): Promise<CryptoKey> {
+type SignatureHash = 'SHA-1' | 'SHA-256' | 'SHA-512'
+
+async function importPublicKey(pem: string, hash: SignatureHash): Promise<CryptoKey> {
   const spki = pem.includes('BEGIN CERTIFICATE') ? spkiFromCertificate(pem) : pemToDer(pem)
   return crypto.subtle.importKey(
     'spki',
@@ -140,7 +142,7 @@ function signatureData(params: NotifyParams): string {
   ].join(';') + ';'
 }
 
-async function verifySignature(params: NotifyParams, publicKeyPem: string, hash: 'SHA-1' | 'SHA-256') {
+async function verifySignature(params: NotifyParams, publicKeyPem: string, hash: SignatureHash) {
   const signature = params.Signature || ''
   if (!signature) return false
   const key = await importPublicKey(publicKeyPem, hash)
@@ -198,9 +200,9 @@ Deno.serve(async (req) => {
   if (skipSignatureVerify) {
     console.warn('SECURITY: installment NOTIFY signature verification is DISABLED (sandbox mode).')
   }
-  const signatureHash = (Deno.env.get('RAIFFEISEN_UPC_SIGNATURE_HASH') || 'SHA-1').toUpperCase() === 'SHA-256'
-    ? 'SHA-256'
-    : 'SHA-1'
+  const signatureHashEnv = (Deno.env.get('RAIFFEISEN_UPC_SIGNATURE_HASH') || 'SHA-1').toUpperCase()
+  const signatureHash: SignatureHash =
+    signatureHashEnv === 'SHA-512' ? 'SHA-512' : signatureHashEnv === 'SHA-256' ? 'SHA-256' : 'SHA-1'
 
   let params: NotifyParams = {}
 
