@@ -20,6 +20,16 @@ interface WelcomeEmailRequest {
   name: string
 }
 
+// Escape user-supplied text before embedding it in the HTML email.
+function escapeHtml(value: string): string {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -47,7 +57,7 @@ Deno.serve(async (req) => {
       )
     }
 
-    const firstName = (name || 'there').split(' ')[0]
+    const firstName = escapeHtml((name || 'there').split(' ')[0])
 
     const emailRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -58,7 +68,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         from: SENDER_EMAIL,
         to: [email],
-        subject: `Welcome to Eduway Academy! �`,
+        subject: `Welcome to Eduway Academy! 🎉`,
         html: `
           <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #000000;">
             <!-- Header -->

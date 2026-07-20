@@ -128,11 +128,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPath, onNavi
               className="flex items-center gap-3"
             >
               <div className="w-10 h-10 bg-[#8a3ffc] rounded-xl rotate-12 flex items-center justify-center shadow-lg shadow-purple-200">
-                <span className="text-white font-black text-sm -rotate-12">S</span>
+                <span className="text-white font-black text-sm -rotate-12">E</span>
               </div>
               <div className="hidden sm:block">
                 <span className="text-lg font-black tracking-tighter text-gray-900">
-                  DSA <span className="text-[#8a3ffc]">SMART START</span>
+                  EDU<span className="text-[#8a3ffc]">WAY</span>
                 </span>
                 <div className="flex items-center gap-2">
                   <Shield size={10} className="text-purple-500" />

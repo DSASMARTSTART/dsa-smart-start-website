@@ -969,6 +969,14 @@ export const coursesApi = {
     if (error) throw error;
     if (!data) throw new Error('Course not found');
 
+    await createAuditLog(
+      'pricing_updated',
+      'course',
+      id,
+      `Pricing updated for "${data.title}": ${JSON.stringify(pricing)}` +
+        (allowedPaymentMethods !== undefined ? ` (payment methods: ${allowedPaymentMethods.join(', ') || 'none'})` : '')
+    );
+
     return {
       ...toCamelCase<Course>(data),
       modules: data.modules || [],
@@ -1802,9 +1810,18 @@ export const analyticsApi = {
     const { count: activeUsers } = await sb.from('users').select('*', { count: 'exact', head: true }).eq('role', 'student').eq('status', 'active');
     const { count: pausedUsers } = await sb.from('users').select('*', { count: 'exact', head: true }).eq('role', 'student').eq('status', 'paused');
     const { count: totalEnrollments } = await sb.from('enrollments').select('*', { count: 'exact', head: true }).eq('status', 'active');
-    const { data: purchases } = await sb.from('purchases').select('amount');
+    // Revenue = only completed/refunded orders, net of any refunded amount.
+    // Pending/failed (abandoned) checkouts must NOT inflate revenue.
+    const { data: purchases } = await sb
+      .from('purchases')
+      .select('amount, refunded_amount, status')
+      .in('status', ['completed', 'refunded']);
 
-    const totalRevenue = (purchases || []).reduce((sum: number, p: { amount: number }) => sum + p.amount, 0);
+    const totalRevenue = (purchases || []).reduce(
+      (sum: number, p: { amount: number; refunded_amount?: number }) =>
+        sum + (Number(p.amount) || 0) - (Number(p.refunded_amount) || 0),
+      0
+    );
 
     return {
       totalUsers: totalUsers || 0,
@@ -1860,9 +1877,17 @@ export const analyticsApi = {
   },
 
   getRevenueBreakdown: async () => {
+    // Only completed/refunded orders count as revenue; net out refunds.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: purchases } = await (supabase as any).from('purchases').select('*');
-    const totalRevenue = (purchases || []).reduce((sum: number, p: { amount: number }) => sum + p.amount, 0);
+    const { data: purchases } = await (supabase as any)
+      .from('purchases')
+      .select('amount, refunded_amount, status')
+      .in('status', ['completed', 'refunded']);
+    const totalRevenue = (purchases || []).reduce(
+      (sum: number, p: { amount: number; refunded_amount?: number }) =>
+        sum + (Number(p.amount) || 0) - (Number(p.refunded_amount) || 0),
+      0
+    );
 
     return {
       totalRevenue,

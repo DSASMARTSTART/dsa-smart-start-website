@@ -95,6 +95,11 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
   const paypalContainerRef = useRef<HTMLDivElement>(null);
   const isProcessingRef = useRef(false); // Prevent double-execution of handlePaymentSuccess
   const raiAcceptOrderIdRef = useRef<string | null>(null); // Store orderId for iframe handler
+  // Origin of the RaiAccept payment iframe we opened. Used to reject spoofed
+  // postMessage events from any other window/tab (security: the success handler
+  // clears the cart and shows the paid screen, so an unchecked message could fake
+  // a completed payment in the UI). Set when the payment session is created.
+  const raiAcceptIframeOriginRef = useRef<string | null>(null);
   // Holds the latest handlePaymentSuccess so the iframe postMessage listener
   // (subscribed once on mount) always invokes the current closure with up-to-date
   // cartItems / appliedDiscount / billing — fixes a stale-closure bug that caused
@@ -253,6 +258,16 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
   // Listen for RaiAccept iframe postMessage events (payment completion)
   useEffect(() => {
     const handleIframeMessage = (event: MessageEvent) => {
+      // SECURITY: only trust messages coming from the RaiAccept payment iframe we
+      // actually opened. Without this, any other tab/window could post a fake
+      // "orderResult: success" and drive the paid-success UI (clear cart, show
+      // success). It can no longer confirm the purchase server-side (that is
+      // webhook-only), but the UI spoof alone is worth blocking.
+      const expectedOrigin = raiAcceptIframeOriginRef.current;
+      if (expectedOrigin && event.origin !== expectedOrigin) {
+        console.warn('Ignored payment message from unexpected origin:', event.origin);
+        return;
+      }
       // RaiAccept sends: { name: "orderResult", payload: { status, orderIdentification, errorMessage } }
       if (event.data?.name !== 'orderResult') return;
       const payload = event.data.payload || {};
@@ -624,27 +639,22 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
         console.log('Card payment: skipping client-side purchase creation (Edge Function already created pending purchases server-side)');
       }
 
-      // Client-side confirmation: confirm ALL pending purchases for this transaction.
-      // This is critical for PayPal because the webhook is unreliable (especially in sandbox).
-      // For card payments, the webhook usually fires, but this acts as a fallback.
-      // The RPC is idempotent — calling it multiple times (here + webhook) is safe.
-      try {
-        const { data: confirmData, error: confirmError } = await supabase.rpc('confirm_purchases_by_transaction', {
-          p_transaction_id: transactionId,
-          p_user_id: userId,
-        });
-        if (confirmError) {
-          console.error('Client-side purchase confirmation failed:', confirmError);
-        } else {
-          console.log('Client-side purchase confirmation result:', confirmData);
-        }
-      } catch (confirmErr) {
-        console.error('Client-side purchase confirmation error:', confirmErr);
-        // Non-fatal: webhook may still confirm later
-      }
+      // SECURITY: purchase confirmation is performed ONLY by the payment-webhook /
+      // raiffeisen-installment-notify edge functions, which independently verify the
+      // payment with the provider (RaiAccept merchant API re-fetch / UPC bank
+      // signature) before flipping a purchase to completed and granting enrollment.
+      //
+      // The previous client-side call to confirm_purchases_by_transaction was a
+      // critical vulnerability: it granted course access based only on a
+      // transaction id, with NO proof of payment, so any logged-in user could
+      // self-confirm an unpaid order. That RPC's EXECUTE grant has been revoked
+      // from anon/authenticated (see migration 20260719000000). Access now appears
+      // once the verified webhook confirms the purchase; ensure_enrollment_exists
+      // (below, and on the dashboard) self-heals the enrollment as soon as that
+      // happens.
 
-      // Self-heal enrollments for any completed purchases. Idempotent and safe to
-      // run alongside the webhook — guarantees the dashboard shows the new item.
+      // Self-heal enrollments for any purchases already confirmed by the webhook.
+      // Idempotent and safe — only acts on purchases whose status is 'completed'.
       try {
         const { error: ensureErr } = await supabase.rpc('ensure_enrollment_exists', { p_user_id: userId });
         if (ensureErr) console.error('ensure_enrollment_exists failed:', ensureErr);
@@ -1084,6 +1094,10 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
 
       // Store for reference & open iframe
       setPaymentOrderId(orderIdentification);
+      // Remember the iframe's origin so the postMessage handler can reject events
+      // from any other source (spoofed "payment success").
+      try { raiAcceptIframeOriginRef.current = new URL(paymentFormUrl).origin; }
+      catch { raiAcceptIframeOriginRef.current = null; }
       setPaymentIframeUrl(paymentFormUrl);
       setShowPaymentIframe(true);
       // Lock the Pay button: payment attempt is now in flight at the gateway.

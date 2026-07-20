@@ -118,6 +118,11 @@ Deno.serve(async (req) => {
     // independently re-verify it (no creds, or the merchant API was unreachable).
     // Such a claim is NEVER auto-confirmed — it is orphaned for admin reconciliation.
     let raiaUnverifiedPaidClaim = false
+    // True ONLY after we independently verified the payment with the provider
+    // (RaiAccept merchant-API re-fetch). The GET redirect branch and the PayPal
+    // branch perform NO verification, so they leave this false and can never
+    // auto-confirm a purchase — a forged request is orphaned, not trusted.
+    let providerVerified = false
     let providerResponse: Record<string, unknown> = {}
     // Number of items the provider says were paid for in this single
     // transaction. Used to detect partial confirmation (multi-item txns).
@@ -156,6 +161,8 @@ Deno.serve(async (req) => {
         const verified = await verifyRaiAcceptOrder(token, orderIdentification)
         if (verified) {
           console.log(`RaiAccept API-verified order status: ${verified.status}`)
+          // We reached the merchant API and got an authoritative status.
+          providerVerified = true
           isSuccess = RAIACCEPT_PAID_STATUSES.includes(verified.status.toUpperCase())
           if (verified.merchantOrderReference) {
             transactionId = verified.merchantOrderReference
@@ -293,6 +300,29 @@ Deno.serve(async (req) => {
         'RaiAccept webhook reported a paid status but the merchant-API re-verification ' +
           'could not be performed (missing credentials or API unreachable). Not auto-confirmed. ' +
           'Verify the charge in the RaiAccept merchant portal and reconcile manually.'
+      )
+      return new Response(
+        JSON.stringify({ success: false, error: 'Payment could not be verified — recorded for review' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // SECURITY GATE: never confirm a purchase from a "success" result we did not
+    // independently verify with the provider. Only the RaiAccept POST branch sets
+    // providerVerified=true (after a merchant-API re-fetch). The legacy GET redirect
+    // callback (?status=success) and the PayPal branch (which has NO webhook
+    // signature verification) leave it false — so a forged HTTP request cannot
+    // confirm an unpaid order. Such claims are orphaned for manual reconciliation.
+    // PayPal must implement transmission-signature verification before it can be
+    // trusted to auto-confirm.
+    if (isSuccess && !providerVerified) {
+      console.warn(`Unverified paid claim rejected: provider=${provider}, tx=${transactionId}`)
+      await recordOrphan(
+        'unverified_paid_claim',
+        'A paid/success result was received on a branch that performs no independent ' +
+          'provider verification (redirect GET callback, or PayPal without signature ' +
+          'verification). Not auto-confirmed. Verify the charge in the provider portal ' +
+          'and reconcile via the admin orphan tools.'
       )
       return new Response(
         JSON.stringify({ success: false, error: 'Payment could not be verified — recorded for review' }),

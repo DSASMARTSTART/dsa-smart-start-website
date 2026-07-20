@@ -7,6 +7,8 @@
 //   CONTACT_EMAIL_TO    - Email address to receive contact form submissions
 //   SENDER_EMAIL        - Verified sender email in Resend (e.g. noreply@yourdomain.com)
 
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -18,6 +20,28 @@ interface ContactEmailRequest {
   email: string
   message: string
 }
+
+// Escape user-supplied text before putting it in an HTML email so a submitter
+// cannot inject clickable links / markup / tracking pixels into the staff inbox.
+function escapeHtml(value: string): string {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+// Remove CR/LF and trim, for values that end up in a subject / reply-to header.
+function oneLine(value: string): string {
+  return String(value ?? '').replace(/[\r\n]+/g, ' ').trim()
+}
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+// Max contact submissions allowed per email address within the window.
+const RATE_LIMIT_MAX = 3
+const RATE_LIMIT_WINDOW_MIN = 10
 
 Deno.serve(async (req) => {
   // Handle CORS preflight
@@ -47,7 +71,10 @@ Deno.serve(async (req) => {
     }
 
     const body: ContactEmailRequest = await req.json()
-    const { firstName, lastName, email, message } = body
+    const firstName = oneLine(body.firstName)
+    const lastName = oneLine(body.lastName)
+    const email = oneLine(body.email)
+    const message = String(body.message ?? '').trim()
 
     if (!firstName || !email || !message) {
       return new Response(
@@ -55,8 +82,50 @@ Deno.serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
+    if (!EMAIL_RE.test(email) || email.length > 254) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Please provide a valid email address.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+    if (message.length > 5000) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Message is too long.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
 
-    const fullName = `${firstName} ${lastName || ''}`.trim()
+    // ── Rate limit (per email address) ─────────────────────────────────
+    // Prevents scripting the endpoint to flood the office inbox or to bounce
+    // auto-replies at an arbitrary victim address. Best-effort: if the check
+    // can't run (no DB creds) we still send, but log it.
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') || ''
+    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
+    if (supabaseUrl && serviceKey) {
+      try {
+        const supabase = createClient(supabaseUrl, serviceKey)
+        const windowStart = new Date(Date.now() - RATE_LIMIT_WINDOW_MIN * 60 * 1000).toISOString()
+        const { count } = await supabase
+          .from('contact_messages')
+          .select('id', { count: 'exact', head: true })
+          .eq('email', email)
+          .gte('created_at', windowStart)
+        if ((count || 0) >= RATE_LIMIT_MAX) {
+          console.warn(`Contact rate limit hit for ${email} (${count} in ${RATE_LIMIT_WINDOW_MIN}m)`)
+          return new Response(
+            JSON.stringify({ success: false, error: 'Too many messages. Please try again later.' }),
+            { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+      } catch (rlErr) {
+        console.warn('Contact rate-limit check failed (allowing send):', rlErr)
+      }
+    }
+
+    const fullName = escapeHtml(`${firstName} ${lastName || ''}`.trim())
+    const safeEmail = escapeHtml(email)
+    const safeMessage = escapeHtml(message)
+    const safeFirstName = escapeHtml(firstName)
 
     // 1. Send notification to admin/support
     const adminEmailRes = await fetch('https://api.resend.com/emails', {
@@ -87,16 +156,16 @@ Deno.serve(async (req) => {
                 </tr>
                 <tr>
                   <td style="padding: 12px 0; font-weight: bold; color: #AB8FFF; font-size: 14px;">Email:</td>
-                  <td style="padding: 12px 0;"><a href="mailto:${email}" style="color: #AB8FFF;">${email}</a></td>
+                  <td style="padding: 12px 0;"><a href="mailto:${safeEmail}" style="color: #AB8FFF;">${safeEmail}</a></td>
                 </tr>
               </table>
               <hr style="border: none; border-top: 1px solid #2a2a2a; margin: 20px 0;" />
               <h3 style="color: #AB8FFF; margin-bottom: 10px; font-size: 15px;">Message:</h3>
               <div style="background: #1a1a1a; padding: 20px; border-radius: 8px; border: 1px solid #2a2a2a; white-space: pre-wrap; color: #e0e0e0; font-size: 14px; line-height: 1.6;">
-${message}
+${safeMessage}
               </div>
               <p style="color: #666666; font-size: 12px; margin-top: 20px;">
-                You can reply directly to this email — it will go to ${email}.
+                You can reply directly to this email — it will go to ${safeEmail}.
               </p>
             </div>
 
@@ -138,7 +207,7 @@ ${message}
               <div style="margin-bottom: 16px;">
                 <span style="font-size: 32px; font-weight: 800; color: #ffffff;">EDU</span><span style="font-size: 32px; font-weight: 800; color: #AB8FFF;">WAY</span>
               </div>
-              <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Thank you, ${firstName}! 🎉</h1>
+              <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Thank you, ${safeFirstName}! 🎉</h1>
             </div>
 
             <!-- Body -->
@@ -147,7 +216,7 @@ ${message}
                 We've received your message and will get back to you as soon as possible — usually within 24 hours.
               </p>
               <p style="color: #999999; font-size: 14px; line-height: 1.6;">
-                In the meantime, feel free to explore our courses at 
+                In the meantime, feel free to explore our courses at
                 <a href="https://eduway.academy" style="color: #AB8FFF;">eduway.academy</a>.
               </p>
             </div>
@@ -176,7 +245,7 @@ ${message}
       console.warn('Resend API warning (auto-reply):', errBody)
     }
 
-    console.log(`Contact email sent successfully: from=${email}, to=${CONTACT_EMAIL_TO}`)
+    console.log(`Contact email sent successfully: to=${CONTACT_EMAIL_TO}`)
 
     return new Response(
       JSON.stringify({ success: true }),

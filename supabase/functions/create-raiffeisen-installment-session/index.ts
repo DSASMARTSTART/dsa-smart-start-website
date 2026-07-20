@@ -240,32 +240,21 @@ Deno.serve(async (req) => {
       return json({ success: false, error: 'Billing details are required for installment checkout.' }, 400)
     }
 
-    const invalidItem = body.purchaseItems.find(item =>
-      !item.courseId ||
-      !Number.isFinite(item.amount) ||
-      item.amount <= 0 ||
-      !Number.isFinite(item.originalAmount) ||
-      item.originalAmount < 0 ||
-      (item.discountAmount != null && (!Number.isFinite(item.discountAmount) || item.discountAmount < 0)) ||
-      (item.teachingMaterialsPrice != null && (!Number.isFinite(item.teachingMaterialsPrice) || item.teachingMaterialsPrice < 0))
-    )
-    if (invalidItem) {
-      return json({ success: false, error: 'Invalid cart item amount.' }, 400)
-    }
-
-    const itemTotal = body.purchaseItems.reduce((sum, item) => sum + item.amount, 0)
-    if (Math.abs(cents(itemTotal) - cents(body.amount)) > 1) {
-      return json({ success: false, error: 'Cart total does not match order total.' }, 400)
-    }
+    // ── SERVER-SIDE PRICING (authoritative) ─────────────────────────────
+    // SECURITY: never trust amount / originalAmount / discountAmount from the
+    // browser. Recompute every price from the courses table, validate the discount
+    // server-side, and derive the RSD charge from the server-controlled rate.
+    // Amounts are STORED in EUR (canonical); only the bank charge is RSD.
+    const round2 = (n: number) => Math.round(n * 100) / 100
 
     const courseIds = [...new Set(body.purchaseItems.map(item => item.courseId))]
     const { data: courses, error: coursesError } = await serviceClient
       .from('courses')
-      .select('id, allowed_payment_methods')
+      .select('id, pricing, teaching_materials_price, allowed_payment_methods')
       .in('id', courseIds)
 
     if (coursesError) {
-      console.error('Course eligibility query failed:', coursesError)
+      console.error('Course price/eligibility query failed:', coursesError)
       return json({ success: false, error: 'Could not validate payment eligibility.' }, 500)
     }
 
@@ -274,7 +263,6 @@ Deno.serve(async (req) => {
       const allowed = courseMap.get(id)?.allowed_payment_methods
       return !Array.isArray(allowed) || !allowed.includes('card_installments')
     })
-
     if (ineligible.length > 0 || courseMap.size !== courseIds.length) {
       return json({
         success: false,
@@ -283,27 +271,62 @@ Deno.serve(async (req) => {
       }, 400)
     }
 
-    const rsdPurchaseItems = body.purchaseItems.map(item => ({
-      ...item,
-      amount: toRsd(item.amount, eurToRsdRate),
-      originalAmount: toRsd(item.originalAmount, eurToRsdRate),
-      discountAmount: item.discountAmount ? toRsd(item.discountAmount, eurToRsdRate) : 0,
-      teachingMaterialsPrice: item.teachingMaterialsPrice ? toRsd(item.teachingMaterialsPrice, eurToRsdRate) : 0,
-    }))
+    // EUR gross per item from the DB (course price + optional teaching materials).
+    const computed = body.purchaseItems.map(item => {
+      const c: any = courseMap.get(item.courseId)
+      const base = Number(c?.pricing?.price) || 0
+      const includeMaterials = !!item.teachingMaterialsIncluded
+      const materials = includeMaterials ? (Number(c?.teaching_materials_price) || 0) : 0
+      return { courseId: item.courseId, base, materials, includeMaterials, gross: round2(base + materials) }
+    })
+    const subtotal = round2(computed.reduce((s, c) => s + c.gross, 0))
 
-    for (const item of rsdPurchaseItems) {
+    // Validate the discount server-side.
+    const discountCodeId = body.purchaseItems.find(i => i.discountCodeId)?.discountCodeId || null
+    let discountTotal = 0
+    if (discountCodeId) {
+      const { data: dres, error: derr } = await serviceClient.rpc('validate_discount', {
+        p_discount_code_id: discountCodeId,
+        p_subtotal: subtotal,
+      })
+      if (derr) {
+        console.error('validate_discount failed:', derr)
+        return json({ success: false, error: 'We could not apply your discount. Please try again.', code: 'discount_validation_failed' }, 500)
+      }
+      if (!dres?.valid) {
+        return json({ success: false, error: dres?.error || 'This discount code is not valid.', code: 'invalid_discount' }, 400)
+      }
+      discountTotal = Number(dres.discount_amount) || 0
+    }
+
+    const serverItems = computed.map(c => {
+      const itemDiscount = subtotal > 0 ? round2(discountTotal * (c.gross / subtotal)) : 0
+      const amountEur = round2(c.gross - itemDiscount)
+      return {
+        courseId: c.courseId,
+        amountEur,
+        originalEur: c.base,
+        discountEur: itemDiscount,
+        materialsEur: c.materials,
+        includeMaterials: c.includeMaterials,
+        amountRsd: toRsd(amountEur, eurToRsdRate),
+      }
+    })
+    const rsdTotal = round2(serverItems.reduce((s, i) => s + i.amountRsd, 0))
+
+    for (const item of serverItems) {
       const { data, error } = await serviceClient.rpc('create_pending_purchase', {
         p_user_id: userData.user.id,
         p_course_id: item.courseId,
-        p_amount: item.amount,
-        p_original_amount: item.originalAmount,
-        p_discount_amount: item.discountAmount || 0,
-        p_discount_code_id: item.discountCodeId || null,
+        p_amount: item.amountEur,
+        p_original_amount: item.originalEur,
+        p_discount_amount: item.discountEur,
+        p_discount_code_id: discountCodeId,
         p_currency: 'RSD',
         p_payment_method: 'card_installments',
         p_transaction_id: body.orderId,
-        p_teaching_materials_included: item.teachingMaterialsIncluded || false,
-        p_teaching_materials_price: item.teachingMaterialsPrice || 0,
+        p_teaching_materials_included: item.includeMaterials,
+        p_teaching_materials_price: item.materialsEur,
         p_billing_name: body.billing?.name || null,
         p_billing_address: body.billing?.address || null,
         p_billing_city: body.billing?.city || null,
@@ -325,15 +348,14 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Persist the EUR→RSD rate used for this order so the charged RSD amount can be
-    // reproduced for reconciliation and invoices (audit B7/I3). Best-effort.
+    // Persist the EUR→RSD rate used so the charged RSD amount is reproducible for
+    // reconciliation and invoices. Best-effort.
     const { error: rateErr } = await serviceClient
       .from('purchases')
       .update({ currency_exchange_rate: eurToRsdRate })
       .eq('transaction_id', body.orderId)
     if (rateErr) console.error('Could not persist currency_exchange_rate:', rateErr)
 
-    const rsdTotal = toRsd(body.amount, eurToRsdRate)
     const totalAmount = String(Math.round(rsdTotal * amountMultiplier))
     const time = purchaseTime()
     const sd = userData.user.id

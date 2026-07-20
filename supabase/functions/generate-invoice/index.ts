@@ -241,7 +241,39 @@ Deno.serve(async (req) => {
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') || ''
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
+
+    // ── AUTHORIZATION ──────────────────────────────────────────────────
+    // This function runs on the service-role key and returns full invoice PII, so
+    // it MUST NOT be public (verify_jwt=false at the gateway). Only two legitimate
+    // callers exist: (1) the payment webhook / installment-notify functions, which
+    // authenticate server-to-server with the service-role bearer token; and (2) an
+    // admin/editor using the admin UI (Supabase user JWT). Without this gate anyone
+    // who guessed a completed transactionId could read another customer's invoice
+    // PII, re-send invoice emails (resend), or mint invoices (force).
+    const authHeader = req.headers.get('authorization') || ''
+    const isServiceCaller = authHeader === `Bearer ${supabaseServiceKey}`
+    let isStaffCaller = false
+    if (!isServiceCaller && authHeader) {
+      try {
+        const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+          global: { headers: { Authorization: authHeader } },
+        })
+        const { data: userData } = await userClient.auth.getUser()
+        if (userData?.user) {
+          const { data: profile } = await supabase
+            .from('users').select('role').eq('id', userData.user.id).maybeSingle()
+          isStaffCaller = profile?.role === 'admin' || profile?.role === 'editor'
+        }
+      } catch (_e) {
+        // fall through to 403
+      }
+    }
+    if (!isServiceCaller && !isStaffCaller) {
+      return new Response(JSON.stringify({ success: false, error: 'Forbidden' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+    }
 
     const body: InvoiceRequest = await req.json()
     const { transactionId, paymentMethod, resend, force } = body

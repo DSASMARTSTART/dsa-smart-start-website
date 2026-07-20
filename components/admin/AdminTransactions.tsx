@@ -33,6 +33,8 @@ interface TransactionWithDetails {
   purchasedAt: string;
   invoiceNumber: string | null;
   invoiceEmailSentAt: string | null;
+  status: string;
+  refundedAmount: number;
 }
 
 interface TransactionFilters {
@@ -74,6 +76,7 @@ const AdminTransactions: React.FC<AdminTransactionsProps> = ({ onNavigate }) => 
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 15;
   const [invoiceBusy, setInvoiceBusy] = useState<Record<string, boolean>>({});
+  const [refundBusy, setRefundBusy] = useState<Record<string, boolean>>({});
   const [invoiceSuccess, setInvoiceSuccess] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -140,7 +143,9 @@ const AdminTransactions: React.FC<AdminTransactionsProps> = ({ onNavigate }) => 
         transactionId: p.transaction_id || p.id,
         purchasedAt: p.purchased_at,
         invoiceNumber: null,
-        invoiceEmailSentAt: null
+        invoiceEmailSentAt: null,
+        status: p.status || 'pending',
+        refundedAmount: parseFloat(p.refunded_amount) || 0
       }));
 
       // Fetch invoices for this page's transactions and merge
@@ -186,15 +191,20 @@ const AdminTransactions: React.FC<AdminTransactionsProps> = ({ onNavigate }) => 
 
   const loadStats = async () => {
     try {
-      // Get all purchases for stats
+      // Stats reflect real revenue only: completed/refunded orders, net of
+      // refunds. Pending/failed (abandoned) checkouts are excluded.
       const { data, error } = await supabase
         .from('purchases')
-        .select('amount, discount_code_id');
+        .select('amount, refunded_amount, discount_code_id, status')
+        .in('status', ['completed', 'refunded']);
 
       if (error) throw error;
 
       const purchases = data || [];
-      const totalRevenue = purchases.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+      const totalRevenue = purchases.reduce(
+        (sum, p) => sum + (parseFloat(p.amount) || 0) - (parseFloat(p.refunded_amount) || 0),
+        0
+      );
       const totalTransactions = purchases.length;
       const discountedOrders = purchases.filter(p => p.discount_code_id).length;
 
@@ -263,6 +273,36 @@ const AdminTransactions: React.FC<AdminTransactionsProps> = ({ onNavigate }) => 
     };
     const style = styles[type] || { bg: 'bg-gray-50 text-gray-600 border-gray-100', label: type };
     return style;
+  };
+
+  const handleRefund = async (t: TransactionWithDetails) => {
+    const remaining = Math.max(0, (t.amount || 0) - (t.refundedAmount || 0));
+    if (remaining <= 0) return;
+    const reason = window.prompt(
+      `Refund ${t.currency} ${remaining.toFixed(2)} for "${t.courseTitle}"?\n\n` +
+      `This records the refund, revokes the customer's access, and cannot be undone. ` +
+      `Make sure you have already issued the refund in the RaiAccept portal.\n\n` +
+      `Optional reason:`,
+      ''
+    );
+    if (reason === null) return; // cancelled
+    setRefundBusy((prev) => ({ ...prev, [t.id]: true }));
+    try {
+      const { data, error } = await supabase.functions.invoke('refund-purchase', {
+        body: { purchaseId: t.id, amount: remaining, reason: reason || undefined },
+      });
+      if (error || !data?.success) {
+        alert(`Refund failed: ${data?.error || error?.message || 'Unknown error'}`);
+      } else {
+        await loadTransactions();
+        await loadStats();
+      }
+    } catch (err) {
+      console.error('Refund failed:', err);
+      alert('Refund failed. Please try again.');
+    } finally {
+      setRefundBusy((prev) => { const n = { ...prev }; delete n[t.id]; return n; });
+    }
   };
 
   const handleGenerateOrResendInvoice = async (t: TransactionWithDetails) => {
@@ -399,6 +439,31 @@ const AdminTransactions: React.FC<AdminTransactionsProps> = ({ onNavigate }) => 
               {ok ? <Check size={14} /> : <Mail size={14} />}
             </button>
           </div>
+        );
+      }
+    },
+    {
+      key: 'refund',
+      header: 'Refund',
+      width: '130px',
+      render: (t: TransactionWithDetails) => {
+        const busy = !!refundBusy[t.id];
+        const remaining = Math.max(0, (t.amount || 0) - (t.refundedAmount || 0));
+        if (t.status === 'refunded' || ((t.refundedAmount || 0) > 0 && remaining <= 0)) {
+          return <span className="text-[10px] font-bold text-gray-400 uppercase">Refunded</span>;
+        }
+        if (t.status !== 'completed') {
+          return <span className="text-[10px] text-gray-300">—</span>;
+        }
+        return (
+          <button
+            onClick={() => handleRefund(t)}
+            disabled={busy}
+            title="Record a refund and revoke access"
+            className="px-2.5 py-1.5 rounded-lg border text-[10px] font-bold uppercase tracking-wide bg-white border-red-200 text-red-600 hover:bg-red-50 disabled:opacity-50"
+          >
+            {busy ? '…' : 'Refund'}
+          </button>
         );
       }
     }

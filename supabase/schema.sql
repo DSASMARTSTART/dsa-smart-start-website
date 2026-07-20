@@ -119,7 +119,9 @@ CREATE TABLE IF NOT EXISTS purchases (
   amount DECIMAL(10, 2) NOT NULL,
   original_amount DECIMAL(10, 2), -- Price before discount
   discount_amount DECIMAL(10, 2) DEFAULT 0, -- Amount discounted
-  discount_code_id UUID REFERENCES discount_codes(id) ON DELETE SET NULL,
+  -- FK added via ALTER after discount_codes is created (see below) so this file
+  -- can be run top-to-bottom on a fresh database without a forward reference.
+  discount_code_id UUID,
   currency TEXT NOT NULL DEFAULT 'EUR',
   purchased_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   payment_method TEXT,
@@ -195,6 +197,17 @@ CREATE TABLE IF NOT EXISTS discount_codes (
 -- Create indexes
 CREATE INDEX IF NOT EXISTS idx_discount_codes_code ON discount_codes(code);
 CREATE INDEX IF NOT EXISTS idx_discount_codes_active ON discount_codes(is_active);
+
+-- Now that discount_codes exists, wire the purchases.discount_code_id FK.
+-- (Declared inline-less above to keep this file runnable top-to-bottom.)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'purchases_discount_code_id_fkey') THEN
+    ALTER TABLE purchases
+      ADD CONSTRAINT purchases_discount_code_id_fkey
+      FOREIGN KEY (discount_code_id) REFERENCES discount_codes(id) ON DELETE SET NULL;
+  END IF;
+END $$;
 
 -- ============================================
 -- ACTIVITIES TABLE
@@ -431,25 +444,15 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- SEED DATA (Optional - for initial setup)
 -- ============================================
 
--- Insert default admin user (you should change these values)
-INSERT INTO users (id, email, name, role, status)
-VALUES (
-  'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-  'admin@eduway.academy',
-  'Admin User',
-  'admin',
-  'active'
-) ON CONFLICT DO NOTHING;
-
--- Insert sample editor
-INSERT INTO users (id, email, name, role, status)
-VALUES (
-  'b2c3d4e5-f6a7-8901-bcde-f12345678901',
-  'editor@eduway.academy',
-  'Editor User',
-  'editor',
-  'active'
-) ON CONFLICT DO NOTHING;
+-- SECURITY: the default admin/editor seed rows have been REMOVED.
+-- Pre-seeding an admin row for an email address is dangerous: because
+-- handle_new_user "adopts" an orphaned profile row by email on signup, whoever
+-- first registers with admin@eduway.academy / editor@eduway.academy (if the
+-- mailbox is not already controlled) would inherit that admin/editor role.
+--
+-- To create the first admin on a live database, register the account normally,
+-- verify its email, then promote it with a one-off statement run by the DB owner:
+--   UPDATE users SET role = 'admin' WHERE email = 'you@yourdomain.com';
 
 
 -- ============================================

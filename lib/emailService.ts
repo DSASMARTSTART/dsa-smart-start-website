@@ -53,30 +53,6 @@ export async function generateAndSendInvoice(params: {
 }
 
 /**
- * @deprecated Use generateAndSendInvoice instead. Kept as a thin wrapper
- * so existing call sites continue to work during migration.
- */
-export async function sendPurchaseConfirmationEmail(params: {
-  userId: string;
-  transactionId?: string;
-  customerEmail?: string;
-  customerName?: string;
-  paymentMethod?: string;
-  discountCode?: string;
-  discountAmount?: number;
-}): Promise<void> {
-  if (!params.transactionId) {
-    console.warn('sendPurchaseConfirmationEmail: no transactionId, cannot generate invoice');
-    return;
-  }
-  return generateAndSendInvoice({
-    transactionId: params.transactionId,
-    userId: params.userId,
-    paymentMethod: params.paymentMethod,
-  });
-}
-
-/**
  * Send a welcome email to a newly registered user.
  */
 export async function sendWelcomeEmail(params: {

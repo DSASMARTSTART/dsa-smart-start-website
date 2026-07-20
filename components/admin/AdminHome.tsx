@@ -197,7 +197,6 @@ const AdminHome: React.FC<AdminHomeProps> = ({ onNavigate }) => {
               value={kpis.totalUsers}
               icon={Users}
               color="purple"
-              trend={{ value: 12, isPositive: true }}
             />
             <KPICard
               title="Active Users"
@@ -216,18 +215,16 @@ const AdminHome: React.FC<AdminHomeProps> = ({ onNavigate }) => {
               value={kpis.totalEnrollments}
               icon={GraduationCap}
               color="blue"
-              trend={{ value: 8, isPositive: true }}
             />
             <KPICard
               title="Revenue"
-              value={formatCurrency(kpis.revenue)}
+              value={formatCurrency(kpis.totalRevenue)}
               icon={DollarSign}
               color="green"
-              trend={{ value: 15, isPositive: true }}
             />
             <KPICard
               title="Avg Completion"
-              value={`${kpis.avgCompletionRate}%`}
+              value={`${kpis.avgCompletionRate ?? 0}%`}
               icon={TrendingUp}
               color="pink"
             />

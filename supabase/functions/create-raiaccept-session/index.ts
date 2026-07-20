@@ -343,116 +343,179 @@ Deno.serve(async (req) => {
       );
     }
 
-    // ── Create pending purchase records server-side (RACE CONDITION FIX) ──
-    // This ensures the purchase record exists BEFORE the webhook fires
-    // Requires authenticated user — no guest path
-    if (body.purchaseItems && body.purchaseItems.length > 0) {
-      const supabase = createClient(supabaseUrl!, supabaseServiceKey!);
-      // Trusted user id derived from the verified JWT above — never body.userId.
-      const userId = authedUserId;
-
-      // CRITICAL: every pending purchase MUST be created BEFORE we hand the
-      // user off to RaiAccept's payment form. If even one RPC call fails we
-      // abort the whole session — otherwise the customer would be charged
-      // with no `purchases` row to confirm against on the webhook (orphan
-      // payment, no access granted, no admin visibility).
-      for (const item of body.purchaseItems) {
-        let rpcResult: { data: any; error: any };
-        try {
-          rpcResult = await supabase.rpc('create_pending_purchase', {
-            p_user_id: userId,
-            p_course_id: item.courseId,
-            p_amount: item.amount,
-            p_original_amount: item.originalAmount,
-            p_discount_amount: item.discountAmount || 0,
-            p_discount_code_id: item.discountCodeId || null,
-            p_currency: body.currency,
-            p_payment_method: body.paymentMethod || 'card',
-            p_transaction_id: body.orderId,
-            p_teaching_materials_included: item.teachingMaterialsIncluded || false,
-            p_teaching_materials_price: item.teachingMaterialsPrice || 0,
-            p_billing_name: body.billing?.name || null,
-            p_billing_address: body.billing?.address || null,
-            p_billing_city: body.billing?.city || null,
-            p_billing_postal_code: body.billing?.postalCode || null,
-            p_billing_country: body.billing?.country || null,
-            p_billing_company_name: body.billing?.companyName || null,
-            p_billing_pib: body.billing?.pib || null,
-            p_billing_vat_id: body.billing?.vatId || null,
-          });
-        } catch (purchaseErr) {
-          console.error('Failed to call create_pending_purchase for course', item.courseId, ':', purchaseErr);
-          // Sanitized: do NOT include the raw DB / network error in the
-          // response body — it can leak schema or infra details to the browser.
-          return new Response(
-            JSON.stringify({
-              success: false,
-              error: 'We could not start your order. Please try again or contact support if the problem persists.',
-              code: 'pending_purchase_rpc_threw',
-              courseId: item.courseId,
-            }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-          );
-        }
-
-        const { data, error } = rpcResult;
-
-        if (error) {
-          console.error('create_pending_purchase RPC error for course', item.courseId, ':', error);
-          // Sanitized: drop `detail` so DB error text never reaches the client.
-          return new Response(
-            JSON.stringify({
-              success: false,
-              error: 'We could not start your order. Please try again or contact support if the problem persists.',
-              code: 'pending_purchase_rpc_error',
-              courseId: item.courseId,
-            }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-          );
-        }
-
-        if (!data || data.success !== true) {
-          // Already enrolled is a graceful soft-fail surfaced as 409 so the
-          // client can suggest visiting the dashboard instead of redirecting.
-          if (data?.already_enrolled) {
-            return new Response(
-              JSON.stringify({
-                success: false,
-                error: data.error || 'You already own this item.',
-                code: 'already_enrolled',
-                courseId: item.courseId,
-              }),
-              { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 409 }
-            );
-          }
-
-          console.error('create_pending_purchase returned failure for course', item.courseId, ':', data);
-          return new Response(
-            JSON.stringify({
-              success: false,
-              error: data?.error || 'We could not start your order. Please try again.',
-              code: 'pending_purchase_failed',
-              courseId: item.courseId,
-            }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-          );
-        }
-
-        console.log('Pending purchase ready for course', item.courseId, ':', data);
-      }
-    } else {
-      // Defensive: refuse to create a payment session without purchaseItems.
-      // The client always sends them; an empty payload would mean the webhook
-      // has nothing to confirm and we'd create another orphan.
+    // Defensive: refuse to create a payment session without purchaseItems.
+    if (!body.purchaseItems || body.purchaseItems.length === 0) {
       return new Response(
-        JSON.stringify({
-          success: false,
-          error: 'No items to purchase.',
-          code: 'no_purchase_items',
-        }),
+        JSON.stringify({ success: false, error: 'No items to purchase.', code: 'no_purchase_items' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       );
     }
+
+    const supabase = createClient(supabaseUrl!, supabaseServiceKey!);
+    // Trusted user id derived from the verified JWT above — never body.userId.
+    const userId = authedUserId;
+
+    // ── SERVER-SIDE PRICING (authoritative) ─────────────────────────────
+    // SECURITY: never trust amount / originalAmount / discountAmount / currency
+    // from the browser. Recompute every price from the courses table, validate the
+    // discount server-side, and derive the RSD gateway charge from a
+    // server-controlled EUR->RSD rate. Amounts are STORED in EUR (the canonical
+    // currency the invoice + dashboard expect); only the gateway charge is RSD.
+    const EUR_TO_RSD_RATE = Number(Deno.env.get('RAIACCEPT_EUR_TO_RSD_RATE') || '117.15');
+    const round2 = (n: number) => Math.round(n * 100) / 100;
+
+    const courseIds = [...new Set(body.purchaseItems.map((i) => i.courseId))];
+    const { data: courseRows, error: courseErr } = await supabase
+      .from('courses')
+      .select('id, title, pricing, teaching_materials_price')
+      .in('id', courseIds);
+    if (courseErr) {
+      console.error('Course price lookup failed:', courseErr);
+      return new Response(
+        JSON.stringify({ success: false, error: 'We could not start your order. Please try again.', code: 'price_lookup_failed' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      );
+    }
+    const courseById = new Map((courseRows || []).map((c: any) => [c.id, c]));
+    for (const it of body.purchaseItems) {
+      if (!courseById.has(it.courseId)) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'One of the selected courses is unavailable.', code: 'unknown_course', courseId: it.courseId }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+        );
+      }
+    }
+
+    // EUR gross per item (course price + optional teaching materials), from DB.
+    const computed = body.purchaseItems.map((it) => {
+      const c: any = courseById.get(it.courseId);
+      const base = Number(c?.pricing?.price) || 0;
+      const includeMaterials = !!it.teachingMaterialsIncluded;
+      const materials = includeMaterials ? (Number(c?.teaching_materials_price) || 0) : 0;
+      return { courseId: it.courseId, base, materials, includeMaterials, gross: round2(base + materials) };
+    });
+    const subtotal = round2(computed.reduce((s, c) => s + c.gross, 0));
+
+    // Validate the discount server-side (a single code applies to the cart).
+    const discountCodeId = body.purchaseItems.find((i) => i.discountCodeId)?.discountCodeId || null;
+    let discountTotal = 0;
+    if (discountCodeId) {
+      const { data: dres, error: derr } = await supabase.rpc('validate_discount', {
+        p_discount_code_id: discountCodeId,
+        p_subtotal: subtotal,
+      });
+      if (derr) {
+        console.error('validate_discount failed:', derr);
+        return new Response(
+          JSON.stringify({ success: false, error: 'We could not apply your discount. Please try again.', code: 'discount_validation_failed' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+        );
+      }
+      if (!dres?.valid) {
+        return new Response(
+          JSON.stringify({ success: false, error: dres?.error || 'This discount code is not valid.', code: 'invalid_discount' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+        );
+      }
+      discountTotal = Number(dres.discount_amount) || 0;
+    }
+
+    // Allocate the discount proportionally and build the authoritative rows.
+    const serverItems = computed.map((c) => {
+      const itemDiscount = subtotal > 0 ? round2(discountTotal * (c.gross / subtotal)) : 0;
+      const amountEur = round2(c.gross - itemDiscount);
+      const amountRsd = round2(amountEur * EUR_TO_RSD_RATE);
+      return {
+        courseId: c.courseId,
+        amountEur,
+        originalEur: c.base,
+        discountEur: itemDiscount,
+        materialsEur: c.materials,
+        includeMaterials: c.includeMaterials,
+        amountRsd,
+        title: (courseById.get(c.courseId) as any)?.title || 'Course',
+      };
+    });
+    const rsdTotal = round2(serverItems.reduce((s, i) => s + i.amountRsd, 0));
+
+    // ── Create pending purchase records server-side (RACE CONDITION FIX) ──
+    // Every pending purchase MUST exist BEFORE we hand the user to RaiAccept, so
+    // the webhook has a row to confirm against. Amounts stored are EUR; currency
+    // records the CHARGED currency (RSD).
+    for (const item of serverItems) {
+      let rpcResult: { data: any; error: any };
+      try {
+        rpcResult = await supabase.rpc('create_pending_purchase', {
+          p_user_id: userId,
+          p_course_id: item.courseId,
+          p_amount: item.amountEur,
+          p_original_amount: item.originalEur,
+          p_discount_amount: item.discountEur,
+          p_discount_code_id: discountCodeId,
+          p_currency: 'RSD',
+          p_payment_method: body.paymentMethod || 'card',
+          p_transaction_id: body.orderId,
+          p_teaching_materials_included: item.includeMaterials,
+          p_teaching_materials_price: item.materialsEur,
+          p_billing_name: body.billing?.name || null,
+          p_billing_address: body.billing?.address || null,
+          p_billing_city: body.billing?.city || null,
+          p_billing_postal_code: body.billing?.postalCode || null,
+          p_billing_country: body.billing?.country || null,
+          p_billing_company_name: body.billing?.companyName || null,
+          p_billing_pib: body.billing?.pib || null,
+          p_billing_vat_id: body.billing?.vatId || null,
+        });
+      } catch (purchaseErr) {
+        console.error('Failed to call create_pending_purchase for course', item.courseId, ':', purchaseErr);
+        return new Response(
+          JSON.stringify({ success: false, error: 'We could not start your order. Please try again or contact support if the problem persists.', code: 'pending_purchase_rpc_threw', courseId: item.courseId }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+        );
+      }
+
+      const { data, error } = rpcResult;
+      if (error) {
+        console.error('create_pending_purchase RPC error for course', item.courseId, ':', error);
+        return new Response(
+          JSON.stringify({ success: false, error: 'We could not start your order. Please try again or contact support if the problem persists.', code: 'pending_purchase_rpc_error', courseId: item.courseId }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+        );
+      }
+      if (!data || data.success !== true) {
+        if (data?.already_enrolled) {
+          return new Response(
+            JSON.stringify({ success: false, error: data.error || 'You already own this item.', code: 'already_enrolled', courseId: item.courseId }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 409 }
+          );
+        }
+        console.error('create_pending_purchase returned failure for course', item.courseId, ':', data);
+        return new Response(
+          JSON.stringify({ success: false, error: data?.error || 'We could not start your order. Please try again.', code: 'pending_purchase_failed', courseId: item.courseId }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+        );
+      }
+      console.log('Pending purchase ready for course', item.courseId, ':', data);
+    }
+
+    // Persist the EUR->RSD rate used so the charged RSD amount is reproducible for
+    // reconciliation and invoicing (best-effort).
+    const { error: rateErr } = await supabase
+      .from('purchases')
+      .update({ currency_exchange_rate: EUR_TO_RSD_RATE })
+      .eq('transaction_id', body.orderId);
+    if (rateErr) console.error('Could not persist currency_exchange_rate:', rateErr);
+
+    // Override the gateway charge with the server-computed RSD values. The browser
+    // no longer decides what is charged.
+    body.amount = rsdTotal;
+    body.currency = 'RSD';
+    body.items = serverItems.map((i) => ({
+      id: i.courseId,
+      name: i.title,
+      price: i.amountRsd,
+      quantity: 1,
+    }));
 
     // Step 1: Authenticate with RaiAccept
     console.log('Authenticating with RaiAccept...');
