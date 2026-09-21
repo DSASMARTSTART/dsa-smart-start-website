@@ -325,8 +325,8 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
     window.location.reload();
   };
 
-  if (loading && authLoading) {
-    // Only show loading spinner if both are loading (initial load)
+  if (loading || authLoading) {
+    // Wait for enrollment data before choosing a live or self-paced empty state.
     return (
       <div className="bg-black min-h-screen pt-32 pb-20 flex items-center justify-center">
         <div className="text-center">
