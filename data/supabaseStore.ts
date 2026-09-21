@@ -907,6 +907,7 @@ export const coursesApi = {
     if (courseData.targetAudience !== undefined) dbUpdates.target_audience = courseData.targetAudience;
     if (courseData.contentFormat !== undefined) dbUpdates.content_format = courseData.contentFormat;
     if (courseData.teachingMaterialsPrice !== undefined) dbUpdates.teaching_materials_price = courseData.teachingMaterialsPrice;
+    if (courseData.teachingMaterialsIncluded !== undefined) dbUpdates.teaching_materials_included = courseData.teachingMaterialsIncluded;
     if (courseData.ebookPdfUrl !== undefined) dbUpdates.ebook_pdf_url = courseData.ebookPdfUrl;
     if (courseData.ebookPageCount !== undefined) dbUpdates.ebook_page_count = courseData.ebookPageCount;
     if (courseData.ebookFiles !== undefined) dbUpdates.ebook_files = courseData.ebookFiles;

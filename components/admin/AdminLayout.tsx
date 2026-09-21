@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { 
   LayoutDashboard, Users, BookOpen, History, Settings, LogOut, 
   ChevronRight, Menu, X, Bell, Search, Shield, AlertTriangle, Tag, CreditCard,
-  FileWarning
+  FileWarning, GraduationCap
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { paymentOrphansApi } from '../../data/supabaseStore';
@@ -96,6 +96,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPath, onNavi
   }> = [
     { id: 'admin', label: 'Dashboard', icon: LayoutDashboard, path: 'admin' },
     { id: 'admin-users', label: 'Users', icon: Users, path: 'admin-users' },
+    { id: 'admin-teachers', label: 'Live Learning', icon: GraduationCap, path: 'admin-teachers' },
     { id: 'admin-courses', label: 'Courses', icon: BookOpen, path: 'admin-courses' },
     { id: 'admin-transactions', label: 'Transactions', icon: CreditCard, path: 'admin-transactions' },
     { id: 'admin-payment-orphans', label: 'Payment Orphans', icon: FileWarning, path: 'admin-payment-orphans', badge: orphanCount },
@@ -111,7 +112,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPath, onNavi
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f9fb]">
+    <div className={`min-h-screen bg-[#f8f9fb] ${currentPath === 'admin-teachers' ? 'eduway-live-admin' : ''}`}>
       {/* Top Bar - Reuses Navbar styling */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/70 backdrop-blur-xl border-b border-gray-100">
         <div className="flex items-center justify-between px-6 py-4">

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabase';
+import { supabase, teacherInviteRedirect } from '../lib/supabase';
 import { sendWelcomeEmail } from '../lib/emailService';
 import type { Database } from '../lib/database.types';
 
@@ -88,6 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     let isMounted = true;
     let initialised = false;
+    let invitationHandled = false;
 
     // Check if we arrived with a PKCE code (email confirmation / password reset).
     // detectSessionInUrl: true handles the actual exchange; we just need to
@@ -111,8 +112,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (hadPkceCode) {
             // Clean up the ?code= query string, then navigate to dashboard
             window.history.replaceState({}, '', window.location.pathname);
-            window.location.hash = '#dashboard';
+            window.location.hash = teacherInviteRedirect ? '#reset-password' : '#dashboard';
           }
+        }
+
+        if (session?.user && teacherInviteRedirect && !invitationHandled && (event === 'INITIAL_SESSION' || event === 'SIGNED_IN')) {
+          invitationHandled = true;
+          window.history.replaceState({}, '', window.location.pathname);
+          window.location.hash = '#reset-password';
         }
 
         setSession(session);

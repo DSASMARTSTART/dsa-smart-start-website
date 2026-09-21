@@ -9,6 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { purchasesApi, coursesApi } from '../data/supabaseStore';
 import { supabase } from '../lib/supabase';
 import { Course, Purchase } from '../types';
+import { liveLearningPath, liveProgramFor } from './live-learning/catalog';
 
 interface CheckoutSuccessPageProps {
   onNavigate: (path: string) => void;
@@ -223,7 +224,7 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
             {t('successPage.verifying')}
           </p>
           <p className="text-gray-600 text-sm mt-1">
-            {t('successPage.digitalDelivery')}
+            {recentPurchases.some(purchase => purchase.course && liveProgramFor(purchase.course)) ? t('dashboard:live.checkoutDelivery') : t('successPage.digitalDelivery')}
           </p>
         </div>
 
@@ -270,6 +271,14 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
                       {purchase.course?.productType === 'ebook' ? t('successPage.ebook') : 
                        purchase.course?.productType === 'service' ? t('successPage.serviceProgram') : t('successPage.interactiveCourse')}
                     </p>
+                    {purchase.status === 'completed' && purchase.course && liveProgramFor(purchase.course) && (
+                      <button
+                        onClick={() => onNavigate(liveLearningPath(purchase.courseId))}
+                        className="inline-flex items-center gap-2 mt-3 text-sm font-semibold text-purple-300 hover:text-purple-200"
+                      >
+                        {t('dashboard:live.chooseTeacher')}<ArrowRight size={15} />
+                      </button>
+                    )}
                   </div>
                   {/* Status badge */}
                   {purchase.status === 'pending' ? (

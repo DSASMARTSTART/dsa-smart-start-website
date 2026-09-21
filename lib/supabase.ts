@@ -4,6 +4,8 @@
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
+import { isTeacherInviteRedirect } from './authRedirect';
+export const teacherInviteRedirect = typeof window !== 'undefined' && isTeacherInviteRedirect(window.location.search, window.location.hash);
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
@@ -26,7 +28,7 @@ const typedSupabase = supabaseUrl && supabaseAnonKey
         autoRefreshToken: true,
         persistSession: true,
         detectSessionInUrl: true,
-        flowType: 'pkce',
+        flowType: teacherInviteRedirect ? 'implicit' : 'pkce',
       }
     })
   : null;

@@ -9,6 +9,9 @@ import { useLocalizedCourses, getLocalizedTitle } from '../hooks/useLocalizedCou
 import { useUserProgress } from '../hooks/useUserProgress';
 import { useLocaleFormat } from '../hooks/useLocaleFormat';
 import { supabase, storageHelpers } from '../lib/supabase';
+import { hasLiveAccess, liveProgramFor } from './live-learning/catalog';
+import LiveProgramCards from './live-learning/LiveProgramCards';
+import LessonList from './live-learning/LessonList';
 
 // Fallback cover images for e-books (local assets)
 const EBOOK_COVERS: Record<string, string> = {
@@ -71,6 +74,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
   const { progress } = useUserProgress(); // Now using hook directly - only loads when Dashboard is rendered
   const { formatDate, formatCurrency } = useLocaleFormat();
   const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
+  const [liveCourses, setLiveCourses] = useState<EnrolledCourse[]>([]);
   const [purchasedEbooks, setPurchasedEbooks] = useState<PurchasedEbook[]>([]);
   const [pendingPurchases, setPendingPurchases] = useState<PendingPurchase[]>([]);
   const [quizResults, setQuizResults] = useState<Record<string, QuizResult[]>>({});
@@ -163,8 +167,13 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
         // Separate e-books from interactive courses
         const ebooks: PurchasedEbook[] = [];
         const courses: EnrolledCourse[] = [];
+        const live: EnrolledCourse[] = [];
         
         enrollmentsWithCourses.forEach(({ course, ...enrollment }) => {
+          if (liveProgramFor(course)) {
+            if (hasLiveAccess(enrollment)) live.push({ ...course, enrollment: enrollment as Enrollment, totalItems: 0 });
+            return;
+          }
           // Check if it's an e-book (PDF product)
           if (course.productType === 'ebook' || course.contentFormat === 'pdf') {
             ebooks.push({
@@ -212,6 +221,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
 
         if (!isCancelled) {
           setEnrolledCourses(courses);
+          setLiveCourses(live);
           setPurchasedEbooks(ebooks);
           setPendingPurchases(pendingWithCourses);
 
@@ -487,10 +497,14 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
           </div>
         )}
 
+        <LiveProgramCards courses={liveCourses} onNavigate={onNavigate} />
+        <LessonList />
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           
           {/* Main Content - Courses */}
           <div className="lg:col-span-8 space-y-10">
+            {(localizedEnrolledCourses.length > 0 || liveCourses.length === 0) && <>
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-black text-white uppercase tracking-widest flex items-center gap-3">
                 <BookOpen size={20} className="text-purple-400" />
@@ -620,6 +634,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
             )}
 
             {/* My E-books Section */}
+            </>}
             {localizedEbooks.length > 0 && (
               <div className="mt-12">
                 <div className="flex items-center justify-between mb-6">
@@ -752,7 +767,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
                   </div>
                   <div>
                     <p className="text-[10px] font-black uppercase text-gray-500 tracking-widest">{t('stats.enrolledCourses')}</p>
-                    <p className="text-xl font-black text-white">{enrolledCourses.length}</p>
+                    <p className="text-xl font-black text-white">{enrolledCourses.length + liveCourses.length}</p>
                   </div>
                 </div>
                 {purchasedEbooks.length > 0 && (

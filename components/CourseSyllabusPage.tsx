@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, CheckCircle2, Star, Clock, Sparkles, BookOpen, GraduationCap, ChevronRight, ChevronDown, Zap, Lock, ShoppingCart, Check, Rocket, Shield, FileText, Play, Users, Layers, Award, TrendingUp, Crown, Diamond, Video, Brain, Headphones, FileCheck, MessageCircle, Flame, BadgeCheck, Heart, RefreshCcw, UserCheck, Eye } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Star, Clock, Sparkles, BookOpen, GraduationCap, ChevronRight, ChevronDown, Zap, Lock, ShoppingCart, Check, Rocket, Shield, FileText, Play, Users, Layers, Award, TrendingUp, Crown, Diamond, Video, Brain, Headphones, FileCheck, MessageCircle, Flame, BadgeCheck, Heart, RefreshCcw, UserCheck, Eye, Target } from 'lucide-react';
 import { coursesApi } from '../data/supabaseStore';
 import { Course, Module } from '../types';
 import { useLocalizedCourse } from '../hooks/useLocalizedCourse';

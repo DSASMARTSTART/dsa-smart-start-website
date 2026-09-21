@@ -44,6 +44,9 @@ const AdminAudit = lazy(() => import('./components/admin').then(m => ({ default:
 const AdminDiscountCodes = lazy(() => import('./components/admin').then(m => ({ default: m.AdminDiscountCodes })));
 const AdminTransactions = lazy(() => import('./components/admin').then(m => ({ default: m.AdminTransactions })));
 const AdminPaymentOrphans = lazy(() => import('./components/admin').then(m => ({ default: m.AdminPaymentOrphans })));
+const TeacherWorkspace = React.lazy(() => import('./components/live-learning/TeacherWorkspace'));
+const LiveLearningPage = lazy(() => import('./components/live-learning/LiveLearningPage'));
+const LiveLearningStudio = lazy(() => import('./components/live-learning/LiveLearningStudio'));
 const AdminSettings = lazy(() => import('./components/admin').then(m => ({ default: m.AdminSettings })));
 
 // Toast notification type
@@ -64,6 +67,7 @@ const App: React.FC = () => {
   // This prevents unnecessary API calls on every page load
   const [currentPath, setCurrentPath] = useState('home');
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
+  const [selectedTeacherId, setSelectedTeacherId] = useState<string | null>(null);
   const [coursesDefaultTab, setCoursesDefaultTab] = useState<'live' | 'ebooks' | undefined>(undefined);
   
   // Initialize cart from localStorage
@@ -156,7 +160,14 @@ const App: React.FC = () => {
         setCart([]);
         setTeachingMaterialsCart({});
       }
+      else if (hash === '#teacher-calendar') setCurrentPath('teacher-calendar');
       else if (hash === '#dashboard') setCurrentPath('dashboard');
+      else if (hash === '#live-learning' || hash.startsWith('#live-learning?')) {
+        const params = new URLSearchParams(hash.split('?')[1] || '');
+        setSelectedCourseId(params.get('course'));
+        setSelectedTeacherId(params.get('teacher'));
+        setCurrentPath('live-learning');
+      }
       // Policy pages
       else if (hash === '#terms') setCurrentPath('terms');
       else if (hash === '#privacy-policy') setCurrentPath('privacy-policy');
@@ -165,6 +176,7 @@ const App: React.FC = () => {
       else if (hash === '#reset-password') setCurrentPath('reset-password');
       // Admin routes
       else if (hash === '#admin') setCurrentPath('admin');
+      else if (hash === '#admin-teachers') setCurrentPath('admin-teachers');
       else if (hash === '#admin-users') setCurrentPath('admin-users');
       else if (hash === '#admin-courses') setCurrentPath('admin-courses');
       else if (hash === '#admin-transactions') setCurrentPath('admin-transactions');
@@ -228,6 +240,7 @@ const App: React.FC = () => {
       'cookie-policy': `Cookie Policy — ${BRAND}`,
       'refund-policy': `Refund Policy — ${BRAND}`,
       'reset-password': `Reset Password — ${BRAND}`,
+      'live-learning': `Live Learning — ${BRAND}`,
       'not-found': `Page Not Found — ${BRAND}`,
     };
     const key = currentPath.startsWith('admin') ? 'admin' : currentPath;
@@ -478,6 +491,9 @@ const App: React.FC = () => {
         />
       )}
 
+      {currentPath === 'teacher-calendar' && <TeacherWorkspace />}
+      {currentPath === 'live-learning' && <LiveLearningPage courseId={selectedCourseId} teacherId={selectedTeacherId} onNavigate={navigateTo} />}
+
       {currentPath === 'viewer' && selectedCourseId && (
         <CourseViewer 
           courseId={selectedCourseId}
@@ -528,6 +544,7 @@ const App: React.FC = () => {
       {isAdminPath && isAdmin && (
         <AdminLayout currentPath={currentPath} onNavigate={navigateTo} onLogout={handleLogout}>
           {currentPath === 'admin' && <AdminHome onNavigate={navigateTo} />}
+          {currentPath === 'admin-teachers' && <LiveLearningStudio />}
           {currentPath === 'admin-users' && <AdminUsers onNavigate={navigateTo} />}
           {currentPath === 'admin-courses' && <AdminCourses onNavigate={navigateTo} />}
           {currentPath === 'admin-transactions' && <AdminTransactions onNavigate={navigateTo} />}
@@ -560,7 +577,7 @@ const App: React.FC = () => {
       </div>{/* End main-content */}
       
       {!isAdminPath && <Footer onNavigate={navigateTo} />}
-      {!isAdminPath && <WhatsAppButton />}
+      {!isAdminPath && currentPath !== 'live-learning' && currentPath !== 'dashboard' && currentPath !== 'teacher-calendar' && <WhatsAppButton />}
       {!isAdminPath && <CartBubble cart={cart} onNavigateToCheckout={() => navigateTo('checkout')} />}
 
       {/* Toast Notifications */}

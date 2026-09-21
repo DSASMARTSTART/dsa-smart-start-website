@@ -839,7 +839,8 @@ const MetadataEditor: React.FC<{
   const [productType, setProductType] = useState<ProductType>(course.productType || 'learndash');
   const [targetAudienceType, setTargetAudienceType] = useState<TargetAudience>(course.targetAudience || 'adults_teens');
   const [contentFormat, setContentFormat] = useState<ContentFormat>(course.contentFormat || 'interactive');
-  const [teachingMaterialsPrice, setTeachingMaterialsPrice] = useState<number>(course.teachingMaterialsPrice || 50);
+  const [teachingMaterialsPrice, setTeachingMaterialsPrice] = useState<number>(course.teachingMaterialsPrice ?? 0);
+  const [teachingMaterialsIncluded, setTeachingMaterialsIncluded] = useState(Boolean(course.teachingMaterialsIncluded));
   
   // E-book specific fields
   const [ebookPdfUrl, setEbookPdfUrl] = useState<string>(course.ebookPdfUrl || '');
@@ -973,7 +974,7 @@ const MetadataEditor: React.FC<{
       return;
     }
     
-    if (!actualCourseId || actualCourseId === 'new') {
+    if (!course.id || course.id === 'new') {
       setPdfUploadError('Please save the course once before uploading e-book files.');
       return;
     }
@@ -985,7 +986,7 @@ const MetadataEditor: React.FC<{
     // Upload to the PRIVATE `ebooks` bucket (audit S2). We store the storage PATH,
     // not a public URL — the dashboard exchanges it for a short-lived signed URL
     // via get-ebook-download after verifying the buyer's enrollment.
-    const { path, error } = await storageHelpers.uploadEbookFile(file, actualCourseId);
+    const { path, error } = await storageHelpers.uploadEbookFile(file, course.id);
 
     setUploadingPdf(false);
     setUploadingFileIndex(null);
@@ -1044,7 +1045,8 @@ const MetadataEditor: React.FC<{
       productType,
       targetAudience: targetAudienceType,
       contentFormat,
-      teachingMaterialsPrice: productType === 'service' ? teachingMaterialsPrice : undefined,
+      teachingMaterialsPrice: productType === 'service' ? (teachingMaterialsIncluded ? 0 : teachingMaterialsPrice) : undefined,
+      teachingMaterialsIncluded: productType === 'service' ? teachingMaterialsIncluded : undefined,
       // E-book fields
       ebookPdfUrl: productType === 'ebook' ? (ebookFiles[0]?.url || ebookPdfUrl) : undefined,
       ebookPageCount: productType === 'ebook' ? ebookPageCount : undefined,
@@ -1245,20 +1247,26 @@ const MetadataEditor: React.FC<{
         {/* Service-specific: Teaching Materials Price */}
         {productType === 'service' && (
           <div className="pt-4 border-t border-purple-200">
+            <label className="flex items-center gap-3 mb-4 text-sm font-bold text-gray-700">
+              <input type="checkbox" checked={teachingMaterialsIncluded} onChange={e => setTeachingMaterialsIncluded(e.target.checked)} className="h-5 w-5 rounded text-purple-600" />
+              Teaching materials included in this package
+            </label>
+            {teachingMaterialsIncluded ? <p className="text-xs text-gray-500">All enrolled students can access files published in Live Learning → Package materials.</p> :
             <div className="flex items-center gap-4">
               <div className="w-48">
                 <Input
                   label="Teaching Materials Price (€)"
                   type="number"
+                  min="0"
                   value={teachingMaterialsPrice}
                   onChange={(e) => setTeachingMaterialsPrice(Number(e.target.value))}
                   placeholder="50"
                 />
               </div>
               <p className="text-xs text-gray-500 mt-6">
-                Optional add-on price for teaching materials at checkout
+                Optional add-on price at checkout. Set 0 if materials are not offered.
               </p>
-            </div>
+            </div>}
           </div>
         )}
         

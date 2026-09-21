@@ -9,6 +9,8 @@ import { useUserProgress } from '../hooks/useUserProgress';
 import QuizRenderer from './QuizRenderer';
 import FinalTestRenderer from './FinalTestRenderer';
 import { getQuizForModule } from '../data/quizHelpers';
+import LiveLearningPage from './live-learning/LiveLearningPage';
+import { liveProgramFor } from './live-learning/catalog';
 import { A1_FINAL_TEST_PASSED_KEY } from '../data/finalTestData';
 
 interface CourseViewerProps {
@@ -142,6 +144,8 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
 
     loadCourseAndCheckAccess();
   }, [user, courseId, isAdmin, isEditor]);
+
+  if (course && liveProgramFor(course)) return <LiveLearningPage courseId={courseId} onNavigate={path => {window.location.hash = `#${path}`;}} />;
 
   if (loading || isEnrolled === null) {
     return (

@@ -8,6 +8,7 @@ import { queryClient } from './lib/queryClient';
 import { AuthProvider } from './contexts/AuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import App from './App';
+import { LiveLearningProvider } from './components/live-learning/LiveLearningContext';
 
 const LoadingSpinner = () => (
   <div className="min-h-screen flex items-center justify-center bg-black">
@@ -30,7 +31,9 @@ i18nReady.then(() => {
         <Suspense fallback={<LoadingSpinner />}>
           <QueryClientProvider client={queryClient}>
             <AuthProvider>
-              <App />
+              <LiveLearningProvider>
+                <App />
+              </LiveLearningProvider>
             </AuthProvider>
           </QueryClientProvider>
         </Suspense>

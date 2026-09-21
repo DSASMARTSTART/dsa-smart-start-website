@@ -1,0 +1,28 @@
+DO $$BEGIN IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='anon') THEN CREATE ROLE anon; END IF; END$$;
+DO $$BEGIN IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='authenticated') THEN CREATE ROLE authenticated; END IF; END$$;
+DO $$BEGIN IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='service_role') THEN CREATE ROLE service_role; END IF; END$$;
+CREATE SCHEMA auth;
+CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $$ SELECT nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
+CREATE TABLE auth.users(id uuid PRIMARY KEY,email text);
+CREATE TABLE public.users(id uuid PRIMARY KEY,email text,name text,role text,status text);
+ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+GRANT SELECT ON public.users TO anon,authenticated;
+GRANT INSERT,UPDATE,DELETE ON public.users TO authenticated;
+GRANT USAGE ON SCHEMA auth TO authenticated;
+CREATE FUNCTION public.is_admin_or_editor() RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public,pg_temp AS $$SELECT EXISTS(SELECT 1 FROM users WHERE id=auth.uid() AND role IN ('admin','editor'))$$;
+CREATE POLICY "Public read access for users" ON public.users FOR SELECT USING(true);
+CREATE POLICY "Admins can manage all users" ON public.users FOR ALL TO authenticated USING(is_admin_or_editor());
+CREATE POLICY "Users can create own profile" ON public.users FOR INSERT TO authenticated WITH CHECK(id=auth.uid());
+CREATE POLICY "Users can view own profile" ON public.users FOR SELECT TO authenticated USING(id=auth.uid() OR is_admin_or_editor());
+CREATE POLICY "Users can update own profile" ON public.users FOR UPDATE TO authenticated USING(id=auth.uid()) WITH CHECK(id=auth.uid() AND role=(SELECT u.role FROM users u WHERE u.id=auth.uid()) AND status=(SELECT u.status FROM users u WHERE u.id=auth.uid()));
+CREATE TABLE public.courses(id uuid PRIMARY KEY,title text,level text,product_type text,content_format text,teaching_materials_included boolean DEFAULT false,teaching_materials_price numeric);
+CREATE TABLE public.purchases(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),user_id uuid,course_id uuid,status text,include_teaching_materials boolean DEFAULT false,teaching_materials_included boolean DEFAULT false);
+CREATE TABLE public.enrollments(id uuid PRIMARY KEY,user_id uuid,course_id uuid,status text);
+
+CREATE SCHEMA storage;
+CREATE TABLE storage.buckets(id text PRIMARY KEY,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);
+CREATE TABLE storage.objects(id uuid DEFAULT gen_random_uuid(),bucket_id text,name text,metadata jsonb);
+ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+GRANT USAGE ON SCHEMA storage TO authenticated;
+GRANT SELECT,INSERT,DELETE ON storage.objects TO authenticated;
+CREATE FUNCTION storage.foldername(text) RETURNS text[] LANGUAGE sql IMMUTABLE AS $$SELECT string_to_array($1,'/')$$;

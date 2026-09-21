@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, ShoppingCart, User, LogOut, Layout, Shield } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useLiveLearning } from './live-learning/LiveLearningContext';
 import LanguageSwitcher from './LanguageSwitcher';
 
 interface NavbarProps {
@@ -16,6 +17,7 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPath, cartCount, isLoggedIn, user, onLogout, isAdmin }) => {
   const { t } = useTranslation('common');
+  const { ownTeacherId } = useLiveLearning();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -31,6 +33,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPath, cartCount, isL
   const navLinks = isLoggedIn 
     ? [
         { name: t('nav.dashboard'), path: 'dashboard' },
+        ...(ownTeacherId ? [{ name: t('dashboard:live.teacherWorkspace'), path: 'teacher-calendar' }] : []),
         { name: t('nav.browseProducts'), path: 'courses' },
         { name: t('nav.faq'), path: 'faq' },
         { name: t('nav.contacts'), path: 'contact' },

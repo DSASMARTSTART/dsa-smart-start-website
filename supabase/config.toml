@@ -445,3 +445,11 @@ s3_region = "env(S3_REGION)"
 s3_access_key = "env(S3_ACCESS_KEY)"
 # Configures AWS_SECRET_ACCESS_KEY for S3 bucket
 s3_secret_key = "env(S3_SECRET_KEY)"
+
+# JWT and active administrator role are verified inside the handler.
+[functions.invite-live-teacher]
+verify_jwt = false
+
+# Authenticated requests and per-booking authorization are checked in the handler.
+[functions.live-vimeo]
+verify_jwt = false
