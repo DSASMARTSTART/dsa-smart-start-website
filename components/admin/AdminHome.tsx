@@ -541,32 +541,34 @@ export default function AdminHome({ onNavigate }: Props) {
                       purchases can precede sign-in. Paid status uses all currencies.
                     </p>
                     <div className="mt-5 space-y-4">
-                      {Object.entries(data.funnel).map(([key, n]) => (
-                        <div key={key}>
-                          <div className="mb-1.5 flex justify-between text-sm">
-                            <span>
-                              {
+                      {(['registered', 'confirmed', 'signedIn', 'enrolled', 'paying'] as const)
+                        .map((key) => [key, data.funnel[key]] as const)
+                        .map(([key, n]) => (
+                          <div key={key}>
+                            <div className="mb-1.5 flex justify-between text-sm">
+                              <span>
                                 {
-                                  registered: 'Registered',
-                                  confirmed: 'Email confirmed',
-                                  signedIn: 'Signed in at least once',
-                                  enrolled: 'Has active access',
-                                  paying: 'Has a paid, non-fully-refunded order',
-                                }[key]
-                              }
-                            </span>
-                            <strong>{n}</strong>
+                                  {
+                                    registered: 'Registered',
+                                    confirmed: 'Email confirmed',
+                                    signedIn: 'Signed in at least once',
+                                    enrolled: 'Has active access',
+                                    paying: 'Has a paid, non-fully-refunded order',
+                                  }[key]
+                                }
+                              </span>
+                              <strong>{n}</strong>
+                            </div>
+                            <div className="h-2 rounded-full bg-gray-100">
+                              <div
+                                className="h-2 rounded-full bg-purple-500"
+                                style={{
+                                  width: `${data.funnel.registered ? (n / data.funnel.registered) * 100 : 0}%`,
+                                }}
+                              />
+                            </div>
                           </div>
-                          <div className="h-2 rounded-full bg-gray-100">
-                            <div
-                              className="h-2 rounded-full bg-purple-500"
-                              style={{
-                                width: `${data.funnel.registered ? (n / data.funnel.registered) * 100 : 0}%`,
-                              }}
-                            />
-                          </div>
-                        </div>
-                      ))}
+                        ))}
                     </div>
                     <button
                       className="mt-5 flex items-center gap-2 text-sm font-semibold text-purple-700"

@@ -5,7 +5,7 @@
 import React, { useEffect, useState } from 'react';
 import { 
   LayoutDashboard, Users, BookOpen, History, Settings, LogOut, 
-  ChevronRight, Menu, X, Bell, Search, Shield, AlertTriangle, Tag, CreditCard,
+  ChevronRight, Menu, X, Shield, AlertTriangle, Tag, CreditCard,
   FileWarning, GraduationCap
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -144,23 +144,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPath, onNavi
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Quick Search */}
-            <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-xl border border-gray-100">
-              <Search size={16} className="text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search..."
-                className="bg-transparent text-sm font-medium text-gray-600 placeholder:text-gray-400 outline-none w-40"
-              />
-              <kbd className="text-[9px] font-bold text-gray-400 px-1.5 py-0.5 bg-gray-100 rounded">⌘K</kbd>
-            </div>
-
-            {/* Notifications */}
-            <button className="relative p-2.5 rounded-xl bg-gray-50 text-gray-600 hover:bg-purple-50 hover:text-purple-600 transition-all border border-gray-100">
-              <Bell size={18} />
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-pink-500 text-white text-[9px] font-black rounded-full flex items-center justify-center">
-                3
-              </span>
+            <button
+              type="button"
+              onClick={() => onNavigate('admin-users')}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gray-50 text-sm font-semibold text-gray-600 hover:bg-purple-50 hover:text-purple-600 transition-all border border-gray-100"
+            >
+              <Users size={16} />
+              <span className="hidden md:inline">Find a user</span>
+              <span className="sr-only md:hidden">Find a user</span>
             </button>
 
             {/* User Menu */}
