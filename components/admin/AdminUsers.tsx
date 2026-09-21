@@ -15,10 +15,11 @@ import { usersApi, coursesApi } from '../../data/supabaseStore';
 import { User, UserFilters, Course, UserDetail } from '../../types';
 
 interface AdminUsersProps {
+  initialUserId?: string | null;
   onNavigate: (path: string) => void;
 }
 
-const AdminUsers: React.FC<AdminUsersProps> = ({ onNavigate }) => {
+const AdminUsers: React.FC<AdminUsersProps> = ({ onNavigate, initialUserId }) => {
   const [users, setUsers] = useState<User[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,6 +49,19 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onNavigate }) => {
   useEffect(() => {
     loadUsers();
   }, [filters, page]);
+
+  const [detailError, setDetailError] = useState('');
+  useEffect(() => {
+    if (!initialUserId) return;
+    let cancelled = false;
+    setDetailError('');
+    void usersApi.getById(initialUserId).then(detail => {
+      if (cancelled) return;
+      if (detail) { setSelectedUser(detail); setShowUserDetail(true); }
+      else setDetailError('This student profile could not be found.');
+    }).catch(() => { if (!cancelled) setDetailError('Could not load the student profile. Select the student from the list to retry.'); });
+    return () => { cancelled = true; };
+  }, [initialUserId]);
 
   // Load available courses when grant modal opens
   useEffect(() => {
@@ -87,6 +101,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onNavigate }) => {
   };
 
   const handleViewUser = async (user: User) => {
+    setDetailError('');
     try {
       const detail = await usersApi.getById(user.id);
       if (detail) {
@@ -94,7 +109,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onNavigate }) => {
         setShowUserDetail(true);
       }
     } catch (error) {
-      console.error('Error loading user details:', error);
+      setDetailError(error instanceof Error ? error.message : 'Could not load user details.');
     }
   };
 
@@ -186,31 +201,22 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onNavigate }) => {
     }
   };
 
-  // Cache for user details (enrollments/progress)
-  const [userDetailsCache, setUserDetailsCache] = useState<Record<string, { enrollments: number; avgProgress: number }>>({});
-  
-  // Load user details for the table
+  const [userDetailsCache, setUserDetailsCache] = useState<Record<string, { enrollments: number | null; avgProgress: number | null }>>({});
   useEffect(() => {
-    const loadUserDetails = async () => {
-      const cache: Record<string, { enrollments: number; avgProgress: number }> = {};
-      for (const user of users) {
-        try {
-          const detail = await usersApi.getById(user.id);
-          if (detail) {
-            const avgProgress = detail.progress.length 
-              ? Math.round(detail.progress.reduce((sum, p) => sum + p.percentage, 0) / detail.progress.length)
-              : 0;
-            cache[user.id] = { enrollments: detail.enrollments.length, avgProgress };
-          }
-        } catch {
-          cache[user.id] = { enrollments: 0, avgProgress: 0 };
-        }
+    let cancelled = false;
+    setUserDetailsCache({});
+    void Promise.all(users.map(async user => {
+      try {
+        const detail = await usersApi.getById(user.id);
+        const avgProgress = detail.progress.length
+          ? Math.round(detail.progress.reduce((sum, p) => sum + p.percentage, 0) / detail.progress.length)
+          : null;
+        return [user.id, { enrollments: detail.enrollments.length, avgProgress }] as const;
+      } catch {
+        return [user.id, { enrollments: null, avgProgress: null }] as const;
       }
-      setUserDetailsCache(cache);
-    };
-    if (users.length > 0) {
-      loadUserDetails();
-    }
+    })).then(rows => { if (!cancelled) setUserDetailsCache(Object.fromEntries(rows)); });
+    return () => { cancelled = true; };
   }, [users]);
 
   const columns = [
@@ -255,8 +261,8 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onNavigate }) => {
       header: 'Enrolled',
       width: '80px',
       render: (user: User) => {
-        const enrollments = userDetailsCache[user.id]?.enrollments || 0;
-        return <span className="text-sm font-bold text-gray-700">{enrollments}</span>;
+        const enrollments = userDetailsCache[user.id]?.enrollments;
+        return <span className="text-sm font-bold text-gray-700">{enrollments === undefined ? '…' : enrollments === null ? 'Unavailable' : enrollments}</span>;
       }
     },
     {
@@ -264,8 +270,8 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onNavigate }) => {
       header: 'Progress',
       width: '150px',
       render: (user: User) => {
-        const avgProgress = userDetailsCache[user.id]?.avgProgress || 0;
-        return <ProgressBar value={avgProgress} size="sm" />;
+        const avgProgress = userDetailsCache[user.id]?.avgProgress;
+        return avgProgress == null ? <span className="text-gray-400">—</span> : <ProgressBar value={avgProgress} size="sm" />;
       }
     },
     {
@@ -302,6 +308,8 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onNavigate }) => {
 
   return (
     <div className="space-y-6 animate-reveal">
+      {detailError && <p role="alert" className="rounded-xl bg-red-50 p-4 text-sm text-red-700">{detailError}</p>}
+
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
@@ -573,6 +581,9 @@ const UserDetailDrawer: React.FC<UserDetailDrawerProps> = ({
           </div>
         </div>
 
+        <div className="rounded-xl border border-gray-200 p-4 text-sm text-gray-600">
+          {user.account ? <><p>Email: {user.account.confirmedAt ? 'Confirmed' : 'Unconfirmed'}</p><p className="mt-1">Last sign-in: {user.account.lastSignInAt ? new Date(user.account.lastSignInAt).toLocaleString() : 'Not recorded'}</p></> : <p>No authentication account is linked to this profile.</p>}
+        </div>
         {/* Stats Row */}
         <div className="grid grid-cols-3 gap-4">
           <div className="bg-gray-50 rounded-2xl p-4 text-center">
@@ -580,14 +591,16 @@ const UserDetailDrawer: React.FC<UserDetailDrawerProps> = ({
             <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Courses</p>
           </div>
           <div className="bg-gray-50 rounded-2xl p-4 text-center">
-            <p className="text-2xl font-black text-gray-900">€{user.totalSpent}</p>
-            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Total Spent</p>
+            <div className="text-lg font-black text-gray-900">
+              {user.spentByCurrency?.length ? user.spentByCurrency.map(row => <p key={row.currency}>{new Intl.NumberFormat(undefined, {style:'currency',currency:row.currency}).format(row.amount)}</p>) : <p>No paid orders</p>}
+            </div>
+            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Net Paid Orders</p>
           </div>
           <div className="bg-gray-50 rounded-2xl p-4 text-center">
             <p className="text-2xl font-black text-gray-900">
               {user.progress.length 
                 ? Math.round(user.progress.reduce((s, p) => s + p.percentage, 0) / user.progress.length)
-                : 0}%
+                : '—'}{user.progress.length ? '%' : ''}
             </p>
             <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Avg Progress</p>
           </div>
@@ -626,7 +639,7 @@ const UserDetailDrawer: React.FC<UserDetailDrawerProps> = ({
                       </div>
                     </div>
                     <div className="w-32">
-                      <ProgressBar value={progress?.percentage || 0} size="sm" />
+                      {progress ? <><ProgressBar value={progress.percentage} size="sm" />{progress.total !== undefined && <p className="mt-1 text-xs text-gray-500">{progress.completed} / {progress.total} {progress.kind === 'live' ? 'classes attended' : 'items completed'}</p>}</> : <p className="text-xs text-gray-500">Not applicable</p>}
                     </div>
                     {enrollment.status === 'active' && (
                       <button

@@ -417,8 +417,10 @@ export interface CourseFilters {
 export interface UserDetail extends User {
   enrollments: (Enrollment & { course: Course })[];
   purchases: Purchase[];
-  progress: { courseId: string; percentage: number }[];
-  totalSpent: number;
+  progress: { courseId: string; percentage: number; completed?: number; total?: number; kind?: 'live' | 'interactive' }[];
+  totalSpent: number | null;
+  spentByCurrency?: { currency: string; amount: number }[];
+  account?: { createdAt: string; confirmedAt: string | null; lastSignInAt: string | null } | null;
 }
 
 // ---------- Category Types ----------

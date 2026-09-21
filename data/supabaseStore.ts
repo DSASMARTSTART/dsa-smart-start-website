@@ -6,7 +6,7 @@
 import { supabase } from '../lib/supabase';
 import type { 
   User, Course, Enrollment, Purchase, AuditLog, Activity,
-  KPIMetrics, AnalyticsTrends, UserFilters, CourseFilters,
+  UserFilters, CourseFilters,
   PaginatedResponse, UserDetail, AuditAction, Module, Lesson, Homework,
   CoursePricing, Category, ProductType, TargetAudience, ContentFormat,
   CatalogFilters, WizardStepsCompleted, WizardStep, PaymentProvider, EbookFile,
@@ -264,17 +264,21 @@ export const usersApi = {
       .eq('user_id', id)
       .neq('status', 'revoked');
     
-    if (enrollmentsError) {
-      console.error('Error fetching enrollments:', enrollmentsError);
-    }
+    if (enrollmentsError) throw enrollmentsError;
     
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: purchasesData } = await (supabase as any)
+    const { data: purchasesData, error: purchasesError } = await (supabase as any)
       .from('purchases')
       .select('*')
       .eq('user_id', id);
 
-    const totalSpent = (purchasesData || []).reduce((sum: number, p: { amount: number }) => sum + p.amount, 0);
+    if (purchasesError) throw purchasesError;
+    // Staff-only, server-aggregated metrics use the same definitions as analytics.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: metrics, error: metricsError } = await (supabase as any).rpc('admin_user_metrics', { p_user: id });
+    if (metricsError) throw metricsError;
+    const spentByCurrency = metrics.spentByCurrency as { currency: string; amount: number }[];
+    const totalSpent = spentByCurrency.length === 1 ? spentByCurrency[0].amount : spentByCurrency.length ? null : 0;
 
     // Map enrollments with properly nested course object
     const enrollments = (enrollmentsData || [])
@@ -291,18 +295,16 @@ export const usersApi = {
         };
       });
 
-    // Calculate progress per course (simplified - would need progress table for real implementation)
-    const progress = enrollments.map(e => ({
-      courseId: e.courseId,
-      percentage: e.status === 'completed' ? 100 : 0
-    }));
+    const progress = metrics.progress as UserDetail['progress'];
 
     return {
       ...toCamelCase<User>(userData),
       enrollments,
       purchases: (purchasesData || []).map((p: Record<string, unknown>) => toCamelCase<Purchase>(p)),
       progress,
-      totalSpent
+      totalSpent,
+      spentByCurrency,
+      account: metrics.account
     } as UserDetail;
   },
 
@@ -1802,115 +1804,7 @@ export const auditApi = {
 // ============================================
 // ANALYTICS API
 // ============================================
-export const analyticsApi = {
-  getKPIs: async (): Promise<KPIMetrics> => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const sb = supabase as any;
-    
-    const { count: totalUsers } = await sb.from('users').select('*', { count: 'exact', head: true }).eq('role', 'student');
-    const { count: activeUsers } = await sb.from('users').select('*', { count: 'exact', head: true }).eq('role', 'student').eq('status', 'active');
-    const { count: pausedUsers } = await sb.from('users').select('*', { count: 'exact', head: true }).eq('role', 'student').eq('status', 'paused');
-    const { count: totalEnrollments } = await sb.from('enrollments').select('*', { count: 'exact', head: true }).eq('status', 'active');
-    // Revenue = only completed/refunded orders, net of any refunded amount.
-    // Pending/failed (abandoned) checkouts must NOT inflate revenue.
-    const { data: purchases } = await sb
-      .from('purchases')
-      .select('amount, refunded_amount, status')
-      .in('status', ['completed', 'refunded']);
-
-    const totalRevenue = (purchases || []).reduce(
-      (sum: number, p: { amount: number; refunded_amount?: number }) =>
-        sum + (Number(p.amount) || 0) - (Number(p.refunded_amount) || 0),
-      0
-    );
-
-    return {
-      totalUsers: totalUsers || 0,
-      activeUsers: activeUsers || 0,
-      pausedUsers: pausedUsers || 0,
-      totalEnrollments: totalEnrollments || 0,
-      totalRevenue
-    };
-  },
-
-  getTrends: async (): Promise<AnalyticsTrends> => {
-    return {
-      users: { value: 0, isPositive: true },
-      activeUsers: { value: 0, isPositive: true },
-      enrollments: { value: 0, isPositive: true },
-      revenue: { value: 0, isPositive: true }
-    };
-  },
-
-  getRecentActivity: async (limit = 10): Promise<Activity[]> => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data } = await (supabase as any)
-      .from('audit_logs')
-      .select('*')
-      .order('timestamp', { ascending: false })
-      .limit(limit);
-
-    return (data || []).map((log: Record<string, unknown>) => ({
-      id: log.id as string,
-      type: log.action as string,
-      title: log.description as string,
-      timestamp: log.timestamp as string,
-      userId: log.admin_id as string,
-      userName: log.admin_name as string
-    }));
-  },
-
-  getCourseAnalytics: async () => {
-    const courses = await coursesApi.list();
-    return courses.map(course => ({
-      courseId: course.id,
-      courseTitle: course.title,
-      level: course.level,
-      enrollments: 0,
-      activeEnrollments: 0,
-      completedEnrollments: 0,
-      revenue: 0,
-      avgCompletionRate: 0,
-      avgTimePerSession: 0,
-      returnRate: 0,
-      lastEnrollment: null
-    }));
-  },
-
-  getRevenueBreakdown: async () => {
-    // Only completed/refunded orders count as revenue; net out refunds.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: purchases } = await (supabase as any)
-      .from('purchases')
-      .select('amount, refunded_amount, status')
-      .in('status', ['completed', 'refunded']);
-    const totalRevenue = (purchases || []).reduce(
-      (sum: number, p: { amount: number; refunded_amount?: number }) =>
-        sum + (Number(p.amount) || 0) - (Number(p.refunded_amount) || 0),
-      0
-    );
-
-    return {
-      totalRevenue,
-      totalTransactions: (purchases || []).length,
-      byCourse: [],
-      byMonth: [],
-      byPaymentMethod: []
-    };
-  },
-
-  getStudentEngagementMetrics: async () => {
-    return {
-      activeInLast7Days: 0,
-      activeInLast30Days: 0,
-      avgSessionDuration: 0,
-      avgLessonsPerSession: '0',
-      peakHours: [],
-      deviceBreakdown: [],
-      completionsByDayOfWeek: []
-    };
-  }
-};
+export { adminAnalyticsApi as analyticsApi } from '../lib/adminAnalytics';
 
 // ============================================
 // VIDEO HELPERS

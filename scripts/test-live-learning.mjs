@@ -157,6 +157,8 @@ try {
   );
   sql(fs.readFileSync('supabase/tests/live-library.sql', 'utf8'));
   sql(fs.readFileSync('supabase/tests/profile-access.sql', 'utf8'));
+  sql(['supabase/tests/admin-analytics-bootstrap.sql','supabase/migrations/20260921180000_admin_analytics.sql','supabase/migrations/20260921190000_admin_user_metrics.sql','supabase/tests/admin-analytics.sql'].map(path => fs.readFileSync(path,'utf8')).join('\n'));
+  console.log('PASS: admin analytics authorization, registration cohorts, revenue currencies/refunds, progress and group session counts.');
   console.log(
     'PASS: private files, all live programs, material entitlements, teacher uploads, group sharing, expiry, cancellation and revoked access.'
   );

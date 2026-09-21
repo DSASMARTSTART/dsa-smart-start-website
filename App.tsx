@@ -69,6 +69,7 @@ const App: React.FC = () => {
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
   const [selectedTeacherId, setSelectedTeacherId] = useState<string | null>(null);
   const [liveBookingView, setLiveBookingView] = useState(false);
+  const [adminUserId, setAdminUserId] = useState<string | null>(null);
   const [coursesDefaultTab, setCoursesDefaultTab] = useState<'live' | 'ebooks' | undefined>(undefined);
   
   // Initialize cart from localStorage
@@ -179,7 +180,10 @@ const App: React.FC = () => {
       // Admin routes
       else if (hash === '#admin') setCurrentPath('admin');
       else if (hash === '#admin-teachers') setCurrentPath('admin-teachers');
-      else if (hash === '#admin-users') setCurrentPath('admin-users');
+      else if (hash === '#admin-users' || hash.startsWith('#admin-users?')) {
+        setAdminUserId(new URLSearchParams(hash.split('?')[1] || '').get('user'));
+        setCurrentPath('admin-users');
+      }
       else if (hash === '#admin-courses') setCurrentPath('admin-courses');
       else if (hash === '#admin-transactions') setCurrentPath('admin-transactions');
       else if (hash === '#admin-payment-orphans') setCurrentPath('admin-payment-orphans');
@@ -547,7 +551,7 @@ const App: React.FC = () => {
         <AdminLayout currentPath={currentPath} onNavigate={navigateTo} onLogout={handleLogout}>
           {currentPath === 'admin' && <AdminHome onNavigate={navigateTo} />}
           {currentPath === 'admin-teachers' && <LiveLearningStudio />}
-          {currentPath === 'admin-users' && <AdminUsers onNavigate={navigateTo} />}
+          {currentPath === 'admin-users' && <AdminUsers onNavigate={navigateTo} initialUserId={adminUserId} />}
           {currentPath === 'admin-courses' && <AdminCourses onNavigate={navigateTo} />}
           {currentPath === 'admin-transactions' && <AdminTransactions onNavigate={navigateTo} />}
           {currentPath === 'admin-payment-orphans' && <AdminPaymentOrphans onNavigate={navigateTo} />}
