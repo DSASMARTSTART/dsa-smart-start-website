@@ -12,11 +12,13 @@ export default function LessonList({
   teacherId,
   courseId,
   initialHistory = false,
+  view,
 }: {
   manager?: boolean;
   teacherId?: string;
   courseId?: string;
   initialHistory?: boolean;
+  view?: 'upcoming' | 'history';
 }) {
   const { user } = useAuth();
   const { bookings, teachers, updateBooking } = useLiveLearning();
@@ -51,14 +53,21 @@ export default function LessonList({
     !b.recording &&
     !recordingsFor(b).some((a) => a.state !== 'error');
   const missingCount = new Set(relevant.filter(needsRecording).map((b) => b.groupId || b.id)).size;
-  if (!relevant.length && !manager) return null;
-  const visible = relevant.filter((b) =>
-    missingOnly
-      ? needsRecording(b)
-      : history
-        ? b.status !== 'booked' || new Date(b.endsAt).getTime() <= Date.now()
-        : b.status === 'booked' && new Date(b.endsAt).getTime() > Date.now()
-  );
+  if (!relevant.length && !manager && !view) return null;
+  const showHistory = view ? view === 'history' : history;
+  const visible = relevant
+    .filter((b) =>
+      missingOnly
+        ? needsRecording(b)
+        : showHistory
+          ? b.status !== 'booked' || new Date(b.endsAt).getTime() <= Date.now()
+          : b.status === 'booked' && new Date(b.endsAt).getTime() > Date.now()
+    )
+    .sort((a, b) =>
+      showHistory
+        ? Date.parse(b.startsAt) - Date.parse(a.startsAt)
+        : Date.parse(a.startsAt) - Date.parse(b.startsAt)
+    );
   async function change(booking: Booking, action: 'cancel' | 'completed' | 'no_show') {
     setBusy(true);
     setError('');
@@ -76,17 +85,19 @@ export default function LessonList({
       <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
         <h2 className="flex items-center gap-2 font-bold text-xl">
           <CalendarDays size={21} />
-          {t('live.myLessons')}
+          {t(view ? (showHistory ? 'live.hub.history' : 'live.hub.upcoming') : 'live.myLessons')}
         </h2>
-        <button
-          className="text-purple-300 text-sm"
-          onClick={() => {
-            setHistory(!history);
-            setMissingOnly(false);
-          }}
-        >
-          {t(history ? 'live.upcoming' : 'live.pastLessons')}
-        </button>
+        {!view && (
+          <button
+            className="text-purple-300 text-sm"
+            onClick={() => {
+              setHistory(!history);
+              setMissingOnly(false);
+            }}
+          >
+            {t(history ? 'live.upcoming' : 'live.pastLessons')}
+          </button>
+        )}
       </div>
       {manager && !filesLoading && !filesError && missingCount > 0 && (
         <button
@@ -114,7 +125,11 @@ export default function LessonList({
           {error}
         </p>
       )}
-      {!visible.length && <p className="text-gray-400">{t('live.noBookedLessons')}</p>}
+      {!visible.length && (
+        <p className="text-gray-400">
+          {t(showHistory ? 'live.hub.emptyHistory' : 'live.hub.emptyUpcoming')}
+        </p>
+      )}
       <div className="grid gap-4">
         {visible.map((b) => (
           <article className="rounded-2xl border border-white/10 p-5" key={b.id}>
@@ -139,7 +154,7 @@ export default function LessonList({
               </span>
             </div>
             <div className="flex flex-wrap gap-4 text-sm mt-5">
-              {b.status !== 'cancelled' && b.zoom && (
+              {b.status === 'booked' && Date.parse(b.endsAt) > Date.now() && b.zoom && (
                 <a
                   className="inline-flex items-center gap-2 text-purple-300"
                   href={b.zoom}

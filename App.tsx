@@ -68,6 +68,7 @@ const App: React.FC = () => {
   const [currentPath, setCurrentPath] = useState('home');
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
   const [selectedTeacherId, setSelectedTeacherId] = useState<string | null>(null);
+  const [liveBookingView, setLiveBookingView] = useState(false);
   const [coursesDefaultTab, setCoursesDefaultTab] = useState<'live' | 'ebooks' | undefined>(undefined);
   
   // Initialize cart from localStorage
@@ -166,6 +167,7 @@ const App: React.FC = () => {
         const params = new URLSearchParams(hash.split('?')[1] || '');
         setSelectedCourseId(params.get('course'));
         setSelectedTeacherId(params.get('teacher'));
+        setLiveBookingView(params.get('view') === 'book');
         setCurrentPath('live-learning');
       }
       // Policy pages
@@ -492,7 +494,7 @@ const App: React.FC = () => {
       )}
 
       {currentPath === 'teacher-calendar' && <TeacherWorkspace />}
-      {currentPath === 'live-learning' && <LiveLearningPage courseId={selectedCourseId} teacherId={selectedTeacherId} onNavigate={navigateTo} />}
+      {currentPath === 'live-learning' && <LiveLearningPage courseId={selectedCourseId} teacherId={selectedTeacherId} bookingView={liveBookingView} onNavigate={navigateTo} />}
 
       {currentPath === 'viewer' && selectedCourseId && (
         <CourseViewer 

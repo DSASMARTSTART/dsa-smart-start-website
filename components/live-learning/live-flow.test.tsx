@@ -1,6 +1,6 @@
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 const f = vi.hoisted(() => {
   const course = {
     id: '263c2749-aa03-4399-85c4-d664cc3e2bc5',
@@ -137,13 +137,38 @@ describe('live program integration', () => {
     expect(await screen.findByRole('heading', { name: 'live.accessTitle' })).toBeTruthy();
     expect(screen.queryByRole('heading', { name: 'Test teacher' })).toBeNull();
   });
-  it('keeps an administrator’s own credit balance separate from other students', () => {
+  it('keeps an administrator’s own credit balance separate from other students', async () => {
     f.state.bookings = [
       { courseId: f.course.id, userId: 'other-student', creditUsed: true },
       { courseId: f.course.id, userId: 'student', creditUsed: true },
     ];
-    render(<LiveProgramCards courses={[f.course as Course]} onNavigate={() => {}} />);
+    await act(async () => {
+      render(<LiveProgramCards courses={[f.course as Course]} onNavigate={() => {}} />);
+    });
     expect(screen.getByText('live.creditsRemaining:29')).toBeTruthy();
+  });
+  it('opens the selected teacher directly at the booking calendar', async () => {
+    const navigate = vi.fn();
+    await act(async () => {
+      render(<LiveProgramCards courses={[f.course as Course]} onNavigate={navigate} />);
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'live.hub.bookLesson' }));
+    expect(navigate).toHaveBeenCalledWith(
+      `live-learning?course=${f.course.id}&teacher=teacher&view=book`
+    );
+  });
+  it('opens past lessons directly on the dashboard, with a useful empty state', async () => {
+    render(<LiveProgramCards courses={[f.course as Course]} onNavigate={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'live.hub.replays' }));
+    expect(await screen.findByRole('heading', { name: 'live.hub.history' })).toBeTruthy();
+    expect(screen.getByText('live.hub.emptyHistory')).toBeTruthy();
+  });
+  it('does not present zero progress as a successful load when the workspace fails', () => {
+    f.state.error = 'Could not load live lessons';
+    render(<LiveProgramCards courses={[f.course as Course]} />);
+    expect(screen.getByRole('alert').textContent).toContain(f.state.error);
+    expect(screen.queryByRole('img')).toBeNull();
+    f.state.error = '';
   });
   it('saves a teacher from the administrator form to the persistence service', async () => {
     render(<LiveLearningStudio />);

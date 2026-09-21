@@ -8,15 +8,23 @@ import LiveAssetList from './LiveAssetList';
 export default function LiveMaterials({
   manager = false,
   courseId,
+  showUnavailable = false,
 }: {
   manager?: boolean;
   courseId?: string;
+  showUnavailable?: boolean;
 }) {
   const { t } = useTranslation('dashboard');
   const { courses, assets, loading, error, refresh } = useLiveLibrary(courseId);
   const [chosen, setChosen] = useState('');
   const selected = courses.find((c) => c.id === (courseId || chosen)) || courses[0];
-  if (!manager && !loading && !error && !selected?.canReadMaterials) return null;
+  if (!manager && !loading && !error && !selected?.canReadMaterials)
+    return showUnavailable ? (
+      <section className="mb-8 rounded-3xl border border-white/10 bg-[#101014] p-6 text-white">
+        <h2 className="text-xl font-bold">{t('live.packageMaterials')}</h2>
+        <p className="mt-3 text-sm text-gray-400">{t('live.hub.materialsUnavailable')}</p>
+      </section>
+    ) : null;
   return (
     <section className="mb-8 rounded-3xl border border-white/10 bg-[#101014] p-6 text-white">
       <div className="flex items-center gap-3">

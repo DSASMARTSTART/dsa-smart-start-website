@@ -183,6 +183,32 @@
     "vimeoProcessing": "Vimeo sta elaborando la registrazione…",
     "vimeoUploading": "Caricamento in corso",
     "vimeoFailed": "Vimeo non ha preparato la registrazione. Rimuovila e ricaricala oppure contatta l’amministratore.",
-    "vimeoNotConfigured": "Vimeo non è ancora collegato. Un amministratore deve completare il collegamento prima di caricare video."
+    "vimeoNotConfigured": "Vimeo non è ancora collegato. Un amministratore deve completare il collegamento prima di caricare video.",
+    "hub": {
+      "body": "Progressi, prossima lezione e registrazioni — tutto in un unico posto.",
+      "completed": "Completate",
+      "scheduled": "Prenotate",
+      "otherUsed": "Altri crediti utilizzati",
+      "remaining": "Da prenotare",
+      "chartLabel": "{{completed}} lezioni completate su {{total}}. {{scheduled}} prenotate, {{remaining}} disponibili, {{otherUsed}} altri crediti utilizzati.",
+      "groupBalance": "Crediti di gruppo: {{count}}",
+      "privateBalance": "Crediti individuali: {{count}}",
+      "otherHelp": "Include lezioni perse e lezioni passate in attesa di conferma della presenza.",
+      "yourTeacher": "Il tuo insegnante",
+      "noTeacher": "Scegli un insegnante per iniziare",
+      "change": "Cambia",
+      "nextLesson": "Prossima lezione",
+      "noNextLesson": "Nessuna lezione prenotata. Scegli un orario adatto a te.",
+      "startWithTeacher": "Scegli il tuo insegnante, poi un orario.",
+      "bookLesson": "Prenota una lezione",
+      "replays": "Lezioni passate",
+      "library": "Le tue lezioni e risorse",
+      "upcoming": "Prossime lezioni",
+      "history": "Lezioni passate e registrazioni",
+      "materials": "Materiali",
+      "emptyHistory": "Le lezioni passate e le registrazioni disponibili appariranno qui dopo la prima lezione.",
+      "emptyUpcoming": "Nessuna lezione in programma. Seleziona Prenota una lezione qui sopra.",
+      "materialsUnavailable": "Questo pacchetto non ti dà attualmente accesso ai materiali didattici."
+    }
   }
 }

@@ -183,6 +183,32 @@
     "vimeoProcessing": "Vimeo está procesando la grabación…",
     "vimeoUploading": "Subida en curso",
     "vimeoFailed": "Vimeo no pudo preparar la grabación. Elimínala y vuelve a subirla o contacta al administrador.",
-    "vimeoNotConfigured": "Vimeo aún no está conectado. Un administrador debe completar la conexión antes de subir vídeos."
+    "vimeoNotConfigured": "Vimeo aún no está conectado. Un administrador debe completar la conexión antes de subir vídeos.",
+    "hub": {
+      "body": "Tu progreso, próxima clase y grabaciones — todo en un mismo lugar.",
+      "completed": "Completadas",
+      "scheduled": "Reservadas",
+      "otherUsed": "Otros créditos utilizados",
+      "remaining": "Disponibles",
+      "chartLabel": "{{completed}} de {{total}} clases completadas. {{scheduled}} reservadas, {{remaining}} disponibles, {{otherUsed}} otros créditos utilizados.",
+      "groupBalance": "Créditos grupales: {{count}}",
+      "privateBalance": "Créditos individuales: {{count}}",
+      "otherHelp": "Incluye clases perdidas y clases anteriores pendientes de confirmar la asistencia.",
+      "yourTeacher": "Tu profesor",
+      "noTeacher": "Elige un profesor para empezar",
+      "change": "Cambiar",
+      "nextLesson": "Próxima clase",
+      "noNextLesson": "Todavía no hay clases reservadas. Elige un horario que te vaya bien.",
+      "startWithTeacher": "Elige tu profesor y después el horario de tu clase.",
+      "bookLesson": "Reservar una clase",
+      "replays": "Clases anteriores",
+      "library": "Tus clases y materiales",
+      "upcoming": "Próximas clases",
+      "history": "Clases anteriores y grabaciones",
+      "materials": "Materiales",
+      "emptyHistory": "Tus clases anteriores y grabaciones disponibles aparecerán aquí después de la primera clase.",
+      "emptyUpcoming": "No hay próximas clases. Selecciona Reservar una clase arriba para elegir un horario.",
+      "materialsUnavailable": "Este paquete no te da acceso actualmente a los materiales didácticos."
+    }
   }
 }

@@ -11,7 +11,6 @@ import { useLocaleFormat } from '../hooks/useLocaleFormat';
 import { supabase, storageHelpers } from '../lib/supabase';
 import { hasLiveAccess, liveProgramFor } from './live-learning/catalog';
 import LiveProgramCards from './live-learning/LiveProgramCards';
-import LessonList from './live-learning/LessonList';
 
 // Fallback cover images for e-books (local assets)
 const EBOOK_COVERS: Record<string, string> = {
@@ -498,8 +497,8 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
         )}
 
         <LiveProgramCards courses={liveCourses} onNavigate={onNavigate} />
-        <LessonList />
 
+        {(enrolledCourses.length > 0 || purchasedEbooks.length > 0 || liveCourses.length === 0) && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           
           {/* Main Content - Courses */}
@@ -797,6 +796,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
           </div>
 
         </div>
+        )}
       </div>
     </div>
   );

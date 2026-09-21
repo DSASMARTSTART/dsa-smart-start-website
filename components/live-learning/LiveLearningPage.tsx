@@ -23,8 +23,6 @@ import { useLiveLearning } from './LiveLearningContext';
 import { hasLiveAccess, liveLearningPath, liveProgramFor } from './catalog';
 import { dateKey, teacherNow, weekDates } from './model';
 import { liveApi, type Availability } from './api';
-import LessonList from './LessonList';
-import LiveMaterials from './LiveMaterials';
 import './live-learning.css';
 import './live-learning-dark.css';
 
@@ -32,10 +30,16 @@ type Access = Enrollment & { course: Course };
 type Props = {
   courseId?: string | null;
   teacherId?: string | null;
+  bookingView?: boolean;
   onNavigate: (path: string) => void;
 };
 
-export default function LiveLearningPage({ courseId, teacherId, onNavigate }: Props) {
+export default function LiveLearningPage({
+  courseId,
+  teacherId,
+  bookingView = false,
+  onNavigate,
+}: Props) {
   const { t } = useTranslation('dashboard');
   const { user, loading: authLoading } = useAuth();
   const userId = user?.id;
@@ -132,6 +136,12 @@ export default function LiveLearningPage({ courseId, teacherId, onNavigate }: Pr
       window.clearInterval(interval);
     };
   }, [courseId, teacherId, userId, selectedDate, availabilityVersion, t]);
+  const loadedTeacherId = teacher?.id;
+  useEffect(() => {
+    if (bookingView && loadedTeacherId && loadedUser === userId && !workspaceLoading) {
+      document.getElementById('teacher-availability')?.scrollIntoView?.({ block: 'start' });
+    }
+  }, [bookingView, loadedTeacherId, loadedUser, userId, workspaceLoading]);
   const currentFormat =
     program?.private && program?.group ? format : program?.group ? 'group' : 'private';
 
@@ -208,17 +218,10 @@ export default function LiveLearningPage({ courseId, teacherId, onNavigate }: Pr
             {actionError || availabilityError || success}
           </p>
         )}
-        <LessonList courseId={courseId || undefined} />
-        <LiveMaterials courseId={courseId || undefined} />
         <div className="ll-platform-breadcrumb">
-          <button
-            className="ll-back"
-            onClick={() =>
-              onNavigate(teacher ? liveLearningPath(enrollment.courseId) : 'dashboard')
-            }
-          >
+          <button className="ll-back" onClick={() => onNavigate('dashboard')}>
             <ArrowLeft size={17} />
-            {teacher ? t('live.allTeachers') : t('live.back')}
+            {t('live.back')}
           </button>
           <span>
             {program.name}
@@ -429,13 +432,15 @@ export default function LiveLearningPage({ courseId, teacherId, onNavigate }: Pr
                 <div className="ll-profile-buttons">
                   <button
                     className="ll-button primary"
-                    disabled={busy || selections[enrollment.courseId] === teacher.id}
+                    disabled={busy}
                     onClick={async () => {
                       setBusy(true);
                       setActionError('');
                       setSuccess('');
                       try {
-                        await selectTeacher(enrollment.courseId, teacher.id);
+                        if (selections[enrollment.courseId] !== teacher.id) {
+                          await selectTeacher(enrollment.courseId, teacher.id);
+                        }
                         document
                           .getElementById('teacher-availability')
                           ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -452,7 +457,7 @@ export default function LiveLearningPage({ courseId, teacherId, onNavigate }: Pr
                       <CalendarDays size={17} />
                     )}
                     {selections[enrollment.courseId] === teacher.id
-                      ? t('live.teacherSelected')
+                      ? t('live.hub.bookLesson')
                       : t('live.selectTeacher')}
                   </button>
                   {teacher.video && (
@@ -482,7 +487,11 @@ export default function LiveLearningPage({ courseId, teacherId, onNavigate }: Pr
                   <p>{t('live.yourPaceBody')}</p>
                 </section>
               </div>
-              <section id="teacher-availability" className="ll-profile-calendar">
+              <section
+                id="teacher-availability"
+                className="ll-profile-calendar"
+                style={{ scrollMarginTop: 110 }}
+              >
                 <div className="ll-profile-calendar-heading">
                   <div>
                     <span className="ll-eyebrow">{program.name}</span>
@@ -576,7 +585,7 @@ export default function LiveLearningPage({ courseId, teacherId, onNavigate }: Pr
                         </button>
                       ))}
                     </div>
-                    {privateTimes.length === 0 && (
+                    {!slotLoading && !availabilityError && privateTimes.length === 0 && (
                       <div className="ll-availability-empty">
                         <Clock3 size={25} />
                         <h3>{t('live.noTimes')}</h3>
@@ -627,7 +636,18 @@ export default function LiveLearningPage({ courseId, teacherId, onNavigate }: Pr
                 )}
                 <div aria-live="polite">
                   {actionError && <p className="ll-error">{actionError}</p>}
-                  {success && <p className="ll-info-note">{success}</p>}
+                  {success && (
+                    <div className="ll-info-note">
+                      <p>{success}</p>
+                      <button
+                        className="ll-button secondary"
+                        onClick={() => onNavigate('dashboard')}
+                      >
+                        {t('live.back')}
+                        <ArrowRight size={16} />
+                      </button>
+                    </div>
+                  )}
                 </div>
                 <button
                   className="ll-button primary ll-booking-soon"

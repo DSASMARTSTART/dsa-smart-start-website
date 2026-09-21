@@ -183,6 +183,32 @@
     "vimeoProcessing": "Vimeo obrađuje snimak…",
     "vimeoUploading": "Otpremanje je u toku",
     "vimeoFailed": "Vimeo nije pripremio snimak. Ukloni ga i otpremi ponovo ili kontaktiraj administratora.",
-    "vimeoNotConfigured": "Vimeo još nije povezan. Administrator treba da završi povezivanje pre otpremanja snimaka."
+    "vimeoNotConfigured": "Vimeo još nije povezan. Administrator treba da završi povezivanje pre otpremanja snimaka.",
+    "hub": {
+      "body": "Tvoj napredak, sledeći čas i snimci — sve na jednom mestu.",
+      "completed": "Završeno",
+      "scheduled": "Rezervisano",
+      "otherUsed": "Ostali iskorišćeni krediti",
+      "remaining": "Slobodno za rezervaciju",
+      "chartLabel": "Završeno {{completed}} od {{total}} časova. Rezervisano {{scheduled}}, slobodno {{remaining}}, ostali iskorišćeni krediti {{otherUsed}}.",
+      "groupBalance": "Grupni krediti: {{count}}",
+      "privateBalance": "Individualni krediti: {{count}}",
+      "otherHelp": "Obuhvata propuštene časove i prošle časove za koje se čeka potvrda prisustva.",
+      "yourTeacher": "Tvoj učitelj",
+      "noTeacher": "Izaberi učitelja za početak",
+      "change": "Promeni",
+      "nextLesson": "Sledeći čas",
+      "noNextLesson": "Još nemaš rezervisan čas. Izaberi termin koji ti odgovara.",
+      "startWithTeacher": "Izaberi učitelja, pa zatim termin časa.",
+      "bookLesson": "Rezerviši čas",
+      "replays": "Prošli časovi",
+      "library": "Tvoji časovi i materijali",
+      "upcoming": "Naredni časovi",
+      "history": "Prošli časovi i snimci",
+      "materials": "Materijali",
+      "emptyHistory": "Ovde će se pojaviti tvoji prošli časovi i dostupni snimci nakon prvog časa.",
+      "emptyUpcoming": "Nema narednih časova. Izaberi „Rezerviši čas“ iznad da zakažeš sledeći termin.",
+      "materialsUnavailable": "Ovaj paket ti trenutno ne omogućava pristup nastavnim materijalima."
+    }
   }
 }

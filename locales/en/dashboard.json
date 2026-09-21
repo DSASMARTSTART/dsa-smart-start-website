@@ -183,6 +183,32 @@
     "vimeoProcessing": "Vimeo is processing this recording…",
     "vimeoUploading": "Upload in progress",
     "vimeoFailed": "Vimeo could not prepare this recording. Remove it and upload again, or contact your administrator.",
-    "vimeoNotConfigured": "Vimeo is not connected yet. An administrator needs to finish the connection before videos can be uploaded."
+    "vimeoNotConfigured": "Vimeo is not connected yet. An administrator needs to finish the connection before videos can be uploaded.",
+    "hub": {
+      "body": "Your progress, next lesson and recordings — all in one place.",
+      "completed": "Completed",
+      "scheduled": "Booked",
+      "otherUsed": "Other used credits",
+      "remaining": "Available to book",
+      "chartLabel": "{{completed}} of {{total}} lessons completed. {{scheduled}} booked, {{remaining}} available, {{otherUsed}} other used credits.",
+      "groupBalance": "Group credits: {{count}}",
+      "privateBalance": "Private credits: {{count}}",
+      "otherHelp": "Includes missed lessons and past lessons awaiting attendance confirmation.",
+      "yourTeacher": "Your teacher",
+      "noTeacher": "Choose your teacher to get started",
+      "change": "Change",
+      "nextLesson": "Next lesson",
+      "noNextLesson": "No lesson booked yet. Choose a time that works for you.",
+      "startWithTeacher": "Find your teacher, then pick a lesson time.",
+      "bookLesson": "Book a lesson",
+      "replays": "Past lessons",
+      "library": "Your live learning library",
+      "upcoming": "Upcoming lessons",
+      "history": "Past lessons & recordings",
+      "materials": "Materials",
+      "emptyHistory": "Your past lessons and available recordings will appear here after your first class.",
+      "emptyUpcoming": "No upcoming lessons. Use Book a lesson above to choose your next time.",
+      "materialsUnavailable": "This package does not currently give you access to teaching materials."
+    }
   }
 }
