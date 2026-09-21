@@ -209,6 +209,10 @@
       "emptyHistory": "Le lezioni passate e le registrazioni disponibili appariranno qui dopo la prima lezione.",
       "emptyUpcoming": "Nessuna lezione in programma. Seleziona Prenota una lezione qui sopra.",
       "materialsUnavailable": "Questo pacchetto non ti dà attualmente accesso ai materiali didattici."
-    }
+    },
+    "meetingLinkPending": "L’insegnante aggiungerà qui il link prima dell’inizio della lezione.",
+    "bookingNotice": "Prenota almeno {{count}} minuti prima della lezione.",
+    "cancellationContact": "Per annullare, contatta l’insegnante o l’assistenza Eduway. L’annullamento online non è attivo per questo pacchetto.",
+    "cancellationCutoff": "Annulla più di {{count}} ore prima della lezione per recuperare il credito. Per richieste successive, contatta l’insegnante."
   }
 }

@@ -84,15 +84,49 @@ beforeEach(() => {
 describe('live package library', () => {
   it('blocks recording uploads with a clear message until Vimeo is configured', async () => {
     f.status.mockResolvedValue({ configured: false });
-    render(<LiveAssetUpload target={{ kind: 'recording', bookingId: 'booking' }} onDone={vi.fn()} />);
+    render(
+      <LiveAssetUpload target={{ kind: 'recording', bookingId: 'booking' }} onDone={vi.fn()} />
+    );
     fireEvent.click(screen.getByRole('button', { name: 'live.uploadRecording' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('live.vimeoNotConfigured');
     expect(screen.getByRole('button', { name: 'live.publishFile' })).toBeDisabled();
     expect(f.upload).not.toHaveBeenCalled();
   });
+  it('does not offer attendance actions while a lesson is still running', async () => {
+    f.bookings = [
+      {
+        ...booking,
+        status: 'booked',
+        startsAt: new Date(Date.now() - 300000).toISOString(),
+        endsAt: new Date(Date.now() + 1500000).toISOString(),
+        zoom: '',
+      },
+    ];
+    render(<LessonList manager />);
+    expect(await screen.findByText('live.meetingLinkPending')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Mark attended' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Mark no-show' })).toBeNull();
+  });
+  it('does not require a recording for a missed private lesson', async () => {
+    f.bookings = [{ ...booking, kind: 'private', groupId: null, status: 'no_show' }];
+    render(<LessonList manager initialHistory />);
+    expect(await screen.findByText('Conversation practice')).toBeTruthy();
+    expect(screen.queryByText('live.recordingNeeded')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'live.uploadRecording' })).toBeNull();
+  });
   it('shows processing without offering a video before it is ready', async () => {
     f.bookings = [booking];
-    f.assets = [{ ...material, id: 'processing', kind: 'recording', provider: 'vimeo', state: 'processing', booking_id: booking.id, title: 'Processing replay' }];
+    f.assets = [
+      {
+        ...material,
+        id: 'processing',
+        kind: 'recording',
+        provider: 'vimeo',
+        state: 'processing',
+        booking_id: booking.id,
+        title: 'Processing replay',
+      },
+    ];
     render(<LessonList initialHistory />);
     expect(await screen.findByRole('button', { name: 'Processing replay' })).toBeDisabled();
     expect(screen.getByText('live.vimeoProcessing')).toBeTruthy();

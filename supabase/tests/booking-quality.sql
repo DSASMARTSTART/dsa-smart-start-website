@@ -1,0 +1,37 @@
+-- Additional regression scenarios found by the manual booking audit.
+BEGIN;
+SELECT set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000001',false);
+UPDATE live_program_settings SET buffer_minutes=10 WHERE program='hybrid-pack';
+UPDATE live_program_settings SET buffer_minutes=0 WHERE program='starter-path';
+SELECT save_live_teacher((SELECT profile||jsonb_build_object('revision',revision,'programs','["hybrid-pack","starter-path"]'::jsonb) FROM live_teachers WHERE id='20000000-0000-4000-8000-000000000001'));
+INSERT INTO courses(id,title,level,product_type,content_format) VALUES('10000000-0000-4000-8000-000000000008','Starter QA','starter-path','service','live');
+INSERT INTO enrollments VALUES(gen_random_uuid(),'00000000-0000-4000-8000-000000000008','10000000-0000-4000-8000-000000000001','active'),(gen_random_uuid(),'00000000-0000-4000-8000-000000000008','10000000-0000-4000-8000-000000000008','active');
+SELECT set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000008',false);
+SELECT select_live_teacher('10000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001');
+SELECT book_live_lesson('10000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001',current_date+40,'10:00');
+SELECT test_assert(NOT(live_availability('10000000-0000-4000-8000-000000000008','20000000-0000-4000-8000-000000000001',current_date+40)->'times' ? '10:30'),'another package cannot bypass the teacher break');
+SELECT test_assert(live_availability('10000000-0000-4000-8000-000000000008','20000000-0000-4000-8000-000000000001',current_date+40)->'times' ? '10:40','next lesson starts after exactly ten minutes of break');
+SELECT set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000002',false);
+SELECT test_reject($cmd$SELECT save_live_teacher((SELECT profile||jsonb_build_object('revision',revision,'groups',(profile->'groups')||jsonb_build_array(jsonb_build_object('id','30000000-0000-4000-8000-000000000008','date',(current_date+40)::text,'start','10:35','program','hybrid-pack','capacity',4,'title','Too soon'))) FROM live_teachers WHERE id='20000000-0000-4000-8000-000000000001'))$cmd$,'required break');
+SELECT save_live_teacher((SELECT profile||jsonb_build_object('revision',revision,'groups',(profile->'groups')||jsonb_build_array(jsonb_build_object('id','30000000-0000-4000-8000-000000000008','date',(current_date+40)::text,'start','10:40','program','hybrid-pack','capacity',4,'title','Valid break'))) FROM live_teachers WHERE id='20000000-0000-4000-8000-000000000001'));
+SELECT test_reject($cmd$SELECT save_live_teacher((SELECT profile||jsonb_build_object('revision',revision,'groups',(profile->'groups')||jsonb_build_array(jsonb_build_object('id','30000000-0000-4000-8000-000000000009','date',(current_date+40)::text,'start','11:35','program','hybrid-pack','capacity',4,'title','Too soon after group'))) FROM live_teachers WHERE id='20000000-0000-4000-8000-000000000001'))$cmd$,'too little break');
+CREATE TEMP TABLE qa_booking AS SELECT id FROM live_bookings WHERE user_id='00000000-0000-4000-8000-000000000008' AND kind='private';
+UPDATE live_bookings SET starts_at=now()-interval '5 minutes',ends_at=now()+interval '25 minutes' WHERE id IN (SELECT id FROM qa_booking);
+SELECT test_reject(format('SELECT update_live_booking(%L,''completed'')',(SELECT id FROM qa_booking)),'ended booked lesson');
+SELECT test_reject(format('SELECT update_live_booking(%L,''no_show'')',(SELECT id FROM qa_booking)),'ended booked lesson');
+UPDATE live_bookings SET starts_at=now()-interval '60 minutes',ends_at=now()-interval '30 minutes' WHERE id IN (SELECT id FROM qa_booking);
+SELECT update_live_booking((SELECT id FROM qa_booking),'no_show');
+SELECT test_assert((SELECT status='no_show' AND credit_used FROM live_bookings WHERE id=(SELECT id FROM qa_booking)),'no-show consumes a credit only after lesson end');
+SELECT test_reject(format('SELECT update_live_booking(%L,''completed'')',(SELECT id FROM qa_booking)),'ended booked lesson');
+-- Cancellation cutoffs and manager exceptions preserve the correct credit balance.
+UPDATE live_bookings SET status='booked',starts_at=now()+interval '12 hours',ends_at=now()+interval '12 hours 30 minutes' WHERE id IN (SELECT id FROM qa_booking);
+UPDATE live_program_settings SET cancellation_hours=24 WHERE program='hybrid-pack';
+SELECT set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000008',false);
+SELECT test_reject(format('SELECT update_live_booking(%L,''cancel'')',(SELECT id FROM qa_booking)),'contact your teacher');
+SELECT test_assert((SELECT credit_used FROM live_bookings WHERE id=(SELECT id FROM qa_booking)),'late rejected cancellation does not refund a credit');
+UPDATE live_bookings SET starts_at=now()+interval '25 hours',ends_at=now()+interval '25 hours 30 minutes' WHERE id IN (SELECT id FROM qa_booking);
+SELECT update_live_booking((SELECT id FROM qa_booking),'cancel');
+SELECT update_live_booking((SELECT id FROM qa_booking),'cancel');
+SELECT test_assert((SELECT status='cancelled' AND NOT credit_used FROM live_bookings WHERE id=(SELECT id FROM qa_booking)),'eligible repeated cancellation returns exactly one credit');
+ROLLBACK;
+SELECT 'PASS: lesson end, no-show credits, cutoff, idempotent cancellation and cross-program teacher breaks';

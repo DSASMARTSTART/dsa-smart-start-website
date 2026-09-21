@@ -42,7 +42,16 @@ const f = vi.hoisted(() => {
     refresh: vi.fn().mockResolvedValue(undefined),
     saveTeacher: vi.fn().mockResolvedValue(undefined),
     capacities: { 'hybrid-pack': 4 },
-    settings: {},
+    settings: {
+      'hybrid-pack': {
+        program: 'hybrid-pack',
+        notice_minutes: 60,
+        buffer_minutes: 0,
+        group_capacity: 4,
+        cancellation_hours: 24 as number | null,
+        recording_days: 90,
+      },
+    },
     ownTeacherId: null,
   };
   const row = {
@@ -119,6 +128,22 @@ describe('live program integration', () => {
     );
     expect((await screen.findAllByText('live.bookingConfirmed')).length).toBeGreaterThan(0);
     expect(f.state.refresh).toHaveBeenCalled();
+  });
+  it('explains the configured cancellation policy and disables booking with no credits', async () => {
+    f.state.bookings = Array.from({ length: 5 }, (_, i) => ({
+      id: `used-${i}`,
+      userId: 'student',
+      courseId: f.course.id,
+      kind: 'private',
+      creditUsed: true,
+    }));
+    render(<LiveLearningPage courseId={f.course.id} teacherId="teacher" onNavigate={() => {}} />);
+    fireEvent.click(await screen.findByRole('button', { name: '10:30' }));
+    expect(screen.getByText('live.cancellationCutoff:24')).toBeTruthy();
+    expect(
+      (screen.getByRole('button', { name: 'live.confirmBooking' }) as HTMLButtonElement).disabled
+    ).toBe(true);
+    expect(f.api.book).not.toHaveBeenCalled();
   });
   it('shows server rejection instead of a false booking confirmation', async () => {
     f.api.book.mockRejectedValue(new Error('This time is no longer available.'));

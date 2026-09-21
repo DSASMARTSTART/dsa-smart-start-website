@@ -209,6 +209,10 @@
       "emptyHistory": "Tus clases anteriores y grabaciones disponibles aparecerán aquí después de la primera clase.",
       "emptyUpcoming": "No hay próximas clases. Selecciona Reservar una clase arriba para elegir un horario.",
       "materialsUnavailable": "Este paquete no te da acceso actualmente a los materiales didácticos."
-    }
+    },
+    "meetingLinkPending": "El profesor añadirá aquí el enlace antes de la clase.",
+    "bookingNotice": "Reserva al menos {{count}} minutos antes de la clase.",
+    "cancellationContact": "Para cancelar, contacta con tu profesor o con el soporte de Eduway. Este paquete no permite cancelar en línea.",
+    "cancellationCutoff": "Cancela con más de {{count}} horas de antelación para recuperar el crédito. Para solicitudes posteriores, contacta con tu profesor."
   }
 }

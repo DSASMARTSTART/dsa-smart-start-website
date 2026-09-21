@@ -209,6 +209,10 @@
       "emptyHistory": "Ovde će se pojaviti tvoji prošli časovi i dostupni snimci nakon prvog časa.",
       "emptyUpcoming": "Nema narednih časova. Izaberi „Rezerviši čas“ iznad da zakažeš sledeći termin.",
       "materialsUnavailable": "Ovaj paket ti trenutno ne omogućava pristup nastavnim materijalima."
-    }
+    },
+    "meetingLinkPending": "Učitelj će ovde dodati link za pristup pre početka časa.",
+    "bookingNotice": "Rezerviši najmanje {{count}} minuta pre početka časa.",
+    "cancellationContact": "Za otkazivanje kontaktiraj učitelja ili Eduway podršku. Samostalno otkazivanje nije uključeno za ovaj paket.",
+    "cancellationCutoff": "Otkaži više od {{count}} sati pre časa da ti se vrati kredit. Za kasnije zahteve kontaktiraj učitelja."
   }
 }

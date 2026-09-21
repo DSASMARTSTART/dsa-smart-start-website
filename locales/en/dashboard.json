@@ -209,6 +209,10 @@
       "emptyHistory": "Your past lessons and available recordings will appear here after your first class.",
       "emptyUpcoming": "No upcoming lessons. Use Book a lesson above to choose your next time.",
       "materialsUnavailable": "This package does not currently give you access to teaching materials."
-    }
+    },
+    "meetingLinkPending": "The teacher will add the lesson link here before the class.",
+    "bookingNotice": "Book at least {{count}} minutes before the lesson.",
+    "cancellationContact": "To cancel, contact your teacher or Eduway support. Online cancellation is not enabled for this package.",
+    "cancellationCutoff": "Cancel more than {{count}} hours before the lesson to get your credit back. For later requests, contact your teacher."
   }
 }

@@ -48,6 +48,7 @@ export default function LiveLearningPage({
     selections,
     selectTeacher,
     bookings,
+    settings,
     refresh,
     loading: workspaceLoading,
     error: workspaceError,
@@ -144,6 +145,15 @@ export default function LiveLearningPage({
   }, [bookingView, loadedTeacherId, loadedUser, userId, workspaceLoading]);
   const currentFormat =
     program?.private && program?.group ? format : program?.group ? 'group' : 'private';
+  const rules = program ? settings[program.id] : undefined;
+  const creditsRemaining = Math.max(
+    0,
+    (currentFormat === 'private' ? program?.private || 0 : program?.group || 0) -
+      bookings.filter(
+        (b) =>
+          b.userId === userId && b.courseId === courseId && b.kind === currentFormat && b.creditUsed
+      ).length
+  );
 
   function stateScreen(
     title: string,
@@ -654,6 +664,7 @@ export default function LiveLearningPage({
                   disabled={
                     busy ||
                     slotLoading ||
+                    creditsRemaining === 0 ||
                     !selectedTime ||
                     selections[enrollment.courseId] !== teacher.id ||
                     (currentFormat === 'private'
@@ -694,17 +705,19 @@ export default function LiveLearningPage({
                 </p>
                 <p className="ll-booking-help">
                   {t('live.creditsRemaining', {
-                    count:
-                      (currentFormat === 'private' ? program.private : program.group) -
-                      bookings.filter(
-                        (b) =>
-                          b.userId === userId &&
-                          b.courseId === enrollment.courseId &&
-                          b.kind === currentFormat &&
-                          b.creditUsed
-                      ).length,
+                    count: creditsRemaining,
                   })}
                 </p>
+                {rules && (
+                  <div className="ll-booking-help">
+                    <p>{t('live.bookingNotice', { count: rules.notice_minutes })}</p>
+                    <p>
+                      {rules.cancellation_hours === null
+                        ? t('live.cancellationContact')
+                        : t('live.cancellationCutoff', { count: rules.cancellation_hours })}
+                    </p>
+                  </div>
+                )}
               </section>
             </div>
           </>

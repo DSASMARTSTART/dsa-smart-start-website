@@ -25,10 +25,12 @@ INSERT INTO live_bookings(enrollment_id,user_id,course_id,teacher_id,program,kin
 SELECT id,user_id,course_id,'20000000-0000-4000-8000-000000000001','hybrid-pack','group','30000000-0000-4000-8000-000000000001',now()-interval '2 hours',now()-interval '1 hour','Europe/Belgrade','Group','completed',true FROM enrollments WHERE course_id='10000000-0000-4000-8000-000000000001';
 INSERT INTO live_bookings(enrollment_id,user_id,course_id,teacher_id,program,kind,starts_at,ends_at,timezone,title,status,credit_used)
 SELECT id,user_id,course_id,'20000000-0000-4000-8000-000000000001','hybrid-pack','private',now()-interval '2 days',now()-interval '2 days'+interval '30 minutes','Europe/Belgrade','Missed private lesson','no_show',true FROM enrollments WHERE id='40000000-0000-4000-8000-000000000001';
+INSERT INTO users(id,email,name,role,status) VALUES ('00000000-0000-4000-8000-000000000091','archived@example.invalid','Archived','student','deleted'),('00000000-0000-4000-8000-000000000092','orphan@example.invalid','Review','student','active');
 SET ROLE authenticated;
 SELECT test_assert(NOT has_table_privilege(current_user,'admin_analytics_students','SELECT'),'private account reporting view');
 SELECT test_assert(NOT has_table_privilege(current_user,'admin_analytics_activity','SELECT'),'private event reporting view');
 CREATE TEMP TABLE report AS SELECT admin_analytics_snapshot(7,'EUR') AS d;
+SELECT test_assert((d#>>'{health,profilesWithoutAccount}')::int=1,'deleted legacy profiles are not actionable missing accounts') FROM report;
 SELECT test_assert((d#>>'{summary,newRegistrations}')::int=2,'registration count excludes admin, editor and linked teacher') FROM report;
 SELECT test_assert((d#>>'{summary,netRevenue}')::numeric=80,'net revenue excludes pending orders, old orders and other currencies') FROM report;
 SELECT test_assert((d#>>'{summary,previousRevenue}')::numeric=200,'previous period correctly bounded') FROM report;

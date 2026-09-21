@@ -49,6 +49,7 @@ export default function LessonList({
     );
   const needsRecording = (b: Booking) =>
     b.status !== 'cancelled' &&
+    !(b.kind === 'private' && b.status === 'no_show') &&
     new Date(b.endsAt).getTime() <= Date.now() &&
     !b.recording &&
     !recordingsFor(b).some((a) => a.state !== 'error');
@@ -154,6 +155,9 @@ export default function LessonList({
               </span>
             </div>
             <div className="flex flex-wrap gap-4 text-sm mt-5">
+              {b.status === 'booked' && Date.parse(b.endsAt) > Date.now() && !b.zoom && (
+                <p className="text-gray-400">{t('live.meetingLinkPending')}</p>
+              )}
               {b.status === 'booked' && Date.parse(b.endsAt) > Date.now() && b.zoom && (
                 <a
                   className="inline-flex items-center gap-2 text-purple-300"
@@ -181,7 +185,7 @@ export default function LessonList({
                   {t('live.cancelLesson')}
                 </button>
               )}
-              {manager && b.status === 'booked' && new Date(b.startsAt).getTime() < Date.now() && (
+              {manager && b.status === 'booked' && new Date(b.endsAt).getTime() <= Date.now() && (
                 <>
                   <button disabled={busy} onClick={() => void change(b, 'completed')}>
                     Mark attended
@@ -192,32 +196,34 @@ export default function LessonList({
                 </>
               )}
             </div>
-            {b.status !== 'cancelled' && new Date(b.endsAt).getTime() <= Date.now() && (
-              <div className="mt-4 border-t border-white/10 pt-4">
-                <h4 className="text-sm font-semibold text-purple-200">
-                  {t('live.lessonRecordings')}
-                </h4>
-                {b.kind === 'group' && manager && (
-                  <p className="mt-2 text-xs text-gray-400">{t('live.groupRecordingHelp')}</p>
-                )}
-                <LiveAssetList
-                  assets={recordingsFor(b)}
-                  manager={manager}
-                  onChanged={refreshFiles}
-                />
-                {!filesLoading && !filesError && !b.recording && !recordingsFor(b).length && (
-                  <p className="text-sm text-gray-500 mt-3">
-                    {t(manager ? 'live.recordingNeeded' : 'live.recordingNotAvailable')}
-                  </p>
-                )}
-                {manager && (
-                  <LiveAssetUpload
-                    target={{ kind: 'recording', bookingId: b.id }}
-                    onDone={refreshFiles}
+            {b.status !== 'cancelled' &&
+              !(b.kind === 'private' && b.status === 'no_show') &&
+              new Date(b.endsAt).getTime() <= Date.now() && (
+                <div className="mt-4 border-t border-white/10 pt-4">
+                  <h4 className="text-sm font-semibold text-purple-200">
+                    {t('live.lessonRecordings')}
+                  </h4>
+                  {b.kind === 'group' && manager && (
+                    <p className="mt-2 text-xs text-gray-400">{t('live.groupRecordingHelp')}</p>
+                  )}
+                  <LiveAssetList
+                    assets={recordingsFor(b)}
+                    manager={manager}
+                    onChanged={refreshFiles}
                   />
-                )}
-              </div>
-            )}
+                  {!filesLoading && !filesError && !b.recording && !recordingsFor(b).length && (
+                    <p className="text-sm text-gray-500 mt-3">
+                      {t(manager ? 'live.recordingNeeded' : 'live.recordingNotAvailable')}
+                    </p>
+                  )}
+                  {manager && (
+                    <LiveAssetUpload
+                      target={{ kind: 'recording', bookingId: b.id }}
+                      onDone={refreshFiles}
+                    />
+                  )}
+                </div>
+              )}
           </article>
         ))}
       </div>

@@ -90,6 +90,7 @@ try {
       'supabase/migrations/20260921150000_live_profile_validation.sql',
       'supabase/migrations/20260921160000_live_learning_library.sql',
       'supabase/migrations/20260921170000_user_profile_access.sql',
+      'supabase/migrations/20260921200000_booking_quality.sql',
       'supabase/tests/live-learning.sql',
     ]
       .map((path) => fs.readFileSync(path, 'utf8'))
@@ -155,10 +156,23 @@ try {
   sql(
     `${actor(2)}SELECT test_reject($cmd$SELECT save_live_teacher((SELECT profile||jsonb_build_object('revision',revision,'daysOff',jsonb_build_array((current_date+1)::text)) FROM live_teachers LIMIT 1))$cmd$,'Time off conflicts');`
   );
+  sql(fs.readFileSync('supabase/tests/booking-quality.sql', 'utf8'));
   sql(fs.readFileSync('supabase/tests/live-library.sql', 'utf8'));
   sql(fs.readFileSync('supabase/tests/profile-access.sql', 'utf8'));
-  sql(['supabase/tests/admin-analytics-bootstrap.sql','supabase/migrations/20260921180000_admin_analytics.sql','supabase/migrations/20260921190000_admin_user_metrics.sql','supabase/tests/admin-analytics.sql'].map(path => fs.readFileSync(path,'utf8')).join('\n'));
-  console.log('PASS: admin analytics authorization, registration cohorts, revenue currencies/refunds, progress and group session counts.');
+  sql(
+    [
+      'supabase/tests/admin-analytics-bootstrap.sql',
+      'supabase/migrations/20260921180000_admin_analytics.sql',
+      'supabase/migrations/20260921190000_admin_user_metrics.sql',
+      'supabase/migrations/20260921210000_actionable_account_checks.sql',
+      'supabase/tests/admin-analytics.sql',
+    ]
+      .map((path) => fs.readFileSync(path, 'utf8'))
+      .join('\n')
+  );
+  console.log(
+    'PASS: admin analytics authorization, registration cohorts, revenue currencies/refunds, progress and group session counts.'
+  );
   console.log(
     'PASS: private files, all live programs, material entitlements, teacher uploads, group sharing, expiry, cancellation and revoked access.'
   );

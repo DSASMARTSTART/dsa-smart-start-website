@@ -32,7 +32,8 @@ const healthLabels: Record<
   },
   profilesWithoutAccount: {
     title: 'Profiles without a login account',
-    detail: 'Legacy or incomplete profiles. Review before creating or removing access.',
+    detail:
+      'Non-deleted profiles only. Archived records are retained for history. Review before creating or removing access.',
     path: 'admin-users',
   },
   paidWithoutAccess: {
