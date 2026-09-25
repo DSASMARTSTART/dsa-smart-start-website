@@ -17,7 +17,20 @@ function useLiveLearningState() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const request = useRef(0);
+  const [owner, setOwner] = useState(userId);
+  const currentOwner = useRef(userId);
+  currentOwner.current = userId;
+  // Reset only this context on account changes. Keying a wrapper remounted App,
+  // discarded in-progress navigation/forms and repeated every page request.
+  if (owner !== userId) {
+    request.current++;
+    setOwner(userId);
+    setState(empty);
+    setLoading(!!userId);
+    setError('');
+  }
   const refresh = useCallback(async () => {
+    if (currentOwner.current !== userId) return;
     const version = ++request.current;
     if (!userId) {
       setState(empty);
@@ -93,12 +106,7 @@ function StateProvider({ children }: { children: React.ReactNode }) {
   return <Context.Provider value={state}>{children}</Context.Provider>;
 }
 export function LiveLearningProvider({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
-  return (
-    <React.Fragment key={user?.id || 'signed-out'}>
-      <StateProvider>{children}</StateProvider>
-    </React.Fragment>
-  );
+  return <StateProvider>{children}</StateProvider>;
 }
 export function useLiveLearning() {
   const state = useContext(Context);

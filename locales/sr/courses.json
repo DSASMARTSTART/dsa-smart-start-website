@@ -48,6 +48,7 @@
     },
     "error": {
       "title": "Ups! Nešto je pošlo po zlu",
+      "description": "Nije moguće učitati kurseve. Proverite vezu i pokušajte ponovo.",
       "retry": "Pokušajte ponovo"
     },
     "liveCard": {

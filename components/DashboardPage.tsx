@@ -115,6 +115,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
     let loadVersion = 0;
     const MAX_POLLS = 24; // Poll for up to 2 minutes (24 × 5s)
 
+    let repairNeedsRefresh = false;
     const loadEnrolledCourses = async (isPolling = false) => {
       // Still waiting for auth - keep showing loading
       if (authLoading) {
@@ -139,21 +140,6 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
       }
 
       try {
-        // SELF-HEALING: Repair any completed purchases that are missing enrollments
-        // This handles edge cases where webhook confirmed payment but enrollment wasn't created
-        try {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const { data: repairResult } = await (supabase as any).rpc('ensure_enrollment_exists', {
-            p_user_id: userId
-          });
-          if (repairResult && repairResult.repaired_count > 0) {
-            console.log(`Self-healing: repaired ${repairResult.repaired_count} missing enrollment(s)`);
-          }
-        } catch (repairErr) {
-          // Don't block dashboard loading if repair fails
-          console.warn('Enrollment repair check failed (non-critical):', repairErr);
-        }
-
         // Housekeeping is independent of displaying current enrollments.
         if (!isPolling) {
           void Promise.resolve((supabase as any).rpc('cleanup_stale_pending_purchases', { p_hours_threshold: 24 }))
@@ -263,10 +249,26 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
         }
       } finally {
         inFlight = false;
-        if (!isCancelled) setLoading(false);
+        if (!isCancelled) {
+          setLoading(false);
+          if (repairNeedsRefresh) {
+            repairNeedsRefresh = false;
+            void loadEnrolledCourses(true);
+          }
+        }
       }
     };
 
+    // Existing course access never waits for purchase repair. Refresh after a
+    // successful repair, including when it completes during the initial read.
+    if (userId && !authLoading) {
+      void Promise.resolve((supabase as any).rpc('ensure_enrollment_exists', { p_user_id: userId }))
+        .then(({ data }) => {
+          if (isCancelled || !data?.repaired_count) return;
+          if (inFlight) repairNeedsRefresh = true;
+          else void loadEnrolledCourses(true);
+        }).catch(err => console.warn('Enrollment repair check failed (non-critical):', err));
+    }
     loadEnrolledCourses();
     
     // Cleanup to prevent state updates on unmounted component

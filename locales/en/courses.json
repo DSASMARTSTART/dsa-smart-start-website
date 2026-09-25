@@ -48,6 +48,7 @@
     },
     "error": {
       "title": "Oops! Something went wrong",
+      "description": "Unable to load courses. Please check your connection and try again.",
       "retry": "Try Again"
     },
     "liveCard": {

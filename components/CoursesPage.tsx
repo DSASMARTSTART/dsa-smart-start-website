@@ -460,8 +460,8 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
 }) => {
   const { t } = useTranslation('courses');
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [courses, setCourses] = useState<Course[]>(() => coursesApi.peek() ?? []);
+  const [loading, setLoading] = useState(() => !coursesApi.peek());
   const [loadError, setLoadError] = useState<string | null>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [internalCart, setInternalCart] = useState<Course[]>([]);
@@ -697,7 +697,7 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
             </svg>
           </div>
           <h2 className="text-2xl font-bold text-white mb-3">{t('coursesPage.error.title')}</h2>
-          <p className="text-gray-400 mb-6">{loadError}</p>
+          <p className="text-gray-400 mb-6">{t('coursesPage.error.description')}</p>
           <button
             onClick={retryLoadCourses}
             className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold rounded-full hover:shadow-lg hover:shadow-purple-500/30 transition-all hover:scale-105"

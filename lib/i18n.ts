@@ -1,5 +1,6 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
+import { parseRoute, routeNamespaces } from './routes';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
 // Keep a small, offline-safe English fallback for the landing page.
@@ -54,7 +55,7 @@ export const i18nReady = i18n
     supportedLngs: [...SUPPORTED_LANGUAGES],
     fallbackLng: 'en',
     defaultNS: 'common',
-    ns: ['common', 'home'],
+    ns: ['common', ...routeNamespaces(parseRoute().currentPath)],
     interpolation: { escapeValue: false },
     load: 'languageOnly',
     detection: {

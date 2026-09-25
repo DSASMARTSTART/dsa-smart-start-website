@@ -427,6 +427,7 @@ export const usersApi = {
 // COURSES API
 // ============================================
 export const coursesApi = {
+  peek: (filters?: CourseFilters) => courseLists.peek(courseListKey(filters)),
   list: async (filters?: CourseFilters): Promise<Course[]> => {
     // Check if Supabase client is available
     if (!supabase) {

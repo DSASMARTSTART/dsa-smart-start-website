@@ -1,5 +1,8 @@
 
-import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import { parseRoute } from './lib/routes';
+import { lazyPage } from './lib/lazyPage';
+import { preloadRouteData } from './lib/preloadRouteData';
 // Eager: the landing page + always-visible chrome (first paint needs these).
 import Navbar from './components/Navbar';
 import HeroSection from './components/HeroSection';
@@ -15,39 +18,58 @@ import CartBubble from './components/CartBubble';
 
 // Lazy: everything behind a route change. Keeps these out of the initial bundle
 // (audit P3 — main chunk was ~817 kB). React.lazy needs a default export.
-const FaqPage = lazy(() => import('./components/FaqPage'));
-const WhoWeAre = lazy(() => import('./components/WhoWeAre'));
-const ContactPage = lazy(() => import('./components/ContactPage'));
-const LoginRegisterPage = lazy(() => import('./components/LoginRegisterPage'));
-const CoursesPage = lazy(() => import('./components/CoursesPage'));
-const CourseSyllabusPage = lazy(() => import('./components/CourseSyllabusPage'));
-const EbookDetailPage = lazy(() => import('./components/EbookDetailPage'));
-const LiveCourseDetailPage = lazy(() => import('./components/LiveCourseDetailPage'));
-const CheckoutPage = lazy(() => import('./components/CheckoutPage'));
-const CheckoutSuccessPage = lazy(() => import('./components/CheckoutSuccessPage'));
-const DashboardPage = lazy(() => import('./components/DashboardPage'));
-const CourseViewer = lazy(() => import('./components/CourseViewer'));
-const PolicyPage = lazy(() => import('./components/PolicyPage'));
-const ResetPasswordPage = lazy(() => import('./components/ResetPasswordPage'));
+const FaqPage = lazyPage(() => import('./components/FaqPage'), ['faq']);
+const WhoWeAre = lazyPage(() => import('./components/WhoWeAre'), ['home']);
+const ContactPage = lazyPage(() => import('./components/ContactPage'), ['contact']);
+const LoginRegisterPage = lazyPage(() => import('./components/LoginRegisterPage'), ['auth']);
+const CoursesPage = lazyPage(() => import('./components/CoursesPage'), ['courses']);
+const CourseSyllabusPage = lazyPage(() => import('./components/CourseSyllabusPage'), ['courses']);
+const EbookDetailPage = lazyPage(() => import('./components/EbookDetailPage'), ['courses']);
+const LiveCourseDetailPage = lazyPage(() => import('./components/LiveCourseDetailPage'), ['courses']);
+const CheckoutPage = lazyPage(() => import('./components/CheckoutPage'), ['checkout']);
+const CheckoutSuccessPage = lazyPage(() => import('./components/CheckoutSuccessPage'), ['checkout', 'dashboard']);
+const DashboardPage = lazyPage(() => import('./components/DashboardPage'), ['dashboard']);
+const CourseViewer = lazyPage(() => import('./components/CourseViewer'), ['courses']);
+const PolicyPage = lazyPage(() => import('./components/PolicyPage'), ['policies']);
+const ResetPasswordPage = lazyPage(() => import('./components/ResetPasswordPage'), ['auth']);
 import { useAuth } from './contexts/AuthContext';
 import { clearCoursesCache, enrollmentsApi } from './data/supabaseStore';
 import { CheckCircle, AlertCircle, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 // Each admin screen loads independently, including the large course editor.
-const AdminLayout = lazy(() => import('./components/admin/AdminLayout'));
-const AdminHome = lazy(() => import('./components/admin/AdminHome'));
-const AdminUsers = lazy(() => import('./components/admin/AdminUsers'));
-const AdminCourses = lazy(() => import('./components/admin/AdminCourses'));
-const CourseEditor = lazy(() => import('./components/admin/CourseEditor'));
-const AdminAudit = lazy(() => import('./components/admin/AdminAudit'));
-const AdminDiscountCodes = lazy(() => import('./components/admin/AdminDiscountCodes'));
-const AdminTransactions = lazy(() => import('./components/admin/AdminTransactions'));
-const AdminPaymentOrphans = lazy(() => import('./components/admin/AdminPaymentOrphans'));
-const TeacherWorkspace = React.lazy(() => import('./components/live-learning/TeacherWorkspace'));
-const LiveLearningPage = lazy(() => import('./components/live-learning/LiveLearningPage'));
-const LiveLearningStudio = lazy(() => import('./components/live-learning/LiveLearningStudio'));
-const AdminSettings = lazy(() => import('./components/admin/AdminSettings'));
+const AdminLayout = lazyPage(() => import('./components/admin/AdminLayout'));
+const AdminHome = lazyPage(() => import('./components/admin/AdminHome'));
+const AdminUsers = lazyPage(() => import('./components/admin/AdminUsers'));
+const AdminCourses = lazyPage(() => import('./components/admin/AdminCourses'));
+const CourseEditor = lazyPage(() => import('./components/admin/CourseEditor'));
+const AdminAudit = lazyPage(() => import('./components/admin/AdminAudit'));
+const AdminDiscountCodes = lazyPage(() => import('./components/admin/AdminDiscountCodes'));
+const AdminTransactions = lazyPage(() => import('./components/admin/AdminTransactions'));
+const AdminPaymentOrphans = lazyPage(() => import('./components/admin/AdminPaymentOrphans'));
+const TeacherWorkspace = lazyPage(() => import('./components/live-learning/TeacherWorkspace'));
+const LiveLearningPage = lazyPage(() => import('./components/live-learning/LiveLearningPage'));
+const LiveLearningStudio = lazyPage(() => import('./components/live-learning/LiveLearningStudio'));
+const AdminSettings = lazyPage(() => import('./components/admin/AdminSettings'));
+
+// Start the requested page chunk while startup translations are still loading.
+export function preloadPage(path: string) {
+  const pages = {
+    faq: FaqPage, 'who-we-are': WhoWeAre, contact: ContactPage, login: LoginRegisterPage,
+    courses: CoursesPage, syllabus: CourseSyllabusPage, ebook: EbookDetailPage,
+    'live-course': LiveCourseDetailPage, checkout: CheckoutPage,
+    'checkout-success': CheckoutSuccessPage, dashboard: DashboardPage, viewer: CourseViewer,
+    terms: PolicyPage, 'privacy-policy': PolicyPage, 'cookie-policy': PolicyPage,
+    'refund-policy': PolicyPage, 'reset-password': ResetPasswordPage,
+    'teacher-calendar': TeacherWorkspace, 'live-learning': LiveLearningPage,
+    admin: AdminHome, 'admin-users': AdminUsers, 'admin-courses': AdminCourses,
+    'admin-course-edit': CourseEditor, 'admin-transactions': AdminTransactions,
+    'admin-payment-orphans': AdminPaymentOrphans, 'admin-discounts': AdminDiscountCodes,
+    'admin-audit': AdminAudit, 'admin-settings': AdminSettings, 'admin-teachers': LiveLearningStudio,
+  };
+  void pages[path as keyof typeof pages]?.preload().catch(() => {});
+  if (path.startsWith('admin')) void AdminLayout.preload().catch(() => {});
+}
 
 // Toast notification type
 interface Toast {
@@ -65,13 +87,10 @@ const App: React.FC = () => {
   const { user, profile, loading: authLoading, signOut, isAdmin: checkIsAdmin, canAccessAdmin } = useAuth();
   // Note: useUserProgress is now called only in components that need it (DashboardPage, CourseViewer)
   // This prevents unnecessary API calls on every page load
-  const [currentPath, setCurrentPath] = useState('home');
-  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
-  const [selectedTeacherId, setSelectedTeacherId] = useState<string | null>(null);
-  const [liveBookingView, setLiveBookingView] = useState(false);
-  const [adminUserId, setAdminUserId] = useState<string | null>(null);
-  const [coursesDefaultTab, setCoursesDefaultTab] = useState<'live' | 'ebooks' | undefined>(undefined);
-  
+  const [route, setRoute] = useState(() => parseRoute());
+  const { currentPath, selectedCourseId, selectedTeacherId, liveBookingView,
+    adminUserId, coursesDefaultTab } = route;
+
   // Initialize cart from localStorage
   const [cart, setCart] = useState<string[]>(() => {
     try {
@@ -143,78 +162,15 @@ const App: React.FC = () => {
   // Robust hash routing logic
   useEffect(() => {
     const handleHash = () => {
-      const hash = window.location.hash || '#home';
+      const nextRoute = parseRoute();
+      preloadPage(nextRoute.currentPath);
+      preloadRouteData(nextRoute);
+      setRoute(nextRoute);
       window.scrollTo({ top: 0, behavior: 'instant' });
-
-      if (hash === '#home') setCurrentPath('home');
-      else if (hash === '#faq') setCurrentPath('faq');
-      else if (hash === '#who-we-are') setCurrentPath('who-we-are');
-      else if (hash === '#contact') setCurrentPath('contact');
-      else if (hash === '#login') setCurrentPath('login');
-      else if (hash === '#courses') { setCurrentPath('courses'); setCoursesDefaultTab(undefined); }
-      else if (hash === '#courses-ebooks') { setCurrentPath('courses'); setCoursesDefaultTab('ebooks'); }
-      else if (hash === '#courses-services' || hash === '#courses-live') { setCurrentPath('courses'); setCoursesDefaultTab('live'); }
-      else if (hash === '#courses-interactive') { setCurrentPath('courses'); setCoursesDefaultTab('live'); }
-      else if (hash === '#checkout') setCurrentPath('checkout');
-      else if (hash === '#checkout-success' || hash.startsWith('#checkout-success?')) {
-        setCurrentPath('checkout-success');
-        // Clear cart on success page navigation (covers redirect-based payment flows)
+      if (nextRoute.currentPath === 'checkout-success') {
         setCart([]);
         setTeachingMaterialsCart({});
       }
-      else if (hash === '#teacher-calendar') setCurrentPath('teacher-calendar');
-      else if (hash === '#dashboard') setCurrentPath('dashboard');
-      else if (hash === '#live-learning' || hash.startsWith('#live-learning?')) {
-        const params = new URLSearchParams(hash.split('?')[1] || '');
-        setSelectedCourseId(params.get('course'));
-        setSelectedTeacherId(params.get('teacher'));
-        setLiveBookingView(params.get('view') === 'book');
-        setCurrentPath('live-learning');
-      }
-      // Policy pages
-      else if (hash === '#terms') setCurrentPath('terms');
-      else if (hash === '#privacy-policy') setCurrentPath('privacy-policy');
-      else if (hash === '#cookie-policy') setCurrentPath('cookie-policy');
-      else if (hash === '#refund-policy') setCurrentPath('refund-policy');
-      else if (hash === '#reset-password') setCurrentPath('reset-password');
-      // Admin routes
-      else if (hash === '#admin') setCurrentPath('admin');
-      else if (hash === '#admin-teachers') setCurrentPath('admin-teachers');
-      else if (hash === '#admin-users' || hash.startsWith('#admin-users?')) {
-        setAdminUserId(new URLSearchParams(hash.split('?')[1] || '').get('user'));
-        setCurrentPath('admin-users');
-      }
-      else if (hash === '#admin-courses') setCurrentPath('admin-courses');
-      else if (hash === '#admin-transactions') setCurrentPath('admin-transactions');
-      else if (hash === '#admin-payment-orphans') setCurrentPath('admin-payment-orphans');
-      else if (hash === '#admin-discounts') setCurrentPath('admin-discounts');
-      else if (hash === '#admin-audit') setCurrentPath('admin-audit');
-      else if (hash === '#admin-settings') setCurrentPath('admin-settings');
-      else if (hash.startsWith('#admin-course-edit-')) {
-        setCurrentPath('admin-course-edit');
-        setSelectedCourseId(hash.replace('#admin-course-edit-', ''));
-      }
-      // Note: User details are handled via modal in AdminUsers, not a separate route
-      else if (hash.startsWith('#syllabus-')) {
-        setCurrentPath('syllabus');
-        setSelectedCourseId(hash.replace('#syllabus-', ''));
-      }
-      else if (hash.startsWith('#ebook-')) {
-        setCurrentPath('ebook');
-        setSelectedCourseId(hash.replace('#ebook-', ''));
-      }
-      else if (hash.startsWith('#live-course-')) {
-        setCurrentPath('live-course');
-        setSelectedCourseId(hash.replace('#live-course-', ''));
-      }
-      else if (hash.startsWith('#viewer-')) {
-        setCurrentPath('viewer');
-        setSelectedCourseId(hash.replace('#viewer-', ''));
-      }
-      // Any hash that matches no known route → 404 (audit U4). Every valid route,
-      // including prefix routes and admin, is matched above, so this is a true
-      // catch-all and cannot swallow a legitimate deep link.
-      else setCurrentPath('not-found');
     };
 
     window.addEventListener('hashchange', handleHash);

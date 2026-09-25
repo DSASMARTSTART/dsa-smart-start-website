@@ -2,6 +2,7 @@
 // Supabase Client Configuration
 // ============================================
 
+import { createReadFetch } from './readFetch';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
 import { isTeacherInviteRedirect } from './authRedirect';
@@ -24,6 +25,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 // Create typed client (will fail gracefully if credentials missing)
 const typedSupabase = supabaseUrl && supabaseAnonKey 
   ? createClient<Database>(supabaseUrl, supabaseAnonKey, {
+      global: { fetch: createReadFetch() },
       auth: {
         autoRefreshToken: true,
         persistSession: true,

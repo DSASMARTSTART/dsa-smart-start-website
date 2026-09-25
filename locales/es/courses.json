@@ -48,6 +48,7 @@
     },
     "error": {
       "title": "¡Ups! Algo salió mal",
+      "description": "No se pueden cargar los cursos. Comprueba tu conexión e inténtalo de nuevo.",
       "retry": "Intentar de Nuevo"
     },
     "liveCard": {

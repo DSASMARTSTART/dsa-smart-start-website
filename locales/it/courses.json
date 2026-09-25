@@ -48,6 +48,7 @@
     },
     "error": {
       "title": "Ops! Qualcosa è andato storto",
+      "description": "Impossibile caricare i corsi. Controlla la connessione e riprova.",
       "retry": "Riprova"
     },
     "liveCard": {
