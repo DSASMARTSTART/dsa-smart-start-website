@@ -1,12 +1,14 @@
+import { startVisibleAnimation } from '../lib/visibleAnimation';
+import OptimizedImage from './OptimizedImage';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, Layers, Compass, Zap, Music, Play, Award, Star, ChevronRight, CheckCircle2, Clock, Sparkles, BookOpen, ShoppingCart, Check, Rocket, Shield, ArrowDown, Filter, Search, BarChart3, Globe, ArrowRight, Plus, Crown, Diamond, Users, Video, FileCheck, GraduationCap, FileText, MonitorPlay, Package, Briefcase, Eye, Baby } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { coursesApi, catalogApi } from '../data/supabaseStore';
 import { Course, ProductType, TargetAudience } from '../types';
 import { useLocalizedCourses } from '../hooks/useLocalizedCourse';
 import WaveSeparator from './WaveSeparator';
-import AssessmentPopup from './AssessmentPopup';
+const AssessmentPopup = lazy(() => import('./AssessmentPopup'));
 
 // Tab type for navigation
 type CatalogTab = 'live' | 'ebooks' | 'interactive';
@@ -356,7 +358,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, idx, isInCart, onAddToC
         onClick={navigateToDetail}
       >
         {getEbookCover(course) ? (
-          <img
+          <OptimizedImage
             src={getEbookCover(course)}
             alt={course.title}
             loading="lazy"
@@ -591,7 +593,6 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let animationFrameId: number;
     let particles: { x: number; y: number; size: number; speedX: number; speedY: number; opacity: number }[] = [];
     const particleCount = 30;
 
@@ -622,16 +623,15 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
       });
-      animationFrameId = requestAnimationFrame(animate);
     };
 
     window.addEventListener('resize', resize);
     resize();
-    animate();
+    const stopAnimation = startVisibleAnimation(canvas, animate);
     return () => {
       window.removeEventListener('resize', resize);
       window.removeEventListener('mousemove', handleMouseMove);
-      cancelAnimationFrame(animationFrameId);
+      stopAnimation();
     };
   }, []);
 
@@ -1090,22 +1090,22 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
       </div>
 
       {/* Assessment Popup (Interactive Courses) */}
-      <AssessmentPopup
+      {showAssessment && <Suspense fallback={null}><AssessmentPopup
         isOpen={showAssessment}
         onClose={() => setShowAssessment(false)}
         testType={assessmentType}
         onNavigate={onNavigate}
-      />
+      /></Suspense>}
 
       {/* Assessment Popup (E-books — recommends next level) */}
-      <AssessmentPopup
+      {showEbookAssessment && <Suspense fallback={null}><AssessmentPopup
         isOpen={showEbookAssessment}
         onClose={() => setShowEbookAssessment(false)}
         testType={ebookAssessmentType}
         onNavigate={onNavigate}
         recommendNextLevel
         onRecommendEbook={handleRecommendEbook}
-      />
+      /></Suspense>}
     </div>
   );
 };

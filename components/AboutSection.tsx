@@ -54,7 +54,9 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate }) => {
         <div className="relative group animate-reveal stagger-1">
           <div className="absolute -inset-4 bg-purple-600 rounded-[3rem] blur-3xl opacity-20 group-hover:opacity-30 transition-opacity"></div>
           <div className="relative overflow-hidden rounded-[3rem] aspect-[4/3] lg:aspect-square shadow-2xl border-4 border-white/10">
-            <img 
+            <img
+                  loading="lazy"
+                  decoding="async"
               src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=1200" 
               alt="Our professional team collaborating" 
               className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-1000"

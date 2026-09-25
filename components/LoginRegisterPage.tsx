@@ -1,3 +1,4 @@
+import { startVisibleAnimation } from '../lib/visibleAnimation';
 
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, Mail, Lock, User, ChevronRight, Eye, EyeOff, AlertCircle, Loader2, X } from 'lucide-react';
@@ -176,7 +177,6 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let animationFrameId: number;
     let particles: { x: number; y: number; size: number; speedX: number; speedY: number; opacity: number }[] = [];
     const particleCount = 20;
 
@@ -202,12 +202,11 @@ const LoginRegisterPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         ctx.fillStyle = `rgba(168, 85, 247, ${p.opacity})`;
         ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
       });
-      animationFrameId = requestAnimationFrame(animate);
     };
 
     window.addEventListener('resize', resize);
-    resize(); animate();
-    return () => { window.removeEventListener('resize', resize); cancelAnimationFrame(animationFrameId); };
+    resize(); const stopAnimation = startVisibleAnimation(canvas, animate);
+    return () => { window.removeEventListener('resize', resize); stopAnimation(); };
   }, []);
 
   return (

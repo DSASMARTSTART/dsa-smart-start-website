@@ -1,3 +1,4 @@
+import { startVisibleAnimation } from '../lib/visibleAnimation';
 
 import React, { useEffect, useRef } from 'react';
 import { ArrowUpRight, ArrowDownRight, ChevronRight, Star, ShieldCheck } from 'lucide-react';
@@ -17,7 +18,6 @@ const HeroSection: React.FC<HeroProps> = ({ onNavigate }) => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let animationFrameId: number;
     let particles: { x: number; y: number; size: number; speedX: number; speedY: number; opacity: number }[] = [];
     const particleCount = 30; // Reduced count for cleaner look
 
@@ -50,15 +50,14 @@ const HeroSection: React.FC<HeroProps> = ({ onNavigate }) => {
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
       });
-      animationFrameId = requestAnimationFrame(animate);
     };
 
     window.addEventListener('resize', resize);
     resize();
-    animate();
+    const stopAnimation = startVisibleAnimation(canvas, animate);
     return () => {
       window.removeEventListener('resize', resize);
-      cancelAnimationFrame(animationFrameId);
+      stopAnimation();
     };
   }, []);
 

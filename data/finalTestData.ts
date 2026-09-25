@@ -357,7 +357,7 @@ export const a1FinalTestAllQuestions: QuizQuestion[] = a1FinalTestExercises.flat
 export const A1_FINAL_TEST_PASS_THRESHOLD = 70;
 
 /** localStorage key used to remember that the student has passed the A1 Final Test. */
-export const A1_FINAL_TEST_PASSED_KEY = 'a1_final_test_passed';
+export { A1_FINAL_TEST_PASSED_KEY } from './learningStorage';
 
 /** Module ID of the A1 Final Test (matches seed/migration). */
 export const A1_FINAL_TEST_MODULE_ID = 'a1-final-test';

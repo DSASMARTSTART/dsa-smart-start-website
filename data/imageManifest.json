@@ -1,0 +1,1548 @@
+{
+  "/assets/ebooks/a1-cover.jpg": {
+    "width": 3400,
+    "height": 4267,
+    "variants": [
+      {
+        "src": "/assets/optimized/a1-cover-320-e38728b22aa4.webp",
+        "width": 320,
+        "bytes": 10776
+      },
+      {
+        "src": "/assets/optimized/a1-cover-640-6a18d56b3ca8.webp",
+        "width": 640,
+        "bytes": 24790
+      },
+      {
+        "src": "/assets/optimized/a1-cover-960-51a97662c70a.webp",
+        "width": 960,
+        "bytes": 40414
+      }
+    ]
+  },
+  "/assets/ebooks/a2-cover.jpg": {
+    "width": 3400,
+    "height": 4267,
+    "variants": [
+      {
+        "src": "/assets/optimized/a2-cover-320-12e7df71cd68.webp",
+        "width": 320,
+        "bytes": 10804
+      },
+      {
+        "src": "/assets/optimized/a2-cover-640-c5eea9cde1f8.webp",
+        "width": 640,
+        "bytes": 24818
+      },
+      {
+        "src": "/assets/optimized/a2-cover-960-cbb33567e6c8.webp",
+        "width": 960,
+        "bytes": 40324
+      }
+    ]
+  },
+  "/assets/ebooks/b1-cover.jpg": {
+    "width": 3400,
+    "height": 4267,
+    "variants": [
+      {
+        "src": "/assets/optimized/b1-cover-320-74617b85a388.webp",
+        "width": 320,
+        "bytes": 10714
+      },
+      {
+        "src": "/assets/optimized/b1-cover-640-c88011bd3361.webp",
+        "width": 640,
+        "bytes": 24646
+      },
+      {
+        "src": "/assets/optimized/b1-cover-960-2518400ed566.webp",
+        "width": 960,
+        "bytes": 40370
+      }
+    ]
+  },
+  "/assets/ebooks/b2-cover.jpg": {
+    "width": 3400,
+    "height": 4267,
+    "variants": [
+      {
+        "src": "/assets/optimized/b2-cover-320-4a38e63cb22f.webp",
+        "width": 320,
+        "bytes": 10844
+      },
+      {
+        "src": "/assets/optimized/b2-cover-640-d7c655d2f7ba.webp",
+        "width": 640,
+        "bytes": 24932
+      },
+      {
+        "src": "/assets/optimized/b2-cover-960-2cae49537213.webp",
+        "width": 960,
+        "bytes": 40494
+      }
+    ]
+  },
+  "/assets/ebooks/kids-advanced-cover.jpg": {
+    "width": 1243,
+    "height": 1560,
+    "variants": [
+      {
+        "src": "/assets/optimized/kids-advanced-cover-320-0743c5aab674.webp",
+        "width": 320,
+        "bytes": 11268
+      },
+      {
+        "src": "/assets/optimized/kids-advanced-cover-640-18680b0d119b.webp",
+        "width": 640,
+        "bytes": 24648
+      },
+      {
+        "src": "/assets/optimized/kids-advanced-cover-960-e21a37c5b071.webp",
+        "width": 960,
+        "bytes": 37830
+      }
+    ]
+  },
+  "/assets/ebooks/kids-basic-cover.jpg": {
+    "width": 1243,
+    "height": 1560,
+    "variants": [
+      {
+        "src": "/assets/optimized/kids-basic-cover-320-1484fad22b66.webp",
+        "width": 320,
+        "bytes": 11042
+      },
+      {
+        "src": "/assets/optimized/kids-basic-cover-640-0a19cd02d78b.webp",
+        "width": 640,
+        "bytes": 24366
+      },
+      {
+        "src": "/assets/optimized/kids-basic-cover-960-4b23b2519963.webp",
+        "width": 960,
+        "bytes": 37294
+      }
+    ]
+  },
+  "/assets/ebooks/kids-medium-cover.jpg": {
+    "width": 1243,
+    "height": 1560,
+    "variants": [
+      {
+        "src": "/assets/optimized/kids-medium-cover-320-9f83e4818586.webp",
+        "width": 320,
+        "bytes": 11134
+      },
+      {
+        "src": "/assets/optimized/kids-medium-cover-640-45d64d8b5fc6.webp",
+        "width": 640,
+        "bytes": 24254
+      },
+      {
+        "src": "/assets/optimized/kids-medium-cover-960-bb457fb20354.webp",
+        "width": 960,
+        "bytes": 37238
+      }
+    ]
+  },
+  "/assets/images/DinaCard novi znak.jpg": {
+    "width": 1289,
+    "height": 598,
+    "variants": [
+      {
+        "src": "/assets/optimized/DinaCard novi znak-160-59e88ab68647.webp",
+        "width": 160,
+        "bytes": 2740
+      },
+      {
+        "src": "/assets/optimized/DinaCard novi znak-320-898f44a08f4c.webp",
+        "width": 320,
+        "bytes": 5862
+      },
+      {
+        "src": "/assets/optimized/DinaCard novi znak-640-7e3bc96c434a.webp",
+        "width": 640,
+        "bytes": 11784
+      }
+    ]
+  },
+  "/assets/images/Logo_Co_brand_RGB_tamna_pozadina_96dpi.png": {
+    "width": 332,
+    "height": 42,
+    "variants": [
+      {
+        "src": "/assets/optimized/Logo_Co_brand_RGB_tamna_pozadina_96dpi-160-233a19479dcd.webp",
+        "width": 160,
+        "bytes": 1186
+      },
+      {
+        "src": "/assets/optimized/Logo_Co_brand_RGB_tamna_pozadina_96dpi-320-64b6d3c1658d.webp",
+        "width": 320,
+        "bytes": 3080
+      },
+      {
+        "src": "/assets/optimized/Logo_Co_brand_RGB_tamna_pozadina_96dpi-332-46eed6090f43.webp",
+        "width": 332,
+        "bytes": 3168
+      }
+    ]
+  },
+  "/assets/images/RBI-Logo-Bank-St-Squared-Col-Neg-RGB.png": {
+    "width": 2639,
+    "height": 978,
+    "variants": [
+      {
+        "src": "/assets/optimized/RBI-Logo-Bank-St-Squared-Col-Neg-RGB-160-5241de84d9cc.webp",
+        "width": 160,
+        "bytes": 2376
+      },
+      {
+        "src": "/assets/optimized/RBI-Logo-Bank-St-Squared-Col-Neg-RGB-320-f60d1794fa21.webp",
+        "width": 320,
+        "bytes": 5410
+      },
+      {
+        "src": "/assets/optimized/RBI-Logo-Bank-St-Squared-Col-Neg-RGB-640-95d3dbdea9f1.webp",
+        "width": 640,
+        "bytes": 10476
+      }
+    ]
+  },
+  "/assets/images/Visa_Brandmark_Black_RGB_72ppi.jpg": {
+    "width": 1920,
+    "height": 622,
+    "variants": [
+      {
+        "src": "/assets/optimized/Visa_Brandmark_Black_RGB_72ppi-160-8e2d989dfb84.webp",
+        "width": 160,
+        "bytes": 1720
+      },
+      {
+        "src": "/assets/optimized/Visa_Brandmark_Black_RGB_72ppi-320-d69d72b12b74.webp",
+        "width": 320,
+        "bytes": 3154
+      },
+      {
+        "src": "/assets/optimized/Visa_Brandmark_Black_RGB_72ppi-640-0b624b3e46c9.webp",
+        "width": 640,
+        "bytes": 5700
+      }
+    ]
+  },
+  "/assets/images/dinacard-logo.jpg": {
+    "width": 1289,
+    "height": 598,
+    "variants": [
+      {
+        "src": "/assets/optimized/dinacard-logo-160-59e88ab68647.webp",
+        "width": 160,
+        "bytes": 2740
+      },
+      {
+        "src": "/assets/optimized/dinacard-logo-320-898f44a08f4c.webp",
+        "width": 320,
+        "bytes": 5862
+      },
+      {
+        "src": "/assets/optimized/dinacard-logo-640-7e3bc96c434a.webp",
+        "width": 640,
+        "bytes": 11784
+      }
+    ]
+  },
+  "/assets/images/mastercard-id-check-logo.jpg": {
+    "width": 328,
+    "height": 246,
+    "variants": [
+      {
+        "src": "/assets/optimized/mastercard-id-check-logo-160-d6797ee4ecbf.webp",
+        "width": 160,
+        "bytes": 1574
+      },
+      {
+        "src": "/assets/optimized/mastercard-id-check-logo-320-e05aa7bce3d0.webp",
+        "width": 320,
+        "bytes": 3078
+      },
+      {
+        "src": "/assets/optimized/mastercard-id-check-logo-328-52b3b64e53c6.webp",
+        "width": 328,
+        "bytes": 3348
+      }
+    ]
+  },
+  "/assets/images/mastercard-logo.png": {
+    "width": 190,
+    "height": 135,
+    "variants": [
+      {
+        "src": "/assets/optimized/mastercard-logo-160-d450a743b488.webp",
+        "width": 160,
+        "bytes": 3024
+      },
+      {
+        "src": "/assets/optimized/mastercard-logo-190-75559ff6a7a0.webp",
+        "width": 190,
+        "bytes": 1670
+      }
+    ]
+  },
+  "/assets/images/mc_idcheck_vrt_rgb_pos.jpg": {
+    "width": 328,
+    "height": 246,
+    "variants": [
+      {
+        "src": "/assets/optimized/mc_idcheck_vrt_rgb_pos-160-d6797ee4ecbf.webp",
+        "width": 160,
+        "bytes": 1574
+      },
+      {
+        "src": "/assets/optimized/mc_idcheck_vrt_rgb_pos-320-e05aa7bce3d0.webp",
+        "width": 320,
+        "bytes": 3078
+      },
+      {
+        "src": "/assets/optimized/mc_idcheck_vrt_rgb_pos-328-52b3b64e53c6.webp",
+        "width": 328,
+        "bytes": 3348
+      }
+    ]
+  },
+  "/assets/images/mc_symbol_opt_63_3x.png": {
+    "width": 190,
+    "height": 135,
+    "variants": [
+      {
+        "src": "/assets/optimized/mc_symbol_opt_63_3x-160-d450a743b488.webp",
+        "width": 160,
+        "bytes": 3024
+      },
+      {
+        "src": "/assets/optimized/mc_symbol_opt_63_3x-190-75559ff6a7a0.webp",
+        "width": 190,
+        "bytes": 1670
+      }
+    ]
+  },
+  "/assets/images/parent-support.jpg": {
+    "width": 800,
+    "height": 1000,
+    "variants": [
+      {
+        "src": "/assets/optimized/parent-support-160-e025f05957fa.webp",
+        "width": 160,
+        "bytes": 10966
+      },
+      {
+        "src": "/assets/optimized/parent-support-320-2ed4286310b2.webp",
+        "width": 320,
+        "bytes": 38880
+      },
+      {
+        "src": "/assets/optimized/parent-support-640-ea606f5d45d9.webp",
+        "width": 640,
+        "bytes": 107082
+      }
+    ]
+  },
+  "/assets/images/raiffeisen-logo.png": {
+    "width": 2639,
+    "height": 978,
+    "variants": [
+      {
+        "src": "/assets/optimized/raiffeisen-logo-160-5241de84d9cc.webp",
+        "width": 160,
+        "bytes": 2376
+      },
+      {
+        "src": "/assets/optimized/raiffeisen-logo-320-f60d1794fa21.webp",
+        "width": 320,
+        "bytes": 5410
+      },
+      {
+        "src": "/assets/optimized/raiffeisen-logo-640-95d3dbdea9f1.webp",
+        "width": 640,
+        "bytes": 10476
+      }
+    ]
+  },
+  "/assets/images/visa-logo.jpg": {
+    "width": 1920,
+    "height": 622,
+    "variants": [
+      {
+        "src": "/assets/optimized/visa-logo-160-8e2d989dfb84.webp",
+        "width": 160,
+        "bytes": 1720
+      },
+      {
+        "src": "/assets/optimized/visa-logo-320-d69d72b12b74.webp",
+        "width": 320,
+        "bytes": 3154
+      },
+      {
+        "src": "/assets/optimized/visa-logo-640-0b624b3e46c9.webp",
+        "width": 640,
+        "bytes": 5700
+      }
+    ]
+  },
+  "/assets/images/visa-secure-logo.jpg": {
+    "width": 198,
+    "height": 198,
+    "variants": [
+      {
+        "src": "/assets/optimized/visa-secure-logo-160-ee6a0030e61c.webp",
+        "width": 160,
+        "bytes": 3110
+      },
+      {
+        "src": "/assets/optimized/visa-secure-logo-198-2edfb20d0fd3.webp",
+        "width": 198,
+        "bytes": 3572
+      }
+    ]
+  },
+  "/assets/images/visa-secure_blu_2021_dkbg.jpg": {
+    "width": 198,
+    "height": 198,
+    "variants": [
+      {
+        "src": "/assets/optimized/visa-secure_blu_2021_dkbg-160-ee6a0030e61c.webp",
+        "width": 160,
+        "bytes": 3110
+      },
+      {
+        "src": "/assets/optimized/visa-secure_blu_2021_dkbg-198-2edfb20d0fd3.webp",
+        "width": 198,
+        "bytes": 3572
+      }
+    ]
+  },
+  "/assets/quiz/a1-q3/arm.png": {
+    "width": 232,
+    "height": 236,
+    "variants": [
+      {
+        "src": "/assets/optimized/arm-232-104b013dd56e.webp",
+        "width": 232,
+        "bytes": 3114
+      }
+    ]
+  },
+  "/assets/quiz/a1-q3/between.png": {
+    "width": 238,
+    "height": 234,
+    "variants": [
+      {
+        "src": "/assets/optimized/between-238-91d97db7ba8a.webp",
+        "width": 238,
+        "bytes": 5224
+      }
+    ]
+  },
+  "/assets/quiz/a1-q3/call.png": {
+    "width": 242,
+    "height": 238,
+    "variants": [
+      {
+        "src": "/assets/optimized/call-240-9c11187619b7.webp",
+        "width": 240,
+        "bytes": 6222
+      },
+      {
+        "src": "/assets/optimized/call-242-eec7fc70b92b.webp",
+        "width": 242,
+        "bytes": 6444
+      }
+    ]
+  },
+  "/assets/quiz/a1-q3/car-park.png": {
+    "width": 238,
+    "height": 240,
+    "variants": [
+      {
+        "src": "/assets/optimized/car-park-238-a801d96c801e.webp",
+        "width": 238,
+        "bytes": 8104
+      }
+    ]
+  },
+  "/assets/quiz/a1-q3/cleaner.png": {
+    "width": 236,
+    "height": 236,
+    "variants": [
+      {
+        "src": "/assets/optimized/cleaner-236-6755f4a69e28.webp",
+        "width": 236,
+        "bytes": 11752
+      }
+    ]
+  },
+  "/assets/quiz/a1-q3/dentist.png": {
+    "width": 238,
+    "height": 236,
+    "variants": [
+      {
+        "src": "/assets/optimized/dentist-238-42849264b20d.webp",
+        "width": 238,
+        "bytes": 12804
+      }
+    ]
+  },
+  "/assets/quiz/a1-q3/egg.png": {
+    "width": 236,
+    "height": 234,
+    "variants": [
+      {
+        "src": "/assets/optimized/egg-236-29db2e6dc4df.webp",
+        "width": 236,
+        "bytes": 9430
+      }
+    ]
+  },
+  "/assets/quiz/a1-q3/foot.png": {
+    "width": 236,
+    "height": 234,
+    "variants": [
+      {
+        "src": "/assets/optimized/foot-236-8bec27b8213a.webp",
+        "width": 236,
+        "bytes": 8236
+      }
+    ]
+  },
+  "/assets/quiz/a1-q3/hairdresser.png": {
+    "width": 254,
+    "height": 246,
+    "variants": [
+      {
+        "src": "/assets/optimized/hairdresser-240-0b245f653d4a.webp",
+        "width": 240,
+        "bytes": 6318
+      },
+      {
+        "src": "/assets/optimized/hairdresser-254-214d4e4b9b06.webp",
+        "width": 254,
+        "bytes": 6804
+      }
+    ]
+  },
+  "/assets/quiz/a1-q3/in-front-of.png": {
+    "width": 234,
+    "height": 238,
+    "variants": [
+      {
+        "src": "/assets/optimized/in-front-of-234-5f3de5d3a2f4.webp",
+        "width": 234,
+        "bytes": 8520
+      }
+    ]
+  },
+  "/assets/quiz/a1-q3/meat.png": {
+    "width": 232,
+    "height": 236,
+    "variants": [
+      {
+        "src": "/assets/optimized/meat-232-22d178a1aac3.webp",
+        "width": 232,
+        "bytes": 12216
+      }
+    ]
+  },
+  "/assets/quiz/a1-q3/roundabout.png": {
+    "width": 236,
+    "height": 234,
+    "variants": [
+      {
+        "src": "/assets/optimized/roundabout-236-7d45b0faaceb.webp",
+        "width": 236,
+        "bytes": 13412
+      }
+    ]
+  },
+  "/assets/quiz/a1-q3/salt.png": {
+    "width": 234,
+    "height": 234,
+    "variants": [
+      {
+        "src": "/assets/optimized/salt-234-b083d10d5896.webp",
+        "width": 234,
+        "bytes": 6634
+      }
+    ]
+  },
+  "/assets/quiz/a1-q3/sausage.png": {
+    "width": 236,
+    "height": 238,
+    "variants": [
+      {
+        "src": "/assets/optimized/sausage-236-2d247d5db932.webp",
+        "width": 236,
+        "bytes": 9448
+      }
+    ]
+  },
+  "/assets/quiz/a1-q3/short.png": {
+    "width": 240,
+    "height": 238,
+    "variants": [
+      {
+        "src": "/assets/optimized/short-240-f2a4055921a0.webp",
+        "width": 240,
+        "bytes": 5508
+      }
+    ]
+  },
+  "/assets/quiz/a1-q3/sing.png": {
+    "width": 232,
+    "height": 230,
+    "variants": [
+      {
+        "src": "/assets/optimized/sing-232-58eeef3c126b.webp",
+        "width": 232,
+        "bytes": 9940
+      }
+    ]
+  },
+  "/assets/quiz/a1-q3/sleep.png": {
+    "width": 238,
+    "height": 240,
+    "variants": [
+      {
+        "src": "/assets/optimized/sleep-238-aa1905fc87c6.webp",
+        "width": 238,
+        "bytes": 7532
+      }
+    ]
+  },
+  "/assets/quiz/a1-q3/stay.png": {
+    "width": 236,
+    "height": 236,
+    "variants": [
+      {
+        "src": "/assets/optimized/stay-236-7ce0fb2baf61.webp",
+        "width": 236,
+        "bytes": 12488
+      }
+    ]
+  },
+  "/assets/quiz/a1-q3/tall.png": {
+    "width": 238,
+    "height": 242,
+    "variants": [
+      {
+        "src": "/assets/optimized/tall-238-be17640d3e3d.webp",
+        "width": 238,
+        "bytes": 6218
+      }
+    ]
+  },
+  "/assets/quiz/a1-q3/vegetables.png": {
+    "width": 240,
+    "height": 240,
+    "variants": [
+      {
+        "src": "/assets/optimized/vegetables-240-d84503af542e.webp",
+        "width": 240,
+        "bytes": 12380
+      }
+    ]
+  },
+  "/assets/quiz/a1-q2/alarm.png": {
+    "width": 174,
+    "height": 164,
+    "variants": [
+      {
+        "src": "/assets/optimized/alarm-174-d238bcc80ba3.webp",
+        "width": 174,
+        "bytes": 7194
+      }
+    ]
+  },
+  "/assets/quiz/a1-q2/bookcase.png": {
+    "width": 238,
+    "height": 238,
+    "variants": [
+      {
+        "src": "/assets/optimized/bookcase-238-7c92189bd4a3.webp",
+        "width": 238,
+        "bytes": 10968
+      }
+    ]
+  },
+  "/assets/quiz/a1-q2/bookcase2.png": {
+    "width": 238,
+    "height": 238,
+    "variants": [
+      {
+        "src": "/assets/optimized/bookcase2-238-7c92189bd4a3.webp",
+        "width": 238,
+        "bytes": 10968
+      }
+    ]
+  },
+  "/assets/quiz/a1-q2/chicken.png": {
+    "width": 238,
+    "height": 238,
+    "variants": [
+      {
+        "src": "/assets/optimized/chicken-238-b3dfb09d47a0.webp",
+        "width": 238,
+        "bytes": 12400
+      }
+    ]
+  },
+  "/assets/quiz/a1-q2/clothes.png": {
+    "width": 254,
+    "height": 244,
+    "variants": [
+      {
+        "src": "/assets/optimized/clothes-240-f89123d91b95.webp",
+        "width": 240,
+        "bytes": 7422
+      },
+      {
+        "src": "/assets/optimized/clothes-254-4a5cbd2c13d1.webp",
+        "width": 254,
+        "bytes": 8174
+      }
+    ]
+  },
+  "/assets/quiz/a1-q2/coach.png": {
+    "width": 254,
+    "height": 250,
+    "variants": [
+      {
+        "src": "/assets/optimized/coach-240-5ede1dd06cd5.webp",
+        "width": 240,
+        "bytes": 9202
+      },
+      {
+        "src": "/assets/optimized/coach-254-afde5436d280.webp",
+        "width": 254,
+        "bytes": 10044
+      }
+    ]
+  },
+  "/assets/quiz/a1-q2/day.png": {
+    "width": 240,
+    "height": 238,
+    "variants": [
+      {
+        "src": "/assets/optimized/day-240-9c6b2be20d63.webp",
+        "width": 240,
+        "bytes": 11092
+      }
+    ]
+  },
+  "/assets/quiz/a1-q2/draw.png": {
+    "width": 240,
+    "height": 236,
+    "variants": [
+      {
+        "src": "/assets/optimized/draw-240-20dcdfe7c392.webp",
+        "width": 240,
+        "bytes": 7434
+      }
+    ]
+  },
+  "/assets/quiz/a1-q2/evening.png": {
+    "width": 174,
+    "height": 170,
+    "variants": [
+      {
+        "src": "/assets/optimized/evening-174-9f094d009f99.webp",
+        "width": 174,
+        "bytes": 5538
+      }
+    ]
+  },
+  "/assets/quiz/a1-q2/grapes.png": {
+    "width": 240,
+    "height": 240,
+    "variants": [
+      {
+        "src": "/assets/optimized/grapes-240-b10304b6af84.webp",
+        "width": 240,
+        "bytes": 11522
+      }
+    ]
+  },
+  "/assets/quiz/a1-q2/listen.png": {
+    "width": 246,
+    "height": 242,
+    "variants": [
+      {
+        "src": "/assets/optimized/listen-240-29346d976d85.webp",
+        "width": 240,
+        "bytes": 8510
+      },
+      {
+        "src": "/assets/optimized/listen-246-a0684fb80787.webp",
+        "width": 246,
+        "bytes": 8954
+      }
+    ]
+  },
+  "/assets/quiz/a1-q2/men.png": {
+    "width": 238,
+    "height": 242,
+    "variants": [
+      {
+        "src": "/assets/optimized/men-238-1f17c1e228e9.webp",
+        "width": 238,
+        "bytes": 12862
+      }
+    ]
+  },
+  "/assets/quiz/a1-q2/midnight.png": {
+    "width": 242,
+    "height": 240,
+    "variants": [
+      {
+        "src": "/assets/optimized/midnight-240-3b6726c6bcae.webp",
+        "width": 240,
+        "bytes": 10220
+      },
+      {
+        "src": "/assets/optimized/midnight-242-f3ed7f42b1a6.webp",
+        "width": 242,
+        "bytes": 10640
+      }
+    ]
+  },
+  "/assets/quiz/a1-q2/mirror.png": {
+    "width": 246,
+    "height": 242,
+    "variants": [
+      {
+        "src": "/assets/optimized/mirror-240-1c1e1a27e1a4.webp",
+        "width": 240,
+        "bytes": 4778
+      },
+      {
+        "src": "/assets/optimized/mirror-246-a99a7221dbaa.webp",
+        "width": 246,
+        "bytes": 4904
+      }
+    ]
+  },
+  "/assets/quiz/a1-q2/morning.png": {
+    "width": 170,
+    "height": 162,
+    "variants": [
+      {
+        "src": "/assets/optimized/morning-170-448757d24c72.webp",
+        "width": 170,
+        "bytes": 5802
+      }
+    ]
+  },
+  "/assets/quiz/a1-q2/read.png": {
+    "width": 242,
+    "height": 254,
+    "variants": [
+      {
+        "src": "/assets/optimized/read-240-74384d94d6be.webp",
+        "width": 240,
+        "bytes": 4646
+      },
+      {
+        "src": "/assets/optimized/read-242-d43d14c48876.webp",
+        "width": 242,
+        "bytes": 4680
+      }
+    ]
+  },
+  "/assets/quiz/a1-q2/rubber.png": {
+    "width": 244,
+    "height": 240,
+    "variants": [
+      {
+        "src": "/assets/optimized/rubber-240-c5b566a7e9e6.webp",
+        "width": 240,
+        "bytes": 3236
+      },
+      {
+        "src": "/assets/optimized/rubber-244-c676317f7fef.webp",
+        "width": 244,
+        "bytes": 3342
+      }
+    ]
+  },
+  "/assets/quiz/a1-q2/ruler.png": {
+    "width": 236,
+    "height": 234,
+    "variants": [
+      {
+        "src": "/assets/optimized/ruler-236-1a7a7a74ef0f.webp",
+        "width": 236,
+        "bytes": 11150
+      }
+    ]
+  },
+  "/assets/quiz/a1-q2/run.png": {
+    "width": 240,
+    "height": 244,
+    "variants": [
+      {
+        "src": "/assets/optimized/run-240-8fd3a6e69c75.webp",
+        "width": 240,
+        "bytes": 5434
+      }
+    ]
+  },
+  "/assets/quiz/a1-q2/teach.png": {
+    "width": 238,
+    "height": 240,
+    "variants": [
+      {
+        "src": "/assets/optimized/teach-238-0f674fc62532.webp",
+        "width": 238,
+        "bytes": 7424
+      }
+    ]
+  },
+  "/assets/quiz/a1-q1/bathroom.png": {
+    "width": 258,
+    "height": 254,
+    "variants": [
+      {
+        "src": "/assets/optimized/bathroom-240-e02b2824fcb5.webp",
+        "width": 240,
+        "bytes": 9300
+      },
+      {
+        "src": "/assets/optimized/bathroom-258-8a84782cb161.webp",
+        "width": 258,
+        "bytes": 10230
+      }
+    ]
+  },
+  "/assets/quiz/a1-q1/beach.png": {
+    "width": 248,
+    "height": 244,
+    "variants": [
+      {
+        "src": "/assets/optimized/beach-240-187df15465e1.webp",
+        "width": 240,
+        "bytes": 7176
+      },
+      {
+        "src": "/assets/optimized/beach-248-8ffa1a0f2bc3.webp",
+        "width": 248,
+        "bytes": 7692
+      }
+    ]
+  },
+  "/assets/quiz/a1-q1/bird.png": {
+    "width": 248,
+    "height": 248,
+    "variants": [
+      {
+        "src": "/assets/optimized/bird-240-641bf8ba25b4.webp",
+        "width": 240,
+        "bytes": 8560
+      },
+      {
+        "src": "/assets/optimized/bird-248-41574b8a9c51.webp",
+        "width": 248,
+        "bytes": 9118
+      }
+    ]
+  },
+  "/assets/quiz/a1-q1/black.png": {
+    "width": 250,
+    "height": 248,
+    "variants": [
+      {
+        "src": "/assets/optimized/black-240-ff3e2ef4bd5f.webp",
+        "width": 240,
+        "bytes": 9780
+      },
+      {
+        "src": "/assets/optimized/black-250-d7331c599cda.webp",
+        "width": 250,
+        "bytes": 10642
+      }
+    ]
+  },
+  "/assets/quiz/a1-q1/boat.png": {
+    "width": 264,
+    "height": 258,
+    "variants": [
+      {
+        "src": "/assets/optimized/boat-240-2e5b2d188955.webp",
+        "width": 240,
+        "bytes": 9724
+      },
+      {
+        "src": "/assets/optimized/boat-264-2cad88cdda9f.webp",
+        "width": 264,
+        "bytes": 11344
+      }
+    ]
+  },
+  "/assets/quiz/a1-q1/desk.png": {
+    "width": 262,
+    "height": 250,
+    "variants": [
+      {
+        "src": "/assets/optimized/desk-240-61fc3a56675f.webp",
+        "width": 240,
+        "bytes": 7692
+      },
+      {
+        "src": "/assets/optimized/desk-262-f89e6637d666.webp",
+        "width": 262,
+        "bytes": 8770
+      }
+    ]
+  },
+  "/assets/quiz/a1-q1/drawing.png": {
+    "width": 252,
+    "height": 250,
+    "variants": [
+      {
+        "src": "/assets/optimized/drawing-240-f5265377c727.webp",
+        "width": 240,
+        "bytes": 9072
+      },
+      {
+        "src": "/assets/optimized/drawing-252-9262384dfa9e.webp",
+        "width": 252,
+        "bytes": 10222
+      }
+    ]
+  },
+  "/assets/quiz/a1-q1/eye.png": {
+    "width": 254,
+    "height": 252,
+    "variants": [
+      {
+        "src": "/assets/optimized/eye-240-4db86866f4be.webp",
+        "width": 240,
+        "bytes": 13550
+      },
+      {
+        "src": "/assets/optimized/eye-254-88669afdb367.webp",
+        "width": 254,
+        "bytes": 15138
+      }
+    ]
+  },
+  "/assets/quiz/a1-q1/game.png": {
+    "width": 256,
+    "height": 252,
+    "variants": [
+      {
+        "src": "/assets/optimized/game-240-96b42b08ae89.webp",
+        "width": 240,
+        "bytes": 14758
+      },
+      {
+        "src": "/assets/optimized/game-256-465fa52fdf44.webp",
+        "width": 256,
+        "bytes": 16398
+      }
+    ]
+  },
+  "/assets/quiz/a1-q1/hair.png": {
+    "width": 254,
+    "height": 244,
+    "variants": [
+      {
+        "src": "/assets/optimized/hair-240-a4b6ec67a184.webp",
+        "width": 240,
+        "bytes": 9214
+      },
+      {
+        "src": "/assets/optimized/hair-254-c79fde5b27c9.webp",
+        "width": 254,
+        "bytes": 10788
+      }
+    ]
+  },
+  "/assets/quiz/a1-q1/hoodie.png": {
+    "width": 244,
+    "height": 242,
+    "variants": [
+      {
+        "src": "/assets/optimized/hoodie-240-9117ebae2687.webp",
+        "width": 240,
+        "bytes": 5964
+      },
+      {
+        "src": "/assets/optimized/hoodie-244-5a51ee4528ec.webp",
+        "width": 244,
+        "bytes": 6096
+      }
+    ]
+  },
+  "/assets/quiz/a1-q1/keys.png": {
+    "width": 254,
+    "height": 260,
+    "variants": [
+      {
+        "src": "/assets/optimized/keys-240-c374000612b5.webp",
+        "width": 240,
+        "bytes": 9194
+      },
+      {
+        "src": "/assets/optimized/keys-254-e14a4ea771eb.webp",
+        "width": 254,
+        "bytes": 9936
+      }
+    ]
+  },
+  "/assets/quiz/a1-q1/kitchen.png": {
+    "width": 246,
+    "height": 236,
+    "variants": [
+      {
+        "src": "/assets/optimized/kitchen-240-89adb7f1a4fd.webp",
+        "width": 240,
+        "bytes": 11636
+      },
+      {
+        "src": "/assets/optimized/kitchen-246-f03853a489f0.webp",
+        "width": 246,
+        "bytes": 12088
+      }
+    ]
+  },
+  "/assets/quiz/a1-q1/oversized.png": {
+    "width": 242,
+    "height": 256,
+    "variants": [
+      {
+        "src": "/assets/optimized/oversized-240-29393e0ba923.webp",
+        "width": 240,
+        "bytes": 8884
+      },
+      {
+        "src": "/assets/optimized/oversized-242-11c6fa785d46.webp",
+        "width": 242,
+        "bytes": 8960
+      }
+    ]
+  },
+  "/assets/quiz/a1-q1/shell.png": {
+    "width": 248,
+    "height": 246,
+    "variants": [
+      {
+        "src": "/assets/optimized/shell-240-34852d0d774c.webp",
+        "width": 240,
+        "bytes": 13032
+      },
+      {
+        "src": "/assets/optimized/shell-248-b055243163c6.webp",
+        "width": 248,
+        "bytes": 14040
+      }
+    ]
+  },
+  "/assets/quiz/a1-q1/shop.png": {
+    "width": 250,
+    "height": 252,
+    "variants": [
+      {
+        "src": "/assets/optimized/shop-240-a7aa1898690f.webp",
+        "width": 240,
+        "bytes": 12720
+      },
+      {
+        "src": "/assets/optimized/shop-250-daf223a4835a.webp",
+        "width": 250,
+        "bytes": 14136
+      }
+    ]
+  },
+  "/assets/quiz/a1-q1/stapler.png": {
+    "width": 246,
+    "height": 246,
+    "variants": [
+      {
+        "src": "/assets/optimized/stapler-240-36ea07341b26.webp",
+        "width": 240,
+        "bytes": 8810
+      },
+      {
+        "src": "/assets/optimized/stapler-246-89ea1e19166e.webp",
+        "width": 246,
+        "bytes": 9388
+      }
+    ]
+  },
+  "/assets/quiz/a1-q1/tie.png": {
+    "width": 256,
+    "height": 248,
+    "variants": [
+      {
+        "src": "/assets/optimized/tie-240-aafb7ba8e1c7.webp",
+        "width": 240,
+        "bytes": 3554
+      },
+      {
+        "src": "/assets/optimized/tie-256-ea7641695d6b.webp",
+        "width": 256,
+        "bytes": 4022
+      }
+    ]
+  },
+  "/assets/quiz/a1-q1/tiger.png": {
+    "width": 260,
+    "height": 256,
+    "variants": [
+      {
+        "src": "/assets/optimized/tiger-240-3db9e11bc23d.webp",
+        "width": 240,
+        "bytes": 12610
+      },
+      {
+        "src": "/assets/optimized/tiger-260-9f08d8be2bc1.webp",
+        "width": 260,
+        "bytes": 14614
+      }
+    ]
+  },
+  "/assets/quiz/a1-q1/tree.png": {
+    "width": 260,
+    "height": 248,
+    "variants": [
+      {
+        "src": "/assets/optimized/tree-240-69cab4d5ebe3.webp",
+        "width": 240,
+        "bytes": 9084
+      },
+      {
+        "src": "/assets/optimized/tree-260-277d6bd7903c.webp",
+        "width": 260,
+        "bytes": 10610
+      }
+    ]
+  },
+  "/assets/quiz/a1-final/answer.png": {
+    "width": 154,
+    "height": 160,
+    "variants": [
+      {
+        "src": "/assets/optimized/answer-154-ef0dd820be23.webp",
+        "width": 154,
+        "bytes": 3954
+      }
+    ]
+  },
+  "/assets/quiz/a1-final/assignment.png": {
+    "width": 160,
+    "height": 160,
+    "variants": [
+      {
+        "src": "/assets/optimized/assignment-160-314dd122c677.webp",
+        "width": 160,
+        "bytes": 6138
+      }
+    ]
+  },
+  "/assets/quiz/a1-final/behind.png": {
+    "width": 160,
+    "height": 154,
+    "variants": [
+      {
+        "src": "/assets/optimized/behind-160-a28651e747b4.webp",
+        "width": 160,
+        "bytes": 4778
+      }
+    ]
+  },
+  "/assets/quiz/a1-final/biscuit.png": {
+    "width": 160,
+    "height": 158,
+    "variants": [
+      {
+        "src": "/assets/optimized/biscuit-160-6278b845da46.webp",
+        "width": 160,
+        "bytes": 5084
+      }
+    ]
+  },
+  "/assets/quiz/a1-final/bracelet.png": {
+    "width": 156,
+    "height": 156,
+    "variants": [
+      {
+        "src": "/assets/optimized/bracelet-156-fcc1e4682d25.webp",
+        "width": 156,
+        "bytes": 5722
+      }
+    ]
+  },
+  "/assets/quiz/a1-final/classroom.png": {
+    "width": 246,
+    "height": 244,
+    "variants": [
+      {
+        "src": "/assets/optimized/classroom-240-7a66ab6cbc6b.webp",
+        "width": 240,
+        "bytes": 10250
+      },
+      {
+        "src": "/assets/optimized/classroom-246-2b4779db4160.webp",
+        "width": 246,
+        "bytes": 10552
+      }
+    ]
+  },
+  "/assets/quiz/a1-final/cupboard.png": {
+    "width": 162,
+    "height": 162,
+    "variants": [
+      {
+        "src": "/assets/optimized/cupboard-162-bfd672fd4dc0.webp",
+        "width": 162,
+        "bytes": 4386
+      }
+    ]
+  },
+  "/assets/quiz/a1-final/daughter.png": {
+    "width": 164,
+    "height": 158,
+    "variants": [
+      {
+        "src": "/assets/optimized/daughter-164-88e983e0d663.webp",
+        "width": 164,
+        "bytes": 4600
+      }
+    ]
+  },
+  "/assets/quiz/a1-final/dream.png": {
+    "width": 160,
+    "height": 160,
+    "variants": [
+      {
+        "src": "/assets/optimized/dream-160-04af9465ded5.webp",
+        "width": 160,
+        "bytes": 4508
+      }
+    ]
+  },
+  "/assets/quiz/a1-final/duck.png": {
+    "width": 258,
+    "height": 244,
+    "variants": [
+      {
+        "src": "/assets/optimized/duck-240-5b25489f7adb.webp",
+        "width": 240,
+        "bytes": 8484
+      },
+      {
+        "src": "/assets/optimized/duck-258-3e16598d7a48.webp",
+        "width": 258,
+        "bytes": 9572
+      }
+    ]
+  },
+  "/assets/quiz/a1-final/glasses.png": {
+    "width": 254,
+    "height": 254,
+    "variants": [
+      {
+        "src": "/assets/optimized/glasses-240-081d08a2c344.webp",
+        "width": 240,
+        "bytes": 5380
+      },
+      {
+        "src": "/assets/optimized/glasses-254-0327c9d3de11.webp",
+        "width": 254,
+        "bytes": 5948
+      }
+    ]
+  },
+  "/assets/quiz/a1-final/hand.png": {
+    "width": 246,
+    "height": 246,
+    "variants": [
+      {
+        "src": "/assets/optimized/hand-240-5b23e2ddf074.webp",
+        "width": 240,
+        "bytes": 5788
+      },
+      {
+        "src": "/assets/optimized/hand-246-28d2b8009af3.webp",
+        "width": 246,
+        "bytes": 5710
+      }
+    ]
+  },
+  "/assets/quiz/a1-final/living-room.png": {
+    "width": 248,
+    "height": 252,
+    "variants": [
+      {
+        "src": "/assets/optimized/living-room-240-6d754db8c339.webp",
+        "width": 240,
+        "bytes": 8788
+      },
+      {
+        "src": "/assets/optimized/living-room-248-bd4847ece430.webp",
+        "width": 248,
+        "bytes": 9492
+      }
+    ]
+  },
+  "/assets/quiz/a1-final/moustache.png": {
+    "width": 248,
+    "height": 242,
+    "variants": [
+      {
+        "src": "/assets/optimized/moustache-240-39bd1d3a4c02.webp",
+        "width": 240,
+        "bytes": 5708
+      },
+      {
+        "src": "/assets/optimized/moustache-248-cb1211715954.webp",
+        "width": 248,
+        "bytes": 6226
+      }
+    ]
+  },
+  "/assets/quiz/a1-final/neck.png": {
+    "width": 158,
+    "height": 154,
+    "variants": [
+      {
+        "src": "/assets/optimized/neck-158-c66e239bf031.webp",
+        "width": 158,
+        "bytes": 5168
+      }
+    ]
+  },
+  "/assets/quiz/a1-final/people.png": {
+    "width": 150,
+    "height": 150,
+    "variants": [
+      {
+        "src": "/assets/optimized/people-150-a8bf62cde53e.webp",
+        "width": 150,
+        "bytes": 3756
+      }
+    ]
+  },
+  "/assets/quiz/a1-final/pepper.png": {
+    "width": 160,
+    "height": 156,
+    "variants": [
+      {
+        "src": "/assets/optimized/pepper-160-7fc36313a1d3.webp",
+        "width": 160,
+        "bytes": 5262
+      }
+    ]
+  },
+  "/assets/quiz/a1-final/pocket.png": {
+    "width": 160,
+    "height": 152,
+    "variants": [
+      {
+        "src": "/assets/optimized/pocket-160-d1088b762d4e.webp",
+        "width": 160,
+        "bytes": 3800
+      }
+    ]
+  },
+  "/assets/quiz/a1-final/purple.png": {
+    "width": 154,
+    "height": 156,
+    "variants": [
+      {
+        "src": "/assets/optimized/purple-154-cff74722c359.webp",
+        "width": 154,
+        "bytes": 4666
+      }
+    ]
+  },
+  "/assets/quiz/a1-final/sand.png": {
+    "width": 246,
+    "height": 246,
+    "variants": [
+      {
+        "src": "/assets/optimized/sand-240-130f5766defa.webp",
+        "width": 240,
+        "bytes": 6176
+      },
+      {
+        "src": "/assets/optimized/sand-246-4ba54b931e98.webp",
+        "width": 246,
+        "bytes": 6258
+      }
+    ]
+  },
+  "/assets/quiz/a1-final/shoulder.png": {
+    "width": 168,
+    "height": 154,
+    "variants": [
+      {
+        "src": "/assets/optimized/shoulder-168-700556ff6a66.webp",
+        "width": 168,
+        "bytes": 2684
+      }
+    ]
+  },
+  "/assets/quiz/a1-final/straight.png": {
+    "width": 164,
+    "height": 156,
+    "variants": [
+      {
+        "src": "/assets/optimized/straight-164-5820a48705f7.webp",
+        "width": 164,
+        "bytes": 1992
+      }
+    ]
+  },
+  "/assets/quiz/a1-final/teacher.png": {
+    "width": 152,
+    "height": 154,
+    "variants": [
+      {
+        "src": "/assets/optimized/teacher-152-6e73a56b4297.webp",
+        "width": 152,
+        "bytes": 4624
+      }
+    ]
+  },
+  "/assets/quiz/a1-final/wake-up.png": {
+    "width": 248,
+    "height": 244,
+    "variants": [
+      {
+        "src": "/assets/optimized/wake-up-240-781a2b2ca621.webp",
+        "width": 240,
+        "bytes": 6360
+      },
+      {
+        "src": "/assets/optimized/wake-up-248-acde3d526a95.webp",
+        "width": 248,
+        "bytes": 6640
+      }
+    ]
+  },
+  "/assets/quiz/a1-final/wall.png": {
+    "width": 244,
+    "height": 240,
+    "variants": [
+      {
+        "src": "/assets/optimized/wall-240-4a7c3bb23c05.webp",
+        "width": 240,
+        "bytes": 11578
+      },
+      {
+        "src": "/assets/optimized/wall-244-762d020f41f1.webp",
+        "width": 244,
+        "bytes": 11940
+      }
+    ]
+  }
+}

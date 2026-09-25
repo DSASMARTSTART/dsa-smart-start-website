@@ -31,7 +31,9 @@ const PathwaysDetail: React.FC = () => {
           <div className="relative group animate-reveal">
              <div className="absolute -inset-6 bg-pink-600 rounded-[3rem] blur-3xl opacity-20 group-hover:opacity-30 transition-opacity"></div>
              <div className="relative overflow-hidden rounded-[3rem] aspect-[4/5] shadow-2xl border-4 border-white/10">
-                <img 
+                <img
+                  loading="lazy"
+                  decoding="async"
                   src="https://images.unsplash.com/photo-1580894732444-8ecded7900cd?auto=format&fit=crop&q=80&w=1200" 
                   alt="Mother helping child with homework" 
                   className="w-full h-full object-cover object-right transform hover:scale-105 transition-transform duration-700"
@@ -114,7 +116,9 @@ const PathwaysDetail: React.FC = () => {
           <div className="relative order-1 lg:order-2 group animate-reveal">
              <div className="absolute -inset-6 bg-blue-600 rounded-[3rem] blur-3xl opacity-20 group-hover:opacity-30 transition-opacity"></div>
              <div className="relative overflow-hidden rounded-[3rem] aspect-[4/5] shadow-2xl border-4 border-white/10">
-                <img 
+                <img
+                  loading="lazy"
+                  decoding="async"
                   src="https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&q=80&w=1200" 
                   alt="Young professionals" 
                   className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-700"

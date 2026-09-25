@@ -29,10 +29,6 @@ export default defineConfig(({ mode }) => {
         rollupOptions: {
           output: {
             manualChunks(id) {
-              // Per-language locale chunks
-              if (id.includes('/locales/it/')) return 'locale-it';
-              if (id.includes('/locales/sr/')) return 'locale-sr';
-              if (id.includes('/locales/es/')) return 'locale-es';
               // Split vendor chunks for better caching
               if (id.includes('node_modules/react-dom')) return 'react-vendor';
               if (id.includes('node_modules/react')) return 'react-vendor';

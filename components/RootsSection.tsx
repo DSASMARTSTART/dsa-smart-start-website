@@ -1,8 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { lazy, Suspense, useState } from 'react';
 import { BookOpen, ChevronRight, Sparkles, GraduationCap, ClipboardCheck } from 'lucide-react';
-import AssessmentPopup from './AssessmentPopup';
-import { AssessmentTestType } from '../types';
+const AssessmentPopup = lazy(() => import('./AssessmentPopup'));
 import { useTranslation } from 'react-i18next';
 
 interface RootsSectionProps {
@@ -115,13 +114,17 @@ const RootsSection: React.FC<RootsSectionProps> = ({ onNavigate }) => {
       </div>
 
       {/* Assessment Popup — auto-detects age group */}
-      <AssessmentPopup
-        isOpen={showAssessment}
-        onClose={() => setShowAssessment(false)}
-        testType="teens_adults"
-        autoDetectAge={true}
-        onNavigate={onNavigate}
-      />
+      {showAssessment && (
+        <Suspense fallback={<p role="status" className="text-center text-white">{t('common:loading', { defaultValue: 'Loading…' })}</p>}>
+          <AssessmentPopup
+            isOpen={showAssessment}
+            onClose={() => setShowAssessment(false)}
+            testType="teens_adults"
+            autoDetectAge={true}
+            onNavigate={onNavigate}
+          />
+        </Suspense>
+      )}
     </section>
   );
 };

@@ -1,3 +1,4 @@
+import { startVisibleAnimation } from '../lib/visibleAnimation';
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, CheckCircle2, Star, ShoppingCart, Check, ChevronRight, ChevronDown, Layers, TrendingUp, Award, Clock, Shield, RefreshCcw, Sparkles, GraduationCap, Heart, BadgeCheck, UserCheck, Rocket, Lock, Users, Crown, Diamond, Compass, Video, BookOpen, Brain, Headphones, FileCheck, MessageCircle, X, Calendar, Zap } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -63,7 +64,6 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let animationFrameId: number;
     let particles: { x: number; y: number; size: number; speedX: number; speedY: number; opacity: number }[] = [];
     const particleCount = 30;
 
@@ -94,15 +94,14 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
       });
-      animationFrameId = requestAnimationFrame(animate);
     };
 
     window.addEventListener('resize', resize);
     resize();
-    animate();
+    const stopAnimation = startVisibleAnimation(canvas, animate);
     return () => {
       window.removeEventListener('resize', resize);
-      cancelAnimationFrame(animationFrameId);
+      stopAnimation();
     };
   }, []);
 
@@ -319,6 +318,7 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
                     <>
                       <div className="relative aspect-video rounded-3xl overflow-hidden mb-4 bg-black">
                         <iframe
+                          loading="lazy"
                           src={embedUrl}
                           className="absolute inset-0 w-full h-full"
                           frameBorder="0"

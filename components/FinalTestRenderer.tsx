@@ -1,3 +1,4 @@
+import OptimizedImage from './OptimizedImage';
 // ============================================
 // FinalTestRenderer — Comprehensive A1 Final Test
 // ============================================
@@ -452,7 +453,7 @@ const ImageWordBlock: React.FC<BlockProps> = ({ questions, answers, onAnswer, is
         <div key={q.id} className="flex flex-col items-center">
           <div className="w-full aspect-square bg-white/5 border border-white/10 rounded-xl overflow-hidden mb-2 flex items-center justify-center">
             {q.imageUrl ? (
-              <img src={q.imageUrl} alt={`Question ${idx + 1}`} className="w-full h-full object-cover" loading="lazy" />
+              <OptimizedImage src={q.imageUrl} alt={`Question ${idx + 1}`} className="w-full h-full object-cover" loading="lazy" />
             ) : (
               <ImageIcon size={32} className="text-white/20" />
             )}
@@ -648,7 +649,7 @@ const SpellingCorrectionBlock: React.FC<BlockProps> = ({ questions, answers, onA
             <span className="text-amber-400 font-black text-sm">{idx + 1}.</span>
             {q.imageUrl && (
               <div className="w-12 h-12 rounded-lg bg-white/5 border border-white/10 overflow-hidden shrink-0">
-                <img src={q.imageUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
+                <OptimizedImage src={q.imageUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
               </div>
             )}
             <span className="text-base font-bold text-gray-400 line-through tracking-wide">

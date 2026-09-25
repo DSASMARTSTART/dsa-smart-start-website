@@ -34,20 +34,20 @@ import { clearCoursesCache, enrollmentsApi } from './data/supabaseStore';
 import { CheckCircle, AlertCircle, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-// Admin Dashboard Components — lazy-loaded as one chunk (rarely the first page).
-const AdminLayout = lazy(() => import('./components/admin').then(m => ({ default: m.AdminLayout })));
-const AdminHome = lazy(() => import('./components/admin').then(m => ({ default: m.AdminHome })));
-const AdminUsers = lazy(() => import('./components/admin').then(m => ({ default: m.AdminUsers })));
-const AdminCourses = lazy(() => import('./components/admin').then(m => ({ default: m.AdminCourses })));
-const CourseEditor = lazy(() => import('./components/admin').then(m => ({ default: m.CourseEditor })));
-const AdminAudit = lazy(() => import('./components/admin').then(m => ({ default: m.AdminAudit })));
-const AdminDiscountCodes = lazy(() => import('./components/admin').then(m => ({ default: m.AdminDiscountCodes })));
-const AdminTransactions = lazy(() => import('./components/admin').then(m => ({ default: m.AdminTransactions })));
-const AdminPaymentOrphans = lazy(() => import('./components/admin').then(m => ({ default: m.AdminPaymentOrphans })));
+// Each admin screen loads independently, including the large course editor.
+const AdminLayout = lazy(() => import('./components/admin/AdminLayout'));
+const AdminHome = lazy(() => import('./components/admin/AdminHome'));
+const AdminUsers = lazy(() => import('./components/admin/AdminUsers'));
+const AdminCourses = lazy(() => import('./components/admin/AdminCourses'));
+const CourseEditor = lazy(() => import('./components/admin/CourseEditor'));
+const AdminAudit = lazy(() => import('./components/admin/AdminAudit'));
+const AdminDiscountCodes = lazy(() => import('./components/admin/AdminDiscountCodes'));
+const AdminTransactions = lazy(() => import('./components/admin/AdminTransactions'));
+const AdminPaymentOrphans = lazy(() => import('./components/admin/AdminPaymentOrphans'));
 const TeacherWorkspace = React.lazy(() => import('./components/live-learning/TeacherWorkspace'));
 const LiveLearningPage = lazy(() => import('./components/live-learning/LiveLearningPage'));
 const LiveLearningStudio = lazy(() => import('./components/live-learning/LiveLearningStudio'));
-const AdminSettings = lazy(() => import('./components/admin').then(m => ({ default: m.AdminSettings })));
+const AdminSettings = lazy(() => import('./components/admin/AdminSettings'));
 
 // Toast notification type
 interface Toast {

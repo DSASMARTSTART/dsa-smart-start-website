@@ -16,6 +16,7 @@ const CartBubble: React.FC<CartBubbleProps> = ({ cart, onNavigateToCheckout }) =
 
   // Calculate total price whenever cart changes
   useEffect(() => {
+    let cancelled = false;
     const calculateTotal = async () => {
       if (cart.length === 0) {
         setTotalPrice(null);
@@ -27,8 +28,8 @@ const CartBubble: React.FC<CartBubbleProps> = ({ cart, onNavigateToCheckout }) =
       let total = 0;
 
       try {
-        for (const courseId of cart) {
-          const course = await coursesApi.getById(courseId);
+        const courses = await Promise.all(cart.map(id => coursesApi.getById(id)));
+        for (const course of courses) {
           if (course?.pricing) {
             const pricing = course.pricing as CoursePricing;
             const now = new Date();
@@ -42,16 +43,17 @@ const CartBubble: React.FC<CartBubbleProps> = ({ cart, onNavigateToCheckout }) =
             total += price;
           }
         }
-        setTotalPrice(total);
+        if (!cancelled) setTotalPrice(total);
       } catch (error) {
         console.error('Error calculating cart total:', error);
-        setTotalPrice(null);
+        if (!cancelled) setTotalPrice(null);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
-    calculateTotal();
+    void calculateTotal();
+    return () => { cancelled = true; };
   }, [cart]);
 
   // Don't render if cart is empty

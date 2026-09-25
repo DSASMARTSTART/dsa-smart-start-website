@@ -1,3 +1,4 @@
+import OptimizedImage from '../OptimizedImage';
 import React, { useEffect, useState } from 'react';
 import {
   ArrowLeft,
@@ -295,7 +296,7 @@ export default function LiveLearningPage({
                             }
                           >
                             {item.photo ? (
-                              <img src={item.photo} alt={item.name} />
+                              <OptimizedImage src={item.photo} alt={item.name} />
                             ) : (
                               <span>
                                 {item.name
@@ -407,7 +408,7 @@ export default function LiveLearningPage({
             <section className="ll-full-profile">
               <div className="ll-profile-photo">
                 {teacher.photo ? (
-                  <img src={teacher.photo} alt={teacher.name} />
+                  <OptimizedImage src={teacher.photo} alt={teacher.name} />
                 ) : (
                   <span>
                     {teacher.name

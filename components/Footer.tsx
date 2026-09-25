@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import OptimizedImage from './OptimizedImage';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { Mail, Phone, MapPin, Users, MonitorPlay, FileText, Crown, Diamond, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { coursesApi } from '../data/supabaseStore';
@@ -32,19 +33,32 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   const [rawCourses, setRawCourses] = useState<Course[]>([]);
   const courses = useLocalizedCourses(rawCourses);
   const [loading, setLoading] = useState(true);
+  const footerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
+    let cancelled = false;
     const loadCourses = async () => {
       try {
         const data = await coursesApi.list({ isPublished: true });
-        setRawCourses(data || []);
+        if (!cancelled) setRawCourses(data || []);
       } catch (error) {
         console.error('Footer: Failed to load courses', error);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
-    loadCourses();
+    // Footer links do not need the entire course catalog during first paint.
+    const observer = typeof IntersectionObserver !== 'undefined'
+      ? new IntersectionObserver((entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) {
+            observer?.disconnect();
+            void loadCourses();
+          }
+        }, { rootMargin: '400px' })
+      : null;
+    if (observer && footerRef.current) observer.observe(footerRef.current);
+    else void loadCourses();
+    return () => { cancelled = true; observer?.disconnect(); };
   }, []);
 
   const handleLinkClick = (path: string) => {
@@ -147,7 +161,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   };
 
   return (
-    <footer className="bg-black text-gray-300 pt-20 pb-10 px-6">
+    <footer ref={footerRef} className="bg-black text-gray-300 pt-20 pb-10 px-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
         {/* About Column */}
         <div className="lg:col-span-1">
@@ -335,9 +349,9 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         {/* Accepted Payment Methods */}
         <div className="flex items-center gap-4 mt-4">
           <span className="text-[9px] uppercase tracking-widest text-gray-600">{t('footer.weAccept')}</span>
-          <img src="/assets/images/visa-logo.jpg" alt="Visa" className="h-6 opacity-50 hover:opacity-80 transition-opacity" />
-          <img src="/assets/images/mastercard-logo.png" alt="Mastercard" className="h-6 opacity-50 hover:opacity-80 transition-opacity" />
-          <img src="/assets/images/dinacard-logo.jpg" alt="DinaCard" className="h-6 opacity-50 hover:opacity-80 transition-opacity" />
+          <OptimizedImage sizes="160px" loading="lazy" decoding="async" src="/assets/images/visa-logo.jpg" alt="Visa" className="w-auto h-6 opacity-50 hover:opacity-80 transition-opacity" />
+          <OptimizedImage sizes="160px" loading="lazy" decoding="async" src="/assets/images/mastercard-logo.png" alt="Mastercard" className="w-auto h-6 opacity-50 hover:opacity-80 transition-opacity" />
+          <OptimizedImage sizes="160px" loading="lazy" decoding="async" src="/assets/images/dinacard-logo.jpg" alt="DinaCard" className="w-auto h-6 opacity-50 hover:opacity-80 transition-opacity" />
         </div>
       </div>
     </footer>

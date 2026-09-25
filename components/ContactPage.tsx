@@ -1,3 +1,4 @@
+import { startVisibleAnimation } from '../lib/visibleAnimation';
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, Mail, Phone, Send, MessageCircle, Sparkles, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -82,7 +83,6 @@ const ContactPage: React.FC = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let animationFrameId: number;
     let particles: { x: number; y: number; size: number; speedX: number; speedY: number; opacity: number }[] = [];
     const particleCount = 40;
 
@@ -113,16 +113,15 @@ const ContactPage: React.FC = () => {
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
       });
-      animationFrameId = requestAnimationFrame(animate);
     };
 
     window.addEventListener('resize', resize);
     resize();
-    animate();
+    const stopAnimation = startVisibleAnimation(canvas, animate);
     return () => {
       window.removeEventListener('resize', resize);
       window.removeEventListener('mousemove', handleMouseMove);
-      cancelAnimationFrame(animationFrameId);
+      stopAnimation();
     };
   }, []);
 

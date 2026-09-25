@@ -1,3 +1,5 @@
+import { startVisibleAnimation } from '../lib/visibleAnimation';
+import OptimizedImage from './OptimizedImage';
 
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { ArrowLeft, ShieldCheck, Lock, CreditCard, CheckCircle2, ChevronRight, ShoppingCart, User, X, Tag, Ticket, AlertCircle, Loader2, Building2, Wallet, BookOpen, Plus, Minus, Mail, Check, LogIn, Clock } from 'lucide-react';
@@ -800,12 +802,15 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
 
   // Load cart items from store
   useEffect(() => {
+    let cancelled = false;
     const loadCartItems = async () => {
       setCartLoading(true);
       const items: CartItem[] = [];
-      for (const id of cart) {
-        try {
-          const course = await coursesApi.getById(id);
+      const courses = await Promise.all(cart.map(id => coursesApi.getById(id).catch(error => {
+        console.error('Error loading course:', id, error);
+        return null;
+      })));
+      for (const course of courses) {
           if (course && course.isPublished) {
             const pricing = course.pricing;
             const now = new Date();
@@ -825,15 +830,12 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
               allowedPaymentMethods: course.allowedPaymentMethods as PaymentMethod[] | undefined
             });
           }
-        } catch (error) {
-          console.error('Error loading course:', id, error);
-        }
       }
-      setCartItems(items);
-      setCartLoading(false);
+      if (!cancelled) { setCartItems(items); setCartLoading(false); }
     };
-    loadCartItems();
-  }, [cart]);
+    void loadCartItems();
+    return () => { cancelled = true; };
+  }, [cart, currentLang]);
 
   // Canvas animation
   useEffect(() => {
@@ -841,7 +843,6 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    let animationFrameId: number;
     let particles: { x: number; y: number; size: number; speedX: number; speedY: number; opacity: number }[] = [];
     const particleCount = 20;
 
@@ -867,11 +868,10 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
         ctx.fillStyle = `rgba(168, 85, 247, ${p.opacity})`;
         ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
       });
-      animationFrameId = requestAnimationFrame(animate);
     };
 
-    window.addEventListener('resize', resize); resize(); animate();
-    return () => { window.removeEventListener('resize', resize); cancelAnimationFrame(animationFrameId); };
+    window.addEventListener('resize', resize); resize(); const stopAnimation = startVisibleAnimation(canvas, animate);
+    return () => { window.removeEventListener('resize', resize); stopAnimation(); };
   }, []);
 
   const handleApplyDiscount = async (e: React.MouseEvent) => {
@@ -1676,9 +1676,9 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                           <p className="text-[10px] sm:text-xs text-gray-400 mt-0.5 sm:mt-1 truncate">{t('paymentMethod.cardDescription')}</p>
                         </div>
                         <div className="hidden sm:flex items-center gap-2 shrink-0">
-                          <img src="/assets/images/visa-logo.jpg" alt="Visa" className="h-5 sm:h-6 object-contain" />
-                          <img src="/assets/images/mastercard-logo.png" alt="Mastercard" className="h-5 sm:h-6 object-contain" />
-                          <img src="/assets/images/dinacard-logo.jpg" alt="DinaCard" className="h-5 sm:h-6 object-contain" />
+                          <OptimizedImage sizes="160px" src="/assets/images/visa-logo.jpg" alt="Visa" className="w-auto h-5 sm:h-6 object-contain" />
+                          <OptimizedImage sizes="160px" src="/assets/images/mastercard-logo.png" alt="Mastercard" className="w-auto h-5 sm:h-6 object-contain" />
+                          <OptimizedImage sizes="160px" src="/assets/images/dinacard-logo.jpg" alt="DinaCard" className="w-auto h-5 sm:h-6 object-contain" />
                         </div>
                       </button>
                     )}
@@ -1704,7 +1704,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                           <p className="font-black text-white uppercase tracking-wide text-xs sm:text-sm">{t('paymentMethod.paypal')}</p>
                           <p className="text-[10px] sm:text-xs text-gray-400 mt-0.5 sm:mt-1">{t('paymentMethod.paypalDescription')}</p>
                         </div>
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/200px-PayPal.svg.png" alt="PayPal" className="h-5 sm:h-6 object-contain shrink-0" />
+                        <OptimizedImage sizes="160px" src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/200px-PayPal.svg.png" alt="PayPal" className="w-auto h-5 sm:h-6 object-contain shrink-0" />
                       </button>
                     )}
 
@@ -1734,9 +1734,9 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                           </p>
                         </div>
                         <div className="hidden sm:flex items-center gap-2 shrink-0">
-                          <img src="/assets/images/visa-logo.jpg" alt="Visa" className="h-5 sm:h-6 object-contain" />
-                          <img src="/assets/images/mastercard-logo.png" alt="Mastercard" className="h-5 sm:h-6 object-contain" />
-                          <img src="/assets/images/dinacard-logo.jpg" alt="DinaCard" className="h-5 sm:h-6 object-contain" />
+                          <OptimizedImage sizes="160px" src="/assets/images/visa-logo.jpg" alt="Visa" className="w-auto h-5 sm:h-6 object-contain" />
+                          <OptimizedImage sizes="160px" src="/assets/images/mastercard-logo.png" alt="Mastercard" className="w-auto h-5 sm:h-6 object-contain" />
+                          <OptimizedImage sizes="160px" src="/assets/images/dinacard-logo.jpg" alt="DinaCard" className="w-auto h-5 sm:h-6 object-contain" />
                         </div>
                       </button>
                     )}
@@ -2255,15 +2255,15 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
                 </div>
                 {/* Card brand & 3D Secure logos */}
                 <div className="flex items-center justify-center gap-3 flex-wrap">
-                  <img src="/assets/images/visa-secure-logo.jpg" alt="Visa Secure" className="h-7 opacity-60" />
-                  <img src="/assets/images/mastercard-id-check-logo.jpg" alt="Mastercard ID Check" className="h-7 opacity-60" />
-                  <img src="/assets/images/visa-logo.jpg" alt="Visa" className="h-5 opacity-50" />
-                  <img src="/assets/images/mastercard-logo.png" alt="Mastercard" className="h-5 opacity-50" />
-                  <img src="/assets/images/dinacard-logo.jpg" alt="DinaCard" className="h-5 opacity-50" />
+                  <OptimizedImage sizes="160px" src="/assets/images/visa-secure-logo.jpg" alt="Visa Secure" className="w-auto h-7 opacity-60" />
+                  <OptimizedImage sizes="160px" src="/assets/images/mastercard-id-check-logo.jpg" alt="Mastercard ID Check" className="w-auto h-7 opacity-60" />
+                  <OptimizedImage sizes="160px" src="/assets/images/visa-logo.jpg" alt="Visa" className="w-auto h-5 opacity-50" />
+                  <OptimizedImage sizes="160px" src="/assets/images/mastercard-logo.png" alt="Mastercard" className="w-auto h-5 opacity-50" />
+                  <OptimizedImage sizes="160px" src="/assets/images/dinacard-logo.jpg" alt="DinaCard" className="w-auto h-5 opacity-50" />
                 </div>
                 {/* Raiffeisen Bank badge */}
                 <div className="flex items-center gap-2 mt-1">
-                  <img src="/assets/images/raiffeisen-logo.png" alt="Raiffeisen Bank" className="h-5 opacity-50" />
+                  <OptimizedImage sizes="160px" src="/assets/images/raiffeisen-logo.png" alt="Raiffeisen Bank" className="w-auto h-5 opacity-50" />
                   <span className="text-[9px] text-gray-500 uppercase tracking-widest">{t('security.raiffeisenProcessing')}</span>
                 </div>
               </div>

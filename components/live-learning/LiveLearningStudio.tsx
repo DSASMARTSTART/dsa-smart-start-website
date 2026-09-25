@@ -1,3 +1,4 @@
+import OptimizedImage from '../OptimizedImage';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   ArrowLeft,
@@ -127,7 +128,7 @@ function Avatar({ teacher, large = false }: { teacher: Teacher; large?: boolean 
   return (
     <span className={`ll-avatar ${large ? 'll-avatar-large' : ''}`}>
       {teacher.photo ? (
-        <img src={teacher.photo} alt="" />
+        <OptimizedImage src={teacher.photo} alt="" />
       ) : (
         teacher.name
           .split(' ')

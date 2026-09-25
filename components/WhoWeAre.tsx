@@ -1,3 +1,5 @@
+import { startVisibleAnimation } from '../lib/visibleAnimation';
+import OptimizedImage from './OptimizedImage';
 
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, Star, ShieldCheck, Heart, ChevronRight, User, Users, Search, ShoppingBag, Rocket, Quote, Camera } from 'lucide-react';
@@ -23,7 +25,6 @@ const WhoWeAre: React.FC = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let animationFrameId: number;
     let particles: { x: number; y: number; size: number; speedX: number; speedY: number; opacity: number }[] = [];
     const particleCount = 30;
 
@@ -54,16 +55,15 @@ const WhoWeAre: React.FC = () => {
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
       });
-      animationFrameId = requestAnimationFrame(animate);
     };
 
     window.addEventListener('resize', resize);
     resize();
-    animate();
+    const stopAnimation = startVisibleAnimation(canvas, animate);
     return () => {
       window.removeEventListener('resize', resize);
       window.removeEventListener('mousemove', handleMouseMove);
-      cancelAnimationFrame(animationFrameId);
+      stopAnimation();
     };
   }, []);
 
@@ -180,7 +180,7 @@ const WhoWeAre: React.FC = () => {
             {team.map((member, idx) => (
               <div key={idx} className="group relative bg-white/5 p-6 rounded-[3rem] border border-white/10 shadow-sm hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 animate-reveal hover:-translate-y-3" style={{ animationDelay: `${idx * 0.1}s` }}>
                 <div className="relative w-full aspect-square rounded-[2rem] overflow-hidden mb-8 bg-purple-500/10">
-                  <img src={member.image} alt={member.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700" />
+                  <OptimizedImage loading="lazy" src={member.image} alt={member.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700" />
                   <div className="absolute inset-0 bg-gradient-to-t from-purple-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </div>
                 <div className="px-4 pb-4">
@@ -222,7 +222,7 @@ const WhoWeAre: React.FC = () => {
           <div className="relative animate-reveal stagger-1" style={{ animationName: 'fadeInRight' }}>
             <div className="absolute inset-0 bg-purple-500/20 blur-[100px] -z-10 animate-pulse"></div>
             <div className="rounded-[4rem] overflow-hidden aspect-square border-8 border-white/10 shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-700 bg-white/5 flex items-center justify-center">
-              <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=800" alt="Collaboration" className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
+              <OptimizedImage loading="lazy" src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=800" alt="Collaboration" className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="p-8 bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 text-center">
                    <Heart size={48} className="text-pink-400 mx-auto mb-4 animate-bounce" />

@@ -9,8 +9,10 @@
     <!-- i18n: set <html lang> early from localStorage -->
     <script>
       (function() {
-        var lng = localStorage.getItem('i18nextLng');
-        if (lng) document.documentElement.lang = lng.substring(0, 2);
+        try {
+          var lng = localStorage.getItem('i18nextLng');
+          if (lng) document.documentElement.lang = lng.substring(0, 2);
+        } catch (_) { /* Storage can be blocked in private browsers. */ }
       })();
     </script>
 
@@ -107,10 +109,31 @@
          not loaded from the cdn.tailwindcss.com dev script. -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- A slow third-party font service must not block the first render. -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div role="status" style="min-height:100vh;display:grid;place-content:center;gap:16px;text-align:center;background:#000;color:#fff;font:16px system-ui">
+        <strong style="color:#ab8fff;font-size:24px;letter-spacing:4px">EDUWAY</strong>
+        <span id="startup-message">Loading…</span>
+        <a id="startup-retry" href="" hidden style="color:#ab8fff">Reload page</a>
+        <noscript>Please enable JavaScript to use Eduway.</noscript>
+      </div>
+    </div>
+    <script>
+      (function() {
+        var messages = { en: ['Loading…', 'Reload page'], it: ['Caricamento…', 'Ricarica la pagina'], sr: ['Učitavanje…', 'Ponovo učitaj stranicu'], es: ['Cargando…', 'Recargar página'] };
+        var text = messages[document.documentElement.lang] || messages.en;
+        document.getElementById('startup-message').textContent = text[0];
+        document.getElementById('startup-retry').textContent = text[1];
+        setTimeout(function() {
+          var retry = document.getElementById('startup-retry');
+          if (retry) retry.hidden = false;
+        }, 10000);
+      })();
+    </script>
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>

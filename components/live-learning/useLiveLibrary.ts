@@ -1,3 +1,4 @@
+import { startVisiblePolling } from '../../lib/visiblePolling';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { libraryApi, type LiveLibrary } from './libraryApi';
@@ -31,18 +32,12 @@ export function useLiveLibrary(courseId?: string) {
   useEffect(() => {
     setLibrary({ assets: [], courses: [] });
     setLoading(true);
-    void refresh();
-    const focus = () => {
-      void refresh();
-    };
-    window.addEventListener('focus', focus);
-    const interval = window.setInterval(focus, 30000);
+    const stopPolling = startVisiblePolling(refresh);
     return () => {
       // Invalidate pending requests when the account/course changes.
       // eslint-disable-next-line react-hooks/exhaustive-deps
       version.current++;
-      window.removeEventListener('focus', focus);
-      window.clearInterval(interval);
+      stopPolling();
     };
   }, [refresh]);
   return { ...library, loading, error, refresh };

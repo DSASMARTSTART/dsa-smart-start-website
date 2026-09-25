@@ -1,17 +1,16 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { lazy, Suspense, useState, useEffect, useCallback } from 'react';
 import { ArrowLeft, CheckCircle2, Circle, ChevronRight, PlayCircle, BookOpen, Clock, FileText, ChevronDown, ChevronUp, ClipboardCheck, Download, ExternalLink, Lock, Trophy, Award } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { coursesApi, enrollmentsApi, videoHelpers } from '../data/supabaseStore';
 import { Course, Module, Lesson, Homework, QuizResult } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { useUserProgress } from '../hooks/useUserProgress';
-import QuizRenderer from './QuizRenderer';
-import FinalTestRenderer from './FinalTestRenderer';
-import { getQuizForModule } from '../data/quizHelpers';
-import LiveLearningPage from './live-learning/LiveLearningPage';
+const QuizCheckpoint = lazy(() => import('./QuizCheckpoint'));
+const FinalTestRenderer = lazy(() => import('./FinalTestRenderer'));
+const LiveLearningPage = lazy(() => import('./live-learning/LiveLearningPage'));
 import { liveProgramFor } from './live-learning/catalog';
-import { A1_FINAL_TEST_PASSED_KEY } from '../data/finalTestData';
+import { A1_FINAL_TEST_PASSED_KEY } from '../data/learningStorage';
 
 interface CourseViewerProps {
   courseId: string;
@@ -236,7 +235,6 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
   // Checkpoint quiz detection
   const isCheckpointActive = !!currentModule?.isCheckpoint;
   const isFinalTestActive = !!currentModule?.isFinalTest;
-  const quizQuestions = isCheckpointActive && !isFinalTestActive ? getQuizForModule(currentModule.id) : undefined;
 
   const isCompleted = (id: string) => !!progress[`${courseId}_${id}`];
   
@@ -508,6 +506,7 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
           {/* ── Final Test View ── */}
           {isFinalTestActive ? (
             <div className="bg-white/5 rounded-[3rem] border border-amber-500/20 shadow-xl shadow-amber-500/10 overflow-hidden mb-12">
+              <Suspense fallback={<p role="status" className="p-8">{t('common:loading', { defaultValue: 'Loading…' })}</p>}>
               <FinalTestRenderer
                 courseId={courseId}
                 module={currentModule}
@@ -518,16 +517,18 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
                   }
                 }}
               />
+              </Suspense>
             </div>
-          ) : isCheckpointActive && quizQuestions ? (
+          ) : isCheckpointActive ? (
             <div className="bg-white/5 rounded-[3rem] border border-amber-500/20 shadow-xl shadow-amber-500/10 overflow-hidden mb-12">
-              <QuizRenderer
+              <Suspense fallback={<p role="status" className="p-8">{t('common:loading', { defaultValue: 'Loading…' })}</p>}>
+              <QuizCheckpoint
                 courseId={courseId}
                 module={currentModule}
-                quizQuestions={quizQuestions}
                 onComplete={(result) => handleQuizComplete(currentModule.id, result)}
                 previousAttempts={quizAttempts[currentModule.id] ?? []}
               />
+              </Suspense>
             </div>
           ) : (
           <>

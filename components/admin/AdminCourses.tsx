@@ -88,10 +88,14 @@ const AdminCourses: React.FC<AdminCoursesProps> = ({ onNavigate }) => {
       // Load enrollment counts and progress for each course
       const counts: Record<string, number> = {};
       const progress: Record<string, number> = {};
-      for (const course of paginatedData) {
-        counts[course.id] = await coursesApi.getEnrollmentCount(course.id);
-        progress[course.id] = await coursesApi.getAvgProgress(course.id);
-      }
+      await Promise.all(paginatedData.map(async course => {
+        const [count, average] = await Promise.all([
+          coursesApi.getEnrollmentCount(course.id),
+          coursesApi.getAvgProgress(course.id),
+        ]);
+        counts[course.id] = count;
+        progress[course.id] = average;
+      }));
       setEnrollmentCounts(counts);
       setAvgProgress(progress);
     } catch (error) {

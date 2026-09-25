@@ -1,3 +1,4 @@
+import { startVisiblePolling } from '../../lib/visiblePolling';
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { liveApi, type Workspace, type ProgramSettings } from './api';
@@ -37,21 +38,17 @@ function useLiveLearningState() {
     }
   }, [userId]);
   useEffect(() => {
-    void refresh();
-    // Refresh on focus and every 30 seconds so teacher edits reach open student calendars.
-    const focus = () => {
-      void refresh();
-    };
-    window.addEventListener('focus', focus);
-    const interval = window.setInterval(focus, 30000);
+    // Fetch once for the teacher navigation link; poll only learning/admin views.
+    const stopPolling = startVisiblePolling(refresh, () =>
+      !!userId && /^#(?:dashboard|live-learning|viewer-|teacher-calendar|admin)/.test(window.location.hash)
+    );
     return () => {
       // This counter invalidates network requests, not a DOM ref.
       // eslint-disable-next-line react-hooks/exhaustive-deps
       request.current++;
-      window.removeEventListener('focus', focus);
-      window.clearInterval(interval);
+      stopPolling();
     };
-  }, [refresh]);
+  }, [refresh, userId]);
   const saveTeacher = async (teacher: Teacher) => {
     await liveApi.saveTeacher(teacher);
     await refresh();

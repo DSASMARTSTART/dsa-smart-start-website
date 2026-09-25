@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase, teacherInviteRedirect } from '../lib/supabase';
+import { clearCoursesCache } from '../data/supabaseStore';
 import { sendWelcomeEmail } from '../lib/emailService';
 import type { Database } from '../lib/database.types';
 
@@ -127,6 +128,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         window.location.hash = '#reset-password';
       }
 
+      if (activeUserId !== (session?.user.id ?? null)) {
+        clearCoursesCache();
+      }
       setSession(session);
       setUser(session?.user ?? null);
 

@@ -1,3 +1,4 @@
+import OptimizedImage from './OptimizedImage';
 // ============================================
 // QuizRenderer — Stop & Check Quiz UI
 // ============================================
@@ -373,7 +374,7 @@ const ImageWordExercise: React.FC<ExerciseProps> = ({ questions, answers, onAnsw
           <div key={q.id} className="flex flex-col items-center">
             <div className="w-full aspect-square bg-white/5 border border-white/10 rounded-xl overflow-hidden mb-2 flex items-center justify-center">
               {q.imageUrl ? (
-                <img
+                <OptimizedImage
                   src={q.imageUrl}
                   alt={`Question ${idx + 1}`}
                   className="w-full h-full object-cover"

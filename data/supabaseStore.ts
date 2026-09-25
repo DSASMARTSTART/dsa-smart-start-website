@@ -4,6 +4,7 @@
 // ============================================
 
 import { supabase } from '../lib/supabase';
+import { createRequestCache } from '../lib/requestCache';
 import type { 
   User, Course, Enrollment, Purchase, AuditLog, Activity,
   UserFilters, CourseFilters,
@@ -16,26 +17,20 @@ import type {
 // ============================================
 // SIMPLE IN-MEMORY CACHE
 // ============================================
-interface CacheEntry<T> {
-  data: T;
-  timestamp: number;
-}
+const courseLists = createRequestCache<Course[]>(60_000);
+const courseDetails = createRequestCache<Course | null>(60_000);
+const courseListKey = (filters?: CourseFilters) => JSON.stringify({
+  level: filters?.level || 'all',
+  productType: filters?.productType || 'all',
+  targetAudience: filters?.targetAudience || 'all',
+  contentFormat: filters?.contentFormat || 'all',
+  published: (filters?.published ?? filters?.isPublished) !== false,
+  search: filters?.search || '',
+});
 
-const cache = {
-  courses: null as CacheEntry<Course[]> | null,
-  coursesById: new Map<string, CacheEntry<Course>>(),
-};
-
-const CACHE_TTL = 60 * 1000; // 1 minute cache for courses
-
-const isCacheValid = <T>(entry: CacheEntry<T> | null | undefined): entry is CacheEntry<T> => {
-  return entry != null && Date.now() - entry.timestamp < CACHE_TTL;
-};
-
-// Clear cache (call when courses are modified)
 export const clearCoursesCache = () => {
-  cache.courses = null;
-  cache.coursesById.clear();
+  courseLists.clear();
+  courseDetails.clear();
 };
 
 // ============================================
@@ -439,75 +434,63 @@ export const coursesApi = {
       return [];
     }
     
-    // Use cache for public course list (no filters or just isPublished)
-    const isPublicRequest = !filters?.level || filters.level === 'all';
-    const wantsPublished = filters?.published !== false && filters?.isPublished !== false;
+    return courseLists.get(courseListKey(filters), async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let query = (supabase as any).from('courses').select('*');
     
-    if (isPublicRequest && wantsPublished && isCacheValid(cache.courses)) {
-      console.log('Returning cached courses');
-      return cache.courses.data;
-    }
+      // Filter by level/category
+      if (filters?.level && filters.level !== 'all') {
+        query = query.eq('level', filters.level);
+      }
     
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let query = (supabase as any).from('courses').select('*');
+      // Filter by product type (ebook, learndash, service)
+      if (filters?.productType && filters.productType !== 'all') {
+        query = query.eq('product_type', filters.productType);
+      }
 
-    // Filter by level/category
-    if (filters?.level && filters.level !== 'all') {
-      query = query.eq('level', filters.level);
-    }
+      // Filter by target audience (adults_teens, kids)
+      if (filters?.targetAudience && filters.targetAudience !== 'all') {
+        query = query.eq('target_audience', filters.targetAudience);
+      }
     
-    // Filter by product type (ebook, learndash, service)
-    if (filters?.productType && filters.productType !== 'all') {
-      query = query.eq('product_type', filters.productType);
-    }
+      // Filter by content format (pdf, interactive, live, hybrid)
+      if (filters?.contentFormat && filters.contentFormat !== 'all') {
+        query = query.eq('content_format', filters.contentFormat);
+      }
     
-    // Filter by target audience (adults_teens, kids)
-    if (filters?.targetAudience && filters.targetAudience !== 'all') {
-      query = query.eq('target_audience', filters.targetAudience);
-    }
+      // Always explicitly filter for published courses on public pages
+      // This ensures logged-in users can still see published courses
+      const publishedFilter = filters?.published ?? filters?.isPublished;
+      if (publishedFilter === false) {
+        // Only filter for unpublished if explicitly requested (admin pages)
+        query = query.eq('is_published', false);
+      } else {
+        // For public pages (including logged-in users), always filter for published
+        query = query.eq('is_published', true);
+      }
     
-    // Filter by content format (pdf, interactive, live, hybrid)
-    if (filters?.contentFormat && filters.contentFormat !== 'all') {
-      query = query.eq('content_format', filters.contentFormat);
-    }
+      const { data, error } = await query.order('created_at', { ascending: false });
     
-    // Always explicitly filter for published courses on public pages
-    // This ensures logged-in users can still see published courses
-    const publishedFilter = filters?.published ?? filters?.isPublished;
-    if (publishedFilter === false) {
-      // Only filter for unpublished if explicitly requested (admin pages)
-      query = query.eq('is_published', false);
-    } else {
-      // For public pages (including logged-in users), always filter for published
-      query = query.eq('is_published', true);
-    }
+      if (error) {
+        console.error('Error fetching courses:', error);
+        throw new Error(`Failed to load courses: ${error.message}`);
+      }
 
-    const { data, error } = await query.order('created_at', { ascending: false });
-    
-    if (error) {
-      console.error('Error fetching courses:', error);
-      throw new Error(`Failed to load courses: ${error.message}`);
-    }
+      const courses = (data || []).map((c: Record<string, unknown>) => ({
+        ...toCamelCase<Course>(c),
+        modules: (c.modules as Module[]) || [],
+        pricing: c.pricing as CoursePricing,
+        // Map new catalog fields
+        productType: (c.product_type as ProductType) || 'learndash',
+        targetAudience: (c.target_audience as TargetAudience) || 'adults_teens',
+        contentFormat: (c.content_format as ContentFormat) || 'interactive',
+        teachingMaterialsPrice: c.teaching_materials_price as number | undefined,
+        teachingMaterialsIncluded: (c.teaching_materials_included as boolean) || false,
+        relatedMaterialsId: c.related_materials_id as string | undefined
+      }));
 
-    const courses = (data || []).map((c: Record<string, unknown>) => ({
-      ...toCamelCase<Course>(c),
-      modules: (c.modules as Module[]) || [],
-      pricing: c.pricing as CoursePricing,
-      // Map new catalog fields
-      productType: (c.product_type as ProductType) || 'learndash',
-      targetAudience: (c.target_audience as TargetAudience) || 'adults_teens',
-      contentFormat: (c.content_format as ContentFormat) || 'interactive',
-      teachingMaterialsPrice: c.teaching_materials_price as number | undefined,
-      teachingMaterialsIncluded: (c.teaching_materials_included as boolean) || false,
-      relatedMaterialsId: c.related_materials_id as string | undefined
-    }));
-    
-    // Cache the result for public requests
-    if (isPublicRequest && wantsPublished) {
-      cache.courses = { data: courses, timestamp: Date.now() };
-    }
-    
-    return courses;
+      return courses;
+    });
   },
 
   getById: async (id: string): Promise<Course | null> => {
@@ -517,43 +500,39 @@ export const coursesApi = {
       return null;
     }
     
-    // Check cache first
-    const cachedCourse = cache.coursesById.get(id);
-    if (isCacheValid(cachedCourse)) {
-      return cachedCourse.data;
-    }
+    // A catalog response already contains these published course details.
+    const listed = courseLists.peek(courseListKey())?.find(course => course.id === id);
+    if (listed) return listed;
+    return courseDetails.get(id, async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await (supabase as any)
+        .from('courses')
+        .select('*')
+        .eq('id', id)
+        .eq('is_published', true)  // Ensure we only get published courses
+        .single();
     
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any)
-      .from('courses')
-      .select('*')
-      .eq('id', id)
-      .eq('is_published', true)  // Ensure we only get published courses
-      .single();
+      if (error) {
+        console.error('Error fetching course by id:', error);
+        return null;
+      }
+      if (!data) return null;
 
-    if (error) {
-      console.error('Error fetching course by id:', error);
-      return null;
-    }
-    if (!data) return null;
+      const course = {
+        ...toCamelCase<Course>(data),
+        modules: (data.modules as Module[]) || [],
+        pricing: data.pricing as CoursePricing,
+        // Map new catalog fields
+        productType: (data.product_type as ProductType) || 'learndash',
+        targetAudience: (data.target_audience as TargetAudience) || 'adults_teens',
+        contentFormat: (data.content_format as ContentFormat) || 'interactive',
+        teachingMaterialsPrice: data.teaching_materials_price as number | undefined,
+        teachingMaterialsIncluded: (data.teaching_materials_included as boolean) || false,
+        relatedMaterialsId: data.related_materials_id as string | undefined
+      };
 
-    const course = {
-      ...toCamelCase<Course>(data),
-      modules: (data.modules as Module[]) || [],
-      pricing: data.pricing as CoursePricing,
-      // Map new catalog fields
-      productType: (data.product_type as ProductType) || 'learndash',
-      targetAudience: (data.target_audience as TargetAudience) || 'adults_teens',
-      contentFormat: (data.content_format as ContentFormat) || 'interactive',
-      teachingMaterialsPrice: data.teaching_materials_price as number | undefined,
-      teachingMaterialsIncluded: (data.teaching_materials_included as boolean) || false,
-      relatedMaterialsId: data.related_materials_id as string | undefined
-    };
-    
-    // Cache the result
-    cache.coursesById.set(id, { data: course, timestamp: Date.now() });
-    
-    return course;
+      return course;
+    });
   },
 
   // Admin-specific getById that can fetch unpublished/draft courses
@@ -1382,13 +1361,9 @@ export const coursesApi = {
     return count || 0;
   },
 
-  getAvgProgress: async (courseId: string): Promise<number> => {
-    // This would require a progress table and more complex calculation
-    // For now return a placeholder
-    const enrollments = await enrollmentsApi.getByCourse(courseId);
-    if (enrollments.length === 0) return 0;
-    
-    // Calculate average - for now just return a placeholder
+  getAvgProgress: async (_courseId: string): Promise<number> => {
+    // This UI metric is not implemented yet. Do not fetch all enrollments merely
+    // to discard them and display the same placeholder.
     return 0;
   }
 };
@@ -2000,6 +1975,24 @@ export const quizResultsApi = {
     if (error) return [];
 
     return (data || []).map((row: Record<string, unknown>) => toCamelCase<import('../types').QuizResult>(row));
+  },
+
+  /** Dashboard history in one read instead of one request per enrolled course. */
+  getResultsForCourses: async (userId: string, courseIds: string[]): Promise<import('../types').QuizResult[]> => {
+    if (!courseIds.length) return [];
+    const results: import('../types').QuizResult[] = [];
+    // Preserve older attempts for students with more than one page of history.
+    for (let offset = 0; ; offset += 1000) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await (supabase as any).from('quiz_results')
+        .select('*').eq('user_id', userId).in('course_id', courseIds)
+        .order('completed_at', { ascending: false }).order('id')
+        .range(offset, offset + 999);
+      if (error) throw error;
+      const rows = data || [];
+      results.push(...rows.map((row: Record<string, unknown>) => toCamelCase<import('../types').QuizResult>(row)));
+      if (rows.length < 1000) return results;
+    }
   },
 
   /** Fetch the best (highest-score) attempt for a specific quiz module. */

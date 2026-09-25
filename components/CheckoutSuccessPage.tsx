@@ -21,7 +21,7 @@ interface PurchaseWithCourse extends Purchase {
 }
 
 const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate }) => {
-  const { t } = useTranslation('checkout');
+  const { t } = useTranslation(['checkout', 'dashboard']);
   const { user, profile } = useAuth();
   const [recentPurchases, setRecentPurchases] = useState<PurchaseWithCourse[]>([]);
   const [loading, setLoading] = useState(true);

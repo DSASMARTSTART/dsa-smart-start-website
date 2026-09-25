@@ -16,8 +16,8 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPath, cartCount, isLoggedIn, user, onLogout, isAdmin }) => {
-  const { t } = useTranslation('common');
   const { ownTeacherId } = useLiveLearning();
+  const { t } = useTranslation(ownTeacherId ? ['common', 'dashboard'] : ['common']);
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);

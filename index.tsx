@@ -21,8 +21,8 @@ if (!rootElement) {
   throw new Error("Could not find root element to mount to");
 }
 
-// Wait until the detected language bundles are fully loaded before rendering.
-// This prevents the UI from flashing English when the user previously chose SR/IT/ES.
+// The HTML loading state remains visible while the two startup namespaces load.
+// The backend bounds failed/stalled downloads and falls back to bundled English.
 i18nReady.then(() => {
   const root = ReactDOM.createRoot(rootElement);
   root.render(

@@ -1,3 +1,5 @@
+import { startVisibleAnimation } from '../lib/visibleAnimation';
+import OptimizedImage from './OptimizedImage';
 ﻿import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, BookOpen, Download, FileText, CheckCircle2, Star, ShoppingCart, Check, ArrowRight, Layers, TrendingUp, Award, Music, Play, Clock, Shield, RefreshCcw, Sparkles, GraduationCap, ChevronRight, ChevronDown, Heart, BadgeCheck, UserCheck, Rocket, Lock, FileCheck } from 'lucide-react';
@@ -145,7 +147,6 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let animationFrameId: number;
     let particles: { x: number; y: number; size: number; speedX: number; speedY: number; opacity: number }[] = [];
     const particleCount = 30;
 
@@ -176,15 +177,14 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
       });
-      animationFrameId = requestAnimationFrame(animate);
     };
 
     window.addEventListener('resize', resize);
     resize();
-    animate();
+    const stopAnimation = startVisibleAnimation(canvas, animate);
     return () => {
       window.removeEventListener('resize', resize);
-      cancelAnimationFrame(animationFrameId);
+      stopAnimation();
     };
   }, []);
 
@@ -456,7 +456,7 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
                 {/* Cover Photo */}
                 {getEbookCover(course) ? (
                   <div className="relative w-full aspect-[3/4] rounded-3xl overflow-hidden mb-4 shadow-lg">
-                    <img
+                    <OptimizedImage
                       src={getEbookCover(course)}
                       alt={course.title}
                       loading="lazy"
@@ -486,6 +486,7 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
                     <>
                       <div className="relative aspect-video rounded-3xl overflow-hidden mb-4 bg-black">
                         <iframe
+                          loading="lazy"
                           src={embedUrl}
                           className="absolute inset-0 w-full h-full"
                           frameBorder="0"

@@ -1,3 +1,4 @@
+import OptimizedImage from './OptimizedImage';
 
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, Rocket, Clock, ChevronRight, Star, BookOpen, Layout, Zap, Layers, Compass, Music, CheckCircle2, LogIn, Download, FileText, AlertCircle, Loader2, Key, X, Mail, ClipboardCheck } from 'lucide-react';
@@ -110,6 +111,8 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
     let isCancelled = false;
     let pollInterval: ReturnType<typeof setInterval> | null = null;
     let pollCount = 0;
+    let inFlight = false;
+    let loadVersion = 0;
     const MAX_POLLS = 24; // Poll for up to 2 minutes (24 × 5s)
 
     const loadEnrolledCourses = async (isPolling = false) => {
@@ -123,6 +126,10 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
         if (!isCancelled) setLoading(false);
         return;
       }
+
+      if (inFlight) return;
+      inFlight = true;
+      const version = ++loadVersion;
 
       // Reset loading to true for fresh fetch (important for remounts!)
       // Only show loading spinner on initial load, not on poll refreshes
@@ -147,20 +154,17 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
           console.warn('Enrollment repair check failed (non-critical):', repairErr);
         }
 
-        // HOUSEKEEPING: Auto-expire stale pending purchases (>24h old) so the
-        // dashboard alert doesn't show abandoned/failed checkouts forever.
-        // Idempotent + non-blocking: failures are silently ignored.
-        try {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          await (supabase as any).rpc('cleanup_stale_pending_purchases', { p_hours_threshold: 24 });
-        } catch (cleanupErr) {
-          // RPC may not exist on older deployments — non-critical.
-          console.warn('cleanup_stale_pending_purchases skipped (non-critical):', cleanupErr);
+        // Housekeeping is independent of displaying current enrollments.
+        if (!isPolling) {
+          void Promise.resolve((supabase as any).rpc('cleanup_stale_pending_purchases', { p_hours_threshold: 24 }))
+            .catch(err => console.warn('Pending purchase cleanup skipped:', err));
         }
 
-        // Optimized: Get enrollments WITH course data in a single query (no N+1!)
-        const enrollmentsWithCourses = await enrollmentsApi.getByUserWithCourses(userId);
-        
+        const [enrollmentsWithCourses, userPurchases] = await Promise.all([
+          enrollmentsApi.getByUserWithCourses(userId),
+          purchasesApi.getByUser(userId),
+        ]);
+
         if (isCancelled) return;
         
         // Separate e-books from interactive courses
@@ -200,7 +204,6 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
         // always abandoned/failed checkouts that the cleanup job will mark
         // 'failed' on its next run. Showing them as "verifying" forever confuses
         // users who just completed a successful payment.
-        const userPurchases = await purchasesApi.getByUser(userId);
         const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
         const pendingOnes = userPurchases.filter(p =>
           p.status === 'pending' && new Date(p.purchasedAt) > oneHourAgo
@@ -224,17 +227,12 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
           setPurchasedEbooks(ebooks);
           setPendingPurchases(pendingWithCourses);
 
-          // Fetch quiz results for all enrolled interactive courses
-          const qrMap: Record<string, QuizResult[]> = {};
-          await Promise.all(
-            courses.map(async (c) => {
-              try {
-                const results = await quizResultsApi.getResults(userId, c.id);
-                if (results.length > 0) qrMap[c.id] = results;
-              } catch { /* non-critical */ }
-            })
-          );
-          if (!isCancelled) setQuizResults(qrMap);
+          // Quiz badges are secondary: one batched request, without holding the course list.
+          void quizResultsApi.getResultsForCourses(userId, courses.map(c => c.id)).then(results => {
+            const qrMap: Record<string, QuizResult[]> = {};
+            for (const result of results) (qrMap[result.courseId] ??= []).push(result);
+            if (!isCancelled && version === loadVersion) setQuizResults(qrMap);
+          }).catch(() => { /* Course access remains available if quiz history is offline. */ });
 
           // AUTO-POLL: If there are pending purchases, start polling every 5s
           // so the dashboard auto-updates when webhook confirms payment
@@ -264,6 +262,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
           setError(t('errorLoading', { defaultValue: 'Failed to load your courses. Please try again.' }));
         }
       } finally {
+        inFlight = false;
         if (!isCancelled) setLoading(false);
       }
     };
@@ -664,7 +663,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
                         <div className="relative h-48 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 flex items-center justify-center">
                           {coverUrl ? (
                             <>
-                              <img
+                              <OptimizedImage
                                 src={coverUrl}
                                 alt={ebook.title}
                                 loading="lazy"
