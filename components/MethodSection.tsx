@@ -47,7 +47,7 @@ const MethodSection: React.FC<MethodSectionProps> = ({ onNavigate }) => {
 
         {/* Passport Section - The "World Class" Card */}
         <div className="relative group animate-reveal">
-          <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-500 to-indigo-600 rounded-[3rem] blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
+          <div aria-hidden="true" className="mobile-static-glow absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-500 to-indigo-600 rounded-[3rem] blur opacity-20 group-hover:opacity-40 transition-opacity" ></div>
           <div className="relative bg-white/5 rounded-[3rem] p-12 lg:p-24 border border-white/10 shadow-xl overflow-hidden">
             {/* Background pattern */}
             <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-purple-500/10 to-transparent pointer-events-none"></div>

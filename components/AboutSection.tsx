@@ -52,7 +52,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate }) => {
 
         {/* Placeholder Photo */}
         <div className="relative group animate-reveal stagger-1">
-          <div className="absolute -inset-4 bg-purple-600 rounded-[3rem] blur-3xl opacity-20 group-hover:opacity-30 transition-opacity"></div>
+          <div aria-hidden="true" className="mobile-static-glow absolute -inset-4 bg-purple-600 rounded-[3rem] blur-3xl opacity-20 group-hover:opacity-30 transition-opacity" ></div>
           <div className="relative overflow-hidden rounded-[3rem] aspect-[4/3] lg:aspect-square shadow-2xl border-4 border-white/10">
             <img
                   loading="lazy"
@@ -76,8 +76,8 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate }) => {
       </div>
       
       {/* Decorative background elements */}
-      <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-purple-600 rounded-full blur-[120px] opacity-20 pointer-events-none" />
-      <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-96 h-96 bg-pink-600 rounded-full blur-[120px] opacity-20 pointer-events-none" />
+      <div aria-hidden="true" className="mobile-static-glow absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-purple-600 rounded-full blur-[120px] opacity-20 pointer-events-none" />
+      <div aria-hidden="true" className="mobile-static-glow absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-96 h-96 bg-pink-600 rounded-full blur-[120px] opacity-20 pointer-events-none" />
     </section>
   );
 };

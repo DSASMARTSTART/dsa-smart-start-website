@@ -35,8 +35,8 @@ const RootsSection: React.FC<RootsSectionProps> = ({ onNavigate }) => {
     <section className="py-32 bg-black relative overflow-hidden">
       {/* Background elements */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl pointer-events-none">
-        <div className="absolute top-1/4 left-0 w-96 h-96 bg-purple-600 rounded-full blur-[120px] opacity-20 animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-pink-600 rounded-full blur-[120px] opacity-20 animate-pulse delay-700"></div>
+        <div aria-hidden="true" className="mobile-static-glow absolute top-1/4 left-0 w-96 h-96 bg-purple-600 rounded-full blur-[120px] opacity-20 animate-pulse" ></div>
+        <div aria-hidden="true" className="mobile-static-glow absolute bottom-1/4 right-0 w-96 h-96 bg-pink-600 rounded-full blur-[120px] opacity-20 animate-pulse delay-700" ></div>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">

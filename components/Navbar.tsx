@@ -55,7 +55,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPath, cartCount, isL
   return (
     <nav className={`fixed top-0 left-0 w-full z-[100] transition-all duration-500 ${isScrolled ? 'py-4' : 'py-6'}`}>
       <div className="max-w-7xl mx-auto px-4 md:px-6">
-        <div className={`flex items-center justify-between bg-black/60 backdrop-blur-xl border border-white/10 px-4 md:px-8 py-3 rounded-full transition-shadow duration-500 ${isScrolled ? 'shadow-xl shadow-purple-500/10' : ''}`}>
+        <div className={`flex items-center justify-between bg-black/95 md:bg-black/60 md:backdrop-blur-xl border border-white/10 px-4 md:px-8 py-3 rounded-full transition-shadow duration-500 ${isScrolled ? 'shadow-xl shadow-purple-500/10' : ''}`}>
           
           <button onClick={() => handleLinkClick(isLoggedIn ? 'dashboard' : 'home')} className="flex items-center gap-3 shrink-0">
             <img 
@@ -144,7 +144,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPath, cartCount, isL
         </div>
       </div>
 
-      <div className={`fixed inset-0 bg-black/95 backdrop-blur-2xl z-[110] transition-all duration-500 lg:hidden ${mobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none'}`}>
+      <div className={`fixed inset-0 bg-black/95 z-[110] transition-all duration-500 lg:hidden ${mobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none'}`}>
         <button 
           onClick={() => setMobileMenuOpen(false)}
           className="absolute top-8 right-8 p-3 bg-white/10 text-white rounded-full"
