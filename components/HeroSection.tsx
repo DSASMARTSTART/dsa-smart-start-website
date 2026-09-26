@@ -66,8 +66,8 @@ const HeroSection: React.FC<HeroProps> = ({ onNavigate }) => {
       {/* Background Elements */}
       <div className="absolute inset-0 z-0 pointer-events-none">
          {/* Soft gradient blobs using the new colors */}
-         <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#FFC1F2] rounded-full mix-blend-screen filter blur-[100px] opacity-20 animate-pulse-slow"></div>
-         <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-[#AB8FFF] rounded-full mix-blend-screen filter blur-[100px] opacity-15 animate-pulse-slow delay-1000"></div>
+         <div aria-hidden="true" className="mobile-static-glow absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#FFC1F2] rounded-full mix-blend-screen filter blur-[100px] opacity-20 animate-pulse-slow" ></div>
+         <div aria-hidden="true" className="mobile-static-glow absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-[#AB8FFF] rounded-full mix-blend-screen filter blur-[100px] opacity-15 animate-pulse-slow delay-1000" ></div>
          <canvas ref={canvasRef} className="absolute inset-0 z-0 opacity-60" />
       </div>
 
