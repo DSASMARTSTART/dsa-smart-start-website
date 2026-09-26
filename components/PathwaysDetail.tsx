@@ -29,7 +29,7 @@ const PathwaysDetail: React.FC = () => {
         {/* Story & Kids Path */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
           <div className="relative group animate-reveal">
-             <div className="absolute -inset-6 bg-pink-600 rounded-[3rem] blur-3xl opacity-20 group-hover:opacity-30 transition-opacity"></div>
+             <div aria-hidden="true" className="mobile-static-glow absolute -inset-6 bg-pink-600 rounded-[3rem] blur-3xl opacity-20 group-hover:opacity-30 transition-opacity" ></div>
              <div className="relative overflow-hidden rounded-[3rem] aspect-[4/5] shadow-2xl border-4 border-white/10">
                 <img
                   loading="lazy"
@@ -114,7 +114,7 @@ const PathwaysDetail: React.FC = () => {
           </div>
 
           <div className="relative order-1 lg:order-2 group animate-reveal">
-             <div className="absolute -inset-6 bg-blue-600 rounded-[3rem] blur-3xl opacity-20 group-hover:opacity-30 transition-opacity"></div>
+             <div aria-hidden="true" className="mobile-static-glow absolute -inset-6 bg-blue-600 rounded-[3rem] blur-3xl opacity-20 group-hover:opacity-30 transition-opacity" ></div>
              <div className="relative overflow-hidden rounded-[3rem] aspect-[4/5] shadow-2xl border-4 border-white/10">
                 <img
                   loading="lazy"
