@@ -1,6 +1,7 @@
 /** Run decorative canvas work only while visible, capped at 30 frames/second. */
 export function startVisibleAnimation(element: HTMLElement, draw: () => void) {
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const mobile = window.matchMedia('(max-width: 767px), (pointer: coarse)');
   let visible = true;
   let frame = 0;
   let last = 0;
@@ -15,7 +16,7 @@ export function startVisibleAnimation(element: HTMLElement, draw: () => void) {
   };
   const update = () => {
     cancelAnimationFrame(frame);
-    if (!stopped && visible && !document.hidden && !motion.matches) {
+    if (!stopped && visible && !document.hidden && !motion.matches && !mobile.matches) {
       last = 0;
       frame = requestAnimationFrame(tick);
     }
@@ -30,6 +31,7 @@ export function startVisibleAnimation(element: HTMLElement, draw: () => void) {
   observer?.observe(element);
   document.addEventListener('visibilitychange', update);
   motion.addEventListener('change', update);
+  mobile.addEventListener('change', update);
   draw();
   update();
   return () => {
@@ -38,5 +40,6 @@ export function startVisibleAnimation(element: HTMLElement, draw: () => void) {
     observer?.disconnect();
     document.removeEventListener('visibilitychange', update);
     motion.removeEventListener('change', update);
+    mobile.removeEventListener('change', update);
   };
 }
