@@ -28,3 +28,19 @@ html {
 .stagger-1 { animation-delay: 0.1s; }
 .stagger-2 { animation-delay: 0.2s; }
 .stagger-3 { animation-delay: 0.3s; }
+
+
+/* Keep the document canvas dark while assets load and during mobile overscroll. */
+html, body { background-color: #000; }
+
+/* Empty decorative glow layers are costly to rasterize on mobile GPUs. */
+@media (max-width: 767px), (pointer: coarse) {
+  .mobile-static-glow { display: none; }
+  .animate-reveal { animation: none; opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .animate-reveal { animation: none; opacity: 1; }
+  .mobile-static-glow { animation: none; }
+}
