@@ -170,6 +170,33 @@ try {
       .map((path) => fs.readFileSync(path, 'utf8'))
       .join('\n')
   );
+  sql(
+    [
+      'supabase/migrations/20260930140000_booking_public_workflow.sql',
+      'supabase/migrations/20260930141000_recording_course_access.sql',
+      'supabase/migrations/20260930142000_booking_notifications.sql',
+      'supabase/tests/booking-public-workflow.sql',
+    ]
+      .map((path) => fs.readFileSync(path, 'utf8'))
+      .join('\n')
+  );
+  const pendingRace = await Promise.all(
+    [3, 4].map((n) =>
+      concurrent(
+        `${actor(n)}SELECT book_live_lesson(${course},${teacher},current_date+70,'14:00');`
+      )
+    )
+  );
+  assert.equal(pendingRace.filter((r) => r.code === 0).length, 1, JSON.stringify(pendingRace));
+  assert.equal(
+    sql(
+      "SELECT count(*) FROM live_bookings WHERE status='pending' AND starts_at::date=current_date+70"
+    ),
+    '1'
+  );
+  console.log(
+    'PASS: pending approval, 48/72-hour rules, atomic rescheduling, recording course expiry and downloads.'
+  );
   console.log(
     'PASS: admin analytics authorization, registration cohorts, revenue currencies/refunds, progress and group session counts.'
   );

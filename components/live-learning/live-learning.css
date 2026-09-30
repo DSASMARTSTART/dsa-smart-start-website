@@ -466,6 +466,8 @@
 }
 .ll-tabs-row {
   display: flex;
+  min-width: 0;
+  gap: 16px;
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid #e3e0eb;
@@ -473,10 +475,15 @@
 }
 .ll-tabs {
   display: flex;
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
   gap: 27px;
 }
 .ll-tabs button {
   display: flex;
+  flex-shrink: 0;
+  white-space: nowrap;
   align-items: center;
   gap: 8px;
   padding: 0 2px 15px;

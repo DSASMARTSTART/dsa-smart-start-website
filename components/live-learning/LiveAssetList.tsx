@@ -10,6 +10,8 @@ function AssetViewer({ asset, onClose }: { asset: LiveAsset; onClose: () => void
   const [url, setUrl] = useState(''),
     [error, setError] = useState(''),
     [retry, setRetry] = useState(0);
+  const [download, setDownload] = useState<{ url: string; expiresAt: string } | null>(null);
+  const [downloading, setDownloading] = useState(false);
   useEffect(() => {
     dialog.current?.showModal();
   }, []);
@@ -17,6 +19,7 @@ function AssetViewer({ asset, onClose }: { asset: LiveAsset; onClose: () => void
     let disposed = false;
     setUrl('');
     setError('');
+    if (asset.canPlay === false) return;
     libraryApi
       .open(asset)
       .then((value) => {
@@ -50,7 +53,47 @@ function AssetViewer({ asset, onClose }: { asset: LiveAsset; onClose: () => void
           <X size={20} />
         </button>
       </div>
-      {!url && !error && <p role="status">{t('live.loading')}</p>}
+      {!url && !error && asset.canPlay !== false && <p role="status">{t('live.loading')}</p>}
+      {asset.canPlay === false && <p>{t('live.recordingDownloadOnly')}</p>}
+      {asset.downloadsUntil && (
+        <p className="my-3 text-sm text-gray-400">
+          {t('live.downloadDeadline', { date: new Date(asset.downloadsUntil).toLocaleString() })}
+        </p>
+      )}
+      {asset.kind === 'recording' && asset.canDownload && (
+        <div className="my-4">
+          <button
+            disabled={downloading}
+            className="inline-flex gap-2 items-center text-purple-300"
+            onClick={async () => {
+              setDownloading(true);
+              setError('');
+              setDownload(null);
+              try {
+                setDownload(await libraryApi.download(asset));
+              } catch (err) {
+                setError((err as Error).message);
+              } finally {
+                setDownloading(false);
+              }
+            }}
+          >
+            <Download size={17} />
+            {t(downloading ? 'live.loading' : 'live.downloadRecording')}
+          </button>
+          {download && Date.parse(download.expiresAt) > Date.now() && (
+            <a
+              className="block mt-3 underline text-purple-200"
+              href={download.url}
+              target="_blank"
+              rel="noreferrer"
+              download={asset.filename}
+            >
+              {t('live.downloadReady')}
+            </a>
+          )}
+        </div>
+      )}
       {error && (
         <p role="alert" className="text-red-300 mb-4">
           {error}{' '}

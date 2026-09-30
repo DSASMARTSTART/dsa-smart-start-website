@@ -5,8 +5,9 @@ import {
   safeVimeoEmbedUrl,
   safeVimeoUploadUrl,
   videoState,
+  recordingDownload,
 } from '../supabase/functions/live-vimeo/vimeo';
-const privacy = { view: 'disable', embed: 'whitelist', download: false };
+const privacy = { view: 'disable', embed: 'whitelist', download: true };
 describe('Vimeo recording integration', () => {
   it('creates a resumable upload with protected playback and all configured domains', async () => {
     const request = vi
@@ -27,7 +28,7 @@ describe('Vimeo recording integration', () => {
     expect(request.mock.calls[0][0]).toBe('https://api.vimeo.com/me/videos');
     expect(JSON.parse(request.mock.calls[0][1].body)).toMatchObject({
       upload: { approach: 'tus', size: 1234 },
-      privacy: { view: 'disable', embed: 'whitelist', download: false },
+      privacy: { view: 'disable', embed: 'whitelist', download: true },
     });
     expect(request.mock.calls.slice(1).map((call) => call[0])).toEqual([
       'https://api.vimeo.com/videos/123/privacy/domains/eduway.academy',
@@ -117,5 +118,50 @@ describe('Vimeo recording integration', () => {
       'www.eduway.academy',
     ]);
     expect(() => approvedDomains('https://eduway.academy/path')).toThrow();
+  });
+});
+
+describe('authorized recording download links', () => {
+  it('selects an expiring MP4 without exposing other Vimeo metadata', () => {
+    expect(
+      recordingDownload(
+        {
+          uri: '/videos/1',
+          download: [
+            {
+              type: 'video/mp4',
+              link: 'https://player.vimeo.com/progressive_redirect/download/1',
+              expires: '2030-01-01T00:00:00Z',
+              height: 720,
+            },
+            {
+              type: 'video/mp4',
+              link: 'https://player.vimeo.com/progressive_redirect/download/2',
+              expires: '2020-01-01T00:00:00Z',
+              height: 1080,
+            },
+          ],
+        },
+        Date.parse('2026-01-01')
+      )
+    ).toEqual({
+      url: 'https://player.vimeo.com/progressive_redirect/download/1',
+      expiresAt: '2030-01-01T00:00:00Z',
+    });
+  });
+  it('rejects missing plan capabilities, expired files, and untrusted hosts', () => {
+    expect(() => recordingDownload({ uri: '/videos/1' })).toThrow('not available');
+    expect(() =>
+      recordingDownload({
+        uri: '/videos/1',
+        download: [
+          {
+            type: 'video/mp4',
+            link: 'https://vimeo.com.attacker.invalid/file',
+            expires: '2030-01-01T00:00:00Z',
+          },
+        ],
+      })
+    ).toThrow('invalid download');
   });
 });

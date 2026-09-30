@@ -22,7 +22,8 @@ export default function LiveProgramCards({ courses, onNavigate }: Props) {
   const selectedCourse = courses.find((c) => c.id === chosen) || courses[0];
   const navigate = (path: string) =>
     onNavigate ? onNavigate(path) : (window.location.hash = `#${path}`);
-  if (!courses.length) return null;
+  if (!courses.length)
+    return bookings.some((b) => b.userId === user?.id) ? <LessonList view="history" /> : null;
   const labels = ['completed', 'scheduled', 'otherUsed', 'remaining'] as const;
   const colors = ['#a78bfa', '#38bdf8', '#fbbf24', '#303038'];
   return (
@@ -274,6 +275,18 @@ export default function LiveProgramCards({ courses, onNavigate }: Props) {
               />
             )}
           </div>
+          {[
+            ...new Set(
+              bookings
+                .filter(
+                  (b) =>
+                    b.userId === user?.id && !courses.some((course) => course.id === b.courseId)
+                )
+                .map((b) => b.courseId)
+            ),
+          ].map((id) => (
+            <LessonList key={id} courseId={id} view="history" />
+          ))}
         </>
       )}
     </section>

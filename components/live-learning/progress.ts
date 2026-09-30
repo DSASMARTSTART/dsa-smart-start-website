@@ -8,13 +8,15 @@ export function lessonProgress(
   now = Date.now()
 ) {
   const own = bookings.filter((b) => b.userId === userId && b.courseId === courseId);
-  const used = own.filter((b) => b.creditUsed && b.status !== 'cancelled');
+  const used = own.filter((b) => b.creditUsed);
   const upcoming = own
-    .filter((b) => b.status === 'booked' && Date.parse(b.endsAt) > now)
+    .filter((b) => ['pending', 'booked'].includes(b.status) && Date.parse(b.endsAt) > now)
     .sort((a, b) => Date.parse(a.startsAt) - Date.parse(b.startsAt));
   const total = allowance.group + allowance.private;
   const completed = used.filter((b) => b.status === 'completed').length;
-  const scheduled = used.filter((b) => b.status === 'booked' && Date.parse(b.endsAt) > now).length;
+  const scheduled = used.filter(
+    (b) => ['pending', 'booked'].includes(b.status) && Date.parse(b.endsAt) > now
+  ).length;
   return {
     total,
     completed,

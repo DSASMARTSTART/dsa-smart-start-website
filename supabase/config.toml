@@ -453,3 +453,7 @@ verify_jwt = false
 # Authenticated requests and per-booking authorization are checked in the handler.
 [functions.live-vimeo]
 verify_jwt = false
+
+# Scheduled worker requires its private server-to-server bearer secret.
+[functions.send-booking-notifications]
+verify_jwt = false

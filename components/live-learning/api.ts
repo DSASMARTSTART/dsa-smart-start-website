@@ -1,5 +1,7 @@
 import { supabaseAny as db } from '../../lib/supabase';
 import type { Teacher, Booking, GroupSession } from './model';
+export type BookingAction =
+  'cancel' | 'student_cancel' | 'approve' | 'reject' | 'media' | 'completed' | 'no_show';
 export type ProgramSettings = {
   program: string;
   group_capacity: number;
@@ -7,6 +9,7 @@ export type ProgramSettings = {
   buffer_minutes: number;
   cancellation_hours: number | null;
   recording_days: number;
+  credit_return_hours: number;
 };
 export type Workspace = {
   teachers: Teacher[];
@@ -27,11 +30,12 @@ export const liveApi = {
   saveTeacher: (teacher: Teacher) => rpc<string>('save_live_teacher', { p_teacher: teacher }),
   selectTeacher: (courseId: string, teacherId: string) =>
     rpc<void>('select_live_teacher', { p_course: courseId, p_teacher: teacherId }),
-  availability: (courseId: string, teacherId: string, date: string) =>
+  availability: (courseId: string, teacherId: string, date: string, rescheduleId?: string) =>
     rpc<Availability>('live_availability', {
       p_course: courseId,
       p_teacher: teacherId,
       p_date: date,
+      ...(rescheduleId ? { p_reschedule: rescheduleId } : {}),
     }),
   book: (
     courseId: string,
@@ -47,12 +51,14 @@ export const liveApi = {
       p_time: time,
       p_group: groupId,
     }),
-  updateBooking: (
-    id: string,
-    action: 'cancel' | 'media' | 'completed' | 'no_show',
-    zoom = '',
-    recording = ''
-  ) =>
+  reschedule: (id: string, date: string, time: string | null, groupId: string | null) =>
+    rpc<string>('reschedule_live_lesson', {
+      p_id: id,
+      p_date: date,
+      p_time: time,
+      p_group: groupId,
+    }),
+  updateBooking: (id: string, action: BookingAction, zoom = '', recording = '') =>
     rpc<void>('update_live_booking', {
       p_id: id,
       p_action: action,

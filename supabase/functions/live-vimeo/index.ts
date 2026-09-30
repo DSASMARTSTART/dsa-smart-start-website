@@ -5,6 +5,7 @@ import {
   safeVimeoEmbedUrl,
   safeVimeoUploadUrl,
   videoState,
+  recordingDownload,
 } from './vimeo.ts';
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -57,7 +58,21 @@ Deno.serve(async (request) => {
         .maybeSingle();
       if (actor.role !== 'admin' && !teacher)
         return json({ error: 'Teacher or admin access required.' }, 403);
-      return json({ configured: Boolean(token), provider: 'vimeo' });
+      if (!token) return json({ configured: false, provider: 'vimeo', downloadsSupported: false });
+      const account = await new VimeoClient(token).api('/me?fields=account');
+      return json({
+        configured: true,
+        provider: 'vimeo',
+        accountPlan: account.account,
+        downloadsSupported: [
+          'standard',
+          'advanced',
+          'pro',
+          'business',
+          'premium',
+          'enterprise',
+        ].includes(account.account),
+      });
     }
     const assetInfo = async (id: string, manage = false) => {
       const { data, error } = await user.rpc('live_asset_info', { p_id: id, p_manage: manage });
@@ -85,6 +100,35 @@ Deno.serve(async (request) => {
         503
       );
     const vimeo = new VimeoClient(token);
+    if (body.action === 'download') {
+      if (!uuid(body.assetId)) return json({ error: 'Recording ID required.' }, 400);
+      const access = async () => {
+        const { data, error } = await user.rpc('live_recording_download_info', {
+          p_id: body.assetId,
+        });
+        if (error || !data || data.provider !== 'vimeo')
+          throw new Error(
+            'Recording download access has expired or is not available to this account.'
+          );
+        return data;
+      };
+      await access();
+      const { data: row } = await service
+        .from('live_vimeo_uploads')
+        .select('video_uri')
+        .eq('asset_id', body.assetId)
+        .single();
+      if (!row) return json({ error: 'Recording is not ready.' }, 409);
+      let video = await vimeo.api(`${row.video_uri}?fields=uri,privacy,download`);
+      if (video.privacy?.download === false) {
+        await vimeo.api(row.video_uri, 'PATCH', { privacy: { download: true } });
+        video = await vimeo.api(`${row.video_uri}?fields=uri,download`);
+      }
+      const result = recordingDownload(video);
+      await access();
+      // Only the authorized, expiring download capability is returned, never account credentials.
+      return json(result);
+    }
     if (body.action === 'create') {
       if (!uuid(body.bookingId)) return json({ error: 'Choose a past lesson.' }, 400);
       const domains = approvedDomains(domainSetting);

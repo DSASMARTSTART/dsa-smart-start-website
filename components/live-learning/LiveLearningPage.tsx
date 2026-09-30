@@ -686,7 +686,7 @@ export default function LiveLearningPage({
                       );
                       await refresh();
                       setSelectedTime('');
-                      setSuccess(t('live.bookingConfirmed'));
+                      setSuccess(t('live.bookingRequested'));
                     } catch (err) {
                       setActionError(err instanceof Error ? err.message : t('live.errorBody'));
                     } finally {
@@ -695,7 +695,7 @@ export default function LiveLearningPage({
                     }
                   }}
                 >
-                  {t(busy ? 'live.saving' : 'live.confirmBooking')}
+                  {t(busy ? 'live.saving' : 'live.requestBooking')}
                 </button>
                 <p className="ll-booking-help">
                   {t(
@@ -712,6 +712,8 @@ export default function LiveLearningPage({
                 {rules && (
                   <div className="ll-booking-help">
                     <p>{t('live.bookingNotice', { count: rules.notice_minutes })}</p>
+                    <p>{t('live.creditReturnCutoff', { count: rules.credit_return_hours })}</p>
+                    <p>{t('live.approvalRequired')}</p>
                     <p>
                       {rules.cancellation_hours === null
                         ? t('live.cancellationContact')

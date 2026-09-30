@@ -13,6 +13,20 @@ const base = {
 } as Booking;
 const allowance = { group: 25, private: 5 };
 describe('lesson progress', () => {
+  it('counts pending reservations and charged late cancellations without refunding them in the dashboard', () => {
+    const result = lessonProgress(
+      [
+        { ...base, id: 'pending', status: 'pending' },
+        { ...base, id: 'late', status: 'cancelled', creditUsed: true },
+        { ...base, id: 'teacher-cancelled', status: 'cancelled', creditUsed: false },
+      ],
+      'student',
+      'hybrid',
+      allowance,
+      now
+    );
+    expect(result).toMatchObject({ scheduled: 1, otherUsed: 1, remaining: 28, groupRemaining: 23 });
+  });
   it('separates attendance from bookings, no-shows and unconfirmed past lessons', () => {
     const result = lessonProgress(
       [

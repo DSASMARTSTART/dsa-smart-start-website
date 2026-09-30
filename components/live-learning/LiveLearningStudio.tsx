@@ -48,7 +48,7 @@ import ProgramRules from './ProgramRules';
 import LessonList from './LessonList';
 import LiveMaterials from './LiveMaterials';
 
-type Tab = 'teachers' | 'calendar' | 'programs' | 'materials' | 'recordings';
+type Tab = 'approvals' | 'teachers' | 'calendar' | 'programs' | 'materials' | 'recordings';
 type Panel = 'teacher' | 'weekly' | 'group' | 'time-off' | null;
 type Props = { mode?: 'admin' | 'teacher' };
 
@@ -196,7 +196,7 @@ export default function LiveLearningStudio({ mode = 'admin' }: Props) {
   const saving = useRef(false);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [lesson, setLesson] = useState<Booking | null>(null);
-  const [tab, setTab] = useState<Tab>('teachers');
+  const [tab, setTab] = useState<Tab>('approvals');
   const [role] = useState<'admin' | 'teacher' | 'student'>(mode);
   const [selectedId, setSelectedId] = useState('');
   const [query, setQuery] = useState('');
@@ -442,7 +442,7 @@ export default function LiveLearningStudio({ mode = 'admin' }: Props) {
     {
       label: 'Ready for students',
       value: teachers
-        .filter((t) => t.status === 'active')
+        .filter((t) => t.status === 'active' && t.userId)
         .length.toString()
         .padStart(2, '0'),
       text: 'Active teacher profiles',
@@ -533,6 +533,7 @@ export default function LiveLearningStudio({ mode = 'admin' }: Props) {
                   <>
                     {(
                       [
+                        { id: 'approvals', label: 'Pending requests', icon: Clock3 },
                         { id: 'teachers', label: 'Teachers', icon: Users },
                         { id: 'calendar', label: 'Calendar', icon: CalendarDays },
                         { id: 'programs', label: 'Programs & rules', icon: Settings2 },
@@ -549,6 +550,9 @@ export default function LiveLearningStudio({ mode = 'admin' }: Props) {
                         <item.icon size={17} />
                         {item.label}
                         {item.id === 'teachers' && <span>{teachers.length}</span>}
+                        {item.id === 'approvals' && (
+                          <span>{bookings.filter((b) => b.status === 'pending').length}</span>
+                        )}
                       </button>
                     ))}
                   </>
@@ -585,6 +589,7 @@ export default function LiveLearningStudio({ mode = 'admin' }: Props) {
             </div>
           )}
 
+          {role === 'admin' && tab === 'approvals' && <LessonList manager pendingOnly />}
           {role === 'admin' && tab === 'materials' && <LiveMaterials manager />}
           {((role === 'admin' && tab === 'recordings') ||
             (role === 'teacher' && teacherTab === 'recordings')) && (

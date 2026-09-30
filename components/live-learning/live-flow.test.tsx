@@ -116,7 +116,7 @@ describe('live program integration', () => {
     const time = await screen.findByRole('button', { name: '10:30' });
     fireEvent.click(time);
     expect(f.api.book).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole('button', { name: 'live.confirmBooking' }));
+    fireEvent.click(screen.getByRole('button', { name: 'live.requestBooking' }));
     await waitFor(() =>
       expect(f.api.book).toHaveBeenCalledWith(
         f.course.id,
@@ -126,7 +126,7 @@ describe('live program integration', () => {
         null
       )
     );
-    expect((await screen.findAllByText('live.bookingConfirmed')).length).toBeGreaterThan(0);
+    expect((await screen.findAllByText('live.bookingRequested')).length).toBeGreaterThan(0);
     expect(f.state.refresh).toHaveBeenCalled();
   });
   it('explains the configured cancellation policy and disables booking with no credits', async () => {
@@ -141,7 +141,7 @@ describe('live program integration', () => {
     fireEvent.click(await screen.findByRole('button', { name: '10:30' }));
     expect(screen.getByText('live.cancellationCutoff:24')).toBeTruthy();
     expect(
-      (screen.getByRole('button', { name: 'live.confirmBooking' }) as HTMLButtonElement).disabled
+      (screen.getByRole('button', { name: 'live.requestBooking' }) as HTMLButtonElement).disabled
     ).toBe(true);
     expect(f.api.book).not.toHaveBeenCalled();
   });
@@ -149,12 +149,12 @@ describe('live program integration', () => {
     f.api.book.mockRejectedValue(new Error('This time is no longer available.'));
     render(<LiveLearningPage courseId={f.course.id} teacherId="teacher" onNavigate={() => {}} />);
     fireEvent.click(await screen.findByRole('button', { name: '10:30' }));
-    fireEvent.click(screen.getByRole('button', { name: 'live.confirmBooking' }));
+    fireEvent.click(screen.getByRole('button', { name: 'live.requestBooking' }));
     await waitFor(() => expect(f.api.availability.mock.calls.length).toBeGreaterThan(1));
     expect(
       (await screen.findAllByText('This time is no longer available.')).length
     ).toBeGreaterThan(0);
-    expect(screen.queryByText('live.bookingConfirmed')).toBeNull();
+    expect(screen.queryByText('live.bookingRequested')).toBeNull();
   });
   it('requires an active enrollment before showing profiles', async () => {
     f.rows.mockResolvedValue([{ ...f.row, status: 'revoked' }]);

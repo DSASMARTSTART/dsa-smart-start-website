@@ -7,14 +7,18 @@ import type { Booking } from './model';
 import { useLiveLibrary } from './useLiveLibrary';
 import LiveAssetList from './LiveAssetList';
 import LiveAssetUpload from './LiveAssetUpload';
+import RescheduleLesson from './RescheduleLesson';
+import type { BookingAction } from './api';
 export default function LessonList({
   manager = false,
+  pendingOnly = false,
   teacherId,
   courseId,
   initialHistory = false,
   view,
 }: {
   manager?: boolean;
+  pendingOnly?: boolean;
   teacherId?: string;
   courseId?: string;
   initialHistory?: boolean;
@@ -29,6 +33,8 @@ export default function LessonList({
     error: filesError,
     refresh: refreshFiles,
   } = useLiveLibrary(courseId);
+  const [rescheduling, setRescheduling] = useState<Booking | null>(null);
+  const [pendingAction, setPendingAction] = useState<BookingAction>('cancel');
   const [missingOnly, setMissingOnly] = useState(false);
   const [history, setHistory] = useState(initialHistory),
     [pending, setPending] = useState<Booking | null>(null),
@@ -49,6 +55,7 @@ export default function LessonList({
     );
   const needsRecording = (b: Booking) =>
     b.status !== 'cancelled' &&
+    b.status !== 'pending' &&
     !(b.kind === 'private' && b.status === 'no_show') &&
     new Date(b.endsAt).getTime() <= Date.now() &&
     !b.recording &&
@@ -58,18 +65,21 @@ export default function LessonList({
   const showHistory = view ? view === 'history' : history;
   const visible = relevant
     .filter((b) =>
-      missingOnly
-        ? needsRecording(b)
-        : showHistory
-          ? b.status !== 'booked' || new Date(b.endsAt).getTime() <= Date.now()
-          : b.status === 'booked' && new Date(b.endsAt).getTime() > Date.now()
+      pendingOnly
+        ? b.status === 'pending'
+        : missingOnly
+          ? needsRecording(b)
+          : showHistory
+            ? !['pending', 'booked'].includes(b.status) ||
+              new Date(b.endsAt).getTime() <= Date.now()
+            : ['pending', 'booked'].includes(b.status) && new Date(b.endsAt).getTime() > Date.now()
     )
     .sort((a, b) =>
       showHistory
         ? Date.parse(b.startsAt) - Date.parse(a.startsAt)
         : Date.parse(a.startsAt) - Date.parse(b.startsAt)
     );
-  async function change(booking: Booking, action: 'cancel' | 'completed' | 'no_show') {
+  async function change(booking: Booking, action: BookingAction) {
     setBusy(true);
     setError('');
     try {
@@ -86,9 +96,17 @@ export default function LessonList({
       <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
         <h2 className="flex items-center gap-2 font-bold text-xl">
           <CalendarDays size={21} />
-          {t(view ? (showHistory ? 'live.hub.history' : 'live.hub.upcoming') : 'live.myLessons')}
+          {t(
+            pendingOnly
+              ? 'live.pendingRequests'
+              : view
+                ? showHistory
+                  ? 'live.hub.history'
+                  : 'live.hub.upcoming'
+                : 'live.myLessons'
+          )}
         </h2>
-        {!view && (
+        {!view && !pendingOnly && (
           <button
             className="text-purple-300 text-sm"
             onClick={() => {
@@ -100,7 +118,7 @@ export default function LessonList({
           </button>
         )}
       </div>
-      {manager && !filesLoading && !filesError && missingCount > 0 && (
+      {manager && !pendingOnly && !filesLoading && !filesError && missingCount > 0 && (
         <button
           type="button"
           aria-pressed={missingOnly}
@@ -128,7 +146,13 @@ export default function LessonList({
       )}
       {!visible.length && (
         <p className="text-gray-400">
-          {t(showHistory ? 'live.hub.emptyHistory' : 'live.hub.emptyUpcoming')}
+          {t(
+            pendingOnly
+              ? 'live.noPendingRequests'
+              : showHistory
+                ? 'live.hub.emptyHistory'
+                : 'live.hub.emptyUpcoming'
+          )}
         </p>
       )}
       <div className="grid gap-4">
@@ -155,6 +179,39 @@ export default function LessonList({
               </span>
             </div>
             <div className="flex flex-wrap gap-4 text-sm mt-5">
+              {b.status === 'pending' && (
+                <p className="text-amber-200">{t('live.approvalRequired')}</p>
+              )}
+              {b.canApprove && (
+                <button
+                  disabled={busy}
+                  className="text-green-300"
+                  onClick={() => void change(b, 'approve')}
+                >
+                  {t('live.approveRequest')}
+                </button>
+              )}
+              {b.canReject && (
+                <button
+                  disabled={busy}
+                  className="text-red-300"
+                  onClick={() => {
+                    setPendingAction('reject');
+                    setPending(b);
+                  }}
+                >
+                  {t('live.rejectRequest')}
+                </button>
+              )}
+              {b.canReschedule && (
+                <button
+                  disabled={busy}
+                  className="text-purple-300"
+                  onClick={() => setRescheduling(b)}
+                >
+                  {t('live.reschedule')}
+                </button>
+              )}
               {b.status === 'booked' && Date.parse(b.endsAt) > Date.now() && !b.zoom && (
                 <p className="text-gray-400">{t('live.meetingLinkPending')}</p>
               )}
@@ -169,7 +226,7 @@ export default function LessonList({
                   {t('live.joinLesson')}
                 </a>
               )}
-              {b.status !== 'cancelled' && b.recording && (
+              {b.status !== 'cancelled' && b.status !== 'pending' && b.recording && (
                 <a
                   className="inline-flex items-center gap-2 text-purple-300"
                   href={b.recording}
@@ -181,8 +238,27 @@ export default function LessonList({
                 </a>
               )}
               {b.canCancel && (
-                <button disabled={busy} className="text-gray-400" onClick={() => setPending(b)}>
-                  {t('live.cancelLesson')}
+                <button
+                  disabled={busy}
+                  className="text-gray-400"
+                  onClick={() => {
+                    setPendingAction('cancel');
+                    setPending(b);
+                  }}
+                >
+                  {t(manager ? 'live.teacherCancel' : 'live.cancelLesson')}
+                </button>
+              )}
+              {manager && b.canCancel && (
+                <button
+                  disabled={busy}
+                  className="text-gray-400"
+                  onClick={() => {
+                    setPendingAction('student_cancel');
+                    setPending(b);
+                  }}
+                >
+                  {t('live.studentCancel')}
                 </button>
               )}
               {manager && b.status === 'booked' && new Date(b.endsAt).getTime() <= Date.now() && (
@@ -197,6 +273,7 @@ export default function LessonList({
               )}
             </div>
             {b.status !== 'cancelled' &&
+              b.status !== 'pending' &&
               !(b.kind === 'private' && b.status === 'no_show') &&
               new Date(b.endsAt).getTime() <= Date.now() && (
                 <div className="mt-4 border-t border-white/10 pt-4">
@@ -227,6 +304,9 @@ export default function LessonList({
           </article>
         ))}
       </div>
+      {rescheduling && (
+        <RescheduleLesson booking={rescheduling} onClose={() => setRescheduling(null)} />
+      )}
       {pending && (
         <div
           role="dialog"
@@ -236,9 +316,19 @@ export default function LessonList({
         >
           <div className="max-w-md rounded-3xl border border-white/10 bg-[#111] p-8">
             <h3 id="cancel-lesson-heading" className="font-bold text-xl">
-              {t('live.cancelLesson')}?
+              {t(pendingAction === 'reject' ? 'live.rejectRequest' : 'live.cancelLesson')}?
             </h3>
-            <p className="text-gray-400 mt-4">{t('live.cancelExplanation')}</p>
+            <p className="text-gray-300 mt-4">
+              {t(
+                pendingAction === 'reject'
+                  ? 'live.rejectExplanation'
+                  : pendingAction === 'student_cancel'
+                    ? 'live.studentCancelExplanation'
+                    : pending.cancelReturnsCredit === false
+                      ? 'live.cancelCreditUsed'
+                      : 'live.cancelExplanation'
+              )}
+            </p>
             {error && (
               <p role="alert" className="text-red-300 mt-3">
                 {error}
@@ -248,9 +338,11 @@ export default function LessonList({
               <button
                 disabled={busy}
                 className="rounded-xl bg-purple-600 px-4 py-3"
-                onClick={() => void change(pending, 'cancel')}
+                onClick={() => void change(pending, pendingAction)}
               >
-                {busy ? t('live.saving') : t('live.confirmCancel')}
+                {busy
+                  ? t('live.saving')
+                  : t(pendingAction === 'reject' ? 'live.rejectRequest' : 'live.confirmCancel')}
               </button>
               <button disabled={busy} onClick={() => setPending(null)}>
                 {t('live.keepLesson')}

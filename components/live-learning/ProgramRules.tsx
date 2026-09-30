@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useLiveLearning } from './LiveLearningContext';
 import type { ProgramSettings } from './api';
+import BookingOperations from './BookingOperations';
+import CourseAccessDates from './CourseAccessDates';
 import { programs } from './model';
 function Rules({ initial }: { initial: ProgramSettings }) {
   const { saveSettings } = useLiveLearning();
@@ -30,7 +32,11 @@ function Rules({ initial }: { initial: ProgramSettings }) {
           [
             { key: 'notice_minutes', label: 'Minimum booking notice (minutes)', max: 10080 },
             { key: 'buffer_minutes', label: 'Break between lessons (minutes)', max: 120 },
-            { key: 'recording_days', label: 'Recording access (days)', max: 3650 },
+            {
+              key: 'credit_return_hours',
+              label: 'Credit returned with this much notice (hours)',
+              max: 720,
+            },
           ] as const
         ).map((field) => (
           <label className="ll-field" key={field.key}>
@@ -38,7 +44,7 @@ function Rules({ initial }: { initial: ProgramSettings }) {
             <input
               type="number"
               required
-              min={field.key === 'recording_days' ? 1 : 0}
+              min={0}
               max={field.max}
               value={draft[field.key]}
               onChange={(e) => setDraft({ ...draft, [field.key]: Number(e.target.value) })}
@@ -69,14 +75,16 @@ function Rules({ initial }: { initial: ProgramSettings }) {
               onChange={(e) => setDraft({ ...draft, cancellation_hours: Number(e.target.value) })}
             />
             <small>
-              Eligible cancellations return the lesson credit. Late requests go to the teacher.
+              Students can cancel or reschedule before this cutoff. The separate credit-return
+              cutoff determines whether the original credit is returned.
             </small>
           </label>
         )}
       </div>
       <p className="text-sm my-4">
-        Completed and missed lessons use one credit. Administrators and teachers can cancel a
-        reservation and return its credit.
+        New requests reserve a credit and require administrator approval. Missed lessons and late
+        student cancellations use a credit. Teacher cancellations and rejected requests return the
+        credit. Recording access uses each student’s course end and download deadline.
       </p>
       <button className="ll-button primary" disabled={busy}>
         {busy ? 'Saving…' : 'Save rules'}
@@ -93,6 +101,8 @@ export default function ProgramRules() {
   const { settings } = useLiveLearning();
   return (
     <section className="grid gap-6 mt-8">
+      <BookingOperations />
+      <CourseAccessDates />
       {(Object.values(settings) as ProgramSettings[]).map((s) => (
         <React.Fragment key={`${s.program}:${JSON.stringify(s)}`}>
           <Rules initial={s} />

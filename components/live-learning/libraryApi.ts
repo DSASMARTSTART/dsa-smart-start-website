@@ -16,6 +16,9 @@ export type LiveAsset = {
   bucket: string | null;
   path: string | null;
   created_at: string;
+  canPlay?: boolean;
+  canDownload?: boolean;
+  downloadsUntil?: string | null;
 };
 export type LibraryCourse = {
   id: string;
@@ -81,7 +84,12 @@ async function vimeoRequest<T>(body: Record<string, unknown>): Promise<T> {
   return data as T;
 }
 export const libraryApi = {
-  vimeoStatus: () => vimeoRequest<{ configured: boolean }>({ action: 'status' }),
+  download: (asset: LiveAsset) =>
+    vimeoRequest<{ url: string; expiresAt: string }>({ action: 'download', assetId: asset.id }),
+  vimeoStatus: () =>
+    vimeoRequest<{ configured: boolean; accountPlan?: string; downloadsSupported?: boolean }>({
+      action: 'status',
+    }),
   async list(courseId?: string, bookingId?: string) {
     const args = { p_course: courseId || null, p_booking: bookingId || null };
     const result = await rpc<LiveLibrary>('live_library', args);

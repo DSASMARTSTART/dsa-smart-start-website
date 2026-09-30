@@ -6,7 +6,31 @@ export type VimeoVideo = {
   transcode?: { status?: string };
   privacy?: { view?: string; embed?: string; download?: boolean };
   player_embed_url?: string;
+  download?: { link?: string; expires?: string; type?: string; height?: number; size?: number }[];
 };
+export function recordingDownload(video: VimeoVideo, now = Date.now()) {
+  const file = (video.download || [])
+    .filter(
+      (item) =>
+        item.type === 'video/mp4' && item.link && item.expires && Date.parse(item.expires) > now
+    )
+    .sort((a, b) => (b.height || 0) - (a.height || 0))[0];
+  if (!file)
+    throw new Error('A downloadable recording is not available yet. Please contact your teacher.');
+  const url = new URL(file.link!);
+  if (
+    url.protocol !== 'https:' ||
+    url.username ||
+    url.password ||
+    !(
+      url.hostname === 'vimeo.com' ||
+      url.hostname.endsWith('.vimeo.com') ||
+      url.hostname.endsWith('.vimeocdn.com')
+    )
+  )
+    throw new Error('Vimeo returned an invalid download URL.');
+  return { url: url.toString(), expiresAt: file.expires! };
+}
 export function approvedDomains(value: string) {
   const domains = [
     ...new Set(
@@ -59,7 +83,7 @@ export function videoState(video: VimeoVideo): 'uploading' | 'processing' | 'rea
   if (
     video.privacy?.view !== 'disable' ||
     video.privacy?.embed !== 'whitelist' ||
-    video.privacy?.download !== false
+    typeof video.privacy?.download !== 'boolean'
   )
     return 'error';
   return video.transcode?.status === 'complete' ? 'ready' : 'processing';
@@ -105,7 +129,7 @@ export class VimeoClient {
     const video: VimeoVideo = await this.api('/me/videos', 'POST', {
       name: title,
       upload: { approach: 'tus', size: bytes },
-      privacy: { view: 'disable', embed: 'whitelist', download: false, add: false },
+      privacy: { view: 'disable', embed: 'whitelist', download: true, add: false },
     });
     if (!/^\/videos\/[0-9]+$/.test(video.uri))
       throw new Error('Vimeo returned an invalid video identity.');
@@ -116,7 +140,7 @@ export class VimeoClient {
       if (
         video.privacy?.view !== 'disable' ||
         video.privacy?.embed !== 'whitelist' ||
-        video.privacy?.download !== false
+        video.privacy?.download !== true
       )
         throw new Error('Vimeo did not apply the required recording privacy settings.');
       return video;

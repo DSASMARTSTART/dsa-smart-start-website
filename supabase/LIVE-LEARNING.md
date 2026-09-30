@@ -1,5 +1,7 @@
 # Live Learning — production setup
 
+For the pending-approval booking release and current launch blockers, see [BOOKING-LAUNCH.md](BOOKING-LAUNCH.md). The original deployment notes below describe the September 21 release; the Vimeo token has since been configured and upload/transcoding verified. API downloads require a Vimeo plan upgrade.
+
 ## Deployed backend
 
 The existing Supabase project `wsjqkjgshvgjkjajsjgj` has the four Live Learning migrations through `20260921170000`. The integration keeps the existing courses, purchases and enrollments. It does not seed teachers, students or bookings.

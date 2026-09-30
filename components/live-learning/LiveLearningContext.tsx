@@ -1,7 +1,7 @@
 import { startVisiblePolling } from '../../lib/visiblePolling';
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { liveApi, type Workspace, type ProgramSettings } from './api';
+import { liveApi, type Workspace, type ProgramSettings, type BookingAction } from './api';
 import type { Teacher } from './model';
 const empty: Workspace = {
   teachers: [],
@@ -52,8 +52,11 @@ function useLiveLearningState() {
   }, [userId]);
   useEffect(() => {
     // Fetch once for the teacher navigation link; poll only learning/admin views.
-    const stopPolling = startVisiblePolling(refresh, () =>
-      !!userId && /^#(?:dashboard|live-learning|viewer-|teacher-calendar|admin)/.test(window.location.hash)
+    const stopPolling = startVisiblePolling(
+      refresh,
+      () =>
+        !!userId &&
+        /^#(?:dashboard|live-learning|viewer-|teacher-calendar|admin)/.test(window.location.hash)
     );
     return () => {
       // This counter invalidates network requests, not a DOM ref.
@@ -76,7 +79,7 @@ function useLiveLearningState() {
   };
   const updateBooking = async (
     id: string,
-    action: 'cancel' | 'media' | 'completed' | 'no_show',
+    action: BookingAction,
     zoom?: string,
     recording?: string
   ) => {

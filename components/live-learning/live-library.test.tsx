@@ -12,13 +12,22 @@ const f = vi.hoisted(() => ({
   upload: vi.fn(),
   open: vi.fn(),
   remove: vi.fn(),
+  updateBooking: vi.fn(),
+  refresh: vi.fn(),
+  availability: vi.fn(),
+  reschedule: vi.fn(),
   t: (key: string, options?: { count?: number }) =>
     options?.count === undefined ? key : `${key}:${options.count}`,
 }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: f.t }) }));
 vi.mock('../../contexts/AuthContext', () => ({ useAuth: () => ({ user: f.user }) }));
 vi.mock('./LiveLearningContext', () => ({
-  useLiveLearning: () => ({ bookings: f.bookings, teachers: [], updateBooking: vi.fn() }),
+  useLiveLearning: () => ({
+    bookings: f.bookings,
+    teachers: [],
+    updateBooking: f.updateBooking,
+    refresh: f.refresh,
+  }),
 }));
 vi.mock('./libraryApi', async (original) => {
   const actual = await original<typeof import('./libraryApi')>();
@@ -33,6 +42,7 @@ vi.mock('./libraryApi', async (original) => {
     },
   };
 });
+vi.mock('./api', () => ({ liveApi: { availability: f.availability, reschedule: f.reschedule } }));
 import LiveMaterials from './LiveMaterials';
 import LessonList from './LessonList';
 import LiveAssetUpload from './LiveAssetUpload';
@@ -76,6 +86,10 @@ beforeEach(() => {
   f.list.mockImplementation(async () => ({ courses: f.courses, assets: f.assets }));
   f.status.mockResolvedValue({ configured: true });
   f.upload.mockResolvedValue(material);
+  f.updateBooking.mockResolvedValue(undefined);
+  f.refresh.mockResolvedValue(undefined);
+  f.availability.mockResolvedValue({ times: ['11:00'], groups: [] });
+  f.reschedule.mockResolvedValue('replacement');
   f.open.mockResolvedValue('https://player.vimeo.com/video/123456?dnt=1');
   HTMLDialogElement.prototype.showModal = function () {
     this.setAttribute('open', '');
@@ -227,5 +241,50 @@ describe('live package library', () => {
       'MP4, MOV or WebM'
     );
     expect(() => validateLiveFile(new File([], 'empty.pdf'), 'material')).toThrow('50 MB');
+  });
+});
+
+describe('booking approval and changes', () => {
+  const future = {
+    ...booking,
+    status: 'pending',
+    startsAt: '2030-01-01T10:00:00Z',
+    endsAt: '2030-01-01T10:30:00Z',
+    date: '2030-01-01',
+    start: '10:00',
+    timezone: 'Europe/Belgrade',
+    kind: 'private',
+    groupId: null,
+    canCancel: true,
+  };
+  it('shows pending approval and does not provide a meeting link before approval', async () => {
+    f.bookings = [{ ...future, zoom: 'https://zoom.us/private' }];
+    render(<LessonList view="upcoming" />);
+    expect(await screen.findByText('live.status_pending')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'live.joinLesson' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'live.approveRequest' })).not.toBeInTheDocument();
+  });
+  it('warns about a used credit before submitting a late cancellation', async () => {
+    f.bookings = [{ ...future, cancelReturnsCredit: false }];
+    render(<LessonList view="upcoming" />);
+    fireEvent.click(await screen.findByRole('button', { name: 'live.cancelLesson' }));
+    expect(screen.getByText('live.cancelCreditUsed')).toBeInTheDocument();
+    expect(f.updateBooking).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'live.confirmCancel' }));
+    await waitFor(() => expect(f.updateBooking).toHaveBeenCalledWith('booking-1', 'cancel'));
+  });
+  it('uses the atomic reschedule endpoint and keeps the dialog open after rejection', async () => {
+    f.bookings = [{ ...future, canReschedule: true, rescheduleReturnsCredit: false }];
+    f.reschedule.mockRejectedValueOnce(new Error('No remaining credits'));
+    render(<LessonList view="upcoming" />);
+    fireEvent.click(await screen.findByRole('button', { name: 'live.reschedule' }));
+    expect(screen.getByText('live.rescheduleCreditUsed')).toBeInTheDocument();
+    await screen.findByRole('option', { name: '11:00' });
+    fireEvent.change(screen.getByRole('combobox'), { target: { value: '11:00' } });
+    fireEvent.click(screen.getByRole('button', { name: 'live.requestReschedule' }));
+    expect(await screen.findByText('No remaining credits')).toBeInTheDocument();
+    expect(f.reschedule).toHaveBeenCalledWith('booking-1', '2030-01-01', '11:00', null);
+    expect(f.updateBooking).not.toHaveBeenCalled();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
 });
