@@ -15,7 +15,7 @@ export default function LiveMaterials({
   showUnavailable?: boolean;
 }) {
   const { t } = useTranslation('dashboard');
-  const { courses, assets, loading, error, refresh } = useLiveLibrary(courseId);
+  const { courses, assets, loading, error, refresh } = useLiveLibrary(courseId,undefined,'material');
   const [chosen, setChosen] = useState('');
   const selected = courses.find((c) => c.id === (courseId || chosen)) || courses[0];
   if (!manager && !loading && !error && !selected?.canReadMaterials)

@@ -3,7 +3,7 @@
 // ============================================
 
 // ---------- User & Auth Types ----------
-export type UserRole = 'student' | 'admin' | 'editor';
+export type UserRole = 'student' | 'admin' | 'editor' | 'secretary';
 export type UserStatus = 'active' | 'paused' | 'deleted';
 
 export interface User {
@@ -141,6 +141,7 @@ export interface CoursePricing {
 
 // ---------- Course Metadata for Marketing ----------
 export interface CourseInstructor {
+  teacherId?: string;
   name: string;
   title: string;
   avatarUrl?: string;

@@ -1,3 +1,4 @@
+import ManagedVideo from './ManagedVideo';
 import OptimizedImage from '../OptimizedImage';
 import React, { useEffect, useState } from 'react';
 import {
@@ -46,6 +47,7 @@ export default function LiveLearningPage({
   const userId = user?.id;
   const {
     teachers,
+    credits,
     selections,
     selectTeacher,
     bookings,
@@ -101,7 +103,8 @@ export default function LiveLearningPage({
   }, [courseId, teacherId]);
 
   const enrollment = access.find((item) => item.courseId === courseId);
-  const program = enrollment && liveProgramFor(enrollment.course);
+  const baseProgram = enrollment && liveProgramFor(enrollment.course);
+  const program = baseProgram && {...baseProgram,...credits?.[courseId || '']};
   const eligible = teachers.filter(
     (teacher) => teacher.status === 'active' && teacher.programs.includes(program?.id || '')
   );
@@ -471,6 +474,7 @@ export default function LiveLearningPage({
                       ? t('live.hub.bookLesson')
                       : t('live.selectTeacher')}
                   </button>
+                  <ManagedVideo target={{teacherId:teacher.id}} />
                   {teacher.video && (
                     <a
                       className="ll-button secondary"

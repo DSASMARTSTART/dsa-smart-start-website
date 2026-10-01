@@ -10,7 +10,11 @@ export type BookingEvent = {
     creditUsed: boolean;
   };
 };
-export function bookingEmail(event: BookingEvent, site: string) {
+export type BookingEmailConfig = {
+  locale: 'en' | 'it' | 'sr' | 'es';
+  templates: Record<string, { subject: string; body: string }>;
+};
+export function bookingEmail(event: BookingEvent, site: string, config?: BookingEmailConfig) {
   const messages: Record<string, [string, string]> = {
     reminder: [
       'Lesson reminder',
@@ -57,9 +61,44 @@ export function bookingEmail(event: BookingEvent, site: string) {
       'Open your dashboard for the latest lesson and credit details.',
     ],
   };
-  const [subject, explanation] = messages[event.event] || messages.cancelled;
+  const key = ['student', 'rescheduled'].includes(event.event)
+    ? `${event.event}_${event.payload.creditUsed ? 'charged' : 'refunded'}`
+    : messages[event.event]
+      ? event.event
+      : 'cancelled';
+  const override = config?.templates?.[key];
+  const defaults = messages[event.event] || messages.cancelled;
+  const subject = override?.subject.trim() || defaults[0];
+  const explanation = override?.body.trim() || defaults[1];
+  const locale = config?.locale || 'en';
+  const labels = {
+    en: [
+      'Teacher',
+      'Student',
+      'View current details',
+      'This email describes a booking update. Your dashboard always shows the current status.',
+    ],
+    it: [
+      'Insegnante',
+      'Studente',
+      'Visualizza i dettagli aggiornati',
+      'Questa email descrive un aggiornamento della prenotazione. La dashboard mostra sempre lo stato attuale.',
+    ],
+    sr: [
+      'Nastavnik',
+      'Učenik',
+      'Pogledajte trenutne detalje',
+      'Ovaj imejl opisuje promenu rezervacije. Vaša kontrolna tabla uvek prikazuje trenutno stanje.',
+    ],
+    es: [
+      'Profesor',
+      'Estudiante',
+      'Ver los detalles actuales',
+      'Este correo informa de una actualización de la reserva. Tu panel siempre muestra el estado actual.',
+    ],
+  }[locale];
   const { title, startsAt, timezone, teacher, student } = event.payload;
-  const time = new Date(startsAt).toLocaleString('en-GB', {
+  const time = new Date(startsAt).toLocaleString(locale === 'en' ? 'en-GB' : locale, {
     timeZone: timezone,
     dateStyle: 'full',
     timeStyle: 'short',
@@ -69,6 +108,6 @@ export function bookingEmail(event: BookingEvent, site: string) {
   const link = `${origin}/#${event.audience === 'admin' ? 'admin-teachers' : event.audience === 'teacher' ? 'teacher-calendar' : 'dashboard'}`;
   return {
     subject: `Eduway · ${subject}`,
-    text: `${subject}\n\n${explanation}\n\n${title}\n${time} (${timezone})\nTeacher: ${teacher}\nStudent: ${student}\n\nView current details: ${link}\n\nThis email describes a booking update. Your dashboard always shows the current status.`,
+    text: `${subject}\n\n${explanation}\n\n${title}\n${time} (${timezone})\n${labels[0]}: ${teacher}\n${labels[1]}: ${student}\n\n${labels[2]}: ${link}\n\n${labels[3]}`,
   };
 }

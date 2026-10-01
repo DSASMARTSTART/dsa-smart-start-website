@@ -18,7 +18,7 @@ export interface Database {
           id: string;
           email: string;
           name: string;
-          role: 'student' | 'admin' | 'editor';
+          role: 'student' | 'admin' | 'editor' | 'secretary';
           status: 'active' | 'paused' | 'deleted';
           avatar_url: string | null;
           admin_notes: string | null;
@@ -30,7 +30,7 @@ export interface Database {
           id?: string;
           email: string;
           name: string;
-          role?: 'student' | 'admin' | 'editor';
+          role?: 'student' | 'admin' | 'editor' | 'secretary';
           status?: 'active' | 'paused' | 'deleted';
           avatar_url?: string | null;
           admin_notes?: string | null;
@@ -42,7 +42,7 @@ export interface Database {
           id?: string;
           email?: string;
           name?: string;
-          role?: 'student' | 'admin' | 'editor';
+          role?: 'student' | 'admin' | 'editor' | 'secretary';
           status?: 'active' | 'paused' | 'deleted';
           avatar_url?: string | null;
           admin_notes?: string | null;

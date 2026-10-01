@@ -15,7 +15,7 @@ type View = 'upcoming' | 'history' | 'materials';
 export default function LiveProgramCards({ courses, onNavigate }: Props) {
   const { user } = useAuth();
   const { t, i18n } = useTranslation('dashboard');
-  const { selections, teachers, bookings, loading, error, refresh } = useLiveLearning();
+  const { selections, teachers, bookings, credits, loading, error, refresh } = useLiveLearning();
   const [chosen, setChosen] = useState('');
   const [view, setView] = useState<View>('upcoming');
   const library = useRef<HTMLDivElement>(null);
@@ -61,7 +61,7 @@ export default function LiveProgramCards({ courses, onNavigate }: Props) {
                   x.status === 'active' &&
                   x.programs.includes(program.id)
               );
-              const stats = lessonProgress(bookings, user?.id, course.id, program);
+              const stats = lessonProgress(bookings, user?.id, course.id, credits?.[course.id] || program);
               let offset = 0;
               const chart = labels
                 .map((key, index) => {

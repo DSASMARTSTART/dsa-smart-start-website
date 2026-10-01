@@ -54,6 +54,15 @@ export default function BookingOperations() {
             Upload and playback availability is separate.
           </p>
         )}
+        {vimeo?.storage && vimeo.storage.max > 0 && (
+          <p className={vimeo.storage.used / vimeo.storage.max > 0.8 ? 'text-amber-200' : ''}>
+            Vimeo storage: {(vimeo.storage.used / 1e9).toFixed(1)} /{' '}
+            {(vimeo.storage.max / 1e9).toFixed(1)} GB.{' '}
+            {vimeo.storage.used / vimeo.storage.max > 0.8
+              ? 'Storage is over 80% used. Review cleanup or account capacity.'
+              : ''}
+          </p>
+        )}
         {mail && (
           <p>
             Email updates awaiting delivery: {mail.queued}. Failed after retries: {mail.failed}.

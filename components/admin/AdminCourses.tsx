@@ -21,12 +21,13 @@ interface AdminCoursesProps {
 const ITEMS_PER_PAGE = 10;
 
 const AdminCourses: React.FC<AdminCoursesProps> = ({ onNavigate }) => {
+  const [operationError,setOperationError]=useState('');
   const [courses, setCourses] = useState<Course[]>([]);
   const [allCourses, setAllCourses] = useState<Course[]>([]); // For stats calculation
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<CourseFilters>({ search: '' });
-  const [enrollmentCounts, setEnrollmentCounts] = useState<Record<string, number>>({});
-  const [avgProgress, setAvgProgress] = useState<Record<string, number>>({});
+  const [enrollmentCounts, setEnrollmentCounts] = useState<Record<string, number | null>>({});
+  const [avgProgress, setAvgProgress] = useState<Record<string, number | null>>({});
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -87,7 +88,7 @@ const AdminCourses: React.FC<AdminCoursesProps> = ({ onNavigate }) => {
       
       // Load enrollment counts and progress for each course
       const counts: Record<string, number> = {};
-      const progress: Record<string, number> = {};
+      const progress: Record<string, number | null> = {};
       await Promise.all(paginatedData.map(async course => {
         const [count, average] = await Promise.all([
           coursesApi.getEnrollmentCount(course.id),
@@ -99,7 +100,7 @@ const AdminCourses: React.FC<AdminCoursesProps> = ({ onNavigate }) => {
       setEnrollmentCounts(counts);
       setAvgProgress(progress);
     } catch (error) {
-      console.error('Error loading courses:', error);
+      setOperationError(error instanceof Error ? error.message : 'The operation failed. Please retry.');
     } finally {
       setLoading(false);
     }
@@ -114,7 +115,7 @@ const AdminCourses: React.FC<AdminCoursesProps> = ({ onNavigate }) => {
       }
       loadCourses();
     } catch (error) {
-      console.error('Error toggling publish:', error);
+      setOperationError(error instanceof Error ? error.message : 'The operation failed. Please retry.');
     }
   };
 
@@ -138,7 +139,7 @@ const AdminCourses: React.FC<AdminCoursesProps> = ({ onNavigate }) => {
       });
       loadCourses();
     } catch (error) {
-      console.error('Error deleting course:', error);
+      setOperationError(error instanceof Error ? error.message : 'The operation failed. Please retry.');
     } finally {
       setDeleting(false);
     }
@@ -190,7 +191,7 @@ const AdminCourses: React.FC<AdminCoursesProps> = ({ onNavigate }) => {
       setSelectedCourses(new Set());
       loadCourses();
     } catch (error) {
-      console.error('Error during bulk delete:', error);
+      setOperationError(error instanceof Error ? error.message : 'The operation failed. Please retry.');
     } finally {
       setDeleting(false);
     }
@@ -307,7 +308,7 @@ const AdminCourses: React.FC<AdminCoursesProps> = ({ onNavigate }) => {
       header: 'Avg Progress',
       width: '120px',
       render: (course: Course) => (
-        <ProgressBar value={avgProgress[course.id] || 0} size="sm" />
+        avgProgress[course.id] == null ? <span title="No trackable lessons or enrollments">—</span> : <ProgressBar value={avgProgress[course.id]!} size="sm" />
       )
     },
     {
@@ -355,6 +356,7 @@ const AdminCourses: React.FC<AdminCoursesProps> = ({ onNavigate }) => {
 
   return (
     <div className="space-y-6 animate-reveal">
+      {operationError&&<p role="alert" className="bg-red-50 text-red-700 p-4 rounded-xl">{operationError}</p>}
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
@@ -513,10 +515,10 @@ const AdminCourses: React.FC<AdminCoursesProps> = ({ onNavigate }) => {
         isOpen={showDeleteConfirm}
         title="Delete Course"
         message={`Are you sure you want to delete "${deleteTarget?.title}"? This will also remove all enrollments and student progress. This action cannot be undone.`}
-        confirmLabel={deleting ? "Deleting..." : "Delete Course"}
-        confirmVariant="danger"
+        confirmText={deleting ? "Deleting..." : "Delete Course"}
+        confirmType="danger"
         onConfirm={confirmDelete}
-        onCancel={() => { setShowDeleteConfirm(false); setDeleteTarget(null); }}
+        onClose={() => { setShowDeleteConfirm(false); setDeleteTarget(null); }}
       />
 
       {/* Bulk Delete Confirmation Modal */}
@@ -524,10 +526,10 @@ const AdminCourses: React.FC<AdminCoursesProps> = ({ onNavigate }) => {
         isOpen={showBulkDeleteConfirm}
         title="Delete Multiple Courses"
         message={`Are you sure you want to delete ${selectedCourses.size} course${selectedCourses.size > 1 ? 's' : ''}? This will also remove all enrollments and student progress for these courses. This action cannot be undone.`}
-        confirmLabel={deleting ? "Deleting..." : `Delete ${selectedCourses.size} Course${selectedCourses.size > 1 ? 's' : ''}`}
-        confirmVariant="danger"
+        confirmText={deleting ? "Deleting..." : `Delete ${selectedCourses.size} Course${selectedCourses.size > 1 ? 's' : ''}`}
+        confirmType="danger"
         onConfirm={confirmBulkDelete}
-        onCancel={() => setShowBulkDeleteConfirm(false)}
+        onClose={() => setShowBulkDeleteConfirm(false)}
       />
     </div>
   );

@@ -37,7 +37,7 @@ Deno.serve(async (request) => {
     });
     const { data: actor } = await service
       .from('users')
-      .select('status,role')
+      .select('status,role,name')
       .eq('id', identity.user.id)
       .single();
     if (actor?.status !== 'active') return json({ error: 'An active account is required.' }, 403);
@@ -56,14 +56,19 @@ Deno.serve(async (request) => {
         .select('id')
         .eq('user_id', identity.user.id)
         .maybeSingle();
-      if (actor.role !== 'admin' && !teacher)
+      if (!['admin', 'secretary', 'editor'].includes(actor.role) && !teacher)
         return json({ error: 'Teacher or admin access required.' }, 403);
       if (!token) return json({ configured: false, provider: 'vimeo', downloadsSupported: false });
-      const account = await new VimeoClient(token).api('/me?fields=account');
+      const account = await new VimeoClient(token).api('/me?fields=account,upload_quota.space');
       return json({
         configured: true,
         provider: 'vimeo',
         accountPlan: account.account,
+        storage: {
+          used: Number(account.upload_quota?.space?.used) || 0,
+          free: Number(account.upload_quota?.space?.free) || 0,
+          max: Number(account.upload_quota?.space?.max) || 0,
+        },
         downloadsSupported: [
           'standard',
           'advanced',
@@ -74,6 +79,19 @@ Deno.serve(async (request) => {
         ].includes(account.account),
       });
     }
+    const auditDeletion = async (id: string) => {
+      const { error } = await service
+        .from('audit_logs')
+        .insert({
+          action: 'asset_deletion_requested',
+          entity_type: 'asset',
+          entity_id: id,
+          admin_id: identity.user.id,
+          admin_name: actor.name || 'Staff',
+          description: 'Permanent Vimeo deletion requested',
+        });
+      if (error) throw new Error('Could not record the deletion request. Please retry.');
+    };
     const assetInfo = async (id: string, manage = false) => {
       const { data, error } = await user.rpc('live_asset_info', { p_id: id, p_manage: manage });
       if (error || !data || data.provider !== 'vimeo')
@@ -100,6 +118,135 @@ Deno.serve(async (request) => {
         503
       );
     const vimeo = new VimeoClient(token);
+    if (body.action === 'cleanup') {
+      if (
+        !['admin', 'secretary'].includes(actor.role) ||
+        !Array.isArray(body.assetIds) ||
+        body.assetIds.length > 10 ||
+        !body.assetIds.every(uuid)
+      )
+        return json({ error: 'Choose up to ten eligible recordings.' }, 403);
+      const results = [];
+      for (const id of body.assetIds) {
+        const { data: uri, error } = await service.rpc('claim_live_recording_cleanup', {
+          p_asset: id,
+        });
+        if (error) {
+          results.push({ id, error: error.message });
+          continue;
+        }
+        if (!uri) {
+          results.push({ id, deleted: true });
+          continue;
+        }
+        try {
+          await auditDeletion(id);
+          await vimeo.api(uri, 'DELETE');
+          const { error: hidden } = await service
+            .from('live_assets')
+            .update({ state: 'removed' })
+            .eq('id', id);
+          if (hidden)
+            throw new Error('Vimeo deletion completed; retry to finish updating the library.');
+          const { error: saved } = await service
+            .from('live_vimeo_uploads')
+            .update({
+              deleted_at: new Date().toISOString(),
+              delete_pending: false,
+              upload_url: null,
+              embed_url: null,
+            })
+            .eq('asset_id', id);
+          if (saved) throw new Error('Deletion completed; retry to update the cleanup record.');
+          results.push({ id, deleted: true });
+        } catch (e) {
+          results.push({ id, error: (e as Error).message });
+        }
+      }
+      return json({ results });
+    }
+    if (typeof body.action === 'string' && body.action.startsWith('media_')) {
+      if (body.action === 'media_create') {
+        const { data: asset, error } = await user.rpc('prepare_managed_video', {
+          p_kind: body.kind,
+          p_teacher: body.teacherId || null,
+          p_course: body.courseId || null,
+          p_lesson: body.lessonId || null,
+          p_title: body.title,
+          p_filename: body.filename,
+          p_bytes: body.bytes,
+          p_mime: body.mime,
+        });
+        if (error) throw new Error(error.message);
+        let videoUri: string | undefined;
+        try {
+          const video = await vimeo.create(
+            asset.title,
+            asset.byte_size,
+            approvedDomains(domainSetting)
+          );
+          videoUri = video.uri;
+          const { error: saved } = await service
+            .from('managed_videos')
+            .update({ video_uri: video.uri })
+            .eq('id', asset.id);
+          if (saved) throw new Error('Could not save upload.');
+          return json({ asset, uploadUrl: safeVimeoUploadUrl(video.upload?.upload_link) });
+        } catch (e) {
+          if (videoUri) await vimeo.api(videoUri, 'DELETE').catch(() => undefined);
+          await service.from('managed_videos').update({ state: 'error' }).eq('id', asset.id);
+          throw e;
+        }
+      }
+      if (!uuid(body.assetId)) return json({ error: 'Video ID required.' }, 400);
+      const manage = body.action !== 'media_play';
+      const check = async () => {
+        const { data, error } = await user.rpc('managed_video_info', {
+          p_id: body.assetId,
+          p_manage: manage,
+        });
+        if (error || !data) throw new Error('Video unavailable to this account.');
+        return data;
+      };
+      const asset = await check();
+      const { data: row } = await service
+        .from('managed_videos')
+        .select('video_uri,embed_url,state')
+        .eq('id', body.assetId)
+        .single();
+      if (body.action === 'media_remove') {
+        await auditDeletion(body.assetId);
+        const { error: claimed } = await service
+          .from('managed_videos')
+          .update({ state: 'removed', delete_pending: !!row?.video_uri })
+          .eq('id', body.assetId);
+        if (claimed) throw new Error('Could not queue video deletion.');
+        if (row?.video_uri) await vimeo.api(row.video_uri, 'DELETE');
+        const { error: removed } = await service
+          .from('managed_videos')
+          .update({ video_uri: null, embed_url: null, delete_pending: false })
+          .eq('id', body.assetId);
+        if (removed) throw new Error('Vimeo video deleted; retry to finish cleanup.');
+        return json({ removed: true });
+      }
+      if (asset.state === 'removed' || !row?.video_uri) throw new Error('Video unavailable.');
+      const video = await vimeo.get(row.video_uri);
+      let state = videoState(video);
+      if (video.upload?.size != null && Number(video.upload.size) !== Number(asset.byte_size))
+        state = 'error';
+      const embed =
+        state === 'ready' ? safeVimeoEmbedUrl(video.player_embed_url, row.video_uri) : null;
+      const { error: saved } = await service
+        .from('managed_videos')
+        .update({ state, embed_url: embed })
+        .eq('id', body.assetId)
+        .neq('state', 'removed');
+      if (saved) throw new Error('Could not update processing status.');
+      await check();
+      if (body.action === 'media_play' && state !== 'ready')
+        throw new Error('Video is still processing.');
+      return json({ state, ...(state === 'ready' ? { url: embed } : {}) });
+    }
     if (body.action === 'download') {
       if (!uuid(body.assetId)) return json({ error: 'Recording ID required.' }, 400);
       const access = async () => {

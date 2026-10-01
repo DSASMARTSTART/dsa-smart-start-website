@@ -1,3 +1,4 @@
+import {prepareTeacherPhoto} from '../../lib/teacherPhoto';
 import OptimizedImage from '../OptimizedImage';
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -44,11 +45,13 @@ import './live-learning.css';
 import './live-learning-dark.css';
 import { useLiveLearning } from './LiveLearningContext';
 import { liveApi } from './api';
+import ManagedVideo from './ManagedVideo';
+import StaffOperations from './StaffOperations';
 import ProgramRules from './ProgramRules';
 import LessonList from './LessonList';
 import LiveMaterials from './LiveMaterials';
 
-type Tab = 'approvals' | 'teachers' | 'calendar' | 'programs' | 'materials' | 'recordings';
+type Tab = 'staff' | 'approvals' | 'teachers' | 'calendar' | 'programs' | 'materials' | 'recordings';
 type Panel = 'teacher' | 'weekly' | 'group' | 'time-off' | null;
 type Props = { mode?: 'admin' | 'teacher' };
 
@@ -205,6 +208,7 @@ export default function LiveLearningStudio({ mode = 'admin' }: Props) {
   const [draft, setDraft] = useState<Teacher>(blankTeacher);
   const [step, setStep] = useState(0);
   const [windows, setWindows] = useState<WeeklyWindow[]>([]);
+  const [groupWeeks,setGroupWeeks]=useState(1);
   const [group, setGroup] = useState<GroupSession>({
     id: '',
     date: dateKey(new Date()),
@@ -249,13 +253,17 @@ export default function LiveLearningStudio({ mode = 'admin' }: Props) {
     saving.current = true;
     setBusy(true);
     setError('');
+    const oldPhoto=teachers.find(t=>t.id===next.id)?.photo;
+    let uploadedPhoto:string|undefined;
     try {
       if (photoFile && next.photo.startsWith('data:'))
-        next = { ...next, photo: await liveApi.uploadPhoto(next.id, photoFile) };
+        next = { ...next, photo: uploadedPhoto=await liveApi.uploadPhoto(next.id, photoFile) };
       await persistTeacher(next);
       setPhotoFile(null);
+      if(oldPhoto && oldPhoto!==next.photo) await liveApi.removePhoto(next.id,oldPhoto).catch(()=>setNotice('Profile saved. Old photo cleanup needs a retry.'));
       return true;
     } catch (err) {
+      if(uploadedPhoto) await liveApi.removePhoto(next.id,uploadedPhoto).catch(()=>undefined);
       setError(err instanceof Error ? err.message : 'Could not save changes.');
       return false;
     } finally {
@@ -275,6 +283,7 @@ export default function LiveLearningStudio({ mode = 'admin' }: Props) {
     setPanel('weekly');
   }
   function openGroup(existing?: GroupSession) {
+    setGroupWeeks(1);
     if (!selected) return;
     const program = selected.programs.find((id) => programs.find((p) => p.id === id)?.group);
     setGroup(
@@ -396,15 +405,19 @@ export default function LiveLearningStudio({ mode = 'admin' }: Props) {
       return;
     }
     const next = { ...group, capacity: original?.capacity || capacities[group.program] };
+    const series=Array.from({length:original?1:groupWeeks},(_,week)=>{
+      const day=new Date(`${next.date}T12:00:00Z`);day.setUTCDate(day.getUTCDate()+week*7);
+      return {...next,id:week?crypto.randomUUID():next.id,date:day.toISOString().slice(0,10)};
+    });
     if (
       !(await updateTeacher({
         ...selected,
-        groups: [...selected.groups.filter((g) => g.id !== next.id), next],
+        groups: [...selected.groups.filter((g) => g.id !== next.id), ...series],
       }))
     )
       return;
     closePanel();
-    setNotice('Group session saved.');
+    setNotice(series.length>1?`${series.length} weekly group sessions saved.`:'Group session saved.');
   }
   async function saveOff(event: React.FormEvent) {
     event.preventDefault();
@@ -533,6 +546,7 @@ export default function LiveLearningStudio({ mode = 'admin' }: Props) {
                   <>
                     {(
                       [
+                        { id: 'staff', label: 'Student support', icon: Users },
                         { id: 'approvals', label: 'Pending requests', icon: Clock3 },
                         { id: 'teachers', label: 'Teachers', icon: Users },
                         { id: 'calendar', label: 'Calendar', icon: CalendarDays },
@@ -794,6 +808,7 @@ export default function LiveLearningStudio({ mode = 'admin' }: Props) {
             </div>
           )}
 
+          {role === 'admin' && tab === 'staff' && <StaffOperations />}
           {isCalendar && (
             <>
               <div className="ll-calendar-toolbar">
@@ -1149,6 +1164,7 @@ export default function LiveLearningStudio({ mode = 'admin' }: Props) {
                   <p>
                     <Clock3 size={15} /> {selected.timezone}
                   </p>
+                  <ManagedVideo target={{teacherId:selected.id}} manager />
                   {selected.video && (
                     <a
                       className="ll-button secondary"
@@ -1203,7 +1219,7 @@ export default function LiveLearningStudio({ mode = 'admin' }: Props) {
                     </span>
                     <h3>{program.name}</h3>
                     <span className="ll-program-price">
-                      {program.price}
+                      {settings[program.id]?.display_price || 'Set pricing in Courses'}
                       <small> / package</small>
                     </span>
                     <div className="ll-program-credits">
@@ -1398,13 +1414,12 @@ export default function LiveLearningStudio({ mode = 'admin' }: Props) {
                             setError('Choose a JPG, PNG, or WebP image under 5 MB.');
                             return;
                           }
-                          setPhotoFile(file);
-                          const reader = new FileReader();
-                          reader.onload = () => {
-                            setDraft((d) => ({ ...d, photo: String(reader.result) }));
-                            setError('');
-                          };
-                          reader.readAsDataURL(file);
+                          void prepareTeacherPhoto(file).then(photo=>{
+                            setPhotoFile(photo);
+                            const reader=new FileReader();
+                            reader.onload=()=>{setDraft(d=>({...d,photo:String(reader.result)}));setError('');};
+                            reader.readAsDataURL(photo);
+                          }).catch(err=>setError(err.message));
                         }}
                       />
                     </label>
@@ -1417,7 +1432,7 @@ export default function LiveLearningStudio({ mode = 'admin' }: Props) {
                         Remove
                       </button>
                     )}
-                    <small>JPG, PNG, WebP · up to 5 MB</small>
+                    <small>JPG, PNG, WebP · up to 5 MB · center-cropped square, max 800 px</small>
                   </div>
                   <label className="ll-field">
                     <span>Short introduction</span>
@@ -1439,8 +1454,9 @@ export default function LiveLearningStudio({ mode = 'admin' }: Props) {
                       placeholder="https://…"
                       onChange={(e) => setDraft({ ...draft, video: e.target.value })}
                     />
-                    <small>Use an HTTPS link to the teacher’s short introduction.</small>
+                    <small>Optional legacy link. Use the uploader below for Vimeo videos embedded in Eduway.</small>
                   </label>
+                  {teachers.some(t=>t.id===draft.id)?<ManagedVideo target={{teacherId:draft.id}} manager/>:<p>Save this teacher first, then reopen their profile to upload an introduction video.</p>}
                   <div className="ll-info-note">
                     <Video size={18} />
                     <p>
@@ -1682,8 +1698,8 @@ export default function LiveLearningStudio({ mode = 'admin' }: Props) {
           <form className="ll-drawer-form" onSubmit={saveGroup}>
             <div className="ll-form-body">
               <p className="ll-form-intro">
-                Create a session for one program. Students assigned to this teacher will be eligible
-                to reserve a seat.
+                Create a session or weekly series. Students assigned to this teacher can reserve a seat.
+                Every date is checked before the series is saved.
               </p>
               <label className="ll-field">
                 <span>
@@ -1704,6 +1720,7 @@ export default function LiveLearningStudio({ mode = 'admin' }: Props) {
                     ))}
                 </select>
               </label>
+              {!selected.groups.some(g=>g.id===group.id)&&<label className="ll-field">Number of weekly sessions<input type="number" min={1} max={26} required value={groupWeeks} onChange={e=>setGroupWeeks(Math.max(1,Math.min(26,Number(e.target.value)||1)))}/></label>}
               <label className="ll-field">
                 <span>
                   Lesson title <span className="ll-optional">Optional</span>

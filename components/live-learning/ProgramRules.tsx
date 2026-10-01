@@ -1,6 +1,8 @@
+import BookingEmailSettings from './BookingEmailSettings';
 import React, { useState } from 'react';
 import { useLiveLearning } from './LiveLearningContext';
 import type { ProgramSettings } from './api';
+import VideoStorage from './VideoStorage';
 import BookingOperations from './BookingOperations';
 import CourseAccessDates from './CourseAccessDates';
 import { programs } from './model';
@@ -102,6 +104,8 @@ export default function ProgramRules() {
   return (
     <section className="grid gap-6 mt-8">
       <BookingOperations />
+      <VideoStorage />
+      <BookingEmailSettings />
       <CourseAccessDates />
       {(Object.values(settings) as ProgramSettings[]).map((s) => (
         <React.Fragment key={`${s.program}:${JSON.stringify(s)}`}>

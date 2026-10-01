@@ -1,3 +1,5 @@
+import {supabaseAny} from '../../lib/supabase';
+import ManagedVideo from '../live-learning/ManagedVideo';
 // ============================================
 // Admin Course Editor - 4-Step Wizard Flow
 // ============================================
@@ -802,6 +804,8 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ courseId, onNavigate }) => 
         isOpen={showVideoModal}
         onClose={() => setShowVideoModal(false)}
         onSave={handleSaveVideo}
+        courseId={course.id}
+        lessonId={editingLesson?.id}
         videoLinks={editingLesson?.videoLinks}
         lessonTitle={editingLesson?.title || ''}
       />
@@ -869,6 +873,10 @@ const MetadataEditor: React.FC<{
   const [creatingCategory, setCreatingCategory] = useState(false);
   
   // Instructor info (kept in metadata since it's about course settings, not syllabus content)
+  const [translations, setTranslations] = useState(Object.fromEntries(['titleIt','titleSr','titleEs','descriptionIt','descriptionSr','descriptionEs'].map(key => [key, (course as unknown as Record<string,string>)[key] || ''])));
+  const [teacherOptions, setTeacherOptions] = useState<Array<{id:string;name:string;bio:string;photo:string}>>([]);
+  const [teacherError,setTeacherError] = useState('');
+  useEffect(()=>{let active=true;supabaseAny.rpc('admin_teacher_options').then(({data,error})=>{if(active){if(error)setTeacherError(error.message);else setTeacherOptions(data||[]);}});return()=>{active=false;};},[]);
   const [instructor, setInstructor] = useState<CourseInstructor>(course.instructor || { name: '', title: '', bio: '' });
   const [estimatedWeeklyHours, setEstimatedWeeklyHours] = useState(course.estimatedWeeklyHours || 0);
   
@@ -1036,6 +1044,7 @@ const MetadataEditor: React.FC<{
 
   const handleSave = async (): Promise<void> => {
     await onSave({ 
+      ...translations,
       title, 
       description, 
       level, 
@@ -1546,14 +1555,19 @@ const MetadataEditor: React.FC<{
       
       {showMarketingFields && (
         <div className="space-y-6 animate-reveal">
-          {/* Instructor Info */}
+          <details className="rounded-xl border p-4"><summary>Course translations</summary><p>Leave blank to use the English content.</p><div className="grid gap-3 mt-4">{(['It','Sr','Es'] as const).map((locale) => <fieldset key={locale}><legend>{ {It:'Italian',Sr:'Serbian',Es:'Spanish'}[locale] }</legend>{['title','description'].map(field => <label className="block" key={field}>{field}<textarea className="w-full border rounded p-2" value={translations[field+locale]} onChange={e=>setTranslations({...translations,[field+locale]:e.target.value})}/></label>)}</fieldset>)}</div></details>
+      {/* Instructor Info */}
           <div className="space-y-3">
             <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 block">
               Instructor (Optional)
             </label>
+            <label className="block text-sm">Linked teacher<select className="block w-full border rounded-xl p-3" value={instructor.teacherId||''} onChange={e=>{const teacher=teacherOptions.find(t=>t.id===e.target.value);setInstructor(teacher?{...instructor,teacherId:teacher.id,name:teacher.name,bio:teacher.bio,avatarUrl:teacher.photo}:{...instructor,teacherId:undefined});}}><option value="">Custom instructor</option>{teacherOptions.map(t=><option key={t.id} value={t.id}>{t.name}</option>)}</select></label>
+            {teacherError&&<p role="alert">{teacherError}</p>}
+            {instructor.teacherId&&<p className="text-sm">Name, biography and photo stay in sync with the linked teacher profile.</p>}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 label="Name"
+                disabled={!!instructor.teacherId}
                 value={instructor.name}
                 onChange={(e) => setInstructor({ ...instructor, name: e.target.value })}
                 placeholder="Instructor name"
@@ -1567,6 +1581,7 @@ const MetadataEditor: React.FC<{
             </div>
             <Textarea
               label="Bio"
+              disabled={!!instructor.teacherId}
               value={instructor.bio || ''}
               onChange={(e) => setInstructor({ ...instructor, bio: e.target.value })}
               placeholder="Brief instructor bio..."
@@ -2515,14 +2530,14 @@ const QuestionEditor: React.FC<{
             {q.type === 'true-false' ? (
                <div className="flex gap-4">
                   <button 
-                    onClick={() => setQ({...q, correctAnswer: true})}
-                    className={`flex-1 py-3 rounded-lg border-2 font-bold ${q.correctAnswer === true ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-200'}`}
+                    onClick={() => setQ({...q, correctAnswer: 'true'})}
+                    className={`flex-1 py-3 rounded-lg border-2 font-bold ${String(q.correctAnswer) === 'true' ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-200'}`}
                   >
                     True
                   </button>
                   <button 
-                    onClick={() => setQ({...q, correctAnswer: false})}
-                    className={`flex-1 py-3 rounded-lg border-2 font-bold ${q.correctAnswer === false ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-200'}`}
+                    onClick={() => setQ({...q, correctAnswer: 'false'})}
+                    className={`flex-1 py-3 rounded-lg border-2 font-bold ${String(q.correctAnswer) === 'false' ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-200'}`}
                   >
                     False
                   </button>
@@ -3191,9 +3206,11 @@ const VideoLinkModal: React.FC<{
   isOpen: boolean;
   onClose: () => void;
   onSave: (videoLinks: VideoLink) => void;
+  courseId: string;
+  lessonId?: string;
   videoLinks?: VideoLink;
   lessonTitle: string;
-}> = ({ isOpen, onClose, onSave, videoLinks, lessonTitle }) => {
+}> = ({ isOpen, onClose, onSave, videoLinks, lessonTitle, courseId, lessonId }) => {
   const [primaryUrl, setPrimaryUrl] = useState('');
   const [fallbackUrl, setFallbackUrl] = useState('');
   const [provider, setProvider] = useState<VideoLink['videoProvider']>('youtube');
@@ -3276,6 +3293,7 @@ const VideoLinkModal: React.FC<{
           <p className="text-sm font-bold text-gray-900">{lessonTitle}</p>
         </div>
 
+        {lessonId && <ManagedVideo manager target={{courseId,lessonId}} onReady={async url=>{await onSave({primaryVideoUrl:url,videoProvider:'vimeo',embedUrl:url});}}/>}
         <Input
           label="Primary Video URL"
           value={primaryUrl}

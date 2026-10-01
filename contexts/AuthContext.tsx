@@ -11,7 +11,7 @@ interface UserProfile {
   id: string;
   email: string;
   name: string;
-  role: 'student' | 'admin' | 'editor';
+  role: 'student' | 'admin' | 'editor' | 'secretary';
   status: 'active' | 'paused' | 'deleted';
   avatarUrl?: string;
   createdAt: string;
@@ -296,7 +296,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const isAdmin = () => profile?.status === 'active' && profile.role === 'admin';
   const isEditor = () =>
     profile?.status === 'active' && (profile.role === 'admin' || profile.role === 'editor');
-  const canAccessAdmin = isEditor;
+  const canAccessAdmin = () => isEditor() || (profile?.status === 'active' && profile.role === 'secretary');
 
   return (
     <AuthContext.Provider

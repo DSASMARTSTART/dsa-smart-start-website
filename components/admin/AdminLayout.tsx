@@ -26,7 +26,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPath, onNavi
   // Poll unresolved payment-orphan count for the sidebar badge.
   // Only fetch once admin access is verified to avoid spurious 403s.
   useEffect(() => {
-    if (!canAccessAdmin()) return;
+    if (profile?.role !== 'admin' || !canAccessAdmin()) return;
     let cancelled = false;
     const refresh = async () => {
       const n = await paymentOrphansApi.countUnresolved();
@@ -39,7 +39,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPath, onNavi
       window.clearInterval(interval);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile?.id]);
+  }, [profile?.id, profile?.role]);
 
   // Show loading state while auth is being checked
   if (loading) {
@@ -146,12 +146,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPath, onNavi
           <div className="flex items-center gap-4">
             <button
               type="button"
-              onClick={() => onNavigate('admin-users')}
+              onClick={() => onNavigate(profile?.role === 'admin' ? 'admin-users' : profile?.role === 'secretary' ? 'admin-teachers' : 'admin-courses')}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gray-50 text-sm font-semibold text-gray-600 hover:bg-purple-50 hover:text-purple-600 transition-all border border-gray-100"
             >
               <Users size={16} />
-              <span className="hidden md:inline">Find a user</span>
-              <span className="sr-only md:hidden">Find a user</span>
+              <span className="hidden md:inline">{profile?.role === 'admin' ? 'Find a user' : 'My workspace'}</span>
+              <span className="sr-only md:hidden">{profile?.role === 'admin' ? 'Find a user' : 'My workspace'}</span>
             </button>
 
             {/* User Menu */}
@@ -172,7 +172,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPath, onNavi
       <aside className={`fixed left-0 top-[73px] bottom-0 w-64 bg-white border-r border-gray-100 z-40 transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full p-4">
           <nav className="flex-1 space-y-1">
-            {navItems.map((item) => (
+            {navItems.filter(item => profile?.role === 'secretary' ? item.id === 'admin-teachers' : profile?.role === 'editor' ? ['admin-courses','admin-discounts','admin-audit'].includes(item.id) : true).map((item) => (
               <button
                 key={item.id}
                 onClick={() => {
@@ -232,7 +232,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPath, onNavi
       {/* Main Content */}
       <main className="lg:ml-64 pt-[73px] min-h-screen">
         <div className="p-6 md:p-8">
-          {children}
+          {(profile?.role === 'secretary' && currentPath !== 'admin-teachers') || (profile?.role === 'editor' && !['admin-courses','admin-discounts','admin-audit'].some(path=>currentPath.startsWith(path))) ? <div className="p-8"><p>This section requires an administrator.</p><button onClick={()=>onNavigate(profile?.role === 'secretary'?'admin-teachers':'admin-courses')}>Open your workspace</button></div> : children}
         </div>
       </main>
     </div>

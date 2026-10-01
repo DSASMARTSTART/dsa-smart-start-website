@@ -110,6 +110,7 @@ export class VimeoClient {
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
       signal: AbortSignal.timeout(20000),
     });
+    if (response.status === 404 && method === 'DELETE') return null;
     if (!response.ok) {
       // No upstream response bodies: tokens and upload capabilities must stay private.
       if (response.status === 401 || response.status === 403)

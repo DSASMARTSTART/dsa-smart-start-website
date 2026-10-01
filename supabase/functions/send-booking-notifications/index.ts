@@ -18,6 +18,12 @@ Deno.serve(async (request) => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     { auth: { persistSession: false } }
   );
+  const { data: emailSettings, error: settingsError } = await db
+    .from('live_email_settings')
+    .select('config')
+    .eq('id', 'booking')
+    .single();
+  if (settingsError) return json({ error: 'Could not load booking email configuration.' }, 500);
   const { error: preparationError } = await db.rpc('prepare_live_booking_notifications');
   if (preparationError) return json({ error: 'Could not prepare notifications.' }, 500);
   const { data: events, error } = await db.rpc('claim_live_booking_notifications');
@@ -57,7 +63,11 @@ Deno.serve(async (request) => {
         to = data?.email;
       }
       if (!to) throw new Error('Recipient is not configured.');
-      const message = bookingEmail(event, Deno.env.get('SITE_URL') || 'https://eduway.academy');
+      const message = bookingEmail(
+        event,
+        Deno.env.get('SITE_URL') || 'https://eduway.academy',
+        emailSettings.config
+      );
       const response = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {

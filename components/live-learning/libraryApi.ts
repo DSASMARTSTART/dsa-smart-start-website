@@ -87,11 +87,26 @@ export const libraryApi = {
   download: (asset: LiveAsset) =>
     vimeoRequest<{ url: string; expiresAt: string }>({ action: 'download', assetId: asset.id }),
   vimeoStatus: () =>
-    vimeoRequest<{ configured: boolean; accountPlan?: string; downloadsSupported?: boolean }>({
+    vimeoRequest<{
+      configured: boolean;
+      accountPlan?: string;
+      downloadsSupported?: boolean;
+      storage?: { used: number; free: number; max: number };
+    }>({
       action: 'status',
     }),
-  async list(courseId?: string, bookingId?: string) {
-    const args = { p_course: courseId || null, p_booking: bookingId || null };
+  async list(
+    courseId?: string,
+    bookingId?: string,
+    bookingIds?: string[],
+    kind?: 'material' | 'recording'
+  ) {
+    const args = {
+      p_course: courseId || null,
+      p_booking: bookingId || null,
+      ...(bookingIds ? { p_bookings: bookingIds } : {}),
+      ...(kind ? { p_kind: kind } : {}),
+    };
     const result = await rpc<LiveLibrary>('live_library', args);
     const pending = result.assets
       .filter((a) => a.provider === 'vimeo' && ['uploading', 'processing'].includes(a.state))

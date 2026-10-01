@@ -2,9 +2,14 @@ import { startVisiblePolling } from '../../lib/visiblePolling';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { libraryApi, type LiveLibrary } from './libraryApi';
-export function useLiveLibrary(courseId?: string) {
+export function useLiveLibrary(
+  courseId?: string,
+  bookingIds?: string[],
+  kind?: 'material' | 'recording'
+) {
   const { user } = useAuth();
   const userId = user?.id;
+  const bookingKey = bookingIds ? JSON.stringify([...bookingIds].sort()) : undefined;
   const [library, setLibrary] = useState<LiveLibrary>({ assets: [], courses: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -17,7 +22,12 @@ export function useLiveLibrary(courseId?: string) {
       return;
     }
     try {
-      const result = await libraryApi.list(courseId);
+      const result = await libraryApi.list(
+        courseId,
+        undefined,
+        bookingKey ? JSON.parse(bookingKey) : undefined,
+        kind
+      );
       if (current === version.current) {
         setLibrary(result);
         setError(result.syncError || '');
@@ -28,7 +38,7 @@ export function useLiveLibrary(courseId?: string) {
     } finally {
       if (current === version.current) setLoading(false);
     }
-  }, [courseId, userId]);
+  }, [courseId, userId, bookingKey, kind]);
   useEffect(() => {
     setLibrary({ assets: [], courses: [] });
     setLoading(true);

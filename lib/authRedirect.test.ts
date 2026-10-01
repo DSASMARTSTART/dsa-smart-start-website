@@ -5,6 +5,7 @@ describe('teacher invitation callback', () => {
     expect(isTeacherInviteRedirect('', '#access_token=signed-token&type=invite')).toBe(true));
   it('recognizes an existing teacher password setup link', () =>
     expect(isTeacherInviteRedirect('?auth=teacher-invite', '#type=recovery')).toBe(true));
+  it('recognizes student invitations',()=>expect(isTeacherInviteRedirect('?auth=student-invite','')).toBe(true));
   it('keeps normal login, checkout and PKCE recovery on the existing flow', () => {
     for (const pair of [
       ['', '#dashboard'],

@@ -614,10 +614,10 @@ const AdminDiscountCodes: React.FC<AdminDiscountCodesProps> = ({ onNavigate }) =
         isOpen={showDeleteConfirm}
         title="Delete Discount Code"
         message="Are you sure you want to delete this discount code? This action cannot be undone."
-        confirmLabel="Delete"
-        confirmVariant="danger"
+        confirmText="Delete"
+        confirmType="danger"
         onConfirm={confirmDelete}
-        onCancel={() => { setShowDeleteConfirm(false); setDeleteTarget(null); }}
+        onClose={() => { setShowDeleteConfirm(false); setDeleteTarget(null); }}
       />
     </div>
   );

@@ -1,3 +1,4 @@
+import {supabaseAny} from '../lib/supabase';
 // ============================================
 // DSA Smart Start - Supabase Data Store
 // Replaces localStorage-based adminStore
@@ -69,15 +70,18 @@ const createAuditLog = async (
 ): Promise<void> => {
   const user = await getCurrentUser();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await (supabase as any).from('audit_logs').insert({
+  const { error } = await (supabase as any).from('audit_logs').insert({
     action,
     entity_type: entityType,
     entity_id: entityId,
-    admin_id: user?.id || 'system',
+    admin_id: user?.id,
     admin_name: user?.name || 'System',
     description,
-    timestamp: now()
+    timestamp: now(),
+    before_data: _beforeData,
+    after_data: _afterData
   });
+  if (error) throw new Error(`The change was saved but its audit entry failed: ${error.message}`);
 };
 
 // Get current user from Supabase auth
@@ -128,7 +132,7 @@ export const authApi = {
 
   isAdmin: async (): Promise<boolean> => {
     const user = await getCurrentUser();
-    return user?.role === 'admin';
+    return user?.status === 'active' && user.role === 'admin';
   },
 
   isEditor: async (): Promise<boolean> => {
@@ -138,7 +142,7 @@ export const authApi = {
 
   canAccessAdmin: async (): Promise<boolean> => {
     const user = await getCurrentUser();
-    return user?.role === 'admin' || user?.role === 'editor';
+    return user?.status === 'active' && ['admin','editor','secretary'].includes(user.role);
   },
 
   /**
@@ -333,7 +337,7 @@ export const usersApi = {
     await createAuditLog('user_deleted', 'user', id, 'User deleted');
   },
 
-  updateRole: async (id: string, role: 'student' | 'admin' | 'editor'): Promise<void> => {
+  updateRole: async (id: string, role: 'student' | 'admin' | 'editor' | 'secretary'): Promise<void> => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase as any)
       .from('users')
@@ -369,13 +373,9 @@ export const usersApi = {
     await createAuditLog('user_notes_updated', 'user', id, 'Admin notes updated');
   },
 
-  grantCourseAccess: async (userId: string, courseId: string): Promise<void> => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase as any)
-      .from('enrollments')
-      .insert({ user_id: userId, course_id: courseId, status: 'active' });
+  grantCourseAccess: async (userId: string, courseId: string, reason = ''): Promise<void> => {
+    const { error } = await (supabase as any).rpc('admin_grant_course', {p_user:userId,p_course:courseId,p_reason:reason});
     if (error) throw error;
-    await createAuditLog('enrollment_granted', 'enrollment', `${userId}-${courseId}`, 'Course access granted');
   },
 
   getAvailableCourses: async (userId: string): Promise<Course[]> => {
@@ -413,11 +413,11 @@ export const usersApi = {
   pause: async (id: string) => usersApi.pauseUser(id),
   unpause: async (id: string) => usersApi.unpauseUser(id),
   delete: async (id: string) => usersApi.deleteUser(id),
-  changeRole: async (id: string, role: 'student' | 'admin' | 'editor') => usersApi.updateRole(id, role),
+  changeRole: async (id: string, role: 'student' | 'admin' | 'editor' | 'secretary') => usersApi.updateRole(id, role),
   revokeAccess: async (userId: string, courseId: string) => usersApi.revokeEnrollment(userId, courseId),
   updateNotes: async (id: string, notes: string) => usersApi.updateAdminNotes(id, notes),
   grantAccess: async (userId: string, courseId: string, _reason?: string) => {
-    await usersApi.grantCourseAccess(userId, courseId);
+    await usersApi.grantCourseAccess(userId, courseId, _reason);
     return { success: true };
   },
   getAvailableCoursesForUser: async (userId: string) => usersApi.getAvailableCourses(userId)
@@ -772,6 +772,9 @@ export const coursesApi = {
     const dbUpdates: Record<string, unknown> = { updated_at: now(), is_draft: true };
     if (updates.title !== undefined) dbUpdates.title = updates.title;
     if (updates.description !== undefined) dbUpdates.description = updates.description;
+    for (const [field, column] of Object.entries({titleIt:'title_it',titleSr:'title_sr',titleEs:'title_es',descriptionIt:'description_it',descriptionSr:'description_sr',descriptionEs:'description_es'})) {
+      if (field in updates) dbUpdates[column] = (updates as Record<string, unknown>)[field] || null;
+    }
     if (updates.level !== undefined) dbUpdates.level = updates.level;
     if (updates.thumbnailUrl !== undefined) dbUpdates.thumbnail_url = updates.thumbnailUrl;
     // New catalog fields
@@ -980,7 +983,6 @@ export const coursesApi = {
         updated_at: now(),
         // Ensure course is visible in footer and has payment provider set
         show_in_footer: true,
-        payment_provider: 'paypal',  // Default to PayPal for now
         wizard_completed: true
       })
       .eq('id', id)
@@ -1362,10 +1364,10 @@ export const coursesApi = {
     return count || 0;
   },
 
-  getAvgProgress: async (_courseId: string): Promise<number> => {
-    // This UI metric is not implemented yet. Do not fetch all enrollments merely
-    // to discard them and display the same placeholder.
-    return 0;
+  getAvgProgress: async (courseId: string): Promise<number | null> => {
+    const { data, error } = await supabaseAny.rpc('admin_course_progress', {p_course:courseId});
+    if(error) throw error;
+    return data === null ? null : Number(data);
   }
 };
 
@@ -1754,21 +1756,24 @@ export const progressApi = {
 // AUDIT API
 // ============================================
 export const auditApi = {
-  list: async (page = 1, pageSize = 15): Promise<PaginatedResponse<AuditLog>> => {
+  list: async (page = 1, pageSize = 15, action = 'all', entity = 'all'): Promise<PaginatedResponse<AuditLog>> => {
     const from = (page - 1) * pageSize;
     const to = from + pageSize - 1;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, count, error } = await (supabase as any)
+    let query = (supabase as any)
       .from('audit_logs')
       .select('*', { count: 'exact' })
       .order('timestamp', { ascending: false })
-      .range(from, to);
+;
+    if (action !== 'all') query = query.ilike('action', `%${action}%`);
+    if (entity !== 'all') query = query.eq('entity_type', entity);
+    const { data, count, error } = await query.range(from,to);
 
     if (error) throw error;
 
     return {
-      data: (data || []).map((log: Record<string, unknown>) => toCamelCase<AuditLog>(log)),
+      data: (data || []).map((log: Record<string, unknown>) => ({ ...toCamelCase<AuditLog>(log), before: log.before_data, after: log.after_data } as AuditLog)),
       total: count || 0,
       page,
       pageSize,
@@ -1900,6 +1905,9 @@ export const categoriesApi = {
     if (updates.slug !== undefined) dbUpdates.slug = updates.slug;
     if (updates.name !== undefined) dbUpdates.name = updates.name;
     if (updates.description !== undefined) dbUpdates.description = updates.description;
+    for (const [field, column] of Object.entries({titleIt:'title_it',titleSr:'title_sr',titleEs:'title_es',descriptionIt:'description_it',descriptionSr:'description_sr',descriptionEs:'description_es'})) {
+      if (field in updates) dbUpdates[column] = (updates as Record<string, unknown>)[field] || null;
+    }
     if (updates.color !== undefined) dbUpdates.color = updates.color;
     if (updates.icon !== undefined) dbUpdates.icon = updates.icon;
     if (updates.sortOrder !== undefined) dbUpdates.sort_order = updates.sortOrder;

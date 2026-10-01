@@ -4,6 +4,7 @@ export type BookingAction =
   'cancel' | 'student_cancel' | 'approve' | 'reject' | 'media' | 'completed' | 'no_show';
 export type ProgramSettings = {
   program: string;
+  display_price?: string;
   group_capacity: number;
   notice_minutes: number;
   buffer_minutes: number;
@@ -17,6 +18,8 @@ export type Workspace = {
   selections: Record<string, string>;
   settings: Record<string, ProgramSettings>;
   ownTeacherId: string | null;
+  historyCursor?: { at: string; id: string } | null;
+  credits?: Record<string, { private: number; group: number }>;
 };
 export type Availability = { times: string[]; groups: (GroupSession & { seats: number })[] };
 async function rpc<T>(name: string, args = {}): Promise<T> {
@@ -26,7 +29,8 @@ async function rpc<T>(name: string, args = {}): Promise<T> {
   return data as T;
 }
 export const liveApi = {
-  workspace: () => rpc<Workspace>('live_workspace'),
+  workspace: (cursor?: { at: string; id: string }) =>
+    rpc<Workspace>('live_workspace', cursor ? { p_before: cursor.at, p_before_id: cursor.id } : {}),
   saveTeacher: (teacher: Teacher) => rpc<string>('save_live_teacher', { p_teacher: teacher }),
   selectTeacher: (courseId: string, teacherId: string) =>
     rpc<void>('select_live_teacher', { p_course: courseId, p_teacher: teacherId }),
@@ -74,6 +78,20 @@ export const liveApi = {
     if (error) throw new Error(error.message);
     if (data?.error) throw new Error(data.error);
     return data as { message: string };
+  },
+  async removePhoto(teacherId: string, url: string) {
+    const root = db.storage.from('teacher-photos').getPublicUrl('').data.publicUrl;
+    if (!url.startsWith(root)) return;
+    const path = decodeURIComponent(url.slice(root.length));
+    if (!path.startsWith(`${teacherId}/`) || path.includes('..')) return;
+    const { data: unused, error: checkError } = await db.rpc('teacher_photo_is_unused', {
+      p_teacher: teacherId,
+      p_url: url,
+    });
+    if (checkError) throw checkError;
+    if (!unused) return;
+    const { error } = await db.storage.from('teacher-photos').remove([path]);
+    if (error) throw error;
   },
   async uploadPhoto(teacherId: string, file: File) {
     if (

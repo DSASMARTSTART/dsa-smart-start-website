@@ -194,6 +194,20 @@ try {
     ),
     '1'
   );
+  sql([
+    'supabase/tests/admin-operations-bootstrap.sql',
+    'supabase/migrations/20261001100000_admin_operations.sql',
+    'supabase/migrations/20261001101000_staff_booking.sql',
+    'supabase/migrations/20261001102000_managed_video.sql',
+    'supabase/migrations/20261001103000_live_history.sql',
+    'supabase/migrations/20261001104000_admin_lifecycle.sql',
+    'supabase/migrations/20261001105000_scoped_library.sql',
+    'supabase/migrations/20261001106000_student_invites.sql',
+    'supabase/migrations/20261001107000_booking_email_settings.sql',
+    'supabase/tests/admin-operations.sql',
+    'supabase/tests/booking-public-workflow.sql',
+  ].map(path=>fs.readFileSync(path,'utf8')).join('\n'));
+  console.log('PASS: staff booking and teacher reassignment, group reschedule rollback, credit adjustments, secretary isolation, enrollment restoration, currency reporting, managed media permissions, shared retention claims, linked instructors, history pagination.');
   console.log(
     'PASS: pending approval, 48/72-hour rules, atomic rescheduling, recording course expiry and downloads.'
   );

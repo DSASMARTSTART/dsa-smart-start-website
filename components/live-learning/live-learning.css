@@ -3328,3 +3328,16 @@
     font-size: 13px;
   }
 }
+
+/* Allow native selects and date fields to shrink within mobile admin grids. */
+.ll-studio .ll-panel, .ll-studio .ll-panel > *, .ll-studio .ll-field {
+  min-width: 0;
+  max-width: 100%;
+}
+.ll-studio .ll-field input, .ll-studio .ll-field select, .ll-studio .ll-field textarea {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.ll-studio .ll-panel { overflow-wrap: anywhere; }

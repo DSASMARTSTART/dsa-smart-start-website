@@ -28,4 +28,36 @@ describe('booking email semantics', () => {
         .text
     ).toContain('credit has been returned');
   });
+  it('uses configured plain-text messages and keeps authorized dashboard details', () => {
+    const result = bookingEmail(
+      { event: 'requested', audience: 'student', payload },
+      'https://eduway.academy',
+      {
+        locale: 'it',
+        templates: {
+          requested: { subject: 'Richiesta ricevuta', body: 'In attesa di approvazione.' },
+        },
+      }
+    );
+    expect(result.subject).toBe('Eduway · Richiesta ricevuta');
+    expect(result.text).toContain('In attesa di approvazione.');
+    expect(result.text).toContain('Insegnante: Teacher');
+    expect(result.text).toContain('https://eduway.academy/#dashboard');
+  });
+  it('keeps charged and refunded cancellation wording separate', () => {
+    const result = bookingEmail(
+      { event: 'student', audience: 'student', payload },
+      'https://eduway.academy',
+      {
+        locale: 'en',
+        templates: {
+          student_refunded: { subject: 'Refunded', body: 'Returned' },
+          student_charged: { subject: 'Late cancellation', body: 'Used' },
+        },
+      }
+    );
+    expect(result.subject).toContain('Late cancellation');
+    expect(result.text).toContain('Used');
+    expect(result.text).not.toContain('Returned');
+  });
 });

@@ -25,14 +25,14 @@ export default function LessonList({
   view?: 'upcoming' | 'history';
 }) {
   const { user } = useAuth();
-  const { bookings, teachers, updateBooking } = useLiveLearning();
+  const { bookings, teachers, updateBooking, loadOlder, historyCursor } = useLiveLearning();
   const { t } = useTranslation('dashboard');
   const {
     assets,
     loading: filesLoading,
     error: filesError,
     refresh: refreshFiles,
-  } = useLiveLibrary(courseId);
+  } = useLiveLibrary(courseId,bookings.filter(b=>(manager||b.userId===user?.id)&&(!teacherId||b.teacherId===teacherId)&&(!courseId||b.courseId===courseId)).map(b=>b.id),'recording');
   const [rescheduling, setRescheduling] = useState<Booking | null>(null);
   const [pendingAction, setPendingAction] = useState<BookingAction>('cancel');
   const [missingOnly, setMissingOnly] = useState(false);
@@ -155,6 +155,7 @@ export default function LessonList({
           )}
         </p>
       )}
+      {manager && showHistory && historyCursor && <button className="ll-button secondary mb-4" disabled={busy} onClick={async()=>{setBusy(true);try{await loadOlder();}catch(e){setError((e as Error).message);}finally{setBusy(false);}}}>Load older lessons</button>}
       <div className="grid gap-4">
         {visible.map((b) => (
           <article className="rounded-2xl border border-white/10 p-5" key={b.id}>

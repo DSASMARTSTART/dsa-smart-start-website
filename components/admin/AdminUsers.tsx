@@ -1,3 +1,4 @@
+import {supabaseAny} from '../../lib/supabase';
 // ============================================
 // Admin Users Management
 // ============================================
@@ -20,6 +21,7 @@ interface AdminUsersProps {
 }
 
 const AdminUsers: React.FC<AdminUsersProps> = ({ onNavigate, initialUserId }) => {
+  const [inviteOpen,setInviteOpen]=useState(false),[inviteName,setInviteName]=useState(''),[inviteEmail,setInviteEmail]=useState(''),[inviting,setInviting]=useState(false),[inviteMessage,setInviteMessage]=useState('');
   const [users, setUsers] = useState<User[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
@@ -138,7 +140,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onNavigate, initialUserId }) =>
         if (updated) setSelectedUser(updated);
       }
     } catch (error) {
-      console.error('Error updating user status:', error);
+      setDetailError(error instanceof Error ? error.message : 'Could not update the account.');
     }
   };
 
@@ -157,7 +159,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onNavigate, initialUserId }) =>
       setSelectedUser(null);
       loadUsers();
     } catch (error) {
-      console.error('Error deleting user:', error);
+      setDetailError(error instanceof Error ? error.message : 'Could not archive the account.');
     }
   };
 
@@ -179,7 +181,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onNavigate, initialUserId }) =>
         if (updated) setSelectedUser(updated);
       }
     } catch (error) {
-      console.error('Error revoking access:', error);
+      setDetailError(error instanceof Error ? error.message : 'Could not revoke access.');
     }
   };
 
@@ -196,7 +198,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onNavigate, initialUserId }) =>
         if (updated) setSelectedUser(updated);
       }
     } catch (error) {
-      console.error('Error granting access:', error);
+      setDetailError(error instanceof Error ? error.message : 'Could not grant access.');
       alert('Failed to grant access');
     }
   };
@@ -297,7 +299,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onNavigate, initialUserId }) =>
           <button
             onClick={(e) => { e.stopPropagation(); handleDelete(user); }}
             className="p-2 hover:bg-pink-50 rounded-xl text-gray-400 hover:text-pink-600 transition-all"
-            title="Delete"
+            title="Archive"
           >
             <Trash2 size={16} />
           </button>
@@ -320,6 +322,12 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onNavigate, initialUserId }) =>
         </div>
       </div>
 
+      <Button onClick={()=>setInviteOpen(v=>!v)}>Invite student</Button>
+      {inviteMessage&&<p role="status">{inviteMessage}</p>}
+      {inviteOpen&&<form className="grid gap-3 p-5 border rounded-xl" onSubmit={async e=>{e.preventDefault();setInviting(true);setInviteMessage('');try{const {data,error}=await supabaseAny.functions.invoke('invite-student',{body:{name:inviteName,email:inviteEmail}});if(error){const details=error.context instanceof Response?await error.context.json().catch(()=>null):null;throw new Error(details?.error||error.message);}if(data?.error)throw new Error(data.error);setInviteMessage(data.message);setInviteOpen(false);await loadUsers();}catch(err){setInviteMessage((err as Error).message);}finally{setInviting(false);}}}>
+      <Input label="Student name" required maxLength={150} value={inviteName} disabled={inviting} onChange={e=>setInviteName(e.target.value)}/>
+      <Input label="Email" required type="email" maxLength={254} value={inviteEmail} disabled={inviting} onChange={e=>setInviteEmail(e.target.value)}/>
+      <p className="text-sm">Sends a password setup invitation. You can grant course access after creating the account.</p><Button type="submit" disabled={inviting}>{inviting?'Sending…':'Send invitation'}</Button></form>}
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex-1 relative">
@@ -340,6 +348,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onNavigate, initialUserId }) =>
             { value: 'student', label: 'Students' },
             { value: 'admin', label: 'Admins' },
             { value: 'editor', label: 'Editors' },
+            {value:'secretary',label:'Secretaries'},
           ]}
         />
         <Select
@@ -413,7 +422,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onNavigate, initialUserId }) =>
               if (updated) setSelectedUser(updated);
               loadUsers();
             } catch (error) {
-              console.error('Error changing role:', error);
+              setDetailError(error instanceof Error ? error.message : 'Could not change role.');
               alert('Failed to change role');
             }
           }
@@ -439,11 +448,11 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onNavigate, initialUserId }) =>
         isOpen={showDeleteConfirm}
         onClose={() => { setShowDeleteConfirm(false); setActionUser(null); }}
         onConfirm={confirmDelete}
-        title="Delete Account"
-        message={`This will permanently delete ${actionUser?.name}'s account and all their progress. This action cannot be undone.`}
-        confirmText="Delete"
+        title="Archive Account"
+        message={`This will archive ${actionUser?.name}'s account and disable access. Their history and progress are retained.`}
+        confirmText="Archive"
         confirmType="danger"
-        requireTypedConfirmation="DELETE"
+        requireTypedConfirmation="ARCHIVE"
       />
 
       {/* Revoke Access Confirmation */}
@@ -519,7 +528,7 @@ interface UserDetailDrawerProps {
   onRevokeAccess: (userId: string, courseId: string) => void;
   onGrantAccess: () => void;
   onUpdateNotes: (notes: string) => void;
-  onChangeRole: (role: 'student' | 'admin' | 'editor') => void;
+  onChangeRole: (role: 'student' | 'admin' | 'editor' | 'secretary') => void;
 }
 
 const UserDetailDrawer: React.FC<UserDetailDrawerProps> = ({
@@ -571,11 +580,11 @@ const UserDetailDrawer: React.FC<UserDetailDrawerProps> = ({
             </div>
             <select
               value={user.role}
-              onChange={(e) => onChangeRole(e.target.value as 'student' | 'admin' | 'editor')}
+              onChange={(e) => onChangeRole(e.target.value as 'student' | 'admin' | 'editor' | 'secretary')}
               className="px-4 py-2 bg-white border border-purple-200 rounded-xl text-sm font-bold text-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
               <option value="student">Student</option>
-              <option value="editor">Editor</option>
+              <option value="editor">Editor</option><option value="secretary">Secretary (booking operations)</option>
               <option value="admin">Admin</option>
             </select>
           </div>
@@ -716,7 +725,7 @@ const UserDetailDrawer: React.FC<UserDetailDrawerProps> = ({
             onClick={() => onDelete(user)}
             icon={Trash2}
           >
-            Delete Account
+            Archive Account
           </Button>
         </div>
       </div>

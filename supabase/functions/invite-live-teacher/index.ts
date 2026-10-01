@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
       .select('role,status')
       .eq('id', identity.user.id)
       .single();
-    if (actor?.role !== 'admin' || actor?.status !== 'active')
+    if (!['admin','secretary'].includes(actor?.role) || actor?.status !== 'active')
       return json({ error: 'Administrator access required.' }, 403);
     const { teacherId } = await req.json();
     if (typeof teacherId !== 'string' || !/^[0-9a-f-]{36}$/i.test(teacherId))

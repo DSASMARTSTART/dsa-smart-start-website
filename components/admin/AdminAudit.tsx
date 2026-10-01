@@ -16,6 +16,7 @@ interface AdminAuditProps {
 }
 
 const AdminAudit: React.FC<AdminAuditProps> = ({ onNavigate }) => {
+  const [operationError,setOperationError]=useState('');
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -26,26 +27,22 @@ const AdminAudit: React.FC<AdminAuditProps> = ({ onNavigate }) => {
 
   useEffect(() => {
     loadLogs();
-  }, [page]);
+  }, [page, actionFilter, entityFilter]);
 
   const loadLogs = async () => {
     setLoading(true);
     try {
-      const result = await auditApi.list(page, 15);
+      const result = await auditApi.list(page, 15, actionFilter, entityFilter);
       setLogs(result.data);
       setTotalPages(result.totalPages);
     } catch (error) {
-      console.error('Error loading audit logs:', error);
+      setOperationError(error instanceof Error ? error.message : 'The operation failed. Please retry.');
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredLogs = logs.filter(log => {
-    if (actionFilter !== 'all' && !log.action.includes(actionFilter)) return false;
-    if (entityFilter !== 'all' && log.entityType !== entityFilter) return false;
-    return true;
-  });
+  const filteredLogs = logs;
 
   const getActionIcon = (action: AuditAction) => {
     if (action.includes('user')) return <User size={14} className="text-blue-500" />;
@@ -131,6 +128,7 @@ const AdminAudit: React.FC<AdminAuditProps> = ({ onNavigate }) => {
 
   return (
     <div className="space-y-6 animate-reveal">
+      {operationError&&<p role="alert" className="bg-red-50 text-red-700 p-4 rounded-xl">{operationError}</p>}
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
@@ -148,7 +146,7 @@ const AdminAudit: React.FC<AdminAuditProps> = ({ onNavigate }) => {
       <div className="flex flex-col sm:flex-row gap-4">
         <Select
           value={actionFilter}
-          onChange={(e) => setActionFilter(e.target.value)}
+          onChange={(e) => (setPage(1), setActionFilter(e.target.value))}
           options={[
             { value: 'all', label: 'All Actions' },
             { value: 'created', label: 'Created' },
@@ -160,7 +158,7 @@ const AdminAudit: React.FC<AdminAuditProps> = ({ onNavigate }) => {
         />
         <Select
           value={entityFilter}
-          onChange={(e) => setEntityFilter(e.target.value)}
+          onChange={(e) => (setPage(1), setEntityFilter(e.target.value))}
           options={[
             { value: 'all', label: 'All Entities' },
             { value: 'user', label: 'Users' },
@@ -169,6 +167,7 @@ const AdminAudit: React.FC<AdminAuditProps> = ({ onNavigate }) => {
             { value: 'lesson', label: 'Lessons' },
             { value: 'homework', label: 'Homework' },
             { value: 'enrollment', label: 'Enrollments' },
+            ...['purchase','teacher','booking','settings','discount','asset','credit'].map(value=>({value,label:value[0].toUpperCase()+value.slice(1)})),
           ]}
         />
       </div>

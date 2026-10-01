@@ -1,8 +1,8 @@
-# Booking release — 30 September 2026
+# Booking release — updated 1 October 2026
 
 ## Implemented policy
 
-- Requests must be at least 48 hours before the lesson. Pending requests reserve their seat and credit; only an active administrator can confirm or reject them.
+- Requests must be at least 48 hours before the lesson. Pending requests reserve their seat and credit; an active administrator or secretary can confirm or reject them.
 - Students may cancel or reschedule with at least 48 hours’ notice. The original credit is returned only with at least 72 hours’ notice. A reschedule in the 48–72-hour window consumes the old credit and requires another credit for its replacement.
 - Rescheduling is atomic, uses the same teacher and lesson type, and creates a new pending request. An unavailable replacement or insufficient credits leaves the original reservation unchanged.
 - Teacher cancellations return the credit. Staff have a separate action for a student-requested late cancellation. Rejections return the reserved credit. Confirmed no-shows retain it.
@@ -34,6 +34,8 @@ Use the existing Supabase project and GitHub → Vercel project, preserving prod
 ```sh
 npx supabase db push --linked --dry-run
 npx supabase db push --linked
+npx supabase functions deploy invite-live-teacher --project-ref wsjqkjgshvgjkjajsjgj
+npx supabase functions deploy invite-student --project-ref wsjqkjgshvgjkjajsjgj
 npx supabase functions deploy live-vimeo --project-ref wsjqkjgshvgjkjajsjgj
 npx supabase functions deploy send-booking-notifications --project-ref wsjqkjgshvgjkjajsjgj
 node scripts/configure-booking-notifications.mjs
@@ -54,3 +56,22 @@ The database suite uses a disposable Docker database and covers real SQL permiss
 After release, use real consenting teacher/student accounts to check request → pending → approve → confirmation email → meeting link → attendance → recording. Check rejection, late cancellation, teacher cancellation, rescheduling failure, reminder delivery, and an enrolled student’s successful recording download. An unrelated student must not access a private recording. A pending lesson must not expose a meeting link or count as attended.
 
 Vimeo download URLs expire on Vimeo’s schedule (normally 24 hours). The platform checks entitlement each time a URL is issued; a link already issued cannot be revoked instantly. A downloaded file is retained by the student. Existing raw Vimeo links are legacy references; upload through the protected library for the full access workflow.
+
+
+## Admin operations release
+
+Apply all pending migrations through `20261001107000_booking_email_settings` in order, then deploy the updated functions and frontend together. The live workspace and library RPC signatures now have optional paging/filter arguments; this requires a PostgREST schema cache refresh (normally automatic after migrations). Check the dry run against the actual project before applying.
+
+- **Users:** invite a new student, archive an account, reactivate an existing revoked enrollment without losing its identity, and assign a secretary role. Invitation sending has a server-side rate limit. Test both new-teacher and new-student email links with consenting recipients.
+- **Teacher profile:** photo uploads are square center crops, bounded to 800 px; replaced/failed uploads get cleanup attempts. Save a new teacher before opening their introduction uploader. Introduction videos can be uploaded by staff or the linked teacher, checked while processing, embedded for eligible students, and explicitly deleted from Vimeo.
+- **Student support:** create a pending booking for a student; move or reassign a future reservation; record a reason and choose whether its original credit is returned; adjust unused credits; cancel or move the entire group atomically. A failed group move rolls back all attendee changes. Every replacement still requires approval.
+- **Calendar:** create up to 26 weekly group sessions in one operation. Calendar saves archive past groups into a separate session table. Staff/teacher history loads 50 bookings at a time. Expanded history pauses the workspace polling until an explicit refresh/action, preserving the loaded pages. Recording queries are scoped to the displayed bookings; package materials are requested separately.
+- **Course editor:** link instructor metadata to a teacher profile, edit title/description translations, upload a saved lesson's video directly, preserve its configured payment provider when publishing, and show calculated progress (or an unavailable marker for courses without trackable content). Existing delete-dialog props and true/false answer values were corrected.
+- **Transactions/audit:** filter and aggregate by currency before pagination; export every matching transaction with CSV escaping; log teacher/booking/settings/credit/media changes; filter audit events on the server and show stored before/after values.
+- **Programs & rules:** show current catalog prices, connection/notification health, tracked video sizes, Vimeo's reported capacity, and deliberate expired-video cleanup. Cleanup claims lock against subsequent access-date extension; shared videos wait for the last eligible participant. Missing dates prevent deletion. A failed Vimeo delete remains retryable; a 404 is treated as already deleted. This does not automatically delete videos on a schedule.
+
+The existing removal action in a lesson library hides a recording. The separate cleanup screen permanently deletes eligible Vimeo originals. Teacher-introduction/course-video delete buttons permanently delete those selected videos immediately after confirmation. Keep any independent archive separately; Eduway does not create a second full video backup.
+
+Still manual or outside this release: meeting links (until a meeting provider is supplied), actual bank refunds, API/SMTP secrets and worker deployment. Existing package identities and 30/50-minute durations remain the agreed catalog model; this release does not add an arbitrary new-program builder. Booking email subjects and bodies can be edited under Programs & rules, with an email preview and English/Italian/Serbian/Spanish date/detail formatting. The chosen language applies to all booking notifications; custom text must be supplied in that language. Blank overrides use the English defaults. Public marketing-page copy is also outside this operations panel.
+
+Verification on the implementation: 127 unit/component tests; disposable PostgreSQL migration and permissions/concurrency suite including the new staff/media/retention paths; Vite production build; changed-area ESLint without errors; Edge Function Deno checks. Repository-wide TypeScript still includes pre-existing checkout/seed/Deno-environment errors; the changed admin/live components add none. Local mocked browser checks verified staff booking payloads, the teacher introduction uploader, square JPEG photo preparation, email template saving/preview, and the programs/rules screen at 390 px without horizontal overflow. These checks do not substitute for a real production student recording download after the Vimeo upgrade.

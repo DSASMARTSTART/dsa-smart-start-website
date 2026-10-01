@@ -2,7 +2,7 @@
 // Admin Transactions Management
 // ============================================
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Search, Filter, Download, Calendar, CreditCard, Tag, User as UserIcon,
   ChevronLeft, ChevronRight, RefreshCw, FileText, DollarSign, TrendingUp, Mail, Check
@@ -10,6 +10,7 @@ import {
 import { 
   DataTable, StatusBadge, Button, Input, Select, KPICard
 } from './AdminUIComponents';
+import { analyticsCsv } from '../../lib/adminAnalytics';
 import { supabase } from '../../lib/supabase';
 import { generateAndSendInvoice } from '../../lib/emailService';
 
@@ -43,6 +44,7 @@ interface TransactionFilters {
   dateTo: string;
   paymentMethod: string;
   productType: string;
+  currency: string;
 }
 
 interface TransactionStats {
@@ -70,11 +72,17 @@ const AdminTransactions: React.FC<AdminTransactionsProps> = ({ onNavigate }) => 
     dateFrom: '',
     dateTo: '',
     paymentMethod: 'all',
-    productType: 'all'
+    productType: 'all', currency: 'EUR'
   });
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 15;
+  const loadVersion = useRef(0);
+  const [error,setError]=useState('');
+  const [exporting,setExporting]=useState(false);
+  const [currencies,setCurrencies]=useState<string[]>(['EUR','RSD']);
+  const money=(amount:number)=>new Intl.NumberFormat(undefined,{style:'currency',currency:filters.currency}).format(amount);
+  useEffect(()=>{setPage(1);},[filters]);
   const [invoiceBusy, setInvoiceBusy] = useState<Record<string, boolean>>({});
   const [refundBusy, setRefundBusy] = useState<Record<string, boolean>>({});
   const [invoiceSuccess, setInvoiceSuccess] = useState<Record<string, boolean>>({});
@@ -85,44 +93,15 @@ const AdminTransactions: React.FC<AdminTransactionsProps> = ({ onNavigate }) => 
 
   const loadTransactions = async () => {
     setLoading(true);
+    setError('');
+    const requestId = ++loadVersion.current;
     try {
-      // Build query for transactions with user and course details
-      let query = supabase
-        .from('purchases')
-        .select(`
-          *,
-          users:user_id (id, name, email),
-          courses:course_id (id, title, product_type),
-          discount_codes:discount_code_id (code)
-        `, { count: 'exact' })
-        .order('purchased_at', { ascending: false });
-
-      // Apply filters
-      if (filters.search) {
-        // Search in user name, email, or transaction ID
-        query = query.or(`transaction_id.ilike.%${filters.search}%`);
-      }
-
-      if (filters.dateFrom) {
-        query = query.gte('purchased_at', filters.dateFrom);
-      }
-
-      if (filters.dateTo) {
-        query = query.lte('purchased_at', `${filters.dateTo}T23:59:59`);
-      }
-
-      if (filters.paymentMethod !== 'all') {
-        query = query.eq('payment_method', filters.paymentMethod);
-      }
-
-      // Pagination
-      const from = (page - 1) * pageSize;
-      const to = from + pageSize - 1;
-      query = query.range(from, to);
-
-      const { data, count, error } = await query;
-
+      const { data: result, error } = await (supabase as any).rpc('admin_transactions', {p_filters:filters,p_page:page,p_limit:pageSize});
       if (error) throw error;
+      if (requestId !== loadVersion.current) return;
+      const {data, count} = result;
+      setStats(result.stats);
+      setCurrencies(result.currencies);
 
       // Transform data
       const transformed: TransactionWithDetails[] = (data || []).map((p: any) => ({
@@ -172,75 +151,32 @@ const AdminTransactions: React.FC<AdminTransactionsProps> = ({ onNavigate }) => 
         });
       }
 
-      // Filter by product type client-side (since it's in the joined table)
-      const filtered = filters.productType === 'all' 
-        ? transformed 
-        : transformed.filter(t => t.productType === filters.productType);
-
-      setTransactions(filtered);
+      if (requestId !== loadVersion.current) return;
+      if(requestId !== loadVersion.current)return;
+      setTransactions(transformed);
       setTotalPages(Math.ceil((count || 0) / pageSize));
-
-      // Calculate stats from all transactions (not just current page)
-      await loadStats();
+      setError('');
     } catch (error) {
-      console.error('Error loading transactions:', error);
+      if(requestId===loadVersion.current)setError(error instanceof Error ? error.message : 'Could not load transactions.');
     } finally {
-      setLoading(false);
+      if(requestId===loadVersion.current)setLoading(false);
     }
   };
 
-  const loadStats = async () => {
+  const handleExportCSV = async () => {
+    setExporting(true); setError('');
     try {
-      // Stats reflect real revenue only: completed/refunded orders, net of
-      // refunds. Pending/failed (abandoned) checkouts are excluded.
-      const { data, error } = await supabase
-        .from('purchases')
-        .select('amount, refunded_amount, discount_code_id, status')
-        .in('status', ['completed', 'refunded']);
-
-      if (error) throw error;
-
-      const purchases = data || [];
-      const totalRevenue = purchases.reduce(
-        (sum, p) => sum + (parseFloat(p.amount) || 0) - (parseFloat(p.refunded_amount) || 0),
-        0
-      );
-      const totalTransactions = purchases.length;
-      const discountedOrders = purchases.filter(p => p.discount_code_id).length;
-
-      setStats({
-        totalRevenue,
-        totalTransactions,
-        averageOrderValue: totalTransactions > 0 ? totalRevenue / totalTransactions : 0,
-        discountedOrders
-      });
-    } catch (error) {
-      console.error('Error loading stats:', error);
-    }
-  };
-
-  const handleExportCSV = () => {
-    // Prepare CSV content
-    const headers = ['Date', 'Transaction ID', 'Customer', 'Email', 'Product', 'Type', 'Amount', 'Discount', 'Final Amount', 'Payment Method'];
-    const rows = transactions.map(t => [
-      new Date(t.purchasedAt).toLocaleDateString(),
-      t.transactionId,
-      t.userName,
-      t.userEmail,
-      t.courseTitle,
-      t.productType,
-      t.originalAmount ? `€${t.originalAmount.toFixed(2)}` : `€${t.amount.toFixed(2)}`,
-      t.discountCode ? `${t.discountCode} (-€${(t.discountAmount || 0).toFixed(2)})` : '-',
-      `€${t.amount.toFixed(2)}`,
-      t.paymentMethod
-    ]);
-
-    const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `transactions_${new Date().toISOString().split('T')[0]}.csv`;
-    link.click();
+      const rows: (string|number|null)[][] = [['Date','Transaction ID','Customer','Email','Product','Currency','Gross amount','Refunded amount','Net amount','Status','Payment method']];
+      for (let exportPage=1; ; exportPage++) {
+        const {data: result,error} = await (supabase as any).rpc('admin_transactions',{p_filters:filters,p_page:exportPage,p_limit:500});
+        if(error) throw error;
+        for (const t of result.data) rows.push([t.purchased_at,t.transaction_id,t.users.name,t.users.email,t.courses.title,t.currency,Number(t.amount),Number(t.refunded_amount||0),['completed','refunded'].includes(t.status)?Number(t.amount)-Number(t.refunded_amount||0):0,t.status,t.payment_method]);
+        if(exportPage*500>=result.count) break;
+      }
+      const url = URL.createObjectURL(new Blob([analyticsCsv(rows)], {type:'text/csv;charset=utf-8;'}));
+      const link=document.createElement('a'); link.href=url;link.download=`transactions-${filters.currency}.csv`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+    } catch(error) {setError(error instanceof Error ? error.message : 'Export failed.');}
+    finally {setExporting(false);}
   };
 
   const formatDate = (dateString: string) => {
@@ -295,7 +231,7 @@ const AdminTransactions: React.FC<AdminTransactionsProps> = ({ onNavigate }) => 
         alert(`Refund failed: ${data?.error || error?.message || 'Unknown error'}`);
       } else {
         await loadTransactions();
-        await loadStats();
+
       }
     } catch (err) {
       console.error('Refund failed:', err);
@@ -322,7 +258,7 @@ const AdminTransactions: React.FC<AdminTransactionsProps> = ({ onNavigate }) => 
       }, 2500);
       await loadTransactions();
     } catch (err) {
-      console.error('Invoice action failed:', err);
+      setError(err instanceof Error ? err.message : 'Invoice delivery failed.');
     } finally {
       setInvoiceBusy((prev) => { const n = { ...prev }; delete n[t.id]; return n; });
     }
@@ -482,18 +418,21 @@ const AdminTransactions: React.FC<AdminTransactionsProps> = ({ onNavigate }) => 
             <RefreshCw size={16} />
             Refresh
           </Button>
-          <Button variant="primary" onClick={handleExportCSV}>
+          <Button variant="primary" onClick={handleExportCSV} disabled={exporting}>
             <Download size={16} />
             Export CSV
           </Button>
         </div>
       </div>
 
+      {error && <p role="alert" className="text-red-600">{error}</p>}
+      <label>Reporting currency <select value={filters.currency} onChange={e=>setFilters({...filters,currency:e.target.value})}>{[...new Set(['EUR','RSD',...currencies])].map(c=><option key={c}>{c}</option>)}</select></label>
+      <p className="text-sm text-gray-500">Totals use the selected filters and currency, excluding pending/failed orders and subtracting refunds. CSV includes all matching pages. Dates use Europe/Belgrade.</p>
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <KPICard
           title="Total Revenue"
-          value={`€${stats.totalRevenue.toFixed(2)}`}
+          value={money(stats.totalRevenue)}
           icon={DollarSign}
           color="green"
         />
@@ -505,7 +444,7 @@ const AdminTransactions: React.FC<AdminTransactionsProps> = ({ onNavigate }) => 
         />
         <KPICard
           title="Average Order Value"
-          value={`€${stats.averageOrderValue.toFixed(2)}`}
+          value={money(stats.averageOrderValue)}
           icon={TrendingUp}
           color="blue"
         />
@@ -522,10 +461,9 @@ const AdminTransactions: React.FC<AdminTransactionsProps> = ({ onNavigate }) => 
       <div className="bg-white rounded-[2rem] border border-gray-100 p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <Input
-            placeholder="Search transaction ID..."
+            placeholder="Search customer or transaction..."
             value={filters.search}
             onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-            icon={Search}
           />
           <Input
             type="date"
