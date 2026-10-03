@@ -1,6 +1,6 @@
 # Loading performance — October 3, 2026
 
-Implemented locally; not deployed. The result is a substantial improvement, **not a verified 100 on every page/device**.
+Deployed to production through the existing GitHub–Vercel integration on October 3, 2026, from commit `cb4d440`. The result is a substantial improvement, **not a verified 100 on every page/device**.
 
 ## Measured results
 
@@ -109,7 +109,7 @@ The associated A1 e-book Lighthouse sample scored 94 mobile with FCP 2.2 s, LCP 
 
 ## Live production baseline
 
-A read-only production audit confirmed that the deployed site still serves the older bundle (`index-BqvuPjz6.js`) with eager Supabase and React Query scripts and remote Google Fonts. None of the local changes described above have been deployed. The HTML response was a Vercel cache hit; the hashed JavaScript already had one-year immutable caching, so missing asset cache headers were not the observed production issue.
+Before the push to `main`, a read-only production audit found the older bundle (`index-BqvuPjz6.js`) with eager Supabase and React Query scripts and remote Google Fonts. The following baseline measurements precede deployment of these improvements. The HTML response was a Vercel cache hit; the hashed JavaScript already had one-year immutable caching, so missing asset cache headers were not the observed production issue.
 
 The first mobile Lighthouse sample from `https://eduway.academy/` scored 71 with FCP/LCP 4.7 s, zero blocking time, and zero CLS. It followed the production 307 redirect to `https://www.eduway.academy/`; Lighthouse attributed about 887 ms to the redirect and warned to test the destination directly. A direct `www` sample scored 95 with FCP 2.1 s, LCP 2.6 s, zero blocking time, and CLS 0.001. Both final screenshots show the actual homepage, and neither run reported a runtime error. These are variable lab samples of the existing deployment; the entire difference cannot be attributed to the redirect or to local code changes.
 
@@ -137,9 +137,19 @@ The full suite passes 195 tests in 35 files. The production build, performance b
 
 After the lesson and background-request changes, the current production-preview homepage again scored 97 mobile: FCP 1.8 s, LCP 2.3 s, zero blocking time, and zero CLS. The final screenshot showed the actual homepage, with no Lighthouse runtime error. This sample is `release-current-home-mobile.json`; its built entry was `assets/index-9_pAPgAe.js`. The remaining unused-JavaScript finding in the earlier homepage audit identifies the shared React runtime rather than a separately deferrable product feature.
 
+## Production deployment verified
+
+The deployment-access blocker was resolved through the repository’s existing GitHub–Vercel integration. Pushing commit `cb4d44015067332fa7e5542ce04a43fd62933933` to `main` created successful GitHub Production deployment `6826879867` at `2026-10-03T11:12:16Z`. The Vercel project is `dsasmartstart/dsa-smart-start-website`; the local CLI account’s two accessible teams do not include the owning team. Local CLI access is therefore not required to publish updates through `main`. Do not treat absence of a `.vercel` link or GitHub Actions workflow as proof that automatic deployment is unavailable; check commit statuses and GitHub deployments.
+
+Verification links: [Vercel deployment](https://vercel.com/dsasmartstart/dsa-smart-start-website/6m7HWVfAceA52vRi3LjMrvvtZ1Rp), [deployed commit](https://github.com/DSASMARTSTART/dsa-smart-start-website/commit/cb4d44015067332fa7e5542ce04a43fd62933933), and [production site](https://www.eduway.academy/).
+
+The production homepage serves the new build (`index-BK34xS1a.js`), loads local Inter fonts, and makes no startup authentication-SDK or Google Fonts requests. Its bundle hash differs from the local build, so deployment confirmation uses the GitHub commit/deployment association and observed shipped behavior rather than a local hash equality check.
+
+A fresh mobile Lighthouse sample on `https://www.eduway.academy/` scored 95, with FCP 1.8 s, LCP 2.2 s, zero blocking time, and zero CLS. The actual homepage is visible in the final screenshot and no runtime error was reported. Twelve production browser checks covered catalogue, A1 e-book, Kids Basic interactive syllabus, and Starter Path at widths 390, 768, and 1440 pixels: expected content, zero authentication-SDK requests, zero page exceptions, and no horizontal overflow. These results verify deployment and selected public flows; they do not prove 100 across every device. Artifacts: `production-after-main-mobile.json`, `production-after-main-mobile.jpg`, and `production-after-main-routes.txt`.
+
 ## Remaining scope
 
-The optimized build must be deployed and measured separately from the existing production baseline above. Deployment discovery found no linked project or repository deployment workflow. The existing Vercel CLI login is valid, but read-only domain and deployment inspection failed for `eduway.academy` / `www.eduway.academy` in both accessible teams. No hosting configuration or deployment was changed. The owning project/account is required before publishing; the user has been asked for the existing target. Authenticated student/admin/teacher workflows have automated regression coverage, but were not benchmarked with real accounts. Actual lesson video startup, downloads, payments, and API response time depend on their providers and the visitor's connection. Achieving 100 for every route and device has not been demonstrated. Reaching materially faster first loads beyond this point may warrant server-rendered, URL-addressable pages rather than the current hash-routed SPA; that is an architectural follow-up, not part of this change.
+Authenticated student/admin/teacher workflows have automated regression coverage, but were not benchmarked with real accounts. Actual lesson video startup, downloads, payments, and API response time depend on their providers and the visitor's connection. Achieving 100 for every route and device has not been demonstrated. Reaching materially faster first loads beyond this point may warrant server-rendered, URL-addressable pages rather than the current hash-routed SPA; that is an architectural follow-up, not part of this change.
 
 Reproduce checks:
 
