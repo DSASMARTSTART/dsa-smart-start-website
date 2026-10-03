@@ -31,6 +31,7 @@ dist-ssr
 # Local browser QA artifacts
 .playwright-cli/
 output/playwright/
+output/security/
 
 # Generated responsive images (npm run images:optimize)
 public/assets/optimized/

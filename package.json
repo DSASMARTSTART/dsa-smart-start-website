@@ -16,7 +16,9 @@
     "images:optimize": "node scripts/optimize-images.mjs",
     "predev": "npm run images:optimize",
     "prebuild": "npm run images:optimize",
-    "check:performance": "node scripts/check-performance.mjs"
+    "check:performance": "node scripts/check-performance.mjs",
+    "check:security": "node scripts/check-site-security.mjs",
+    "test:security": "node --test scripts/check-site-security.test.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
