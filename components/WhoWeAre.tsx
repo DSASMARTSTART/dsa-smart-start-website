@@ -1,7 +1,7 @@
 import { startVisibleAnimation } from '../lib/visibleAnimation';
 import OptimizedImage from './OptimizedImage';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { ArrowLeft, Star, ShieldCheck, Heart, ChevronRight, User, Users, Search, ShoppingBag, Rocket, Quote, Camera } from 'lucide-react';
 import WaveSeparator from './WaveSeparator';
 import { useTranslation } from 'react-i18next';
@@ -9,16 +9,8 @@ import { useTranslation } from 'react-i18next';
 const WhoWeAre: React.FC = () => {
   const { t } = useTranslation('home');
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      const { clientX, clientY } = e;
-      const moveX = (clientX - window.innerWidth / 2) / 40;
-      const moveY = (clientY - window.innerHeight / 2) / 40;
-      setMousePos({ x: moveX, y: moveY });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -62,7 +54,6 @@ const WhoWeAre: React.FC = () => {
     const stopAnimation = startVisibleAnimation(canvas, animate);
     return () => {
       window.removeEventListener('resize', resize);
-      window.removeEventListener('mousemove', handleMouseMove);
       stopAnimation();
     };
   }, []);
@@ -81,8 +72,8 @@ const WhoWeAre: React.FC = () => {
       {/* Hero Section */}
       <div className="relative w-full h-[70vh] min-h-[600px] flex flex-col items-center justify-center overflow-hidden bg-black">
         <div className="absolute inset-0 z-0">
-          <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#FFC1F2] rounded-full mix-blend-screen filter blur-[100px] opacity-20 animate-pulse-slow"></div>
-          <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-[#AB8FFF] rounded-full mix-blend-screen filter blur-[100px] opacity-15 animate-pulse-slow delay-1000"></div>
+          <div aria-hidden="true" className="mobile-static-glow absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#FFC1F2] rounded-full mix-blend-screen filter blur-[100px] opacity-20 animate-pulse-slow"></div>
+          <div aria-hidden="true" className="mobile-static-glow absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-[#AB8FFF] rounded-full mix-blend-screen filter blur-[100px] opacity-15 animate-pulse-slow delay-1000"></div>
           <canvas ref={canvasRef} className="absolute inset-0 z-0 opacity-60 pointer-events-none" />
         </div>
 
@@ -99,8 +90,7 @@ const WhoWeAre: React.FC = () => {
           </button>
         </div>
 
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 flex flex-col items-center text-center transition-transform duration-300 ease-out"
-             style={{ transform: `translate(${mousePos.x * 0.1}px, ${mousePos.y * 0.1}px)` }}>
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 flex flex-col items-center text-center transition-transform duration-300 ease-out">
           <div className="flex items-center gap-4 mb-6 sm:mb-8 opacity-60 animate-reveal">
             <div className="h-[1px] w-8 bg-[#AB8FFF]"></div>
             <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-gray-300">{t('whoWeAre.badge')}</span>
@@ -108,13 +98,12 @@ const WhoWeAre: React.FC = () => {
           </div>
 
           <div className="relative flex flex-col items-center mb-10 group cursor-default w-full">
-            <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-[10rem] font-black text-white tracking-tighter leading-none animate-reveal transition-transform duration-500 flex flex-wrap justify-center gap-x-4"
-                style={{ transform: `translate(${mousePos.x * 0.4}px, ${mousePos.y * 0.4}px)` }}>
+            <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-[10rem] font-black text-white tracking-tighter leading-none animate-reveal transition-transform duration-500 flex flex-wrap justify-center gap-x-4">
               <span>EDU</span> <span className="text-[#AB8FFF]">WAY</span>
             </h1>
           </div>
 
-          <div className="max-w-3xl animate-reveal stagger-2 mt-4 px-4" style={{ transform: `translate(${mousePos.x * 0.2}px, ${mousePos.y * 0.2}px)` }}>
+          <div className="max-w-3xl animate-reveal stagger-2 mt-4 px-4">
             <p className="text-xl sm:text-2xl md:text-4xl font-light text-gray-300 tracking-tight leading-tight">
               {t('whoWeAre.quote')}
             </p>
@@ -195,7 +184,7 @@ const WhoWeAre: React.FC = () => {
 
       {/* Our Mission Section with Image */}
       <section className="py-24 sm:py-32 bg-black text-white overflow-hidden relative">
-        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-purple-600/20 rounded-full blur-[150px] translate-x-1/2 -translate-y-1/2 opacity-30"></div>
+        <div aria-hidden="true" className="mobile-static-glow absolute top-0 right-0 w-[800px] h-[800px] bg-purple-600/20 rounded-full blur-[150px] translate-x-1/2 -translate-y-1/2 opacity-30"></div>
         
         <div className="max-w-7xl mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-16 sm:gap-24 items-center">
           <div className="animate-reveal" style={{ animationName: 'fadeInLeft' }}>
@@ -220,7 +209,7 @@ const WhoWeAre: React.FC = () => {
           </div>
 
           <div className="relative animate-reveal stagger-1" style={{ animationName: 'fadeInRight' }}>
-            <div className="absolute inset-0 bg-purple-500/20 blur-[100px] -z-10 animate-pulse"></div>
+            <div aria-hidden="true" className="mobile-static-glow absolute inset-0 bg-purple-500/20 blur-[100px] -z-10 animate-pulse"></div>
             <div className="rounded-[4rem] overflow-hidden aspect-square border-8 border-white/10 shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-700 bg-white/5 flex items-center justify-center">
               <OptimizedImage loading="lazy" src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=800" alt="Collaboration" className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
               <div className="absolute inset-0 flex items-center justify-center">

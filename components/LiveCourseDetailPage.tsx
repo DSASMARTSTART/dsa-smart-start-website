@@ -1,11 +1,12 @@
+import VideoPreview from './VideoPreview';
 import { startVisibleAnimation } from '../lib/visibleAnimation';
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, CheckCircle2, Star, ShoppingCart, Check, ChevronRight, ChevronDown, Layers, TrendingUp, Award, Clock, Shield, RefreshCcw, Sparkles, GraduationCap, Heart, BadgeCheck, UserCheck, Rocket, Lock, Users, Crown, Diamond, Compass, Video, BookOpen, Brain, Headphones, FileCheck, MessageCircle, X, Calendar, Zap } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { coursesApi } from '../data/supabaseStore';
+import { publicCoursesApi as coursesApi } from '../data/publicCourses';
 import { Course } from '../types';
 import { useLocalizedCourse } from '../hooks/useLocalizedCourse';
-import { liveCourseVimeoMap, getVimeoEmbedUrl } from '../data/videoConfig';
+import { liveCourseVimeoMap, getVimeoPreviewUrl } from '../data/videoConfig';
 
 // ============================================
 // LEVEL CONFIG — colours & icons per live-course slug
@@ -39,22 +40,25 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
 }) => {
   const { t, i18n } = useTranslation('courses');
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [rawCourse, setRawCourse] = useState<Course | null>(null);
+  const cachedCourse = coursesApi.peekById(courseId);
+  const [rawCourse, setRawCourse] = useState<Course | null>(cachedCourse ?? null);
   const course = useLocalizedCourse(rawCourse);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(cachedCourse === undefined);
 
   useEffect(() => {
+    let cancelled = false;
     const loadCourse = async () => {
       try {
         const data = await coursesApi.getById(courseId);
-        setRawCourse(data);
+        if (!cancelled) setRawCourse(data);
       } catch (error) {
         console.error('Failed to load course:', error);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
     loadCourse();
+    return () => { cancelled = true; };
   }, [courseId]);
 
   // Particle canvas animation
@@ -108,7 +112,7 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
   /* ---- Loading state ---- */
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div key="loading" className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-400 font-medium">{t('shared.loading')}</p>
@@ -178,8 +182,8 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
       <div className="relative w-full min-h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-black">
         {/* Background Elements */}
         <div className="absolute inset-0 z-0 pointer-events-none">
-          <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#FFC1F2] rounded-full mix-blend-screen filter blur-[100px] opacity-20 animate-pulse-slow"></div>
-          <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-[#AB8FFF] rounded-full mix-blend-screen filter blur-[100px] opacity-15 animate-pulse-slow delay-1000"></div>
+          <div aria-hidden="true" className="mobile-static-glow absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#FFC1F2] rounded-full mix-blend-screen filter blur-[100px] opacity-20 animate-pulse-slow"></div>
+          <div aria-hidden="true" className="mobile-static-glow absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-[#AB8FFF] rounded-full mix-blend-screen filter blur-[100px] opacity-15 animate-pulse-slow delay-1000"></div>
           <canvas ref={canvasRef} className="absolute inset-0 z-0 opacity-60" />
         </div>
 
@@ -311,23 +315,16 @@ const LiveCourseDetailPage: React.FC<LiveCourseDetailPageProps> = ({
               <div className="relative bg-white/5 rounded-[3rem] p-6 border border-white/10 shadow-2xl shadow-purple-500/10">
                 {/* Vimeo Video — only shown when a video exists for this language+level */}
                 {(() => {
-                  const videoId = liveCourseVimeoMap[i18n.language]?.[course.level] || '';
-                  const embedUrl = getVimeoEmbedUrl(videoId);
+                  const embedUrl = getVimeoPreviewUrl(liveCourseVimeoMap, i18n.language, course.level);
                   if (!embedUrl) return null;
                   return (
                     <>
-                      <div className="relative aspect-video rounded-3xl overflow-hidden mb-4 bg-black">
-                        <iframe
-                          loading="lazy"
-                          src={embedUrl}
-                          className="absolute inset-0 w-full h-full"
-                          frameBorder="0"
-                          allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
-                          allowFullScreen
-                          referrerPolicy="strict-origin-when-cross-origin"
-                          title={`${course.title} preview`}
-                        />
-                      </div>
+                      <VideoPreview
+                        key={embedUrl}
+                        src={embedUrl}
+                        title={course.title}
+                        playLabel={t('shared.playPreview')}
+                      />
                       <p className="text-sm text-gray-400 text-center mb-4 font-medium">
                         {t('liveCourseDetail.videoDescription')}
                       </p>

@@ -26,6 +26,8 @@ export default defineConfig(({ mode }) => {
         }
       },
       build: {
+        manifest: true,
+        assetsInlineLimit: 0, // Keep fonts cacheable instead of embedding them in blocking CSS.
         rollupOptions: {
           output: {
             manualChunks(id) {

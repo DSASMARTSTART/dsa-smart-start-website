@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { parseRoute } from './lib/routes';
-import { lazyPage } from './lib/lazyPage';
+import { lazyPage, lazyWorkspacePage } from './lib/lazyPage';
 import { preloadRouteData } from './lib/preloadRouteData';
 // Eager: the landing page + always-visible chrome (first paint needs these).
 import Navbar from './components/Navbar';
@@ -28,29 +28,30 @@ const EbookDetailPage = lazyPage(() => import('./components/EbookDetailPage'), [
 const LiveCourseDetailPage = lazyPage(() => import('./components/LiveCourseDetailPage'), ['courses']);
 const CheckoutPage = lazyPage(() => import('./components/CheckoutPage'), ['checkout']);
 const CheckoutSuccessPage = lazyPage(() => import('./components/CheckoutSuccessPage'), ['checkout', 'dashboard']);
-const DashboardPage = lazyPage(() => import('./components/DashboardPage'), ['dashboard']);
-const CourseViewer = lazyPage(() => import('./components/CourseViewer'), ['courses']);
+const LearningQueryProvider = lazyWorkspacePage(() => import('./components/LearningQueryProvider'));
+const DashboardPage = lazyWorkspacePage(() => import('./components/DashboardPage'), ['dashboard']);
+const CourseViewer = lazyWorkspacePage(() => import('./components/CourseViewer'), ['courses']);
 const PolicyPage = lazyPage(() => import('./components/PolicyPage'), ['policies']);
 const ResetPasswordPage = lazyPage(() => import('./components/ResetPasswordPage'), ['auth']);
 import { useAuth } from './contexts/AuthContext';
-import { clearCoursesCache, enrollmentsApi } from './data/supabaseStore';
+import { clearCoursesCache } from './data/courseCache';
 import { CheckCircle, AlertCircle, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 // Each admin screen loads independently, including the large course editor.
-const AdminLayout = lazyPage(() => import('./components/admin/AdminLayout'));
-const AdminHome = lazyPage(() => import('./components/admin/AdminHome'));
-const AdminUsers = lazyPage(() => import('./components/admin/AdminUsers'));
-const AdminCourses = lazyPage(() => import('./components/admin/AdminCourses'));
-const CourseEditor = lazyPage(() => import('./components/admin/CourseEditor'));
-const AdminAudit = lazyPage(() => import('./components/admin/AdminAudit'));
-const AdminDiscountCodes = lazyPage(() => import('./components/admin/AdminDiscountCodes'));
-const AdminTransactions = lazyPage(() => import('./components/admin/AdminTransactions'));
-const AdminPaymentOrphans = lazyPage(() => import('./components/admin/AdminPaymentOrphans'));
-const TeacherWorkspace = lazyPage(() => import('./components/live-learning/TeacherWorkspace'));
-const LiveLearningPage = lazyPage(() => import('./components/live-learning/LiveLearningPage'));
-const LiveLearningStudio = lazyPage(() => import('./components/live-learning/LiveLearningStudio'));
-const AdminSettings = lazyPage(() => import('./components/admin/AdminSettings'));
+const AdminLayout = lazyWorkspacePage(() => import('./components/admin/AdminLayout'));
+const AdminHome = lazyWorkspacePage(() => import('./components/admin/AdminHome'));
+const AdminUsers = lazyWorkspacePage(() => import('./components/admin/AdminUsers'));
+const AdminCourses = lazyWorkspacePage(() => import('./components/admin/AdminCourses'));
+const CourseEditor = lazyWorkspacePage(() => import('./components/admin/CourseEditor'));
+const AdminAudit = lazyWorkspacePage(() => import('./components/admin/AdminAudit'));
+const AdminDiscountCodes = lazyWorkspacePage(() => import('./components/admin/AdminDiscountCodes'));
+const AdminTransactions = lazyWorkspacePage(() => import('./components/admin/AdminTransactions'));
+const AdminPaymentOrphans = lazyWorkspacePage(() => import('./components/admin/AdminPaymentOrphans'));
+const TeacherWorkspace = lazyWorkspacePage(() => import('./components/live-learning/TeacherWorkspace'));
+const LiveLearningPage = lazyWorkspacePage(() => import('./components/live-learning/LiveLearningPage'));
+const LiveLearningStudio = lazyWorkspacePage(() => import('./components/live-learning/LiveLearningStudio'));
+const AdminSettings = lazyWorkspacePage(() => import('./components/admin/AdminSettings'));
 
 // Start the requested page chunk while startup translations are still loading.
 export function preloadPage(path: string) {
@@ -68,6 +69,7 @@ export function preloadPage(path: string) {
     'admin-audit': AdminAudit, 'admin-settings': AdminSettings, 'admin-teachers': LiveLearningStudio,
   };
   void pages[path as keyof typeof pages]?.preload().catch(() => {});
+  if (path === 'dashboard' || path === 'viewer') void LearningQueryProvider.preload().catch(() => {});
   if (path.startsWith('admin')) void AdminLayout.preload().catch(() => {});
 }
 
@@ -282,6 +284,7 @@ const App: React.FC = () => {
     // Check if user is logged in and already owns this product
     if (userId) {
       try {
+        const { enrollmentsApi } = await import('./data/supabaseStore');
         const isEnrolled = await enrollmentsApi.checkEnrollment(userId, id);
         if (isEnrolled) {
           showToast('info', t('toast.alreadyOwn'));
@@ -314,6 +317,7 @@ const App: React.FC = () => {
     // Check if user already owns this
     if (userId) {
       try {
+        const { enrollmentsApi } = await import('./data/supabaseStore');
         const isEnrolled = await enrollmentsApi.checkEnrollment(userId, id);
         if (isEnrolled) {
           showToast('info', t('toast.alreadyOwn'));
@@ -354,19 +358,19 @@ const App: React.FC = () => {
       {/* Main content area - skip link target */}
       <div id="main-content">
         <Suspense fallback={
-          <div className="min-h-[60vh] flex items-center justify-center bg-black">
+          <div className="min-h-screen flex items-center justify-center bg-black">
             <div className="w-10 h-10 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
           </div>
         }>
         {currentPath === 'home' && (
           <>
             <HeroSection onNavigate={navigateTo} />
-            <div id="about"><AboutSection onNavigate={navigateTo} /></div>
-            <MissionSection onNavigate={navigateTo} />
-            <div id="roots"><RootsSection onNavigate={navigateTo} /></div>
-            <div id="methods"><MethodSection onNavigate={navigateTo} /></div>
-            <PathwaysDetail />
-            <TestimonialsSection />
+            <div id="about" className="deferred-home-section"><AboutSection onNavigate={navigateTo} /></div>
+            <div className="deferred-home-section"><MissionSection onNavigate={navigateTo} /></div>
+            <div id="roots" className="deferred-home-section"><RootsSection onNavigate={navigateTo} /></div>
+            <div id="methods" className="deferred-home-section"><MethodSection onNavigate={navigateTo} /></div>
+            <div className="deferred-home-section"><PathwaysDetail /></div>
+            <div className="deferred-home-section"><TestimonialsSection /></div>
           </>
         )}
         
@@ -388,7 +392,8 @@ const App: React.FC = () => {
         )}
 
         {currentPath === 'syllabus' && selectedCourseId && (
-          <CourseSyllabusPage 
+        <CourseSyllabusPage
+          key={selectedCourseId}
             courseId={selectedCourseId} 
             onBack={() => navigateTo('courses')} 
             onEnroll={enrollNow}
@@ -402,6 +407,7 @@ const App: React.FC = () => {
 
       {currentPath === 'ebook' && selectedCourseId && (
         <EbookDetailPage 
+          key={selectedCourseId}
           courseId={selectedCourseId} 
           onBack={() => navigateTo('courses')} 
           onEnroll={enrollNow}
@@ -413,6 +419,7 @@ const App: React.FC = () => {
 
       {currentPath === 'live-course' && selectedCourseId && (
         <LiveCourseDetailPage
+          key={selectedCourseId}
           courseId={selectedCourseId}
           onBack={() => navigateTo('courses')}
           onEnroll={enrollNow}
@@ -446,25 +453,25 @@ const App: React.FC = () => {
       )}
 
       {currentPath === 'dashboard' && (
-        <DashboardPage 
+        <LearningQueryProvider><DashboardPage
           user={currentUser} 
           onOpenCourse={(id) => navigateTo('viewer', id)}
           onNavigate={navigateTo}
-        />
+        /></LearningQueryProvider>
       )}
 
       {currentPath === 'teacher-calendar' && <TeacherWorkspace />}
       {currentPath === 'live-learning' && <LiveLearningPage courseId={selectedCourseId} teacherId={selectedTeacherId} bookingView={liveBookingView} onNavigate={navigateTo} />}
 
       {currentPath === 'viewer' && selectedCourseId && (
-        <CourseViewer 
+        <LearningQueryProvider><CourseViewer
           courseId={selectedCourseId}
           onBack={() => navigateTo('dashboard')}
           onNavigateToCheckout={(courseId) => {
             setCart([courseId]);
             navigateTo('checkout');
           }}
-        />
+        /></LearningQueryProvider>
       )}
 
       {/* Policy Pages */}

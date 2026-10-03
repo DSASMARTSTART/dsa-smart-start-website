@@ -1,12 +1,13 @@
+import VideoPreview from './VideoPreview';
 import { startVisibleAnimation } from '../lib/visibleAnimation';
 import OptimizedImage from './OptimizedImage';
-﻿import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, BookOpen, Download, FileText, CheckCircle2, Star, ShoppingCart, Check, ArrowRight, Layers, TrendingUp, Award, Music, Play, Clock, Shield, RefreshCcw, Sparkles, GraduationCap, ChevronRight, ChevronDown, Heart, BadgeCheck, UserCheck, Rocket, Lock, FileCheck } from 'lucide-react';
-import { coursesApi, enrollmentsApi } from '../data/supabaseStore';
+import { publicCoursesApi as coursesApi } from '../data/publicCourses';
 import { Course } from '../types';
 import { useLocalizedCourse } from '../hooks/useLocalizedCourse';
-import { ebookVimeoMap, getVimeoEmbedUrl } from '../data/videoConfig';
+import { ebookVimeoMap, getVimeoPreviewUrl } from '../data/videoConfig';
 import { useAuth } from '../contexts/AuthContext';
 
 // Fallback cover images for e-books (local assets)
@@ -69,9 +70,12 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
   const { t, i18n } = useTranslation('courses');
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { user } = useAuth();
-  const [rawCourse, setRawCourse] = useState<Course | null>(null);
+  const cachedCourse = coursesApi.peekById(courseId);
+  const [rawCourse, setRawCourse] = useState<Course | null>(() =>
+    cachedCourse ? { ...cachedCourse, ebookPdfUrl: user ? cachedCourse.ebookPdfUrl : undefined } : null
+  );
   const course = useLocalizedCourse(rawCourse);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(cachedCourse === undefined);
   const [loadError, setLoadError] = useState(false);
   // True only when an authenticated user has an active enrollment for this ebook.
   // Used to gate the PDF download URL — it must NEVER be present in the DOM
@@ -92,9 +96,11 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
   };
 
   useEffect(() => {
+    let cancelled = false;
     const loadCourse = async () => {
       try {
         const data = await coursesApi.getById(courseId);
+        if (cancelled) return;
         // Defensive: strip the PDF URL before placing on state when the viewer
         // is not authenticated. The CTA renders a Buy button in that case;
         // the URL must not appear in the DOM for non-owners.
@@ -105,12 +111,13 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
         }
       } catch (error) {
         console.error('Failed to load e-book:', error);
-        setLoadError(true);
+        if (!cancelled) setLoadError(true);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
     loadCourse();
+    return () => { cancelled = true; };
   }, [courseId, user]);
 
   // Runtime enrollment check — the only path that should expose the PDF URL.
@@ -122,6 +129,7 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
         return;
       }
       try {
+        const { enrollmentsApi } = await import('../data/supabaseStore');
         const enrolled = await enrollmentsApi.checkEnrollment(user.id, courseId);
         if (!cancelled) {
           setIsOwned(enrolled);
@@ -190,7 +198,7 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div key="loading" className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-400 font-medium">{t('shared.loadingEbook')}</p>
@@ -291,15 +299,15 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
     (!pricing.discountEndDate || new Date(pricing.discountEndDate) >= now);
 
   return (
-    <div className="bg-black min-h-screen">
+    <div key="product" className="bg-black min-h-screen">
       {/* ============================================ */}
       {/* HERO SECTION                                 */}
       {/* ============================================ */}
       <div className="relative w-full min-h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-black">
         {/* Background Elements */}
         <div className="absolute inset-0 z-0 pointer-events-none">
-          <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#FFC1F2] rounded-full mix-blend-screen filter blur-[100px] opacity-20 animate-pulse-slow"></div>
-          <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-[#AB8FFF] rounded-full mix-blend-screen filter blur-[100px] opacity-15 animate-pulse-slow delay-1000"></div>
+          <div aria-hidden="true" className="mobile-static-glow absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#FFC1F2] rounded-full mix-blend-screen filter blur-[100px] opacity-20 animate-pulse-slow"></div>
+          <div aria-hidden="true" className="mobile-static-glow absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-[#AB8FFF] rounded-full mix-blend-screen filter blur-[100px] opacity-15 animate-pulse-slow delay-1000"></div>
           <canvas ref={canvasRef} className="absolute inset-0 z-0 opacity-60" />
         </div>
 
@@ -479,23 +487,17 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
 
                 {/* Vimeo Video — only shown when a video exists for this language+level */}
                 {(() => {
-                  const videoId = ebookVimeoMap[i18n.language]?.[course.level] || '';
-                  const embedUrl = getVimeoEmbedUrl(videoId);
+                  const embedUrl = getVimeoPreviewUrl(ebookVimeoMap, i18n.language, course.level);
                   if (!embedUrl) return null;
                   return (
                     <>
-                      <div className="relative aspect-video rounded-3xl overflow-hidden mb-4 bg-black">
-                        <iframe
-                          loading="lazy"
-                          src={embedUrl}
-                          className="absolute inset-0 w-full h-full"
-                          frameBorder="0"
-                          allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
-                          allowFullScreen
-                          referrerPolicy="strict-origin-when-cross-origin"
-                          title={`${course.title} preview`}
-                        />
-                      </div>
+                      <VideoPreview
+                        key={embedUrl}
+                        src={embedUrl}
+                        title={course.title}
+                        playLabel={t('shared.playPreview')}
+                        poster={getEbookCover(course)}
+                      />
                       <p className="text-sm text-gray-400 text-center mb-4 font-medium">
                         {course.level.startsWith('kids')
                           ? t('ebookDetail.videoDescriptionKids')

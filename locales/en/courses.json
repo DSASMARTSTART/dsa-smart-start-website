@@ -110,6 +110,7 @@
     "noVideoUploaded": "No video uploaded yet"
   },
   "shared": {
+    "playPreview": "Play preview",
     "backToProducts": "Back to Products",
     "backToCourses": "Back to Courses",
     "loading": "Loading course details...",

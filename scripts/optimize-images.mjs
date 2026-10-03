@@ -44,6 +44,11 @@ await writeFile(
   path.join(root, 'data/imageManifest.json'),
   JSON.stringify(manifest, null, 2) + '\n'
 );
+// Keep quiz artwork metadata out of public page downloads.
+for (const [name, quiz] of [['displayImageManifest', false], ['quizImageManifest', true]]) {
+  const subset = Object.fromEntries(Object.entries(manifest).filter(([src]) => src.startsWith('/assets/quiz/') === quiz));
+  await writeFile(path.join(root, `data/${name}.json`), JSON.stringify(subset, null, 2) + '\n');
+}
 console.log(
   `Optimized ${Object.keys(manifest).length} images: ${(originalBytes / 1e6).toFixed(2)} MB → ${(optimizedBytes / 1e6).toFixed(2)} MB (largest variants).`
 );

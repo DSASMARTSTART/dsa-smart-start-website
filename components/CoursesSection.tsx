@@ -1,9 +1,10 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { Star, Zap, Award, Music, Play, Layers, Compass, ChevronRight, Crown, Diamond, Loader2, GraduationCap, Baby, Users } from 'lucide-react';
 import { coursesApi } from '../data/supabaseStore';
 import { Course, CourseLevel } from '../types';
-import AssessmentPopup from './AssessmentPopup';
+import { lazyPage } from '../lib/lazyPage';
+const AssessmentPopup = lazyPage(() => import('./AssessmentPopup'), ['assessment']);
 import { useTranslation } from 'react-i18next';
 
 // Level configuration for icons and colors (labels are translated inside the component)
@@ -324,12 +325,12 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ onNavigateToSyllabus, o
       </div>
 
       {/* Assessment Popup */}
-      <AssessmentPopup
+      {showAssessment && <Suspense fallback={null}><AssessmentPopup
         isOpen={showAssessment}
         onClose={() => setShowAssessment(false)}
         testType={assessmentType}
         onNavigate={onNavigate}
-      />
+      /></Suspense>}
     </section>
   );
 };

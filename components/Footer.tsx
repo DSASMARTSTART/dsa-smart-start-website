@@ -2,7 +2,6 @@ import OptimizedImage from './OptimizedImage';
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { Mail, Phone, MapPin, Users, MonitorPlay, FileText, Crown, Diamond, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { coursesApi } from '../data/supabaseStore';
 import { Course, ProductType, TargetAudience } from '../types';
 import { useLocalizedCourses } from '../hooks/useLocalizedCourse';
 
@@ -39,6 +38,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
     let cancelled = false;
     const loadCourses = async () => {
       try {
+        const { publicCoursesApi: coursesApi } = await import('../data/publicCourses');
         const data = await coursesApi.list({ isPublished: true });
         if (!cancelled) setRawCourses(data || []);
       } catch (error) {
@@ -47,14 +47,16 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         if (!cancelled) setLoading(false);
       }
     };
-    // Footer links do not need the entire course catalog during first paint.
+    // A route's full-viewport loading placeholder initially puts the footer just
+    // below the fold. Do not mistake that temporary position for user interest
+    // and download the entire catalog alongside a single product request.
     const observer = typeof IntersectionObserver !== 'undefined'
       ? new IntersectionObserver((entries) => {
-          if (entries.some((entry) => entry.isIntersecting)) {
+          if (entries.some((entry) => entry.isIntersecting && entry.intersectionRatio > 0)) {
             observer?.disconnect();
             void loadCourses();
           }
-        }, { rootMargin: '400px' })
+        }, { threshold: 0.001 })
       : null;
     if (observer && footerRef.current) observer.observe(footerRef.current);
     else void loadCourses();
@@ -338,7 +340,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-medium text-gray-500">
+      <div className="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/10 flex flex-col xl:flex-row justify-between items-center gap-4 text-xs font-medium text-gray-500">
         <p>{t('footer.copyright')}</p>
         <div className="flex gap-6 flex-wrap justify-center">
           <button onClick={() => handleLinkClick('terms')} className="hover:text-white">{t('footer.termsConditions')}</button>

@@ -1,7 +1,8 @@
 
-import React, { lazy, Suspense, useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { BookOpen, ChevronRight, Sparkles, GraduationCap, ClipboardCheck } from 'lucide-react';
-const AssessmentPopup = lazy(() => import('./AssessmentPopup'));
+import { lazyPage } from '../lib/lazyPage';
+const AssessmentPopup = lazyPage(() => import('./AssessmentPopup'), ['assessment']);
 import { useTranslation } from 'react-i18next';
 
 interface RootsSectionProps {

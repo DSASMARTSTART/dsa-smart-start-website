@@ -1,3 +1,4 @@
+import OptimizedImage from './OptimizedImage';
 
 import React from 'react';
 import { CheckCircle2, Award, ChevronRight, Sparkles } from 'lucide-react';
@@ -31,7 +32,7 @@ const PathwaysDetail: React.FC = () => {
           <div className="relative group animate-reveal">
              <div aria-hidden="true" className="mobile-static-glow absolute -inset-6 bg-pink-600 rounded-[3rem] blur-3xl opacity-20 group-hover:opacity-30 transition-opacity" ></div>
              <div className="relative overflow-hidden rounded-[3rem] aspect-[4/5] shadow-2xl border-4 border-white/10">
-                <img
+                <OptimizedImage sizes="(max-width: 1023px) calc(100vw - 48px), 600px"
                   loading="lazy"
                   decoding="async"
                   src="https://images.unsplash.com/photo-1580894732444-8ecded7900cd?auto=format&fit=crop&q=80&w=1200" 
@@ -116,7 +117,7 @@ const PathwaysDetail: React.FC = () => {
           <div className="relative order-1 lg:order-2 group animate-reveal">
              <div aria-hidden="true" className="mobile-static-glow absolute -inset-6 bg-blue-600 rounded-[3rem] blur-3xl opacity-20 group-hover:opacity-30 transition-opacity" ></div>
              <div className="relative overflow-hidden rounded-[3rem] aspect-[4/5] shadow-2xl border-4 border-white/10">
-                <img
+                <OptimizedImage sizes="(max-width: 1023px) calc(100vw - 48px), 600px"
                   loading="lazy"
                   decoding="async"
                   src="https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&q=80&w=1200" 

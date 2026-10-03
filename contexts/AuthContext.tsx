@@ -1,8 +1,7 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase, teacherInviteRedirect } from '../lib/supabase';
-import { clearCoursesCache } from '../data/supabaseStore';
-import { sendWelcomeEmail } from '../lib/emailService';
+import type { User, Session } from '@supabase/supabase-js';
+import { clearCoursesCache } from '../data/courseCache';
+import { needsAuthClient, observeAuthClientReady } from '../lib/authBootstrap';
 import type { Database } from '../lib/database.types';
 
 type UserRow = Database['public']['Tables']['users']['Row'];
@@ -37,6 +36,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 async function fetchProfile(userId: string, retries = 2): Promise<UserProfile | null> {
+  const { supabase } = await import('../lib/supabase');
   if (!supabase) {
     console.warn('fetchProfile: Supabase client not initialized');
     return null;
@@ -79,132 +79,173 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const profileRequest = useRef(0);
 
   useEffect(() => {
-    // Handle case where Supabase is not configured
-    if (!supabase) {
-      setLoading(false);
-      return;
-    }
-
     let isMounted = true;
     let initialised = false;
     let invitationHandled = false;
     let activeUserId: string | null = null;
+    let unsubscribe: (() => void) | undefined;
+    const hadPkceCode = new URLSearchParams(window.location.search).has('code');
 
-    // Check if we arrived with a PKCE code (email confirmation / password reset).
-    // detectSessionInUrl: true handles the actual exchange; we just need to
-    // redirect to #dashboard afterwards.
-    const params = new URLSearchParams(window.location.search);
-    const hadPkceCode = params.has('code');
-
-    // Use onAuthStateChange as the SOLE mechanism for session state.
-    // This avoids calling getSession() / exchangeCodeForSession() manually,
-    // which compete for the navigator.locks auth lock held by the client's
-    // internal _initialize() and cause AbortError cascades.
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!isMounted) return;
-
-      // INITIAL_SESSION fires once after the client finishes initialising
-      // (including automatic PKCE code exchange when detectSessionInUrl is true).
-      if (event === 'INITIAL_SESSION') {
-        initialised = true;
-
-        if (hadPkceCode) {
-          // Clean up the ?code= query string, then navigate to dashboard
-          window.history.replaceState({}, '', window.location.pathname);
-          window.location.hash = teacherInviteRedirect ? '#reset-password' : '#dashboard';
+    let started = false;
+    let safetyTimer: number | undefined;
+    const initialize = () => {
+      if (!isMounted || started) return;
+      started = true;
+      setLoading(true);
+      safetyTimer = window.setTimeout(() => {
+        if (isMounted && !initialised) {
+          console.warn('Auth init safety timeout — forcing loading to false');
+          setLoading(false);
         }
-      }
-
-      if (
-        session?.user &&
-        teacherInviteRedirect &&
-        !invitationHandled &&
-        (event === 'INITIAL_SESSION' || event === 'SIGNED_IN')
-      ) {
-        invitationHandled = true;
-        window.history.replaceState({}, '', window.location.pathname);
-        window.location.hash = '#reset-password';
-      }
-
-      if (activeUserId !== (session?.user.id ?? null)) {
-        clearCoursesCache();
-      }
-      setSession(session);
-      setUser(session?.user ?? null);
-
-      if (session?.user) {
-        const version = ++profileRequest.current;
-        if (activeUserId !== session.user.id || event === 'INITIAL_SESSION') {
-          setProfile(null);
-          setLoading(true);
-        }
-        activeUserId = session.user.id;
-        // Do not await Supabase calls inside the auth callback. Keep the access
-        // check loading until the profile resolves, and discard stale responses.
-        const timer = window.setTimeout(() => {
-          if (isMounted && version === profileRequest.current) {
-            profileRequest.current++;
-            setProfile(null);
+      }, 8000);
+      void import('../lib/supabase')
+        .then(({ supabase, teacherInviteRedirect }) => {
+          if (!isMounted) return;
+          if (!supabase) {
             setLoading(false);
+            return;
           }
-        }, 8000);
-        void fetchProfile(session.user.id)
-          .then((nextProfile) => {
-            if (isMounted && version === profileRequest.current) setProfile(nextProfile);
-          })
-          .catch((err) => {
-            console.warn('Background profile fetch failed:', err);
-            if (isMounted && version === profileRequest.current) setProfile(null);
-          })
-          .finally(() => {
-            window.clearTimeout(timer);
-            if (isMounted && version === profileRequest.current) setLoading(false);
+
+          // Check if we arrived with a PKCE code (email confirmation / password reset).
+          // detectSessionInUrl: true handles the actual exchange; we just need to
+          // redirect to #dashboard afterwards.
+
+          // Use onAuthStateChange as the SOLE mechanism for session state.
+          // This avoids calling getSession() / exchangeCodeForSession() manually,
+          // which compete for the navigator.locks auth lock held by the client's
+          // internal _initialize() and cause AbortError cascades.
+          const {
+            data: { subscription },
+          } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (!isMounted) return;
+
+            // INITIAL_SESSION fires once after the client finishes initialising
+            // (including automatic PKCE code exchange when detectSessionInUrl is true).
+            if (event === 'INITIAL_SESSION') {
+              initialised = true;
+
+              if (hadPkceCode) {
+                // Clean up the ?code= query string, then navigate to dashboard
+                window.history.replaceState({}, '', window.location.pathname);
+                window.location.hash = teacherInviteRedirect ? '#reset-password' : '#dashboard';
+              }
+            }
+
+            if (
+              session?.user &&
+              teacherInviteRedirect &&
+              !invitationHandled &&
+              (event === 'INITIAL_SESSION' || event === 'SIGNED_IN')
+            ) {
+              invitationHandled = true;
+              window.history.replaceState({}, '', window.location.pathname);
+              window.location.hash = '#reset-password';
+            }
+
+            if (activeUserId !== (session?.user.id ?? null)) {
+              clearCoursesCache();
+            }
+            setSession(session);
+            setUser(session?.user ?? null);
+
+            if (session?.user) {
+              const version = ++profileRequest.current;
+              if (activeUserId !== session.user.id || event === 'INITIAL_SESSION') {
+                setProfile(null);
+                setLoading(true);
+              }
+              activeUserId = session.user.id;
+              // Do not await Supabase calls inside the auth callback. Keep the access
+              // check loading until the profile resolves, and discard stale responses.
+              const timer = window.setTimeout(() => {
+                if (isMounted && version === profileRequest.current) {
+                  profileRequest.current++;
+                  setProfile(null);
+                  setLoading(false);
+                }
+              }, 8000);
+              void fetchProfile(session.user.id)
+                .then((nextProfile) => {
+                  if (isMounted && version === profileRequest.current) setProfile(nextProfile);
+                })
+                .catch((err) => {
+                  console.warn('Background profile fetch failed:', err);
+                  if (isMounted && version === profileRequest.current) setProfile(null);
+                })
+                .finally(() => {
+                  window.clearTimeout(timer);
+                  if (isMounted && version === profileRequest.current) setLoading(false);
+                });
+            } else {
+              profileRequest.current++;
+              activeUserId = null;
+              setProfile(null);
+              setLoading(false);
+              // Clear user-specific caches when session ends
+              localStorage.removeItem('dsa_progress');
+              localStorage.removeItem('dsa_cart');
+              localStorage.removeItem('dsa_materials');
+              sessionStorage.removeItem('pending_order');
+            }
+
+            // Handle password recovery redirect
+            if (event === 'PASSWORD_RECOVERY') {
+              window.location.hash = '#reset-password';
+            }
+
+            // Stop loading spinner once initial session is resolved
+            if (event === 'INITIAL_SESSION' && !session?.user && isMounted) {
+              setLoading(false);
+            }
           });
-      } else {
-        profileRequest.current++;
-        activeUserId = null;
-        setProfile(null);
-        setLoading(false);
-        // Clear user-specific caches when session ends
-        localStorage.removeItem('dsa_progress');
-        localStorage.removeItem('dsa_cart');
-        localStorage.removeItem('dsa_materials');
-        sessionStorage.removeItem('pending_order');
-      }
 
-      // Handle password recovery redirect
-      if (event === 'PASSWORD_RECOVERY') {
-        window.location.hash = '#reset-password';
+          unsubscribe = () => subscription.unsubscribe();
+        })
+        .catch((error) => {
+          console.error('Could not initialize authentication:', error);
+          if (isMounted) setLoading(false);
+        });
+    };
+    const checkSession = () => {
+      try {
+        if (
+          needsAuthClient(
+            window.location,
+            window.localStorage,
+            import.meta.env.VITE_SUPABASE_URL || ''
+          )
+        )
+          initialize();
+        else if (!started) setLoading(false);
+      } catch {
+        // Accessing localStorage itself can throw in a restricted browser.
+        initialize();
       }
-
-      // Stop loading spinner once initial session is resolved
-      if (event === 'INITIAL_SESSION' && !session?.user && isMounted) {
-        setLoading(false);
-      }
-    });
-
-    // Safety timeout: if INITIAL_SESSION never fires (e.g. network issue),
-    // force loading to false so the app is never stuck on a spinner.
-    const safetyTimer = setTimeout(() => {
-      if (isMounted && !initialised) {
-        console.warn('Auth init safety timeout — forcing loading to false');
-        setLoading(false);
-      }
-    }, 8000);
+    };
+    // A public API import, a login in another tab, or protected navigation can
+    // start auth later. None of these events remounts the application.
+    const stopObserving = observeAuthClientReady(initialize);
+    window.addEventListener('storage', checkSession);
+    window.addEventListener('focus', checkSession);
+    window.addEventListener('hashchange', checkSession);
+    checkSession();
 
     return () => {
       isMounted = false;
       // Invalidate network responses, not a DOM ref.
       // eslint-disable-next-line react-hooks/exhaustive-deps
       profileRequest.current++;
-      clearTimeout(safetyTimer);
-      subscription.unsubscribe();
+      window.clearTimeout(safetyTimer);
+      stopObserving();
+      window.removeEventListener('storage', checkSession);
+      window.removeEventListener('focus', checkSession);
+      window.removeEventListener('hashchange', checkSession);
+      unsubscribe?.();
     };
   }, []);
 
   const signIn = async (email: string, password: string) => {
+    const { supabase } = await import('../lib/supabase');
     if (!supabase) return { error: new Error('Supabase not configured') };
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
@@ -247,6 +288,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signUp = async (email: string, password: string, name: string) => {
+    const { supabase } = await import('../lib/supabase');
     if (!supabase) return { error: new Error('Supabase not configured') };
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -262,7 +304,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Send welcome email (fire-and-forget — don't block signup flow)
     if (!error && data?.user?.email) {
-      sendWelcomeEmail({ email: data.user.email, name });
+      const email = data.user.email;
+      void import('../lib/emailService')
+        .then(({ sendWelcomeEmail }) => sendWelcomeEmail({ email, name }))
+        .catch(console.error);
     }
 
     return { error };
@@ -276,6 +321,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
+    const { supabase } = await import('../lib/supabase');
     if (supabase) {
       await supabase.auth.signOut();
     }
@@ -286,6 +332,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const resetPassword = async (email: string) => {
+    const { supabase } = await import('../lib/supabase');
     if (!supabase) return { error: new Error('Supabase not configured') };
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}`,
@@ -296,7 +343,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const isAdmin = () => profile?.status === 'active' && profile.role === 'admin';
   const isEditor = () =>
     profile?.status === 'active' && (profile.role === 'admin' || profile.role === 'editor');
-  const canAccessAdmin = () => isEditor() || (profile?.status === 'active' && profile.role === 'secretary');
+  const canAccessAdmin = () =>
+    isEditor() || (profile?.status === 'active' && profile.role === 'secretary');
 
   return (
     <AuthContext.Provider

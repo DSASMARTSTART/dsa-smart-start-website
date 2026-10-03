@@ -110,6 +110,7 @@
     "noVideoUploaded": "Video još nije otpremljen"
   },
   "shared": {
+    "playPreview": "Pogledaj video",
     "backToProducts": "Nazad na proizvode",
     "backToCourses": "Nazad na kurseve",
     "loading": "Učitavanje detalja kursa...",

@@ -17,6 +17,25 @@
     </script>
 
     <!-- Alternate language links -->
+    <script>
+      // Establish the API connection while page code downloads, only on routes
+      // that need it. This performs no data request or authentication operation.
+      (function() {
+        if (!/^#(?:courses|syllabus-|ebook-|live-course-|viewer-|dashboard|checkout|live-learning|teacher-calendar|admin|login|reset-password)/.test(location.hash) &&
+            !new URLSearchParams(location.search).has('code') &&
+            !new URLSearchParams(location.search).has('auth')) return;
+        try {
+          var api = new URL('%VITE_SUPABASE_URL%');
+          if (api.protocol !== 'https:' && api.protocol !== 'http:') return;
+          var link = document.createElement('link');
+          link.rel = 'preconnect';
+          link.href = api.origin;
+          link.crossOrigin = 'anonymous';
+          document.head.appendChild(link);
+        } catch (_) { /* Unconfigured local builds still render normally. */ }
+      })();
+    </script>
+
     <link rel="alternate" hreflang="en" href="https://eduway.academy/" />
     <link rel="alternate" hreflang="it" href="https://eduway.academy/" />
     <link rel="alternate" hreflang="sr" href="https://eduway.academy/" />
@@ -109,11 +128,7 @@
     <!-- Fonts and Styles -->
     <!-- Tailwind is compiled at build time (see index.css / tailwind.config.js),
          not loaded from the cdn.tailwindcss.com dev script. -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- A slow third-party font service must not block the first render. -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
+
   </head>
   <body>
     <div id="root">

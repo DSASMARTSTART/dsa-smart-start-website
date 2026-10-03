@@ -20,7 +20,11 @@ interface CourseViewerProps {
 
 const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigateToCheckout }) => {
   const { t } = useTranslation('courses');
-  const { user, isAdmin, isEditor } = useAuth();
+  const { user, isAdmin, isEditor, loading: authLoading } = useAuth();
+  const userId = user?.id;
+  const canPreviewDraft = isAdmin() || isEditor();
+  const accessKey = JSON.stringify([courseId, userId, canPreviewDraft]);
+  const [loadedFor, setLoadedFor] = useState<string | null>(null);
   const { progress, toggleProgress } = useUserProgress(); // Now using hook directly
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
@@ -59,94 +63,59 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
     }
   }, [user, courseId, quizAttempts, progress, toggleProgress]);
 
-  // Load course and check enrollment IN PARALLEL for faster loading
   useEffect(() => {
+    let cancelled = false;
+    if (authLoading) return;
+
     const loadCourseAndCheckAccess = async () => {
       setLoading(true);
-      
-      // Admins and editors can always access - use admin API to see unpublished/draft courses
-      if (isAdmin() || isEditor()) {
-        try {
-          // Use getByIdForAdmin to bypass is_published filter
-          const data = await coursesApi.getByIdForAdmin(courseId);
-          if (data) {
-            setCourse(data);
-            if (data.modules.length > 0) {
-              setActiveModuleId(data.modules[0].id);
-              const firstLessons = data.modules[0].lessons || [];
-              if (firstLessons.length > 0) {
-                setSelectedItemId(firstLessons[0].id);
-              }
-            }
-          }
-          setIsEnrolled(true);
-        } catch (error) {
-          console.error('Error loading course:', error);
-        } finally {
-          setLoading(false);
-        }
-        return;
-      }
-
-      // Not logged in = not enrolled, but still load course info
-      if (!user) {
-        try {
-          const data = await coursesApi.getById(courseId);
-          setCourse(data);
-        } catch (error) {
-          console.error('Error loading course info:', error);
-        }
-        setIsEnrolled(false);
-        setLoading(false);
-        return;
-      }
-
-      // PARALLEL fetch: enrollment check + course data at the same time!
+      let data: Course | null = null;
+      let enrolled = false;
       try {
-        const [enrolled, publishedData] = await Promise.all([
-          enrollmentsApi.checkEnrollment(user.id, courseId),
-          coursesApi.getById(courseId)
-        ]);
-
-        setIsEnrolled(enrolled);
-
-        // If enrolled, also try the enrolled-user RPC so we can render
-        // courses that have since been unpublished. Fall back to the
-        // published copy when the RPC is unavailable.
-        let data = publishedData;
-        if (enrolled) {
+        if (canPreviewDraft) {
+          data = await coursesApi.getByIdForAdmin(courseId);
+          enrolled = true;
+        } else if (!userId) {
+          data = await coursesApi.getById(courseId);
+        } else {
+          // This RPC verifies active enrollment on the server before returning
+          // a course, including one that has since been unpublished. A successful
+          // response supplies both access and content in one network round trip.
           try {
-            const enrolledData = await coursesApi.getForEnrolledUser(courseId);
-            if (enrolledData) data = enrolledData;
-          } catch (rpcErr) {
-            console.warn('get_course_for_enrolled_user fallback to public:', rpcErr);
+            data = await coursesApi.getForEnrolledUser(courseId);
+          } catch (error) {
+            console.warn('get_course_for_enrolled_user fallback to public:', error);
           }
-        }
-
-        if (data) {
-          setCourse(data);
-          if (enrolled && data.modules.length > 0) {
-            setActiveModuleId(data.modules[0].id);
-            const firstLessons = data.modules[0].lessons || [];
-            if (firstLessons.length > 0) {
-              setSelectedItemId(firstLessons[0].id);
-            }
+          if (cancelled) return;
+          if (data) {
+            enrolled = true;
+          } else {
+            // Older installations may lack the RPC. Keep the explicit enrollment
+            // check for this fallback; published content alone never grants access.
+            [enrolled, data] = await Promise.all([
+              enrollmentsApi.checkEnrollment(userId, courseId),
+              coursesApi.getById(courseId),
+            ]);
           }
         }
       } catch (error) {
         console.error('Error loading course:', error);
-        setIsEnrolled(false);
-      } finally {
-        setLoading(false);
       }
+      if (cancelled) return;
+      setCourse(data);
+      setIsEnrolled(enrolled);
+      setActiveModuleId(enrolled ? data?.modules[0]?.id || '' : '');
+      setSelectedItemId(enrolled ? data?.modules[0]?.lessons?.[0]?.id || '' : '');
+      setQuizAttempts({});
+      setLoadedFor(accessKey);
+      setLoading(false);
     };
 
-    loadCourseAndCheckAccess();
-  }, [user, courseId, isAdmin, isEditor]);
+    void loadCourseAndCheckAccess();
+    return () => { cancelled = true; };
+  }, [userId, courseId, canPreviewDraft, authLoading, accessKey]);
 
-  if (course && liveProgramFor(course)) return <LiveLearningPage courseId={courseId} onNavigate={path => {window.location.hash = `#${path}`;}} />;
-
-  if (loading || isEnrolled === null) {
+  if (authLoading || loadedFor !== accessKey || loading || isEnrolled === null) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
@@ -156,6 +125,8 @@ const CourseViewer: React.FC<CourseViewerProps> = ({ courseId, onBack, onNavigat
       </div>
     );
   }
+
+  if (course && liveProgramFor(course)) return <LiveLearningPage courseId={courseId} onNavigate={path => {window.location.hash = `#${path}`;}} />;
 
   // ACCESS DENIED - Not enrolled
   if (!isEnrolled) {

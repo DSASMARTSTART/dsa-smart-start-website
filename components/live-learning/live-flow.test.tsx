@@ -96,7 +96,13 @@ import LiveProgramCards from './LiveProgramCards';
 import LiveLearningStudio from './LiveLearningStudio';
 import CourseViewer from '../CourseViewer';
 import type { Course } from '../../types';
-afterEach(cleanup);
+let restoreVisibility: (() => void) | undefined;
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+  restoreVisibility?.();
+  restoreVisibility = undefined;
+});
 beforeEach(() => {
   vi.clearAllMocks();
   f.rows.mockResolvedValue([f.row]);
@@ -106,6 +112,46 @@ beforeEach(() => {
   f.state.bookings = [];
 });
 describe('live program integration', () => {
+  it('pauses availability reads in hidden tabs and refreshes when returning', async () => {
+    vi.useFakeTimers();
+    const hidden = vi.spyOn(document, 'hidden', 'get').mockReturnValue(false);
+    restoreVisibility = () => hidden.mockRestore();
+    await act(async () => {
+      render(<LiveLearningPage courseId={f.course.id} teacherId="teacher" onNavigate={() => {}} />);
+    });
+    const initial = f.api.availability.mock.calls.length;
+    expect(initial).toBe(1);
+    hidden.mockReturnValue(true);
+    await act(async () => { await vi.advanceTimersByTimeAsync(90_000); });
+    expect(f.api.availability).toHaveBeenCalledTimes(initial);
+    hidden.mockReturnValue(false);
+    await act(async () => {
+      document.dispatchEvent(new Event('visibilitychange'));
+      window.dispatchEvent(new Event('focus'));
+    });
+    expect(f.api.availability).toHaveBeenCalledTimes(initial + 1);
+  });
+  it('keeps only one slow availability request in flight and stops on unmount', async () => {
+    vi.useFakeTimers();
+    const hidden = vi.spyOn(document, 'hidden', 'get').mockReturnValue(false);
+    restoreVisibility = () => hidden.mockRestore();
+    let finish!: (value: { times: string[]; groups: never[] }) => void;
+    // Finish startup before making a subsequent poll slow.
+    const view = render(<LiveLearningPage courseId={f.course.id} teacherId="teacher" onNavigate={() => {}} />);
+    await act(async () => {});
+    f.api.availability.mockImplementationOnce(() => new Promise(resolve => { finish = resolve; }));
+    await act(async () => { await vi.advanceTimersByTimeAsync(30_000); });
+    const pending = f.api.availability.mock.calls.length;
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(90_000);
+      window.dispatchEvent(new Event('focus'));
+    });
+    expect(f.api.availability).toHaveBeenCalledTimes(pending);
+    await act(async () => { finish({ times: [], groups: [] }); });
+    view.unmount();
+    await act(async () => { await vi.advanceTimersByTimeAsync(60_000); });
+    expect(f.api.availability).toHaveBeenCalledTimes(pending);
+  });
   it('opens the existing Hybrid product as live learning through the old course viewer', async () => {
     render(<CourseViewer courseId={f.course.id} onBack={() => {}} />);
     expect(await screen.findByRole('heading', { name: 'live.chooseTitle.' })).toBeTruthy();

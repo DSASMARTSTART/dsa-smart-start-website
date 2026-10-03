@@ -1,7 +1,8 @@
 
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { Search, Map, Rocket, ChevronRight } from 'lucide-react';
-import AssessmentPopup from './AssessmentPopup';
+import { lazyPage } from '../lib/lazyPage';
+const AssessmentPopup = lazyPage(() => import('./AssessmentPopup'), ['assessment']);
 import { useTranslation } from 'react-i18next';
 
 interface CareerSectionProps {
@@ -76,13 +77,13 @@ const CareerSection: React.FC<CareerSectionProps> = ({ onNavigate }) => {
       </div>
 
       {/* Assessment Popup */}
-      <AssessmentPopup
+      {showAssessment && <Suspense fallback={null}><AssessmentPopup
         isOpen={showAssessment}
         onClose={() => setShowAssessment(false)}
         testType="teens_adults"
         autoDetectAge={true}
         onNavigate={onNavigate}
-      />
+      /></Suspense>}
     </section>
   );
 };

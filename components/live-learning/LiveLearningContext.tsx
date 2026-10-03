@@ -1,7 +1,7 @@
 import { startVisiblePolling } from '../../lib/visiblePolling';
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { liveApi, type Workspace, type ProgramSettings, type BookingAction } from './api';
+import type { Workspace, ProgramSettings, BookingAction } from './api';
 import type { Teacher } from './model';
 const empty: Workspace = {
   teachers: [],
@@ -41,7 +41,7 @@ function useLiveLearningState() {
       return;
     }
     try {
-      const data = await liveApi.workspace();
+      const data = await (await import('./api')).liveApi.workspace();
       if (version === request.current) {
         setState(data);
         setError('');
@@ -72,7 +72,7 @@ function useLiveLearningState() {
     if (!state.historyCursor) return;
     historyExpanded.current = true;
     const version = request.current;
-    const data = await liveApi.workspace(state.historyCursor);
+    const data = await (await import('./api')).liveApi.workspace(state.historyCursor);
     if (currentOwner.current !== userId || version !== request.current) return;
     setState((previous) => ({
       ...previous,
@@ -83,15 +83,15 @@ function useLiveLearningState() {
     }));
   };
   const saveTeacher = async (teacher: Teacher) => {
-    await liveApi.saveTeacher(teacher);
+    await (await import('./api')).liveApi.saveTeacher(teacher);
     await refresh();
   };
   const selectTeacher = async (courseId: string, teacherId: string) => {
-    await liveApi.selectTeacher(courseId, teacherId);
+    await (await import('./api')).liveApi.selectTeacher(courseId, teacherId);
     await refresh();
   };
   const saveSettings = async (program: string, settings: ProgramSettings) => {
-    await liveApi.saveSettings(program, settings);
+    await (await import('./api')).liveApi.saveSettings(program, settings);
     await refresh();
   };
   const updateBooking = async (
@@ -100,7 +100,7 @@ function useLiveLearningState() {
     zoom?: string,
     recording?: string
   ) => {
-    await liveApi.updateBooking(id, action, zoom, recording);
+    await (await import('./api')).liveApi.updateBooking(id, action, zoom, recording);
     await refresh();
   };
   return {

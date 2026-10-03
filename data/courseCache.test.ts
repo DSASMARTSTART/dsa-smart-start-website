@@ -1,7 +1,13 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 const f = vi.hoisted(() => ({ from: vi.fn(), result: vi.fn() }));
 vi.mock('../lib/supabase', () => ({ supabase: { from: f.from } }));
 import { coursesApi, clearCoursesCache } from './supabaseStore';
+import { publicCoursesApi } from './publicCourses';
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
+});
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -16,6 +22,17 @@ beforeEach(() => {
 const row = { id: 'one', title: 'Course', is_published: true, modules: [], pricing: { price: 20 } };
 
 describe('course cache integration', () => {
+  it('reuses public catalogue data when the authenticated SDK is loaded later', async () => {
+    vi.stubEnv('VITE_SUPABASE_URL', 'https://example.supabase.co');
+    vi.stubEnv('VITE_SUPABASE_ANON_KEY', 'public-anon-key');
+    const fetcher = vi.fn(async () => new Response(JSON.stringify([row])));
+    vi.stubGlobal('fetch', fetcher);
+    const catalogue = await publicCoursesApi.list();
+    expect(await coursesApi.list()).toBe(catalogue);
+    expect(await coursesApi.getById('one')).toBe(catalogue[0]);
+    expect(f.from).not.toHaveBeenCalled();
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
   it('shares the footer and catalog query and reuses full details on navigation', async () => {
     f.result.mockResolvedValue({ data: [row], error: null });
     const [catalog, footer] = await Promise.all([
@@ -39,5 +56,21 @@ describe('course cache integration', () => {
     clearCoursesCache();
     await coursesApi.getById('one');
     expect(f.from).toHaveBeenCalledTimes(2);
+  });
+  it('exposes already-downloaded details synchronously and clears them on account changes', async () => {
+    expect(coursesApi.peekById('one')).toBeUndefined();
+    f.result.mockResolvedValue({ data: row, error: null });
+    await coursesApi.getById('one');
+    expect(coursesApi.peekById('one')?.title).toBe('Course');
+    clearCoursesCache();
+    expect(coursesApi.peekById('one')).toBeUndefined();
+  });
+  it('does not cache a missing product and can read it again after publication', async () => {
+    f.result.mockResolvedValue({ data: null, error: null });
+    await coursesApi.getById('missing');
+    expect(coursesApi.peekById('missing')).toBeUndefined();
+    f.result.mockResolvedValue({ data: { ...row, id: 'missing' }, error: null });
+    expect((await coursesApi.getById('missing'))?.title).toBe('Course');
+    expect(coursesApi.peekById('other')).toBeUndefined();
   });
 });

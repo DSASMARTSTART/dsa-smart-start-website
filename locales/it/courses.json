@@ -110,6 +110,7 @@
     "noVideoUploaded": "Nessun video caricato ancora"
   },
   "shared": {
+    "playPreview": "Guarda l’anteprima",
     "backToProducts": "Torna ai prodotti",
     "backToCourses": "Torna ai corsi",
     "loading": "Caricamento dettagli del corso...",

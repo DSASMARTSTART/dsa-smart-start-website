@@ -1,4 +1,4 @@
-import OptimizedImage from './OptimizedImage';
+import OptimizedImage from './QuizImage';
 // ============================================
 // FinalTestRenderer — Comprehensive A1 Final Test
 // ============================================

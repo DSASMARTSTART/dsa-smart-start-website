@@ -4,7 +4,7 @@ import OptimizedImage from './OptimizedImage';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, CheckCircle2, Star, Clock, Sparkles, BookOpen, GraduationCap, ChevronRight, ChevronDown, Zap, Lock, ShoppingCart, Check, Rocket, Shield, FileText, Play, Users, Layers, Award, TrendingUp, Crown, Diamond, Video, Brain, Headphones, FileCheck, MessageCircle, Flame, BadgeCheck, Heart, RefreshCcw, UserCheck, Eye, Target } from 'lucide-react';
-import { coursesApi } from '../data/supabaseStore';
+import { publicCoursesApi as coursesApi } from '../data/publicCourses';
 import { Course, Module } from '../types';
 import { useLocalizedCourse } from '../hooks/useLocalizedCourse';
 import { useAuth } from '../contexts/AuthContext';
@@ -89,12 +89,14 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
 }) => {
   const { t } = useTranslation('courses');
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [rawCourse, setRawCourse] = useState<Course | null>(null);
+  const cachedCourse = coursesApi.peekById(courseId);
+  const [rawCourse, setRawCourse] = useState<Course | null>(cachedCourse ?? null);
   const course = useLocalizedCourse(rawCourse);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(cachedCourse === undefined);
   const [loadError, setLoadError] = useState(false);
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
   const { isAdmin, isEditor } = useAuth();
+  const canPreviewDraft = isAdmin() || isEditor();
 
   const toggleModule = (moduleId: string) => {
     setExpandedModules(prev => {
@@ -109,22 +111,24 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
   };
 
   useEffect(() => {
+    let cancelled = false;
     const loadCourse = async () => {
       try {
         // Admins/editors can see unpublished courses via getByIdForAdmin
-        const data = isAdmin() || isEditor() 
-          ? await coursesApi.getByIdForAdmin(courseId)
+        const data = canPreviewDraft
+          ? await import('../data/supabaseStore').then(({ coursesApi }) => coursesApi.getByIdForAdmin(courseId))
           : await coursesApi.getById(courseId);
-        setRawCourse(data);
+        if (!cancelled) setRawCourse(data);
       } catch (error) {
         console.error('Error loading course:', error);
-        setLoadError(true);
+        if (!cancelled) setLoadError(true);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
     loadCourse();
-  }, [courseId, isAdmin, isEditor]);
+    return () => { cancelled = true; };
+  }, [courseId, canPreviewDraft]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -175,7 +179,7 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div key="loading" className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-400 font-medium">{t('shared.loading')}</p>
@@ -319,8 +323,8 @@ const CourseSyllabusPage: React.FC<SyllabusProps> = ({
         {/* Background Elements */}
         <div className="absolute inset-0 z-0 pointer-events-none">
            {/* Soft gradient blobs using the new colors */}
-           <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#FFC1F2] rounded-full mix-blend-screen filter blur-[100px] opacity-20 animate-pulse-slow"></div>
-           <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-[#AB8FFF] rounded-full mix-blend-screen filter blur-[100px] opacity-15 animate-pulse-slow delay-1000"></div>
+           <div aria-hidden="true" className="mobile-static-glow absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#FFC1F2] rounded-full mix-blend-screen filter blur-[100px] opacity-20 animate-pulse-slow"></div>
+           <div aria-hidden="true" className="mobile-static-glow absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-[#AB8FFF] rounded-full mix-blend-screen filter blur-[100px] opacity-15 animate-pulse-slow delay-1000"></div>
            <canvas ref={canvasRef} className="absolute inset-0 z-0 opacity-60" />
         </div>
 

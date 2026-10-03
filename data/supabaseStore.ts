@@ -1,11 +1,11 @@
 import {supabaseAny} from '../lib/supabase';
+import { mapPublishedCourse } from './courseMapping';
 // ============================================
 // DSA Smart Start - Supabase Data Store
 // Replaces localStorage-based adminStore
 // ============================================
 
 import { supabase } from '../lib/supabase';
-import { createRequestCache } from '../lib/requestCache';
 import type { 
   User, Course, Enrollment, Purchase, AuditLog, Activity,
   UserFilters, CourseFilters,
@@ -18,21 +18,8 @@ import type {
 // ============================================
 // SIMPLE IN-MEMORY CACHE
 // ============================================
-const courseLists = createRequestCache<Course[]>(60_000);
-const courseDetails = createRequestCache<Course | null>(60_000);
-const courseListKey = (filters?: CourseFilters) => JSON.stringify({
-  level: filters?.level || 'all',
-  productType: filters?.productType || 'all',
-  targetAudience: filters?.targetAudience || 'all',
-  contentFormat: filters?.contentFormat || 'all',
-  published: (filters?.published ?? filters?.isPublished) !== false,
-  search: filters?.search || '',
-});
-
-export const clearCoursesCache = () => {
-  courseLists.clear();
-  courseDetails.clear();
-};
+import { courseLists, courseDetails, courseListKey, clearCoursesCache } from './courseCache';
+export { clearCoursesCache } from './courseCache';
 
 // ============================================
 // HELPERS
@@ -428,6 +415,8 @@ export const usersApi = {
 // ============================================
 export const coursesApi = {
   peek: (filters?: CourseFilters) => courseLists.peek(courseListKey(filters)),
+  peekById: (id: string) =>
+    courseLists.peek(courseListKey())?.find(course => course.id === id) ?? courseDetails.peek(id),
   list: async (filters?: CourseFilters): Promise<Course[]> => {
     // Check if Supabase client is available
     if (!supabase) {
@@ -477,18 +466,7 @@ export const coursesApi = {
         throw new Error(`Failed to load courses: ${error.message}`);
       }
 
-      const courses = (data || []).map((c: Record<string, unknown>) => ({
-        ...toCamelCase<Course>(c),
-        modules: (c.modules as Module[]) || [],
-        pricing: c.pricing as CoursePricing,
-        // Map new catalog fields
-        productType: (c.product_type as ProductType) || 'learndash',
-        targetAudience: (c.target_audience as TargetAudience) || 'adults_teens',
-        contentFormat: (c.content_format as ContentFormat) || 'interactive',
-        teachingMaterialsPrice: c.teaching_materials_price as number | undefined,
-        teachingMaterialsIncluded: (c.teaching_materials_included as boolean) || false,
-        relatedMaterialsId: c.related_materials_id as string | undefined
-      }));
+      const courses = (data || []).map(mapPublishedCourse);
 
       return courses;
     });
@@ -519,20 +497,7 @@ export const coursesApi = {
       }
       if (!data) return null;
 
-      const course = {
-        ...toCamelCase<Course>(data),
-        modules: (data.modules as Module[]) || [],
-        pricing: data.pricing as CoursePricing,
-        // Map new catalog fields
-        productType: (data.product_type as ProductType) || 'learndash',
-        targetAudience: (data.target_audience as TargetAudience) || 'adults_teens',
-        contentFormat: (data.content_format as ContentFormat) || 'interactive',
-        teachingMaterialsPrice: data.teaching_materials_price as number | undefined,
-        teachingMaterialsIncluded: (data.teaching_materials_included as boolean) || false,
-        relatedMaterialsId: data.related_materials_id as string | undefined
-      };
-
-      return course;
+      return mapPublishedCourse(data);
     });
   },
 

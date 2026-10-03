@@ -6,6 +6,7 @@ import { createReadFetch } from './readFetch';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
 import { isTeacherInviteRedirect } from './authRedirect';
+import { announceAuthClientReady } from './authBootstrap';
 export const teacherInviteRedirect = typeof window !== 'undefined' && isTeacherInviteRedirect(window.location.search, window.location.hash);
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
@@ -42,6 +43,10 @@ export const supabase = typedSupabase as SupabaseClient<Database>;
 // Helper to get an untyped reference for dynamic operations
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const supabaseAny = typedSupabase as SupabaseClient<any>;
+
+// A route/API may create the client before AuthProvider needs it. Notify the
+// provider without making the lightweight public shell import this module.
+announceAuthClientReady();
 
 // Helper to check if Supabase is connected
 export const checkSupabaseConnection = async (): Promise<boolean> => {

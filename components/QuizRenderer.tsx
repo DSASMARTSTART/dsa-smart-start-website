@@ -1,4 +1,4 @@
-import OptimizedImage from './OptimizedImage';
+import OptimizedImage from './QuizImage';
 // ============================================
 // QuizRenderer — Stop & Check Quiz UI
 // ============================================

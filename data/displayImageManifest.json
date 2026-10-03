@@ -1,0 +1,423 @@
+{
+  "/assets/ebooks/a1-cover.jpg": {
+    "width": 3400,
+    "height": 4267,
+    "variants": [
+      {
+        "src": "/assets/optimized/a1-cover-320-e38728b22aa4.webp",
+        "width": 320,
+        "bytes": 10776
+      },
+      {
+        "src": "/assets/optimized/a1-cover-640-6a18d56b3ca8.webp",
+        "width": 640,
+        "bytes": 24790
+      },
+      {
+        "src": "/assets/optimized/a1-cover-960-51a97662c70a.webp",
+        "width": 960,
+        "bytes": 40414
+      }
+    ]
+  },
+  "/assets/ebooks/a2-cover.jpg": {
+    "width": 3400,
+    "height": 4267,
+    "variants": [
+      {
+        "src": "/assets/optimized/a2-cover-320-12e7df71cd68.webp",
+        "width": 320,
+        "bytes": 10804
+      },
+      {
+        "src": "/assets/optimized/a2-cover-640-c5eea9cde1f8.webp",
+        "width": 640,
+        "bytes": 24818
+      },
+      {
+        "src": "/assets/optimized/a2-cover-960-cbb33567e6c8.webp",
+        "width": 960,
+        "bytes": 40324
+      }
+    ]
+  },
+  "/assets/ebooks/b1-cover.jpg": {
+    "width": 3400,
+    "height": 4267,
+    "variants": [
+      {
+        "src": "/assets/optimized/b1-cover-320-74617b85a388.webp",
+        "width": 320,
+        "bytes": 10714
+      },
+      {
+        "src": "/assets/optimized/b1-cover-640-c88011bd3361.webp",
+        "width": 640,
+        "bytes": 24646
+      },
+      {
+        "src": "/assets/optimized/b1-cover-960-2518400ed566.webp",
+        "width": 960,
+        "bytes": 40370
+      }
+    ]
+  },
+  "/assets/ebooks/b2-cover.jpg": {
+    "width": 3400,
+    "height": 4267,
+    "variants": [
+      {
+        "src": "/assets/optimized/b2-cover-320-4a38e63cb22f.webp",
+        "width": 320,
+        "bytes": 10844
+      },
+      {
+        "src": "/assets/optimized/b2-cover-640-d7c655d2f7ba.webp",
+        "width": 640,
+        "bytes": 24932
+      },
+      {
+        "src": "/assets/optimized/b2-cover-960-2cae49537213.webp",
+        "width": 960,
+        "bytes": 40494
+      }
+    ]
+  },
+  "/assets/ebooks/kids-advanced-cover.jpg": {
+    "width": 1243,
+    "height": 1560,
+    "variants": [
+      {
+        "src": "/assets/optimized/kids-advanced-cover-320-0743c5aab674.webp",
+        "width": 320,
+        "bytes": 11268
+      },
+      {
+        "src": "/assets/optimized/kids-advanced-cover-640-18680b0d119b.webp",
+        "width": 640,
+        "bytes": 24648
+      },
+      {
+        "src": "/assets/optimized/kids-advanced-cover-960-e21a37c5b071.webp",
+        "width": 960,
+        "bytes": 37830
+      }
+    ]
+  },
+  "/assets/ebooks/kids-basic-cover.jpg": {
+    "width": 1243,
+    "height": 1560,
+    "variants": [
+      {
+        "src": "/assets/optimized/kids-basic-cover-320-1484fad22b66.webp",
+        "width": 320,
+        "bytes": 11042
+      },
+      {
+        "src": "/assets/optimized/kids-basic-cover-640-0a19cd02d78b.webp",
+        "width": 640,
+        "bytes": 24366
+      },
+      {
+        "src": "/assets/optimized/kids-basic-cover-960-4b23b2519963.webp",
+        "width": 960,
+        "bytes": 37294
+      }
+    ]
+  },
+  "/assets/ebooks/kids-medium-cover.jpg": {
+    "width": 1243,
+    "height": 1560,
+    "variants": [
+      {
+        "src": "/assets/optimized/kids-medium-cover-320-9f83e4818586.webp",
+        "width": 320,
+        "bytes": 11134
+      },
+      {
+        "src": "/assets/optimized/kids-medium-cover-640-45d64d8b5fc6.webp",
+        "width": 640,
+        "bytes": 24254
+      },
+      {
+        "src": "/assets/optimized/kids-medium-cover-960-bb457fb20354.webp",
+        "width": 960,
+        "bytes": 37238
+      }
+    ]
+  },
+  "/assets/images/DinaCard novi znak.jpg": {
+    "width": 1289,
+    "height": 598,
+    "variants": [
+      {
+        "src": "/assets/optimized/DinaCard novi znak-160-59e88ab68647.webp",
+        "width": 160,
+        "bytes": 2740
+      },
+      {
+        "src": "/assets/optimized/DinaCard novi znak-320-898f44a08f4c.webp",
+        "width": 320,
+        "bytes": 5862
+      },
+      {
+        "src": "/assets/optimized/DinaCard novi znak-640-7e3bc96c434a.webp",
+        "width": 640,
+        "bytes": 11784
+      }
+    ]
+  },
+  "/assets/images/Logo_Co_brand_RGB_tamna_pozadina_96dpi.png": {
+    "width": 332,
+    "height": 42,
+    "variants": [
+      {
+        "src": "/assets/optimized/Logo_Co_brand_RGB_tamna_pozadina_96dpi-160-233a19479dcd.webp",
+        "width": 160,
+        "bytes": 1186
+      },
+      {
+        "src": "/assets/optimized/Logo_Co_brand_RGB_tamna_pozadina_96dpi-320-64b6d3c1658d.webp",
+        "width": 320,
+        "bytes": 3080
+      },
+      {
+        "src": "/assets/optimized/Logo_Co_brand_RGB_tamna_pozadina_96dpi-332-46eed6090f43.webp",
+        "width": 332,
+        "bytes": 3168
+      }
+    ]
+  },
+  "/assets/images/RBI-Logo-Bank-St-Squared-Col-Neg-RGB.png": {
+    "width": 2639,
+    "height": 978,
+    "variants": [
+      {
+        "src": "/assets/optimized/RBI-Logo-Bank-St-Squared-Col-Neg-RGB-160-5241de84d9cc.webp",
+        "width": 160,
+        "bytes": 2376
+      },
+      {
+        "src": "/assets/optimized/RBI-Logo-Bank-St-Squared-Col-Neg-RGB-320-f60d1794fa21.webp",
+        "width": 320,
+        "bytes": 5410
+      },
+      {
+        "src": "/assets/optimized/RBI-Logo-Bank-St-Squared-Col-Neg-RGB-640-95d3dbdea9f1.webp",
+        "width": 640,
+        "bytes": 10476
+      }
+    ]
+  },
+  "/assets/images/Visa_Brandmark_Black_RGB_72ppi.jpg": {
+    "width": 1920,
+    "height": 622,
+    "variants": [
+      {
+        "src": "/assets/optimized/Visa_Brandmark_Black_RGB_72ppi-160-8e2d989dfb84.webp",
+        "width": 160,
+        "bytes": 1720
+      },
+      {
+        "src": "/assets/optimized/Visa_Brandmark_Black_RGB_72ppi-320-d69d72b12b74.webp",
+        "width": 320,
+        "bytes": 3154
+      },
+      {
+        "src": "/assets/optimized/Visa_Brandmark_Black_RGB_72ppi-640-0b624b3e46c9.webp",
+        "width": 640,
+        "bytes": 5700
+      }
+    ]
+  },
+  "/assets/images/dinacard-logo.jpg": {
+    "width": 1289,
+    "height": 598,
+    "variants": [
+      {
+        "src": "/assets/optimized/dinacard-logo-160-59e88ab68647.webp",
+        "width": 160,
+        "bytes": 2740
+      },
+      {
+        "src": "/assets/optimized/dinacard-logo-320-898f44a08f4c.webp",
+        "width": 320,
+        "bytes": 5862
+      },
+      {
+        "src": "/assets/optimized/dinacard-logo-640-7e3bc96c434a.webp",
+        "width": 640,
+        "bytes": 11784
+      }
+    ]
+  },
+  "/assets/images/mastercard-id-check-logo.jpg": {
+    "width": 328,
+    "height": 246,
+    "variants": [
+      {
+        "src": "/assets/optimized/mastercard-id-check-logo-160-d6797ee4ecbf.webp",
+        "width": 160,
+        "bytes": 1574
+      },
+      {
+        "src": "/assets/optimized/mastercard-id-check-logo-320-e05aa7bce3d0.webp",
+        "width": 320,
+        "bytes": 3078
+      },
+      {
+        "src": "/assets/optimized/mastercard-id-check-logo-328-52b3b64e53c6.webp",
+        "width": 328,
+        "bytes": 3348
+      }
+    ]
+  },
+  "/assets/images/mastercard-logo.png": {
+    "width": 190,
+    "height": 135,
+    "variants": [
+      {
+        "src": "/assets/optimized/mastercard-logo-160-d450a743b488.webp",
+        "width": 160,
+        "bytes": 3024
+      },
+      {
+        "src": "/assets/optimized/mastercard-logo-190-75559ff6a7a0.webp",
+        "width": 190,
+        "bytes": 1670
+      }
+    ]
+  },
+  "/assets/images/mc_idcheck_vrt_rgb_pos.jpg": {
+    "width": 328,
+    "height": 246,
+    "variants": [
+      {
+        "src": "/assets/optimized/mc_idcheck_vrt_rgb_pos-160-d6797ee4ecbf.webp",
+        "width": 160,
+        "bytes": 1574
+      },
+      {
+        "src": "/assets/optimized/mc_idcheck_vrt_rgb_pos-320-e05aa7bce3d0.webp",
+        "width": 320,
+        "bytes": 3078
+      },
+      {
+        "src": "/assets/optimized/mc_idcheck_vrt_rgb_pos-328-52b3b64e53c6.webp",
+        "width": 328,
+        "bytes": 3348
+      }
+    ]
+  },
+  "/assets/images/mc_symbol_opt_63_3x.png": {
+    "width": 190,
+    "height": 135,
+    "variants": [
+      {
+        "src": "/assets/optimized/mc_symbol_opt_63_3x-160-d450a743b488.webp",
+        "width": 160,
+        "bytes": 3024
+      },
+      {
+        "src": "/assets/optimized/mc_symbol_opt_63_3x-190-75559ff6a7a0.webp",
+        "width": 190,
+        "bytes": 1670
+      }
+    ]
+  },
+  "/assets/images/parent-support.jpg": {
+    "width": 800,
+    "height": 1000,
+    "variants": [
+      {
+        "src": "/assets/optimized/parent-support-160-e025f05957fa.webp",
+        "width": 160,
+        "bytes": 10966
+      },
+      {
+        "src": "/assets/optimized/parent-support-320-2ed4286310b2.webp",
+        "width": 320,
+        "bytes": 38880
+      },
+      {
+        "src": "/assets/optimized/parent-support-640-ea606f5d45d9.webp",
+        "width": 640,
+        "bytes": 107082
+      }
+    ]
+  },
+  "/assets/images/raiffeisen-logo.png": {
+    "width": 2639,
+    "height": 978,
+    "variants": [
+      {
+        "src": "/assets/optimized/raiffeisen-logo-160-5241de84d9cc.webp",
+        "width": 160,
+        "bytes": 2376
+      },
+      {
+        "src": "/assets/optimized/raiffeisen-logo-320-f60d1794fa21.webp",
+        "width": 320,
+        "bytes": 5410
+      },
+      {
+        "src": "/assets/optimized/raiffeisen-logo-640-95d3dbdea9f1.webp",
+        "width": 640,
+        "bytes": 10476
+      }
+    ]
+  },
+  "/assets/images/visa-logo.jpg": {
+    "width": 1920,
+    "height": 622,
+    "variants": [
+      {
+        "src": "/assets/optimized/visa-logo-160-8e2d989dfb84.webp",
+        "width": 160,
+        "bytes": 1720
+      },
+      {
+        "src": "/assets/optimized/visa-logo-320-d69d72b12b74.webp",
+        "width": 320,
+        "bytes": 3154
+      },
+      {
+        "src": "/assets/optimized/visa-logo-640-0b624b3e46c9.webp",
+        "width": 640,
+        "bytes": 5700
+      }
+    ]
+  },
+  "/assets/images/visa-secure-logo.jpg": {
+    "width": 198,
+    "height": 198,
+    "variants": [
+      {
+        "src": "/assets/optimized/visa-secure-logo-160-ee6a0030e61c.webp",
+        "width": 160,
+        "bytes": 3110
+      },
+      {
+        "src": "/assets/optimized/visa-secure-logo-198-2edfb20d0fd3.webp",
+        "width": 198,
+        "bytes": 3572
+      }
+    ]
+  },
+  "/assets/images/visa-secure_blu_2021_dkbg.jpg": {
+    "width": 198,
+    "height": 198,
+    "variants": [
+      {
+        "src": "/assets/optimized/visa-secure_blu_2021_dkbg-160-ee6a0030e61c.webp",
+        "width": 160,
+        "bytes": 3110
+      },
+      {
+        "src": "/assets/optimized/visa-secure_blu_2021_dkbg-198-2edfb20d0fd3.webp",
+        "width": 198,
+        "bytes": 3572
+      }
+    ]
+  }
+}

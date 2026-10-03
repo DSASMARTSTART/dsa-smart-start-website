@@ -1,4 +1,5 @@
 import ManagedVideo from './ManagedVideo';
+import { startVisiblePolling } from '../../lib/visiblePolling';
 import OptimizedImage from '../OptimizedImage';
 import React, { useEffect, useState } from 'react';
 import {
@@ -69,7 +70,7 @@ export default function LiveLearningPage({
   const [retry, setRetry] = useState(0);
   const [search, setSearch] = useState('');
   const [week, setWeek] = useState(0);
-  const [day, setDay] = useState(0);
+  const [day, setDay] = useState(() => (new Date().getDay() + 6) % 7);
   const [selectedTime, setSelectedTime] = useState('');
   const [format, setFormat] = useState<'private' | 'group'>('private');
 
@@ -134,11 +135,10 @@ export default function LiveLearningPage({
         if (!cancelled) setSlotLoading(false);
       }
     };
-    void load();
-    const interval = window.setInterval(load, 30000);
+    const stopPolling = startVisiblePolling(load);
     return () => {
       cancelled = true;
-      window.clearInterval(interval);
+      stopPolling();
     };
   }, [courseId, teacherId, userId, selectedDate, availabilityVersion, t]);
   const loadedTeacherId = teacher?.id;

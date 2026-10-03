@@ -1,6 +1,26 @@
+@config './tailwind.public.config.js';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Local variable fonts remove the third-party stylesheet/connection waterfall.
+   Optional display keeps slow connections from shifting already-visible text. */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: optional;
+  src: url('./assets/fonts/inter-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: optional;
+  src: url('./assets/fonts/inter-latin-ext.woff2') format('woff2');
+  unicode-range: U+0106-0107, U+010C-010D, U+0110-0111, U+0160-0161, U+017D-017E;
+}
 
 /* App-wide base styles (migrated from the inline <style> in index.html so the
    whole stylesheet is built and served from one place instead of the Tailwind
@@ -43,4 +63,14 @@ html, body { background-color: #000; }
   html { scroll-behavior: auto; }
   .animate-reveal { animation: none; opacity: 1; }
   .mobile-static-glow { animation: none; }
+}
+
+/* Preserve all content for find-in-page and assistive technology while avoiding
+   layout/paint for sections far outside the viewport. Remember measured height. */
+.deferred-home-section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 1000px;
+}
+@media print {
+  .deferred-home-section { content-visibility: visible; }
 }

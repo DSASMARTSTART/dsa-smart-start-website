@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { paymentOrphansApi } from '../../data/supabaseStore';
+import { startVisiblePolling } from '../../lib/visiblePolling';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -22,24 +23,23 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPath, onNavi
   const { profile, loading, canAccessAdmin } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [orphanCount, setOrphanCount] = useState(0);
+  const canReadOrphans = !loading && profile?.role === 'admin' && canAccessAdmin();
 
   // Poll unresolved payment-orphan count for the sidebar badge.
   // Only fetch once admin access is verified to avoid spurious 403s.
   useEffect(() => {
-    if (profile?.role !== 'admin' || !canAccessAdmin()) return;
+    if (!canReadOrphans) return;
     let cancelled = false;
     const refresh = async () => {
       const n = await paymentOrphansApi.countUnresolved();
       if (!cancelled) setOrphanCount(n);
     };
-    void refresh();
-    const interval = window.setInterval(refresh, 60_000);
+    const stopPolling = startVisiblePolling(refresh, undefined, 60_000);
     return () => {
       cancelled = true;
-      window.clearInterval(interval);
+      stopPolling();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile?.id, profile?.role]);
+  }, [profile?.id, canReadOrphans]);
 
   // Show loading state while auth is being checked
   if (loading) {

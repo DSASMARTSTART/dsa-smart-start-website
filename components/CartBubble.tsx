@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ShoppingCart, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { coursesApi } from '../data/supabaseStore';
 import { CoursePricing } from '../types';
 
 interface CartBubbleProps {
@@ -28,6 +27,7 @@ const CartBubble: React.FC<CartBubbleProps> = ({ cart, onNavigateToCheckout }) =
       let total = 0;
 
       try {
+        const { publicCoursesApi: coursesApi } = await import('../data/publicCourses');
         const courses = await Promise.all(cart.map(id => coursesApi.getById(id)));
         for (const course of courses) {
           if (course?.pricing) {

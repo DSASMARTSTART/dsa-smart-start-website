@@ -110,6 +110,7 @@
     "noVideoUploaded": "Aún no se ha subido ningún vídeo"
   },
   "shared": {
+    "playPreview": "Ver vista previa",
     "backToProducts": "Volver a Productos",
     "backToCourses": "Volver a Cursos",
     "loading": "Cargando detalles del curso...",

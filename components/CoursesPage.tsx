@@ -1,14 +1,15 @@
 import { startVisibleAnimation } from '../lib/visibleAnimation';
 import OptimizedImage from './OptimizedImage';
 
-import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import React, { Suspense, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, Layers, Compass, Zap, Music, Play, Award, Star, ChevronRight, CheckCircle2, Clock, Sparkles, BookOpen, ShoppingCart, Check, Rocket, Shield, ArrowDown, Filter, Search, BarChart3, Globe, ArrowRight, Plus, Crown, Diamond, Users, Video, FileCheck, GraduationCap, FileText, MonitorPlay, Package, Briefcase, Eye, Baby } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { coursesApi, catalogApi } from '../data/supabaseStore';
+import { publicCoursesApi as coursesApi } from '../data/publicCourses';
 import { Course, ProductType, TargetAudience } from '../types';
 import { useLocalizedCourses } from '../hooks/useLocalizedCourse';
 import WaveSeparator from './WaveSeparator';
-const AssessmentPopup = lazy(() => import('./AssessmentPopup'));
+import { lazyPage } from '../lib/lazyPage';
+const AssessmentPopup = lazyPage(() => import('./AssessmentPopup'), ['assessment']);
 
 // Tab type for navigation
 type CatalogTab = 'live' | 'ebooks' | 'interactive';
@@ -463,7 +464,6 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
   const [courses, setCourses] = useState<Course[]>(() => coursesApi.peek() ?? []);
   const [loading, setLoading] = useState(() => !coursesApi.peek());
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [internalCart, setInternalCart] = useState<Course[]>([]);
   const [activeTab, setActiveTab] = useState<CatalogTab>(defaultTab || 'live');
   const [showAssessment, setShowAssessment] = useState(false);
@@ -580,14 +580,6 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
   };
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      const { clientX, clientY } = e;
-      const moveX = (clientX - window.innerWidth / 2) / 50;
-      const moveY = (clientY - window.innerHeight / 2) / 50;
-      setMousePos({ x: moveX, y: moveY });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -630,62 +622,9 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
     const stopAnimation = startVisibleAnimation(canvas, animate);
     return () => {
       window.removeEventListener('resize', resize);
-      window.removeEventListener('mousemove', handleMouseMove);
       stopAnimation();
     };
   }, []);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-black">
-        {/* Hero Skeleton */}
-        <div className="relative w-full min-h-[70vh] flex flex-col items-center justify-center bg-black pt-36 pb-24">
-          <div className="absolute inset-0 z-0">
-            <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#FFC1F2] rounded-full mix-blend-screen filter blur-[100px] opacity-20 animate-pulse-slow"></div>
-            <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-[#AB8FFF] rounded-full mix-blend-screen filter blur-[100px] opacity-15 animate-pulse-slow delay-1000"></div>
-          </div>
-          <div className="flex flex-col items-center gap-8 animate-pulse relative z-10">
-            <div className="h-4 w-48 bg-white/10 rounded-full"></div>
-            <div className="flex gap-4">
-              <div className="h-16 sm:h-24 w-48 sm:w-64 bg-white/10 rounded-2xl"></div>
-              <div className="h-16 sm:h-24 w-56 sm:w-72 bg-purple-500/20 rounded-2xl"></div>
-            </div>
-            <div className="h-6 w-96 max-w-full bg-white/5 rounded-full"></div>
-            <div className="h-14 w-48 bg-purple-500/20 rounded-full mt-4"></div>
-          </div>
-        </div>
-        
-        {/* Course Cards Skeleton */}
-        <div className="max-w-7xl mx-auto px-6 py-20">
-          <div className="flex items-center gap-6 mb-12 animate-pulse">
-            <div className="h-4 w-32 bg-white/10 rounded-full"></div>
-            <div className="h-[1px] flex-grow bg-white/10"></div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white/5 rounded-[2rem] border border-white/10 p-8 animate-pulse">
-                <div className="flex items-start justify-between mb-6">
-                  <div className="w-14 h-14 bg-white/10 rounded-2xl"></div>
-                  <div className="h-6 w-16 bg-white/5 rounded-full"></div>
-                </div>
-                <div className="h-6 w-3/4 bg-white/10 rounded-lg mb-3"></div>
-                <div className="h-4 w-full bg-white/5 rounded mb-2"></div>
-                <div className="h-4 w-2/3 bg-white/5 rounded mb-6"></div>
-                <div className="flex gap-2 mb-6">
-                  <div className="h-6 w-20 bg-purple-500/20 rounded-full"></div>
-                  <div className="h-6 w-24 bg-purple-500/20 rounded-full"></div>
-                </div>
-                <div className="flex items-center justify-between pt-6 border-t border-white/10">
-                  <div className="h-8 w-20 bg-white/10 rounded-lg"></div>
-                  <div className="h-10 w-28 bg-purple-500/20 rounded-full"></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   if (loadError) {
     return (
@@ -717,8 +656,8 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
       {/* Hero Header Section */}
       <div className="relative w-full min-h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-black pt-36 pb-32">
         <div className="absolute inset-0 z-0">
-          <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#FFC1F2] rounded-full mix-blend-screen filter blur-[100px] opacity-20 animate-pulse-slow"></div>
-          <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-[#AB8FFF] rounded-full mix-blend-screen filter blur-[100px] opacity-15 animate-pulse-slow delay-1000"></div>
+          <div aria-hidden="true" className="mobile-static-glow absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#FFC1F2] rounded-full mix-blend-screen filter blur-[100px] opacity-20 animate-pulse-slow"></div>
+          <div aria-hidden="true" className="mobile-static-glow absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-[#AB8FFF] rounded-full mix-blend-screen filter blur-[100px] opacity-15 animate-pulse-slow delay-1000"></div>
           <canvas ref={canvasRef} className="absolute inset-0 z-0 opacity-60 pointer-events-none" />
         </div>
 
@@ -735,8 +674,7 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
           </button>
         </div>
 
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 flex flex-col items-center text-center -translate-y-6 sm:-translate-y-8"
-             style={{ transform: `translate(${mousePos.x * 0.15}px, ${mousePos.y * 0.15}px)` }}>
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 flex flex-col items-center text-center -translate-y-6 sm:-translate-y-8">
           
           <div className="flex items-center gap-4 mb-8 sm:mb-12 opacity-80 animate-reveal">
             <div className="h-[1px] w-8 bg-[#AB8FFF]"></div>
@@ -745,14 +683,13 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
           </div>
 
           <div className="relative flex flex-col items-center mb-10 w-full">
-            <h1 className="text-4xl sm:text-7xl md:text-9xl font-black text-white tracking-tighter leading-[0.9] animate-reveal transition-transform duration-500 flex flex-wrap justify-center gap-x-2 sm:gap-x-6"
-                style={{ transform: `translate(${mousePos.x * 0.3}px, ${mousePos.y * 0.3}px)` }}>
+            <h1 className="text-4xl sm:text-7xl md:text-9xl font-black text-white tracking-tighter leading-[0.9] animate-reveal transition-transform duration-500 flex flex-wrap justify-center gap-x-2 sm:gap-x-6">
               <span>{t('coursesPage.hero.titleLine1')}</span> 
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-[#AB8FFF] to-pink-500 ">{t('coursesPage.hero.titleLine2')}</span>
             </h1>
           </div>
 
-          <div className="max-w-3xl animate-reveal stagger-1 flex flex-col items-center" style={{ transform: `translate(${mousePos.x * 0.1}px, ${mousePos.y * 0.1}px)` }}>
+          <div className="max-w-3xl animate-reveal stagger-1 flex flex-col items-center">
              <p className="text-lg sm:text-xl md:text-3xl font-medium text-gray-300 text-center uppercase tracking-tight leading-snug mb-10">
                {t('coursesPage.hero.subtitle', { returnObjects: false }).split('<1>').map((part: string, i: number) => {
                  if (i === 0) return part;
@@ -773,6 +710,14 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
       {/* Course Listing */}
       <div id="courses-grid" className="max-w-7xl mx-auto px-6 py-24">
         
+        {loading && (
+          <div role="status" aria-label={t('common:loading')} className="grid grid-cols-1 md:grid-cols-2 gap-8 min-h-[600px] mb-16">
+            {[0, 1].map((id) => (
+              <div key={id} aria-hidden="true" className="h-96 rounded-3xl bg-white/5 border border-white/10 animate-pulse" />
+            ))}
+          </div>
+        )}
+
         {/* ============================================ */}
         {/* PILL TAB NAVIGATION                          */}
         {/* ============================================ */}
@@ -783,7 +728,7 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
         {/* ============================================ */}
         {/* LIVE COURSES TAB                             */}
         {/* ============================================ */}
-        {activeTab === 'live' && (
+        {!loading && activeTab === 'live' && (
           <div className="animate-fadeIn">
             {/* Section Header */}
             <div className="text-center mb-16">
@@ -841,7 +786,7 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
         {/* ============================================ */}
         {/* INTERACTIVE COURSES TAB                      */}
         {/* ============================================ */}
-        {activeTab === 'interactive' && (
+        {!loading && activeTab === 'interactive' && (
           <div className="animate-fadeIn">
             <div className="text-center mb-16">
               <div className="flex items-center justify-center gap-4 mb-6">
@@ -958,7 +903,7 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
         {/* ============================================ */}
         {/* E-BOOKS TAB                                  */}
         {/* ============================================ */}
-        {activeTab === 'ebooks' && (
+        {!loading && activeTab === 'ebooks' && (
           <div className="animate-fadeIn">
             {/* Section Header */}
             <div className="text-center mb-16">

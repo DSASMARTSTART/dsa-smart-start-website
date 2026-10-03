@@ -3,12 +3,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, Mail, Phone, Send, MessageCircle, Sparkles, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import WaveSeparator from './WaveSeparator';
-import { submitContactForm, getContactConfig } from '../lib/contactService';
 
 const ContactPage: React.FC = () => {
   const { t } = useTranslation('contact');
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   
   // Form state
   const [formData, setFormData] = useState({
@@ -49,6 +47,7 @@ const ContactPage: React.FC = () => {
     setLoading(true);
 
     try {
+      const { submitContactForm } = await import('../lib/contactService');
       const result = await submitContactForm({
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
@@ -70,13 +69,6 @@ const ContactPage: React.FC = () => {
   };
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      const { clientX, clientY } = e;
-      const moveX = (clientX - window.innerWidth / 2) / 40;
-      const moveY = (clientY - window.innerHeight / 2) / 40;
-      setMousePos({ x: moveX, y: moveY });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -120,7 +112,6 @@ const ContactPage: React.FC = () => {
     const stopAnimation = startVisibleAnimation(canvas, animate);
     return () => {
       window.removeEventListener('resize', resize);
-      window.removeEventListener('mousemove', handleMouseMove);
       stopAnimation();
     };
   }, []);
@@ -131,8 +122,8 @@ const ContactPage: React.FC = () => {
       <div className="relative w-full h-[60vh] min-h-[500px] flex flex-col items-center justify-center overflow-hidden bg-black">
         {/* Background Gradients */}
         <div className="absolute inset-0 w-full h-full bg-black">
-          <div className="absolute top-[-50%] left-[-20%] w-[80%] h-[80%] rounded-full bg-gradient-to-r from-[#FFC1F2] to-[#AB8FFF] opacity-10 blur-[120px] animate-pulse-slow mix-blend-screen" />
-          <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-[#AB8FFF] opacity-10 blur-[100px] animate-float mix-blend-screen" />
+          <div aria-hidden="true" className="mobile-static-glow absolute top-[-50%] left-[-20%] w-[80%] h-[80%] rounded-full bg-gradient-to-r from-[#FFC1F2] to-[#AB8FFF] opacity-10 blur-[120px] animate-pulse-slow mix-blend-screen" />
+          <div aria-hidden="true" className="mobile-static-glow absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-[#AB8FFF] opacity-10 blur-[100px] animate-float mix-blend-screen" />
         </div>
 
         {/* Back Button */}
@@ -152,8 +143,7 @@ const ContactPage: React.FC = () => {
           <canvas ref={canvasRef} className="absolute inset-0 z-0 pointer-events-none" />
         </div>
 
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 flex flex-col items-center text-center transition-transform duration-300 ease-out"
-             style={{ transform: `translate(${mousePos.x * 0.1}px, ${mousePos.y * 0.1}px)` }}>
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 flex flex-col items-center text-center transition-transform duration-300 ease-out">
           
           <div className="flex items-center gap-4 mb-6 opacity-80 animate-reveal">
             <div className="h-[2px] w-12 bg-[#AB8FFF]"></div>
@@ -162,8 +152,7 @@ const ContactPage: React.FC = () => {
           </div>
 
           <div className="relative flex flex-col items-center mb-10 group cursor-default w-full">
-            <h1 className="flex flex-wrap items-center justify-center gap-x-4 text-5xl sm:text-7xl md:text-8xl lg:text-[9rem] font-black text-white tracking-tight leading-none animate-reveal transition-transform duration-500"
-                style={{ transform: `translate(${mousePos.x * 0.4}px, ${mousePos.y * 0.4}px)` }}>
+            <h1 className="flex flex-wrap items-center justify-center gap-x-4 text-5xl sm:text-7xl md:text-8xl lg:text-[9rem] font-black text-white tracking-tight leading-none animate-reveal transition-transform duration-500">
               <span className="uppercase tracking-tight">{t('hero.title1')}</span>
               <span className="inline-block text-[#AB8FFF] drop-shadow-sm select-none">
                 {t('hero.title2')}
@@ -171,7 +160,7 @@ const ContactPage: React.FC = () => {
             </h1>
           </div>
 
-          <div className="max-w-3xl animate-reveal stagger-2 mt-4" style={{ transform: `translate(${mousePos.x * 0.2}px, ${mousePos.y * 0.2}px)` }}>
+          <div className="max-w-3xl animate-reveal stagger-2 mt-4">
             <p className="text-xl sm:text-2xl font-medium text-gray-300 tracking-tight leading-relaxed px-4">
               {t('hero.subtitle')}
             </p>
@@ -242,7 +231,7 @@ const ContactPage: React.FC = () => {
           {/* Right Column: Form */}
           <div className="lg:col-span-7 animate-reveal stagger-1">
             <div className="bg-white/5 p-8 sm:p-12 rounded-[2.5rem] border border-white/10 shadow-2xl shadow-[#AB8FFF]/5 relative overflow-hidden rounded-[3rem]">
-              <div className="absolute top-0 right-0 w-80 h-80 bg-[#AB8FFF] rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 opacity-10 mix-blend-screen"></div>
+              <div aria-hidden="true" className="mobile-static-glow absolute top-0 right-0 w-80 h-80 bg-[#AB8FFF] rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 opacity-10 mix-blend-screen"></div>
               
               <div className="relative z-10">
                 <div className="flex items-center gap-4 mb-10">
@@ -270,7 +259,8 @@ const ContactPage: React.FC = () => {
                     </button>
                   </div>
                 ) : (
-                  <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={handleSubmit}>
+                  <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={handleSubmit}
+                    onFocus={() => { void import('../lib/contactService').catch(() => {}); }}>
                     {/* Error Message */}
                     {error && (
                       <div className="md:col-span-2 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-start gap-3">
