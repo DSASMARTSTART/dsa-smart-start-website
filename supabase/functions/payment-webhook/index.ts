@@ -119,6 +119,7 @@ Deno.serve(async (req) => {
     let transactionId: string | null = null
     let isSuccess = false
     let isFailure = false
+    let paidClaimAwaitingSettlement = false
     // Set when RaiAccept says "paid" in the raw payload but we were unable to
     // independently re-verify it (no creds, or the merchant API was unreachable).
     // Such a claim is NEVER auto-confirmed — it is orphaned for admin reconciliation.
@@ -170,6 +171,7 @@ Deno.serve(async (req) => {
           providerVerified = true
           isSuccess = RAIACCEPT_PAID_STATUSES.includes(verified.status.toUpperCase())
           isFailure = RAIACCEPT_FAILED_STATUSES.includes(verified.status.toUpperCase())
+          paidClaimAwaitingSettlement = payloadClaimsPaid && !isSuccess && !isFailure
           // Bind all mutations to the bank's own order reference, never to an
           // identifier or item count supplied by the callback sender.
           transactionId = verified.merchantOrderReference
@@ -347,6 +349,14 @@ Deno.serve(async (req) => {
 
     // Pending/unknown states and unverified failure callbacks are not payment
     // failures. In particular a transient API outage must not fail an order.
+    // A successful transaction callback can arrive before the order API updates.
+    // Do not acknowledge that callback as finished until settlement is visible.
+    if (paidClaimAwaitingSettlement) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Order settlement not yet visible; retry notification' }),
+        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
     if (!isSuccess && !(providerVerified && isFailure)) {
       return new Response(
         JSON.stringify({ success: true, ignored: true, reason: 'No verified terminal payment result' }),

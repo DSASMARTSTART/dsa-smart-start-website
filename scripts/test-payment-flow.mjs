@@ -173,7 +173,13 @@ test('real webhook and SQL recover a failed-then-paid mixed cart', async () => {
 for (const status of ['PENDING', 'PROCESSING', '', 'UNRECOGNIZED']) {
   test(`verified ${status || 'empty'} status does not fail a payment`, async () => {
     const h = webhook({ status });
-    assert.equal((await h.invoke()).status, 200);
+    assert.equal((await h.invoke({ transaction: { status: 'PENDING' } })).status, 200);
+    assert.equal(h.calls.length, 0);
+    assert.equal(h.invoices.length, 0);
+  });
+  test(`paid callback with ${status || 'empty'} order state requests another verification`, async () => {
+    const h = webhook({ status });
+    assert.equal((await h.invoke()).status, 503);
     assert.equal(h.calls.length, 0);
     assert.equal(h.invoices.length, 0);
   });
