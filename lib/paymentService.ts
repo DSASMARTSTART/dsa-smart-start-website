@@ -3,7 +3,7 @@
  *
  * Supports two payment processors:
  * 1. RaiAccept (Raiffeisen Bank) — Card payments via REST API + iframe
- * 2. PayPal — PayPal wallet payments
+ * 2. PayPal — legacy client integration, disabled pending verified server checkout
  *
  * Configuration required in .env:
  * - VITE_RAIACCEPT_ENABLED=true   (enables RaiAccept card payments)
@@ -119,7 +119,10 @@ export function getPaymentConfig(): PaymentConfig {
     paypal: {
       clientId: paypalClientId,
       mode: paypalMode,
-      isConfigured: !!paypalClientId,
+      // A client ID only loads the SDK. The legacy browser capture flow has no
+      // server-created purchase or verified confirmation, so it must not collect
+      // money. Re-enable only with server order creation + verified capture.
+      isConfigured: false,
     },
     installments: {
       enabled: installmentsEnabled,
@@ -473,6 +476,9 @@ export class PayPalPayment {
     onError: (error: Error) => void;
     onCancel: () => void;
   }) {
+    if (!this.config.isConfigured) {
+      throw new Error('PayPal checkout is unavailable. Please use card payment.');
+    }
     return {
       style: {
         layout: 'vertical' as const,

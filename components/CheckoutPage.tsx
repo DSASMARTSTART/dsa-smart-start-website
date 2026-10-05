@@ -5,7 +5,7 @@ import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import { ArrowLeft, ShieldCheck, Lock, CreditCard, CheckCircle2, ChevronRight, ShoppingCart, User, X, Tag, Ticket, AlertCircle, Loader2, Building2, Wallet, BookOpen, Plus, Minus, Mail, Check, LogIn, Clock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLocaleFormat } from '../hooks/useLocaleFormat';
-import { coursesApi, purchasesApi, enrollmentsApi } from '../data/supabaseStore';
+import { coursesApi } from '../data/supabaseStore';
 import AuthModal from './AuthModal';
 import { Course } from '../types';
 import { useAuth } from '../contexts/AuthContext';
@@ -233,7 +233,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
   // rotates only when the cart contents actually change, and is cleared on a
   // successful payment (see handlePaymentSuccess).
   const cartSignature = useMemo(
-    () => (cart || []).map((i: CartItem) => `${i.id}`).slice().sort().join(','),
+    () => (cart || []).slice().sort().join(','),
     [cart]
   );
   const genIdempotencyKey = () =>
@@ -266,7 +266,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
       // success). It can no longer confirm the purchase server-side (that is
       // webhook-only), but the UI spoof alone is worth blocking.
       const expectedOrigin = raiAcceptIframeOriginRef.current;
-      if (expectedOrigin && event.origin !== expectedOrigin) {
+      if (!expectedOrigin || event.origin !== expectedOrigin) {
         console.warn('Ignored payment message from unexpected origin:', event.origin);
         return;
       }
@@ -282,16 +282,9 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
       setPaymentIframeUrl(null);
 
       if (status === 'success') {
-        // Payment succeeded in iframe — clear cart immediately since payment
-        // is already charged at the gateway level, regardless of enrollment state.
-        onClearCart();
-
-        // Now confirm purchases server-side via handlePaymentSuccess, which
-        // AWAITS confirm_purchases_by_transaction + ensure_enrollment_exists
-        // before navigating to the success page. This guarantees the success
-        // page (and downstream dashboard) sees status='completed' immediately
-        // instead of briefly flashing "pending" while a fire-and-forget RPC
-        // races with navigation.
+        // The server already recorded this order before opening the bank form.
+        // Navigate to the confirmation page, which waits for the verified webhook.
+        // Do not re-check ownership or discounts after money has been collected.
         const orderId = raiAcceptOrderIdRef.current;
         const userId = authUser?.id || profile?.id;
 
@@ -553,137 +546,31 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
     }
   }, [authUser, profile]);
 
-  // Handle successful payment (authenticated users only)
-  const handlePaymentSuccess = useCallback(async (transactionId: string, method: PaymentMethod) => {
-    // Idempotency guard: prevent double-execution
-    if (isProcessingRef.current) {
-      console.warn('handlePaymentSuccess already in progress, skipping duplicate call');
-      return;
-    }
+  // Payment has already been collected. Pricing, discounts and ownership were
+  // checked before checkout; rechecking them now races the webhook's enrollment
+  // and can incorrectly reject a successfully paid order as "already owned".
+  const handlePaymentSuccess = useCallback(async (_transactionId: string, _method: PaymentMethod) => {
+    if (isProcessingRef.current) return;
     isProcessingRef.current = true;
-
     try {
-      // Re-validate discount code before processing
-      const discountValid = await revalidateDiscountCode();
-      if (!discountValid) {
-        setLoading(false);
-        isProcessingRef.current = false;
-        return;
-      }
-
-      // User must be logged in — auth modal should have been shown already
       const userId = authUser?.id || profile?.id;
-      
-      if (!userId) {
-        setShowAuthModal(true);
-        isProcessingRef.current = false;
-        return;
-      }
-
-      // CRITICAL: Check for duplicate purchases before processing
-      const alreadyOwnedItems: string[] = [];
-      const itemsToPurchase: typeof cartItems = [];
-      
-      for (const item of cartItems) {
-        const isEnrolled = await enrollmentsApi.checkEnrollment(userId, item.id);
-        if (isEnrolled) {
-          alreadyOwnedItems.push(item.name);
-        } else {
-          itemsToPurchase.push(item);
+      if (userId) {
+        try {
+          const { error: ensureErr } = await supabase.rpc('ensure_enrollment_exists', { p_user_id: userId });
+          if (ensureErr) console.error('ensure_enrollment_exists failed:', ensureErr);
+        } catch (ensureErr) {
+          console.error('ensure_enrollment_exists error:', ensureErr);
         }
       }
-
-      // If ALL items are already owned, show error
-      if (itemsToPurchase.length === 0) {
-        throw new Error(`You already own all items in your cart: ${alreadyOwnedItems.join(', ')}. Please check your dashboard.`);
-      }
-
-      // If SOME items are already owned, warn but continue with remaining items
-      if (alreadyOwnedItems.length > 0) {
-        console.warn(`User already owns: ${alreadyOwnedItems.join(', ')}. Processing only new items.`);
-      }
-
-      // For CARD payments (RaiAccept): the Edge Function already created pending purchase
-      // records server-side via create_pending_purchase RPC. Do NOT create again here
-      // to avoid duplicate rows. The webhook will confirm the existing purchase.
-      //
-      // For PAYPAL payments: no server-side pre-creation exists, so we must create
-      // the pending purchase client-side here before the webhook fires.
-      if (method === 'paypal') {
-        for (const item of itemsToPurchase) {
-          const includeTeachingMaterials = !!(teachingMaterialsSelections[item.id] && item.teachingMaterialsPrice);
-          const teachingMaterialsCost = includeTeachingMaterials ? item.teachingMaterialsPrice! : 0;
-          const itemTotalPrice = item.price + teachingMaterialsCost;
-          
-          const orderTotal = subtotal + teachingMaterialsTotal;
-          const itemDiscountAmount = appliedDiscount 
-            ? (itemTotalPrice / orderTotal) * appliedDiscount.amount 
-            : 0;
-          const finalAmount = itemTotalPrice - itemDiscountAmount;
-          
-          await purchasesApi.create({
-            userId,
-            courseId: item.id,
-            amount: finalAmount,
-            originalAmount: item.price,
-            discountAmount: itemDiscountAmount,
-            discountCodeId: appliedDiscount?.discountCodeId,
-            currency: 'EUR',
-            paymentMethod: method,
-            transactionId,
-            discountCode: appliedDiscount?.code,
-            includeTeachingMaterials,
-            teachingMaterialsAmount: teachingMaterialsCost,
-            billing,
-          });
-        }
-      } else {
-        console.log('Card payment: skipping client-side purchase creation (Edge Function already created pending purchases server-side)');
-      }
-
-      // SECURITY: purchase confirmation is performed ONLY by the payment-webhook /
-      // raiffeisen-installment-notify edge functions, which independently verify the
-      // payment with the provider (RaiAccept merchant API re-fetch / UPC bank
-      // signature) before flipping a purchase to completed and granting enrollment.
-      //
-      // The previous client-side call to confirm_purchases_by_transaction was a
-      // critical vulnerability: it granted course access based only on a
-      // transaction id, with NO proof of payment, so any logged-in user could
-      // self-confirm an unpaid order. That RPC's EXECUTE grant has been revoked
-      // from anon/authenticated (see migration 20260719000000). Access now appears
-      // once the verified webhook confirms the purchase; ensure_enrollment_exists
-      // (below, and on the dashboard) self-heals the enrollment as soon as that
-      // happens.
-
-      // Self-heal enrollments for any purchases already confirmed by the webhook.
-      // Idempotent and safe — only acts on purchases whose status is 'completed'.
-      try {
-        const { error: ensureErr } = await supabase.rpc('ensure_enrollment_exists', { p_user_id: userId });
-        if (ensureErr) console.error('ensure_enrollment_exists failed:', ensureErr);
-      } catch (ensureErr) {
-        console.error('ensure_enrollment_exists error:', ensureErr);
-      }
-
-      // Invoice issuance is intentionally NOT triggered here. The payment-webhook
-      // (RaiAccept) and raiffeisen-installment-notify edge functions are the single
-      // source of truth for invoicing: they call generate-invoice only after a FULLY
-      // confirmed payment. Triggering it from the client too raced the webhook and
-      // could double-send the invoice email. See audit finding B3.
-
-      // Clear cart and the idempotency token (audit B5) so the next purchase
-      // starts a fresh attempt, then redirect to the success page.
+      // Only provider-verified server callbacks grant access and issue invoices.
+      // A failed best-effort refresh must not strand an already paid customer.
       try { sessionStorage.removeItem(IDEMPOTENCY_STORAGE_KEY); } catch { /* ignore */ }
       onClearCart();
       if (onNavigate) { onNavigate('checkout-success'); } else { window.location.hash = '#checkout-success'; }
-    } catch (err) {
-      console.error('Error recording purchase:', err);
-      // Still clear cart — payment already succeeded at gateway level
-      onClearCart();
-      setError(err instanceof Error ? err.message : t('errors.failedToComplete'));
     } finally {
       isProcessingRef.current = false;
     }
-  }, [authUser, profile, cartItems, appliedDiscount, onClearCart, subtotal, teachingMaterialsSelections, teachingMaterialsTotal, revalidateDiscountCode]);
+  }, [authUser?.id, profile?.id, onClearCart, onNavigate]);
 
   // Keep the ref in sync so the iframe postMessage listener (subscribed once on
   // mount) always invokes the latest handlePaymentSuccess closure. Without this
@@ -1023,7 +910,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
         return;
       }
 
-      const orderId = generateOrderId();
+      const orderId = idempotencyKey;
       // Store orderId in ref so the iframe message handler can access it
       raiAcceptOrderIdRef.current = orderId;
       

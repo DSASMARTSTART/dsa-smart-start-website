@@ -1,11 +1,33 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import {
   EUR_TO_RSD_RATE,
   eurToRsd,
   formatRsdAmount,
   generateOrderId,
   formatPrice,
+  getPaymentConfig,
+  getAvailablePaymentMethods,
+  PayPalPayment,
 } from './paymentService';
+
+afterEach(() => vi.unstubAllEnvs());
+
+it('does not offer or capture PayPal using only a browser client ID', async () => {
+  vi.stubEnv('VITE_PAYPAL_CLIENT_ID', 'public-client-id');
+  vi.stubEnv('VITE_RAIACCEPT_ENABLED', 'true');
+  vi.stubEnv('VITE_RAIFFEISEN_INSTALLMENTS_ENABLED', 'true');
+  expect(getPaymentConfig().paypal.isConfigured).toBe(false);
+  expect(getAvailablePaymentMethods()).toEqual(['card', 'card_installments']);
+  const paypal = new PayPalPayment();
+  expect(await paypal.loadSDK()).toBe(false);
+  expect(() =>
+    paypal.getButtonOptions({} as never, {
+      onApprove: vi.fn(),
+      onError: vi.fn(),
+      onCancel: vi.fn(),
+    })
+  ).toThrow('PayPal checkout is unavailable');
+});
 
 describe('eurToRsd', () => {
   it('converts using the fixed rate and rounds to 2 decimals', () => {
