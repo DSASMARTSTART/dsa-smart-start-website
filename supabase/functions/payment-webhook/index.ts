@@ -26,6 +26,7 @@ async function getRaiAcceptToken(): Promise<string | null> {
   try {
     const response = await fetch(AUTH_URL, {
       method: 'POST',
+      signal: AbortSignal.timeout(10000),
       headers: {
         'Content-Type': 'application/x-amz-json-1.1',
         'X-Amz-Target': 'AWSCognitoIdentityProviderService.InitiateAuth',
@@ -48,10 +49,11 @@ async function getRaiAcceptToken(): Promise<string | null> {
 async function verifyRaiAcceptOrder(
   token: string,
   orderIdentification: string
-): Promise<{ status: string; merchantOrderReference: string } | null> {
+): Promise<{ status: string; merchantOrderReference: string; itemCount: number } | null> {
   try {
-    const response = await fetch(`${API_URL}/orders/${orderIdentification}`, {
+    const response = await fetch(`${API_URL}/orders/${encodeURIComponent(orderIdentification)}`, {
       method: 'GET',
+      signal: AbortSignal.timeout(10000),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
@@ -65,6 +67,7 @@ async function verifyRaiAcceptOrder(
     return {
       status: data?.status || '',
       merchantOrderReference: data?.invoice?.merchantOrderReference || '',
+      itemCount: Array.isArray(data?.invoice?.items) ? Math.max(data.invoice.items.length, 1) : 1,
     };
   } catch (err) {
     console.error('RaiAccept verify order error:', err);
@@ -73,6 +76,7 @@ async function verifyRaiAcceptOrder(
 }
 
 const RAIACCEPT_PAID_STATUSES = ['PAID', 'SUCCESS'];
+const RAIACCEPT_FAILED_STATUSES = ['FAILED', 'CANCELLED', 'CANCELED', 'REJECTED', 'EXPIRED'];
 
 // Validate required env up-front. Missing secrets are an operator config
 // problem, not a customer-facing one — surface a generic 500 to the
@@ -114,6 +118,7 @@ Deno.serve(async (req) => {
 
     let transactionId: string | null = null
     let isSuccess = false
+    let isFailure = false
     // Set when RaiAccept says "paid" in the raw payload but we were unable to
     // independently re-verify it (no creds, or the merchant API was unreachable).
     // Such a claim is NEVER auto-confirmed — it is orphaned for admin reconciliation.
@@ -159,14 +164,17 @@ Deno.serve(async (req) => {
       const token = await getRaiAcceptToken()
       if (token && orderIdentification) {
         const verified = await verifyRaiAcceptOrder(token, orderIdentification)
-        if (verified) {
+        if (verified && verified.merchantOrderReference) {
           console.log(`RaiAccept API-verified order status: ${verified.status}`)
           // We reached the merchant API and got an authoritative status.
           providerVerified = true
           isSuccess = RAIACCEPT_PAID_STATUSES.includes(verified.status.toUpperCase())
-          if (verified.merchantOrderReference) {
-            transactionId = verified.merchantOrderReference
-          }
+          isFailure = RAIACCEPT_FAILED_STATUSES.includes(verified.status.toUpperCase())
+          // Bind all mutations to the bank's own order reference, never to an
+          // identifier or item count supplied by the callback sender.
+          transactionId = verified.merchantOrderReference
+          providerItemCount = verified.itemCount
+          providerResponse = { ...body, verification: { ...verified, orderIdentification } }
         } else {
           // SECURITY: the merchant API re-fetch failed. We must NOT trust the raw
           // webhook body — a forged POST could otherwise confirm a purchase. Leave
@@ -292,8 +300,8 @@ Deno.serve(async (req) => {
 
     // SECURITY GATE (audit B2): a RaiAccept webhook claimed the order was paid but
     // we could not independently verify it via the merchant API. Do NOT confirm the
-    // purchase from an unverifiable payload — record an orphan and ACK 200. If the
-    // charge is real, the dashboard self-heal / admin orphan UI will reconcile it.
+    // purchase from an unverifiable payload. Ask the provider to retry; dashboard
+    // enrollment repair cannot confirm a pending payment on its own.
     if (raiaUnverifiedPaidClaim) {
       await recordOrphan(
         'raiaccept_unverified_paid_claim',
@@ -303,7 +311,14 @@ Deno.serve(async (req) => {
       )
       return new Response(
         JSON.stringify({ success: false, error: 'Payment could not be verified — recorded for review' }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    if (provider === 'raiaccept' && req.method === 'POST' && !providerVerified) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Payment verification unavailable; retry notification' }),
+        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
@@ -330,7 +345,17 @@ Deno.serve(async (req) => {
       )
     }
 
+    // Pending/unknown states and unverified failure callbacks are not payment
+    // failures. In particular a transient API outage must not fail an order.
+    if (!isSuccess && !(providerVerified && isFailure)) {
+      return new Response(
+        JSON.stringify({ success: true, ignored: true, reason: 'No verified terminal payment result' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     let result
+    let responseStatus = 200
     if (isSuccess) {
       const { data, error } = await supabase.rpc('confirm_purchase_webhook', {
         p_transaction_id: transactionId,
@@ -345,6 +370,7 @@ Deno.serve(async (req) => {
           `confirm_purchase_webhook returned error: ${error.message}`
         )
         result = { success: false, error: error.message }
+        responseStatus = 503
       } else if (data?.success && !isFullyConfirmed(data)) {
         // Partial confirmation — provider charged for N items but we only
         // matched M < N pending purchases. Record the gap as an orphan.
@@ -446,8 +472,8 @@ Deno.serve(async (req) => {
           // time). We record an orphan so an admin can reconcile manually.
           await recordOrphan(
             'raiaccept_no_pending_purchase',
-            'RaiAccept reported a paid order but no matching pending purchase row exists. ' +
-              'Likely cause: create-raiaccept-session failed to insert the pending row before redirect. ' +
+            'RaiAccept reported a paid order but no eligible purchase row was confirmed. ' +
+              'Check for a missing or refunded purchase before reconciling. ' +
               'Verify the charge in the RaiAccept merchant portal and grant access manually.'
           )
           result = data
@@ -471,6 +497,7 @@ Deno.serve(async (req) => {
       if (error) {
         console.error('Error failing purchase:', error)
         result = { success: false, error: error.message }
+        responseStatus = 503
       } else {
         result = data
         console.log('Purchase marked as failed:', transactionId)
@@ -501,19 +528,17 @@ Deno.serve(async (req) => {
     }
 
     return new Response(JSON.stringify(result), {
-      status: 200,
+      status: responseStatus,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })
 
   } catch (error) {
-    // Phase 2 policy: always ACK 200 so the provider stops retrying. The
-    // failure is logged for ops; if any state was persisted it will be
-    // reconciled by ensure_enrollment_exists (dashboard self-heal) or by
-    // the admin orphan UI.
-    console.error('Webhook error (returning 200 to suppress provider retries):', error)
+    // Never acknowledge a transient processing error as delivered. The bank
+    // must be able to retry instead of leaving a paid order permanently pending.
+    console.error('Webhook error (requesting provider retry):', error)
     return new Response(
-      JSON.stringify({ success: false, error: 'Internal error — recorded for review' }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({ success: false, error: 'Internal processing error; retry notification' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
 })

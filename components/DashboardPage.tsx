@@ -194,6 +194,11 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
         const pendingOnes = userPurchases.filter(p =>
           p.status === 'pending' && new Date(p.purchasedAt) > oneHourAgo
         );
+        // A failed bank attempt can still be retried successfully on the same
+        // order. Keep observing recent failures without presenting them as paid.
+        const awaitingPaymentUpdate = userPurchases.some(p =>
+          (p.status === 'pending' || p.status === 'failed') && new Date(p.purchasedAt) > oneHourAgo
+        );
         
         // Fetch course details for pending purchases
         const pendingWithCourses: PendingPurchase[] = await Promise.all(
@@ -222,7 +227,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
 
           // AUTO-POLL: If there are pending purchases, start polling every 5s
           // so the dashboard auto-updates when webhook confirms payment
-          if (pendingWithCourses.length > 0 && !pollInterval) {
+          if (awaitingPaymentUpdate && !pollInterval && pollCount < MAX_POLLS) {
             console.log(`Dashboard: ${pendingWithCourses.length} pending purchase(s), starting auto-refresh...`);
             pollInterval = setInterval(() => {
               pollCount++;
@@ -236,7 +241,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
           }
 
           // Stop polling if no more pending purchases
-          if (pendingWithCourses.length === 0 && pollInterval) {
+          if (!awaitingPaymentUpdate && pollInterval) {
             console.log('Dashboard: no more pending purchases, stopping auto-refresh');
             clearInterval(pollInterval);
             pollInterval = null;

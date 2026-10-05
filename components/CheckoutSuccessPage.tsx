@@ -81,8 +81,9 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
         if (!isCancelled) {
           setRecentPurchases(purchasesWithCourses);
           
-          // Check if any purchases are still pending — if so, start polling
-          const hasPending = purchasesWithCourses.some(p => p.status === 'pending');
+          // A success return can race a prior failed-attempt notification.
+          // Observe both states until the verified successful retry arrives.
+          const hasPending = purchasesWithCourses.some(p => p.status === 'pending' || p.status === 'failed');
           if (hasPending && !pollInterval) {
             // Hard 60-second cap so we don't poll forever if the webhook never fires.
             pollTimeout = setTimeout(() => {
@@ -110,7 +111,7 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
                   setRecentPurchases(withCourses);
 
                   // Stop polling if all purchases are confirmed
-                  const stillPending = withCourses.some(p => p.status === 'pending');
+                  const stillPending = withCourses.some(p => p.status === 'pending' || p.status === 'failed');
                   if (!stillPending) {
                     stopPolling();
                   }
@@ -281,7 +282,7 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
                     )}
                   </div>
                   {/* Status badge */}
-                  {purchase.status === 'pending' ? (
+                  {purchase.status === 'pending' || (purchase.status === 'failed' && !pollTimedOut) ? (
                     <span className="px-3 py-1 bg-amber-500/20 text-amber-400 text-xs font-bold rounded-full flex items-center gap-1">
                       <Loader2 size={12} className="animate-spin" />
                       {t('successPage.statusVerifying')}
@@ -300,7 +301,7 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
               ))}
               
               {/* Pending notice */}
-              {recentPurchases.some(p => p.status === 'pending') && (
+              {recentPurchases.some(p => p.status === 'pending' || p.status === 'failed') && (
                 <div className="flex items-center gap-3 p-4 bg-amber-500/10 rounded-xl border border-amber-500/30 mt-4">
                   <Clock size={20} className="text-amber-400" />
                   <p className="text-sm text-amber-300/80">
