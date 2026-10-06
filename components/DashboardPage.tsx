@@ -413,7 +413,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ user, onOpenCourse, onNavigat
           <div className="flex items-center gap-3 mb-4">
             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-400 px-3 py-1 bg-purple-500/10 rounded-full border border-purple-500/20">{t('badge')}</span>
           </div>
-          <h1 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase leading-tight mb-2">
+          <h1 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase leading-tight mb-2 break-words">
             <Trans i18nKey="welcome" ns="dashboard" values={{ name: displayName }} components={{ highlight: <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400" /> }} />
           </h1>
           <p className="text-gray-400 text-lg font-medium italic">{t('subtitle')}</p>
