@@ -207,6 +207,11 @@ try {
     'supabase/tests/admin-operations.sql',
     'supabase/tests/booking-public-workflow.sql',
   ].map(path=>fs.readFileSync(path,'utf8')).join('\n'));
+  sql([
+    'supabase/migrations/20261006120000_account_recording_access.sql',
+    'supabase/tests/account-recording-access.sql',
+  ].map(path => fs.readFileSync(path, 'utf8')).join('\n'));
+  console.log('PASS: ongoing recording access, completed courses, optional deadlines, revocation and deletion protection.');
   console.log('PASS: staff booking and teacher reassignment, group reschedule rollback, credit adjustments, secretary isolation, enrollment restoration, currency reporting, managed media permissions, shared retention claims, linked instructors, history pagination.');
   console.log(
     'PASS: pending approval, 48/72-hour rules, atomic rescheduling, recording course expiry and downloads.'

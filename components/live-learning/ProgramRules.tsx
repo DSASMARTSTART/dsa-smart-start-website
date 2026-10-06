@@ -86,7 +86,8 @@ function Rules({ initial }: { initial: ProgramSettings }) {
       <p className="text-sm my-4">
         New requests reserve a credit and require administrator approval. Missed lessons and late
         student cancellations use a credit. Teacher cancellations and rejected requests return the
-        credit. Recording access uses each student’s course end and download deadline.
+        credit. Recording access continues while the student’s account is active and course access
+        has not been revoked, unless you set expiry dates below.
       </p>
       <button className="ll-button primary" disabled={busy}>
         {busy ? 'Saving…' : 'Save rules'}

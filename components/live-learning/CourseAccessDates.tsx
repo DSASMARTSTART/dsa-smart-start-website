@@ -16,6 +16,7 @@ function localDate(value: string | null) {
 export default function CourseAccessDates() {
   const [rows, setRows] = useState<Terms[]>([]);
   const [selected, setSelected] = useState('');
+  const [limited, setLimited] = useState(false);
   const [end, setEnd] = useState('');
   const [download, setDownload] = useState('');
   const [busy, setBusy] = useState(false);
@@ -44,11 +45,11 @@ export default function CourseAccessDates() {
         try {
           const { error } = await db.rpc('save_live_course_terms', {
             p_enrollment: selected,
-            p_end: new Date(end).toISOString(),
-            p_download_until: new Date(download).toISOString(),
+            p_end: limited ? new Date(end).toISOString() : null,
+            p_download_until: limited ? new Date(download).toISOString() : null,
           });
           if (error) throw new Error(error.message);
-          setMessage('Course access dates saved.');
+          setMessage('Recording access saved.');
           setRetry((value) => value + 1);
         } catch (err) {
           setMessage((err as Error).message);
@@ -57,11 +58,11 @@ export default function CourseAccessDates() {
         }
       }}
     >
-      <h3>Student recording access dates</h3>
+      <h3>Student recording access</h3>
       <p className="text-sm text-gray-400 my-3">
-        Set the agreed course end and download deadline for each student. Playback ends at course
-        end; downloads remain available until the download deadline. All dates below use{' '}
-        {Intl.DateTimeFormat().resolvedOptions().timeZone}.
+        Students keep access to their purchased recordings while their account is active and their
+        course access has not been revoked. To set a time limit, choose expiry dates below. Dates
+        use {Intl.DateTimeFormat().resolvedOptions().timeZone}.
       </p>
       <label className="ll-field">
         <span>Student and package</span>
@@ -72,6 +73,7 @@ export default function CourseAccessDates() {
           onChange={(event) => {
             setSelected(event.target.value);
             const row = rows.find((item) => item.id === event.target.value);
+            setLimited(Boolean(row?.courseEndsAt));
             setEnd(localDate(row?.courseEndsAt || null));
             setDownload(localDate(row?.downloadsUntil || null));
             setMessage('');
@@ -81,36 +83,49 @@ export default function CourseAccessDates() {
           {rows.map((row) => (
             <option key={row.id} value={row.id}>
               {row.student} · {row.course}
-              {row.courseEndsAt ? '' : ' · dates needed'}
+              {row.courseEndsAt ? '' : ' · ongoing access'}
             </option>
           ))}
         </select>
       </label>
-      <div className="grid gap-4 mt-4 sm:grid-cols-2">
-        <label className="ll-field">
-          <span>Course ends</span>
-          <input
-            required
-            disabled={busy}
-            type="datetime-local"
-            value={end}
-            onChange={(event) => setEnd(event.target.value)}
-          />
-        </label>
-        <label className="ll-field">
-          <span>Downloads available until</span>
-          <input
-            required
-            disabled={busy}
-            type="datetime-local"
-            min={end}
-            value={download}
-            onChange={(event) => setDownload(event.target.value)}
-          />
-        </label>
-      </div>
+      <label className="ll-field mt-4">
+        <span>Access duration</span>
+        <select
+          disabled={busy || !selected}
+          value={limited ? 'limited' : 'ongoing'}
+          onChange={(event) => setLimited(event.target.value === 'limited')}
+        >
+          <option value="ongoing">While account remains active</option>
+          <option value="limited">Set expiry dates</option>
+        </select>
+      </label>
+      {limited && (
+        <div className="grid gap-4 mt-4 sm:grid-cols-2">
+          <label className="ll-field">
+            <span>Course ends</span>
+            <input
+              required
+              disabled={busy}
+              type="datetime-local"
+              value={end}
+              onChange={(event) => setEnd(event.target.value)}
+            />
+          </label>
+          <label className="ll-field">
+            <span>Downloads available until</span>
+            <input
+              required
+              disabled={busy}
+              type="datetime-local"
+              min={end}
+              value={download}
+              onChange={(event) => setDownload(event.target.value)}
+            />
+          </label>
+        </div>
+      )}
       <button disabled={busy || !selected} className="ll-button primary mt-4">
-        {busy ? 'Saving…' : 'Save access dates'}
+        {busy ? 'Saving…' : 'Save recording access'}
       </button>
       {message && (
         <p role="status" className="mt-3">

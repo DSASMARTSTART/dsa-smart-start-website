@@ -33,7 +33,7 @@ export default function VideoStorage() {
           </p>
           <p>
             Cleanup only includes expired recordings with no outstanding participant access, or
-            failed uploads older than two days. Dates that have not been configured block deletion.
+            failed uploads older than two days. Recordings with ongoing student access are kept.
           </p>
           {report.cleanup.length === 0 ? (
             <p>No recordings eligible for cleanup.</p>

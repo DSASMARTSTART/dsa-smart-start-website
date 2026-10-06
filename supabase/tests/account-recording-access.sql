@@ -1,0 +1,58 @@
+-- Default ongoing access, optional deadlines, and access revocation.
+BEGIN;
+UPDATE users SET status='active' WHERE id IN ('00000000-0000-4000-8000-000000000001','00000000-0000-4000-8000-000000000002','00000000-0000-4000-8000-000000000003');
+SELECT set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000003',false);
+UPDATE live_bookings SET status='cancelled',credit_used=false WHERE user_id=auth.uid();
+UPDATE enrollments SET status='active' WHERE user_id=auth.uid();
+DELETE FROM live_course_terms WHERE enrollment_id IN (SELECT id FROM enrollments WHERE user_id=auth.uid());
+CREATE TEMP TABLE ongoing_qa(booking uuid,asset uuid,enrollment uuid);
+INSERT INTO ongoing_qa(booking) SELECT book_live_lesson('10000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001',current_date+150,'10:00');
+UPDATE ongoing_qa SET enrollment=(SELECT enrollment_id FROM live_bookings WHERE id=booking);
+SELECT set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000001',false);
+SELECT update_live_booking((SELECT booking FROM ongoing_qa),'approve');
+SELECT test_assert((SELECT status='booked' FROM live_bookings WHERE id=(SELECT booking FROM ongoing_qa)),'approval works without manually setting dates');
+SELECT test_reject(format('SELECT save_live_course_terms(%L,now()+interval ''2 days'',NULL)',(SELECT enrollment FROM ongoing_qa)),'Choose ongoing');
+SELECT test_reject(format('SELECT save_live_course_terms(%L,now()+interval ''2 days'',now()+interval ''3 days'')',(SELECT enrollment FROM ongoing_qa)),'scheduled lesson');
+UPDATE live_bookings SET status='completed',starts_at=now()-interval '400 days',ends_at=now()-interval '400 days'+interval '30 minutes',recording_expires_at=now()-interval '300 days',recording='https://example.invalid/recording' WHERE id=(SELECT booking FROM ongoing_qa);
+WITH a AS (INSERT INTO live_assets(kind,course_id,booking_id,teacher_id,title,filename,mime_type,byte_size,provider,state,uploaded_by)
+ SELECT 'recording',course_id,id,teacher_id,'Ongoing access QA','qa.mp4','video/mp4',100,'vimeo','ready',auth.uid() FROM live_bookings WHERE id=(SELECT booking FROM ongoing_qa) RETURNING id)
+UPDATE ongoing_qa SET asset=(SELECT id FROM a);
+INSERT INTO live_vimeo_uploads(asset_id,video_uri) SELECT asset,'/videos/999000666' FROM ongoing_qa;
+INSERT INTO managed_videos(kind,course_id,lesson_id,title,filename,byte_size,state,uploaded_by)
+VALUES('lesson','10000000-0000-4000-8000-000000000001','ongoing-qa','Ongoing lesson QA','qa.mp4',100,'ready',auth.uid());
+SELECT set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000003',false);
+SELECT test_assert(live_recording_access((SELECT asset FROM ongoing_qa),false) AND live_recording_access((SELECT asset FROM ongoing_qa),true),'old recordings remain playable and downloadable without dates');
+SELECT test_assert(NOT live_recording_cleanup_eligible((SELECT asset FROM ongoing_qa)),'ongoing access prevents cleanup');
+UPDATE enrollments SET status='completed' WHERE id=(SELECT enrollment FROM ongoing_qa);
+SELECT test_assert(live_recording_access((SELECT asset FROM ongoing_qa),false),'course completion retains recording access');
+SELECT test_assert(managed_video_allowed((SELECT id FROM managed_videos WHERE title='Ongoing lesson QA')),'completed course retains uploaded lesson playback');
+SELECT test_assert(EXISTS(SELECT 1 FROM jsonb_array_elements(live_library()->'assets') a WHERE a->>'id'=(SELECT asset::text FROM ongoing_qa) AND (a->>'canPlay')::boolean AND (a->>'canDownload')::boolean AND a->>'downloadsUntil' IS NULL),'library shows ongoing recordings for completed courses');
+SELECT test_assert(EXISTS(SELECT 1 FROM jsonb_array_elements(live_workspace()->'bookings') b WHERE b->>'id'=(SELECT booking::text FROM ongoing_qa) AND b->>'recording'='https://example.invalid/recording'),'completed course history and legacy recording remain visible');
+UPDATE live_bookings SET status='no_show' WHERE id=(SELECT booking FROM ongoing_qa);
+SELECT test_assert(NOT live_recording_access((SELECT asset FROM ongoing_qa),false),'missed private lesson does not grant recording access');
+SELECT test_assert((SELECT b->>'recording'='' FROM jsonb_array_elements(live_workspace()->'bookings') b WHERE b->>'id'=(SELECT booking::text FROM ongoing_qa)),'legacy recording follows the same no-show rule');
+UPDATE live_bookings SET status='completed' WHERE id=(SELECT booking FROM ongoing_qa);
+UPDATE users SET status='blocked' WHERE id=auth.uid();
+SELECT test_assert(NOT live_recording_access((SELECT asset FROM ongoing_qa),false) AND NOT live_recording_access((SELECT asset FROM ongoing_qa),true),'blocked account loses playback and download');
+UPDATE users SET status='active' WHERE id=auth.uid();
+UPDATE enrollments SET status='revoked' WHERE id=(SELECT enrollment FROM ongoing_qa);
+SELECT test_assert(NOT live_recording_access((SELECT asset FROM ongoing_qa),false) AND NOT managed_video_allowed((SELECT id FROM managed_videos WHERE title='Ongoing lesson QA')),'revoked purchase loses both recording and uploaded lesson access');
+UPDATE enrollments SET status='completed' WHERE id=(SELECT enrollment FROM ongoing_qa);
+SELECT test_reject(format('SELECT save_live_course_terms(%L,NULL,NULL)',(SELECT enrollment FROM ongoing_qa)),'Administrator');
+SELECT set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000001',false);
+SELECT save_live_course_terms((SELECT enrollment FROM ongoing_qa),now()-interval '2 days',now()+interval '2 days');
+SELECT set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000003',false);
+SELECT test_assert(NOT live_recording_access((SELECT asset FROM ongoing_qa),false) AND live_recording_access((SELECT asset FROM ongoing_qa),true),'explicit playback deadline preserves download grace period');
+SELECT set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000001',false);
+SELECT save_live_course_terms((SELECT enrollment FROM ongoing_qa),NULL,NULL);
+SELECT set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000003',false);
+SELECT test_assert(live_recording_access((SELECT asset FROM ongoing_qa),false),'staff can restore ongoing access');
+SELECT set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000001',false);
+SELECT save_live_course_terms((SELECT enrollment FROM ongoing_qa),now()-interval '2 days',now()-interval '1 day');
+SELECT test_assert(live_recording_cleanup_eligible((SELECT asset FROM ongoing_qa)),'fully expired recordings become eligible for cleanup');
+UPDATE live_vimeo_uploads SET delete_pending=true WHERE asset_id=(SELECT asset FROM ongoing_qa);
+SELECT test_reject(format('SELECT save_live_course_terms(%L,NULL,NULL)',(SELECT enrollment FROM ongoing_qa)),'cannot be extended');
+SELECT set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000004',false);
+SELECT test_assert(NOT live_recording_access((SELECT asset FROM ongoing_qa),false),'another student cannot view private recording');
+ROLLBACK;
+SELECT 'PASS: account lifetime recording access, completion, deadlines, revocation, private access and deletion protection';
