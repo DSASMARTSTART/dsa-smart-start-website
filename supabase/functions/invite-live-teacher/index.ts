@@ -34,6 +34,8 @@ Deno.serve(async (req) => {
       .eq('id', teacherId)
       .single();
     if (teacherError || !teacher) return json({ error: 'Teacher not found.' }, 404);
+    if (!teacher.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(teacher.email))
+      return json({ error: 'Add a valid email address to this teacher’s profile before sending an invitation.' }, 400);
     // Atomically rate-limit duplicate clicks. Restore the timestamp if sending fails.
     const prior = teacher.invited_at;
     let claim = service

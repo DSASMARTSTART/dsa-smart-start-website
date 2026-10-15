@@ -314,6 +314,7 @@ export default function LiveLearningStudio({ mode = 'admin' }: Props) {
       return;
     }
     if (
+      draft.email.trim() &&
       teachers.some(
         (t) => t.id !== draft.id && t.email.toLowerCase() === draft.email.trim().toLowerCase()
       )
@@ -322,7 +323,7 @@ export default function LiveLearningStudio({ mode = 'admin' }: Props) {
       setError('A teacher with this email already exists.');
       return;
     }
-    const teacher = { ...draft, name: draft.name.trim(), email: draft.email.trim() };
+    const teacher = { ...draft, name: draft.name.trim(), email: draft.email.trim().toLowerCase() };
     if (!(await updateTeacher(teacher))) return;
     setSelectedId(teacher.id);
     closePanel();
@@ -720,7 +721,12 @@ export default function LiveLearningStudio({ mode = 'admin' }: Props) {
                           </button>
                           <button
                             className="ll-text-button"
-                            disabled={busy}
+                            disabled={busy || !teacher.email}
+                            title={
+                              !teacher.email
+                                ? 'Add an email address in Edit profile to send an invitation.'
+                                : undefined
+                            }
                             onClick={async () => {
                               setBusy(true);
                               try {
@@ -934,6 +940,12 @@ export default function LiveLearningStudio({ mode = 'admin' }: Props) {
                         </button>
                       </div>
                     </div>
+                    {selected.availabilityNotes && (
+                      <div className="ll-info-note">
+                        <Info size={17} />
+                        <p>{selected.availabilityNotes}</p>
+                      </div>
+                    )}
                     <div className="ll-calendar-legend">
                       <span>
                         <i className="private" />
@@ -1337,11 +1349,8 @@ export default function LiveLearningStudio({ mode = 'admin' }: Props) {
                     />
                   </label>
                   <label className="ll-field">
-                    <span>
-                      Email address <b>*</b>
-                    </span>
+                    <span>Email address (optional)</span>
                     <input
-                      required
                       type="email"
                       readOnly={role === 'teacher' || !!draft.userId}
                       value={draft.email}
@@ -1349,8 +1358,8 @@ export default function LiveLearningStudio({ mode = 'admin' }: Props) {
                       onChange={(e) => setDraft({ ...draft, email: e.target.value })}
                     />
                     <small>
-                      An invitation will let this teacher create a password and access their own
-                      workspace. Save their profile, then use “Invite to workspace”.
+                      You can save the profile and schedule now and add an email later. An email
+                      is needed to invite this teacher to their workspace.
                     </small>
                   </label>
                   <label className="ll-field">
@@ -1386,6 +1395,16 @@ export default function LiveLearningStudio({ mode = 'admin' }: Props) {
                       value={draft.languages}
                       placeholder="e.g. English, Italian"
                       onChange={(e) => setDraft({ ...draft, languages: e.target.value })}
+                    />
+                  </label>
+                  <label className="ll-field">
+                    <span>Availability notes</span>
+                    <textarea
+                      rows={3}
+                      maxLength={600}
+                      value={draft.availabilityNotes || ''}
+                      onChange={(e) => setDraft({ ...draft, availabilityNotes: e.target.value })}
+                      placeholder="Any schedule details that still need clarification"
                     />
                   </label>
                 </>

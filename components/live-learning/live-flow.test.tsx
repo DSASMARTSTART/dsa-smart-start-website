@@ -266,4 +266,25 @@ describe('live program integration', () => {
     );
     expect(await screen.findByText('Teacher profile saved.')).toBeTruthy();
   });
+  it('saves another draft without an email even when a teacher already has no email', async () => {
+    render(<LiveLearningStudio />);
+    fireEvent.click(screen.getByRole('button', { name: 'Add teacher' }));
+    fireEvent.change(screen.getByLabelText(/Full name/), { target: { value: 'Ana' } });
+    expect((screen.getByLabelText(/Email address/) as HTMLInputElement).required).toBe(false);
+    fireEvent.change(screen.getByLabelText(/Calendar time zone/), { target: { value: 'Europe/Rome' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    for (const checkbox of screen.getAllByRole('checkbox')) fireEvent.click(checkbox);
+    fireEvent.click(screen.getByRole('button', { name: 'Save profile' }));
+    await waitFor(() => expect(f.state.saveTeacher).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Ana', email: '', timezone: 'Europe/Rome', status: 'draft',
+        programs: ['language-lab', 'language-lab-pro', 'starter-path', 'hybrid-pack'] })
+    ));
+    expect(await screen.findByText('Teacher profile saved.')).toBeTruthy();
+  });
+  it('disables invitations until an email address has been added', () => {
+    render(<LiveLearningStudio />);
+    fireEvent.click(screen.getByRole('button', { name: /Teachers/ }));
+    expect((screen.getByRole('button', { name: 'Invite to workspace' }) as HTMLButtonElement).disabled).toBe(true);
+  });
 });

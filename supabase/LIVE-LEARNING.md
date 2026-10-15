@@ -24,13 +24,21 @@ Removing a recording from Eduway withdraws it from students' libraries and leave
 
 ## Admin and teacher workflow
 
-1. **Admin → Live Learning → Teachers → Add teacher**: enter the actual teacher's email/profile, assign existing programs, save, configure timezone and availability, and activate.
+1. **Admin → Live Learning → Teachers → Add teacher**: enter the teacher's profile, assign existing programs, save, and configure timezone and availability. With `20261016100000_optional_teacher_email` applied, an email can be left blank and added later. Profiles without a linked login remain unavailable to students.
 2. **Invite to workspace** sends the login link explicitly. Saving a profile does not send email. Teachers open **My teaching calendar** after setting their password.
 3. **Package materials**: select an existing package and upload PDF, DOCX, PPTX, XLSX, images, audio or text, up to 50 MB. Files are in a private Supabase bucket. Included materials require an active enrollment; optional materials additionally require a completed materials purchase. Refunded add-ons do not grant access.
 4. **Lessons & recordings → Past lessons**: admins and the lesson's teacher can upload directly to Vimeo. The pending-recordings filter shows lessons that need a recording. Group recordings are uploaded once and appear for all non-cancelled booked participants; individual recordings are isolated to that student.
 5. Students open **Past lessons** from their dashboard or package page and watch recordings in the Vimeo player. Package materials appear in the package workspace. No new purchase or duplicate product is needed.
 
 Weekly private availability, dated group sessions and days off are separate. Calendar changes go live immediately; changes conflicting with existing reservations are rejected. Cancellation and attendance update the credit balance in the database.
+
+### Teacher drafts prepared on 16 October 2026
+
+Apply `20261016100000_optional_teacher_email.sql` followed by `20261016101000_seed_teacher_profiles.sql`, deploy the updated frontend and `invite-live-teacher` function. Follow the release deployment order in [BOOKING-LAUNCH.md](BOOKING-LAUNCH.md) for any earlier pending migrations. The seed creates Ana, Erika and Juliana as drafts without email addresses, in `Europe/Rome`, assigned to all four programs. It preserves any existing profile with the same name and does not send invitations.
+
+Ana: Monday–Friday 16:00–19:00. Erika: Monday 17:30–19:00, Wednesday 17:30–18:30, Thursday 15:00–18:30, Friday 14:30–18:00. Juliana: Tuesday 15:00–18:00, Wednesday 15:00–20:00, Friday 15:00–18:00 and 19:00–20:00. Erika's explicitly dated Tuesday, 13 October, 15:30–19:00 is retained as an editable availability note pending confirmation of recurrence.
+
+Run `npm run test:teacher-profiles` for disposable Postgres checks of these drafts, schedules, optional email persistence, later account linking, uniqueness, identity checks and invitation validation. This check does not require Docker or project credentials. After deployment, verify both migration versions in Supabase and confirm all three draft profiles and their calendars.
 
 ## Configurable rules
 

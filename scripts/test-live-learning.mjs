@@ -204,13 +204,17 @@ try {
     'supabase/migrations/20261001105000_scoped_library.sql',
     'supabase/migrations/20261001106000_student_invites.sql',
     'supabase/migrations/20261001107000_booking_email_settings.sql',
+    'supabase/migrations/20261016100000_optional_teacher_email.sql',
     'supabase/tests/admin-operations.sql',
     'supabase/tests/booking-public-workflow.sql',
   ].map(path=>fs.readFileSync(path,'utf8')).join('\n'));
   sql([
     'supabase/migrations/20261006120000_account_recording_access.sql',
     'supabase/tests/account-recording-access.sql',
+    'supabase/migrations/20261016101000_seed_teacher_profiles.sql',
+    'supabase/tests/teacher-profiles.sql',
   ].map(path => fs.readFileSync(path, 'utf8')).join('\n'));
+  console.log('PASS: all three teacher drafts, deferred email linking and 168 teacher/program/day/season availability combinations.');
   console.log('PASS: ongoing recording access, completed courses, optional deadlines, revocation and deletion protection.');
   console.log('PASS: staff booking and teacher reassignment, group reschedule rollback, credit adjustments, secretary isolation, enrollment restoration, currency reporting, managed media permissions, shared retention claims, linked instructors, history pagination.');
   console.log(

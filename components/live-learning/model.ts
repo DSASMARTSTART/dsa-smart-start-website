@@ -90,6 +90,7 @@ export type Teacher = {
   programs: string[];
   status: 'draft' | 'active' | 'inactive';
   weekly: WeeklyWindow[];
+  availabilityNotes?: string;
   daysOff: string[];
   groups: GroupSession[];
 };
