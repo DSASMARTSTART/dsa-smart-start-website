@@ -212,9 +212,11 @@ try {
     'supabase/migrations/20261006120000_account_recording_access.sql',
     'supabase/tests/account-recording-access.sql',
     'supabase/migrations/20261016101000_seed_teacher_profiles.sql',
+    'supabase/tests/demo-teacher-bootstrap.sql',
+    'supabase/migrations/20261016110000_staff_managed_teachers.sql',
     'supabase/tests/teacher-profiles.sql',
   ].map(path => fs.readFileSync(path, 'utf8')).join('\n'));
-  console.log('PASS: all three teacher drafts, deferred email linking and 168 teacher/program/day/season availability combinations.');
+  console.log('PASS: three selectable teachers without email/logins, demo cleanup, deferred email linking and 168 teacher/program/day/date availability combinations.');
   console.log('PASS: ongoing recording access, completed courses, optional deadlines, revocation and deletion protection.');
   console.log('PASS: staff booking and teacher reassignment, group reschedule rollback, credit adjustments, secretary isolation, enrollment restoration, currency reporting, managed media permissions, shared retention claims, linked instructors, history pagination.');
   console.log(

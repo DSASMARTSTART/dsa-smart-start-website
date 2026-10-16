@@ -109,6 +109,7 @@ beforeEach(() => {
   f.api.availability.mockResolvedValue({ times: ['10:30'], groups: [] });
   f.api.book.mockResolvedValue('booking-id');
   f.state.selections = { [f.course.id]: 'teacher' };
+  f.state.teachers = [f.teacher];
   f.state.bookings = [];
 });
 describe('live program integration', () => {
@@ -286,5 +287,18 @@ describe('live program integration', () => {
     render(<LiveLearningStudio />);
     fireEvent.click(screen.getByRole('button', { name: /Teachers/ }));
     expect((screen.getByRole('button', { name: 'Invite to workspace' }) as HTMLButtonElement).disabled).toBe(true);
+  });
+  it('allows staff to activate a scheduled teacher before email and introduction are added', async () => {
+    f.state.teachers = [{ ...f.teacher, status: 'draft', bio: '', weekly: [{ id: 'mon', day: 0, start: '16:00', end: '19:00' }] }];
+    render(<LiveLearningStudio />);
+    fireEvent.click(screen.getByRole('button', { name: /Teachers/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Edit profile' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Review & activate teacher' }));
+    const activate = screen.getByRole('button', { name: 'Activate teacher', exact: true });
+    expect((activate as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(activate);
+    await waitFor(() => expect(f.state.saveTeacher).toHaveBeenCalledWith(expect.objectContaining({ status: 'active', email: '', bio: '' })));
   });
 });

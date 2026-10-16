@@ -456,7 +456,7 @@ export default function LiveLearningStudio({ mode = 'admin' }: Props) {
     {
       label: 'Ready for students',
       value: teachers
-        .filter((t) => t.status === 'active' && t.userId)
+        .filter((t) => t.status === 'active')
         .length.toString()
         .padStart(2, '0'),
       text: 'Active teacher profiles',
@@ -1947,12 +1947,12 @@ export default function LiveLearningStudio({ mode = 'admin' }: Props) {
             <p className="ll-form-intro">
               {pendingStatus.status === 'active'
                 ? 'Deactivation will hide this teacher from new selections. Existing reservations remain visible and can be managed in the lesson list.'
-                : 'Review the profile and availability before marking this teacher active in the workspace.'}
+                : 'Review the profile and availability. Staff can manage bookings before the teacher’s email and login are added.'}
             </p>
             <div className="ll-review-checklist">
               {[
-                { text: 'Name and email', done: !!pendingStatus.name && !!pendingStatus.email },
-                { text: 'Introduction', done: !!pendingStatus.bio },
+                { text: 'Name', done: !!pendingStatus.name },
+                { text: 'Introduction (optional)', done: !!pendingStatus.bio },
                 { text: 'Assigned programs', done: !!pendingStatus.programs.length },
                 {
                   text: 'Calendar availability',
@@ -1976,7 +1976,7 @@ export default function LiveLearningStudio({ mode = 'admin' }: Props) {
               disabled={
                 pendingStatus.status !== 'active' &&
                 !(
-                  pendingStatus.bio &&
+                  pendingStatus.name &&
                   pendingStatus.programs.length &&
                   (pendingStatus.weekly.length || pendingStatus.groups.length)
                 )

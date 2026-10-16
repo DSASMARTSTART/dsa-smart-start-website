@@ -9,7 +9,7 @@ vi.mock('./LiveLearningContext', () => ({
       {
         id: 'teacher',
         name: 'Teacher',
-        userId: 'teacher-login',
+        // A real teacher can be managed by staff before a login email is supplied.
         status: 'active',
         programs: ['hybrid-pack'],
         timezone: 'Europe/Belgrade',

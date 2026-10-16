@@ -9,7 +9,7 @@
 - The notification worker expires pending requests at their start time without charging the student. It sends request, approval, rejection, cancellation and meeting-link emails, plus one reminder within 24 hours of a confirmed lesson.
 - Playback ends at the student’s configured course end. Downloads can continue until a separately configured deadline. Revoked access and cancelled reservations do not grant recording access. Private no-shows do not grant recording access; group recordings are shared only with eligible participants.
 - An administrator must set the student’s course end and download deadline before approving a new request. Existing confirmed lessons retain their prior deadlines until course dates are configured. New dates override the legacy fixed-day recording limit.
-- Only active teachers with linked login accounts appear as available to students. Existing reservations and student history remain accessible.
+- Active teachers may be selected and booked before a login email is added. Staff manage their bookings until they connect a login. Linked accounts must remain active. Existing reservations and student history remain accessible.
 
 ## Verified externally
 
@@ -17,7 +17,7 @@
 - The client’s Vimeo token was validated and stored as `VIMEO_ACCESS_TOKEN` in Supabase server secrets. It was not placed in frontend variables or tracked files.
 - Two temporary generated test clips uploaded and transcoded successfully with Vimeo-hidden visibility and embedding restricted to `eduway.academy` and `www.eduway.academy`. The temporary clips were removed.
 - The Vimeo account reports **Starter**. Neither test returned download links, including a test with video downloads enabled. Vimeo documents API file access as requiring Standard, Advanced, Pro, Business, Premium or Enterprise: https://help.vimeo.com/hc/en-us/articles/12427806914577-About-video-file-download-links-from-the-API
-- Production currently has one active profile, **Ana — DEMO**, with no linked login. Real teacher onboarding is still required. No invitations or test emails were sent to real recipients.
+- The original September preview used **Ana — DEMO**. Migration `20261016110000_staff_managed_teachers` activates Ana, Erika and Juliana and removes that exact unlinked demo plus its unpaid, past admin test reservations. Cleanup refuses student/paid history, linked accounts, media and course references. No teacher invitations are sent by these migrations.
 
 ## Decisions required before public launch
 

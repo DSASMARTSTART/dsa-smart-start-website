@@ -189,7 +189,7 @@ export default function StaffOperations() {
                 {teachers
                   .filter(
                     (t) =>
-                      t.status === 'active' && t.userId && t.programs.includes(selected.program)
+                      t.status === 'active' && t.programs.includes(selected.program)
                   )
                   .map((t) => (
                     <option key={t.id} value={t.id}>
