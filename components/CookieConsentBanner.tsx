@@ -23,25 +23,25 @@ const CookieConsentBanner: React.FC<CookieConsentBannerProps> = ({ onOpenPolicy 
       role="dialog"
       aria-live="polite"
       aria-label={t('cookieBanner.title')}
-      className="fixed inset-x-0 bottom-0 z-[100] p-4 sm:p-6"
+      className="fixed inset-x-0 bottom-0 z-[2147483000] p-4 sm:p-6"
     >
-      <div className="mx-auto max-w-3xl rounded-2xl bg-gray-900 text-white shadow-2xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-4">
-        <p className="text-sm leading-relaxed text-gray-200 flex-1">
+      <div className="mx-auto max-w-3xl rounded-2xl bg-white text-gray-900 border-2 border-[#AB8FFF] shadow-2xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-4">
+        <p className="text-sm leading-relaxed text-gray-700 flex-1">
           {t('cookieBanner.text')}{' '}
-          <button onClick={onOpenPolicy} className="underline hover:text-white">
+          <button onClick={onOpenPolicy} className="underline font-semibold text-[#7c5ce0] hover:text-[#5b3fc4]">
             {t('cookieBanner.policyLink')}
           </button>
         </p>
         <div className="flex gap-3 shrink-0">
           <button
             onClick={() => choose('denied')}
-            className="px-5 py-2.5 rounded-full border border-gray-500 text-xs font-black uppercase tracking-widest hover:border-white"
+            className="px-5 py-2.5 rounded-full border border-gray-400 text-gray-700 text-xs font-black uppercase tracking-widest hover:border-gray-900"
           >
             {t('cookieBanner.reject')}
           </button>
           <button
             onClick={() => choose('granted')}
-            className="px-5 py-2.5 rounded-full bg-[#AB8FFF] text-xs font-black uppercase tracking-widest hover:bg-[#9a7eef]"
+            className="px-5 py-2.5 rounded-full bg-[#AB8FFF] text-white text-xs font-black uppercase tracking-widest hover:bg-[#9a7eef]"
           >
             {t('cookieBanner.accept')}
           </button>
