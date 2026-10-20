@@ -10,6 +10,7 @@ import { purchasesApi, coursesApi } from '../data/supabaseStore';
 import { supabase } from '../lib/supabase';
 import { Course, Purchase } from '../types';
 import { liveLearningPath, liveProgramFor } from './live-learning/catalog';
+import { trackPurchase } from '../lib/metaPixel';
 
 interface CheckoutSuccessPageProps {
   onNavigate: (path: string) => void;
@@ -31,6 +32,14 @@ const CheckoutSuccessPage: React.FC<CheckoutSuccessPageProps> = ({ onNavigate })
 
   const userId = user?.id || profile?.id;
   const userName = profile?.name || 'there';
+
+  // Meta Pixel Purchase — only for payments confirmed by the provider webhook
+  // (status 'completed'); deduplicated per purchase id inside trackPurchase.
+  useEffect(() => {
+    recentPurchases
+      .filter(p => p.status === 'completed')
+      .forEach(p => trackPurchase({ purchaseId: p.id, courseId: p.courseId, value: p.amount, currency: p.currency }));
+  }, [recentPurchases]);
 
   useEffect(() => {
     let isCancelled = false;

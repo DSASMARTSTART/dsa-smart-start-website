@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { parseRoute } from './lib/routes';
 import { lazyPage, lazyWorkspacePage } from './lib/lazyPage';
 import { preloadRouteData } from './lib/preloadRouteData';
@@ -15,6 +15,8 @@ import TestimonialsSection from './components/TestimonialsSection';
 import Footer from './components/Footer';
 import WhatsAppButton from './components/WhatsAppButton';
 import CartBubble from './components/CartBubble';
+import CookieConsentBanner from './components/CookieConsentBanner';
+import { initMetaPixel, trackPageView, trackInitiateCheckout } from './lib/metaPixel';
 
 // Lazy: everything behind a route change. Keeps these out of the initial bundle
 // (audit P3 — main chunk was ~817 kB). React.lazy needs a default export.
@@ -179,6 +181,17 @@ const App: React.FC = () => {
     handleHash();
     return () => window.removeEventListener('hashchange', handleHash);
   }, []);
+
+  // Meta Pixel (consent-gated): PageView on every SPA route change and
+  // InitiateCheckout when the visitor reaches the checkout page.
+  const cartRef = useRef(cart);
+  cartRef.current = cart;
+  useEffect(() => {
+    if (currentPath.startsWith('admin')) return;
+    initMetaPixel();
+    trackPageView();
+    if (currentPath === 'checkout') trackInitiateCheckout(cartRef.current);
+  }, [currentPath, selectedCourseId]);
 
   // Dynamic per-route document title (audit P4). The SPA previously kept a single
   // static <title> on every route, which hurts SEO and shareability.
@@ -548,6 +561,7 @@ const App: React.FC = () => {
       {!isAdminPath && <Footer onNavigate={navigateTo} />}
       {!isAdminPath && currentPath !== 'live-learning' && currentPath !== 'dashboard' && currentPath !== 'teacher-calendar' && <WhatsAppButton />}
       {!isAdminPath && <CartBubble cart={cart} onNavigateToCheckout={() => navigateTo('checkout')} />}
+      {!isAdminPath && <CookieConsentBanner onOpenPolicy={() => navigateTo('cookie-policy')} />}
 
       {/* Toast Notifications */}
       <div className="fixed bottom-6 right-6 z-[100] flex flex-col gap-3">

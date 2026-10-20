@@ -65,5 +65,12 @@
     "goToHome": "Ir al Inicio"
   },
   "skipToContent": "Saltar al contenido principal",
-  "goBack": "Volver"
+  "goBack": "Volver",
+  "cookieBanner": {
+    "title": "Preferencias de cookies",
+    "text": "Usamos cookies de marketing (Meta Pixel) para medir nuestros anuncios y mostrarte contenido relevante. Puedes aceptarlas o rechazarlas; las cookies técnicas necesarias para el sitio siempre permanecen activas.",
+    "policyLink": "Política de cookies",
+    "accept": "Aceptar",
+    "reject": "Rechazar"
+  }
 }

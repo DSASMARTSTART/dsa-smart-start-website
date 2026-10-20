@@ -65,5 +65,12 @@
     "goToHome": "Idi na početnu"
   },
   "skipToContent": "Preskoči na glavni sadržaj",
-  "goBack": "Nazad"
+  "goBack": "Nazad",
+  "cookieBanner": {
+    "title": "Podešavanja kolačića",
+    "text": "Koristimo marketinške kolačiće (Meta Pixel) da merimo naše oglase i prikažemo vam relevantan sadržaj. Možete ih prihvatiti ili odbiti; tehnički kolačići neophodni za sajt uvek ostaju aktivni.",
+    "policyLink": "Politika kolačića",
+    "accept": "Prihvati",
+    "reject": "Odbij"
+  }
 }

@@ -9,6 +9,7 @@ import { Course } from '../types';
 import { useLocalizedCourse } from '../hooks/useLocalizedCourse';
 import { ebookVimeoMap, getVimeoPreviewUrl } from '../data/videoConfig';
 import { useAuth } from '../contexts/AuthContext';
+import { trackViewContent } from '../lib/metaPixel';
 
 // Fallback cover images for e-books (local assets)
 const EBOOK_COVERS: Record<string, string> = {
@@ -119,6 +120,19 @@ const EbookDetailPage: React.FC<EbookDetailPageProps> = ({
     loadCourse();
     return () => { cancelled = true; };
   }, [courseId, user]);
+
+  // Meta Pixel ViewContent — once per ebook page view, after the product loads.
+  const viewTrackedFor = useRef<string | null>(null);
+  useEffect(() => {
+    if (!rawCourse || viewTrackedFor.current === rawCourse.id) return;
+    viewTrackedFor.current = rawCourse.id;
+    trackViewContent({
+      id: rawCourse.id,
+      name: rawCourse.title,
+      value: rawCourse.pricing?.discountPrice ?? rawCourse.pricing?.price ?? 0,
+      currency: rawCourse.pricing?.currency,
+    });
+  }, [rawCourse]);
 
   // Runtime enrollment check — the only path that should expose the PDF URL.
   useEffect(() => {
