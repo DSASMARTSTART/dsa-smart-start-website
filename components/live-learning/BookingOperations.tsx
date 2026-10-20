@@ -38,8 +38,9 @@ export default function BookingOperations() {
       <div className="grid gap-3 mt-4 text-sm">
         {unlinked.length > 0 && (
           <p className="text-amber-200">
-            {unlinked.length} active teacher profile(s) need a linked login before students can
-            book. Open Teachers to invite the real teaching team.
+            {unlinked.length} active teacher profile(s) are managed by staff. Students can book
+            their published sessions. Add teacher emails and invite them for direct notifications
+            and access to their own workspace.
           </p>
         )}
         {vimeo && (

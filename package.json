@@ -14,6 +14,7 @@
     "test:watch": "vitest",
     "test:live-db": "node scripts/test-live-learning.mjs",
     "test:teacher-profiles": "node --test scripts/test-teacher-profiles.mjs",
+    "test:group-calendar": "node --test scripts/test-group-calendar.mjs",
     "images:optimize": "node scripts/optimize-images.mjs",
     "predev": "npm run images:optimize",
     "prebuild": "npm run images:optimize",

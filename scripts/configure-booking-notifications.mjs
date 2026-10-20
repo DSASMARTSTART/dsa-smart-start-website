@@ -33,6 +33,12 @@ const [ready] = await query(
 );
 if (!ready?.ready)
   throw new Error('Deploy booking migrations and worker before configuring the schedule.');
+// Do not activate a previously idle sender over historical queued messages.
+const [outbox] = await query(
+  'select count(*)::int as queued from live_booking_notifications where delivered_at is null'
+);
+if (outbox?.queued)
+  throw new Error('Review queued booking notifications before activating delivery.');
 const rows = await query(
   "select decrypted_secret from vault.decrypted_secrets where name='booking_notification_secret'"
 );
@@ -49,6 +55,24 @@ await query(`DO $$ BEGIN
   PERFORM vault.update_secret((SELECT id FROM vault.secrets WHERE name='booking_site_url'),'https://${project}.supabase.co');
  END IF;
 END $$;`);
+// Verify the deployed worker and email configuration before activating cron.
+// The queue is empty, so this health check sends no messages.
+const health = await fetch(
+  `https://${project}.supabase.co/functions/v1/send-booking-notifications`,
+  {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${secret}`, 'Content-Type': 'application/json' },
+    body: '{}',
+    signal: AbortSignal.timeout(45000),
+  }
+);
+if (!health.ok)
+  throw new Error(
+    `Booking worker health check failed (${health.status}). Scheduler was not activated.`
+  );
+const result = await health.json();
+if (result.failed)
+  throw new Error('Booking worker reported a delivery failure. Scheduler was not activated.');
 await query(
   readFileSync(new URL('../supabase/booking-notification-schedule.sql', import.meta.url), 'utf8')
 );

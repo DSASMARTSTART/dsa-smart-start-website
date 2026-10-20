@@ -113,6 +113,35 @@ beforeEach(() => {
   f.state.bookings = [];
 });
 describe('live program integration', () => {
+  it('books a published group on its own date only after the student confirms', async () => {
+    f.api.availability.mockResolvedValue({
+      times: [],
+      groups: [
+        { id: 'later-group', date: '2027-01-12', start: '17:00', title: 'Later group', seats: 4 },
+        { id: 'earlier-group', date: '2027-01-05', start: '16:00', title: 'Earlier group', seats: 4 },
+      ],
+    });
+    render(<LiveLearningPage courseId={f.course.id} teacherId="teacher" onNavigate={() => {}} />);
+    fireEvent.click(await screen.findByRole('button', { name: 'live.group' }));
+    fireEvent.click(await screen.findByRole('button', { name: /Earlier group/ }));
+    expect(f.api.book).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'live.requestBooking' }));
+    await waitFor(() => expect(f.api.book).toHaveBeenCalledWith(
+      f.course.id, 'teacher', '2027-01-05', null, 'earlier-group'
+    ));
+    expect(await screen.findAllByText('live.bookingRequested')).toHaveLength(2);
+  });
+
+  it('waits for group availability before displaying an empty calendar', async () => {
+    let finish!: (value: { times: string[]; groups: never[] }) => void;
+    f.api.availability.mockImplementation(() => new Promise(resolve => { finish = resolve; }));
+    render(<LiveLearningPage courseId={f.course.id} teacherId="teacher" onNavigate={() => {}} />);
+    fireEvent.click(await screen.findByRole('button', { name: 'live.group' }));
+    expect(screen.queryByText('live.noGroups')).toBeNull();
+    await act(async () => { finish({ times: [], groups: [] }); });
+    expect(await screen.findByText('live.noGroups')).toBeTruthy();
+  });
+
   it('pauses availability reads in hidden tabs and refreshes when returning', async () => {
     vi.useFakeTimers();
     const hidden = vi.spyOn(document, 'hidden', 'get').mockReturnValue(false);

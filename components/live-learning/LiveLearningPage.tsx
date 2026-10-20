@@ -114,7 +114,9 @@ export default function LiveLearningPage({
   const now = teacherNow(teacher?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone);
   const selectedDate = dateKey(dates[day]);
   const privateTimes = availability.times;
-  const groups = availability.groups;
+  const groups = [...availability.groups].sort(
+    (a, b) => a.date.localeCompare(b.date) || a.start.localeCompare(b.start)
+  );
   useEffect(() => {
     let cancelled = false;
     if (!courseId || !teacherId || !userId) return;
@@ -609,7 +611,8 @@ export default function LiveLearningPage({
                     )}
                   </>
                 ) : (
-                  <div className="ll-profile-groups">
+                  <div className="ll-profile-groups" aria-busy={slotLoading}>
+                    {slotLoading && <p role="status">{t('live.loading')}</p>}
                     {groups.length ? (
                       groups.map((group) => (
                         <button
@@ -630,13 +633,13 @@ export default function LiveLearningPage({
                           {selectedTime === group.id && <Check size={18} />}
                         </button>
                       ))
-                    ) : (
+                    ) : !slotLoading && !availabilityError ? (
                       <div className="ll-availability-empty">
                         <Users size={25} />
                         <h3>{t('live.noGroups')}</h3>
                         <p>{t('live.checkBack')}</p>
                       </div>
-                    )}
+                    ) : null}
                   </div>
                 )}
                 {selectedTime && (
@@ -684,7 +687,9 @@ export default function LiveLearningPage({
                       await liveApi.book(
                         enrollment.courseId,
                         teacher.id,
-                        selectedDate,
+                        currentFormat === 'group'
+                          ? groups.find((group) => group.id === selectedTime)?.date || selectedDate
+                          : selectedDate,
                         currentFormat === 'private' ? selectedTime : null,
                         currentFormat === 'group' ? selectedTime : null
                       );
