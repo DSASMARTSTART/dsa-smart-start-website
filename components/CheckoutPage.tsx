@@ -712,7 +712,7 @@ const CheckoutPage: React.FC<CheckoutProps> = ({
               originalPrice: hasActiveDiscount ? pricing.price : undefined,
               color: LEVEL_COLORS[course.level] || 'from-purple-600 to-indigo-800',
               // New fields for teaching materials
-              teachingMaterialsPrice: course.teachingMaterialsPrice,
+              teachingMaterialsPrice: course.teachingMaterialsIncluded ? undefined : course.teachingMaterialsPrice,
               productType: course.productType,
               allowedPaymentMethods: course.allowedPaymentMethods as PaymentMethod[] | undefined
             });

@@ -56,7 +56,7 @@
     "discountApplied": "Sconto applicato",
     "total": "Totale",
     "digitalNote": "📦 Prodotto digitale — accesso istantaneo alla conferma del pagamento",
-    "currencyNotice": "Tutti i prezzi sono indicati in EUR. I pagamenti con carta vengono elaborati in RSD (Dinari serbi) a un tasso fisso di 1 EUR = {{rate}} RSD. La tua carta verrà addebitata circa <strong>{{rsdAmount}}</strong> per questo ordine.",
+    "currencyNotice": "Tutti i prezzi sono indicati in EUR. I pagamenti con carta vengono elaborati in RSD (Dinari serbi) a un tasso fisso di 1 EUR = {{rate}} RSD. La tua carta verrà addebitata circa {{rsdAmount}} per questo ordine.",
     "currencyNoticeLabel": "Avviso valuta:"
   },
   "teachingMaterialsAddon": {

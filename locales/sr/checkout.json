@@ -56,7 +56,7 @@
     "discountApplied": "Primenjen popust",
     "total": "Ukupno",
     "digitalNote": "📦 Digitalni proizvod — trenutni pristup nakon potvrde plaćanja",
-    "currencyNotice": "Sve cene su prikazane u EUR. Plaćanja karticom se obrađuju u RSD (srpski dinari) po fiksnom kursu od 1 EUR = {{rate}} RSD. Vaša kartica će biti zadužena za približno <strong>{{rsdAmount}}</strong> za ovu narudžbinu.",
+    "currencyNotice": "Sve cene su prikazane u EUR. Plaćanja karticom se obrađuju u RSD (srpski dinari) po fiksnom kursu od 1 EUR = {{rate}} RSD. Vaša kartica će biti zadužena za približno {{rsdAmount}} za ovu narudžbinu.",
     "currencyNoticeLabel": "Napomena o valuti:"
   },
   "teachingMaterialsAddon": {

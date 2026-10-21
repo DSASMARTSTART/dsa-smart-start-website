@@ -256,27 +256,27 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
           <form className="space-y-5" onSubmit={handleSubmit}>
             {!isLogin && (
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-3">{t('fullName')}</label>
+                <label htmlFor="auth-modal-name" className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-3">{t('fullName')}</label>
                 <div className="relative">
                   <User className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
-                  <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder={t('namePlaceholder')} className="w-full pl-13 pr-6 py-4 rounded-2xl bg-white/5 border border-white/10 focus:bg-white/10 focus:border-purple-500 outline-none transition-all font-bold text-white placeholder-gray-500" />
+                  <input id="auth-modal-name" type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder={t('namePlaceholder')} className="w-full pl-13 pr-6 py-4 rounded-2xl bg-white/5 border border-white/10 focus:bg-white/10 focus:border-purple-500 outline-none transition-all font-bold text-white placeholder-gray-500" />
                 </div>
               </div>
             )}
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-3">{t('emailAddress')}</label>
+              <label htmlFor="auth-modal-email" className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-3">{t('emailAddress')}</label>
               <div className="relative">
                 <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
-                <input ref={emailInputRef} type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} placeholder="email@example.com" className="w-full pl-13 pr-6 py-4 rounded-2xl bg-white/5 border border-white/10 focus:bg-white/10 focus:border-purple-500 outline-none transition-all font-bold text-white placeholder-gray-500" />
+                <input id="auth-modal-email" ref={emailInputRef} type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} placeholder="email@example.com" className="w-full pl-13 pr-6 py-4 rounded-2xl bg-white/5 border border-white/10 focus:bg-white/10 focus:border-purple-500 outline-none transition-all font-bold text-white placeholder-gray-500" />
               </div>
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-3">{t('password')}</label>
+              <label htmlFor="auth-modal-password" className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-3">{t('password')}</label>
               <div className="relative">
                 <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
-                <input type={showPassword ? "text" : "password"} value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} placeholder="••••••••" className="w-full pl-13 pr-12 py-4 rounded-2xl bg-white/5 border border-white/10 focus:bg-white/10 focus:border-purple-500 outline-none transition-all font-bold text-white placeholder-gray-500" />
+                <input id="auth-modal-password" type={showPassword ? "text" : "password"} value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} placeholder="••••••••" className="w-full pl-13 pr-12 py-4 rounded-2xl bg-white/5 border border-white/10 focus:bg-white/10 focus:border-purple-500 outline-none transition-all font-bold text-white placeholder-gray-500" />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-500" aria-label={showPassword ? t('hidePassword') : t('showPassword')}>{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
               </div>
               {/* Password strength - register only */}
@@ -310,10 +310,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
 
             {!isLogin && (
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-3">{t('confirmPassword')}</label>
+                <label htmlFor="auth-modal-confirm-password" className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-3">{t('confirmPassword')}</label>
                 <div className="relative">
                   <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
-                  <input type={showConfirmPassword ? "text" : "password"} value={formData.confirmPassword} onChange={e => setFormData({...formData, confirmPassword: e.target.value})} placeholder="••••••••" className="w-full pl-13 pr-12 py-4 rounded-2xl bg-white/5 border border-white/10 focus:bg-white/10 focus:border-purple-500 outline-none transition-all font-bold text-white placeholder-gray-500" />
+                  <input id="auth-modal-confirm-password" type={showConfirmPassword ? "text" : "password"} value={formData.confirmPassword} onChange={e => setFormData({...formData, confirmPassword: e.target.value})} placeholder="••••••••" className="w-full pl-13 pr-12 py-4 rounded-2xl bg-white/5 border border-white/10 focus:bg-white/10 focus:border-purple-500 outline-none transition-all font-bold text-white placeholder-gray-500" />
                   <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-500" aria-label={showConfirmPassword ? t('hidePassword') : t('showPassword')}>{showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
                 </div>
               </div>

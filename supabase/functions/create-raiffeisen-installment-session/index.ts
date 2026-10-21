@@ -250,7 +250,7 @@ Deno.serve(async (req) => {
     const courseIds = [...new Set(body.purchaseItems.map(item => item.courseId))]
     const { data: courses, error: coursesError } = await serviceClient
       .from('courses')
-      .select('id, pricing, teaching_materials_price, allowed_payment_methods')
+      .select('id, pricing, teaching_materials_price, teaching_materials_included, allowed_payment_methods')
       .in('id', courseIds)
 
     if (coursesError) {
@@ -276,7 +276,7 @@ Deno.serve(async (req) => {
       const c: any = courseMap.get(item.courseId)
       const base = Number(c?.pricing?.price) || 0
       const includeMaterials = !!item.teachingMaterialsIncluded
-      const materials = includeMaterials ? (Number(c?.teaching_materials_price) || 0) : 0
+      const materials = includeMaterials && !c?.teaching_materials_included ? (Number(c?.teaching_materials_price) || 0) : 0
       return { courseId: item.courseId, base, materials, includeMaterials, gross: round2(base + materials) }
     })
     const subtotal = round2(computed.reduce((s, c) => s + c.gross, 0))

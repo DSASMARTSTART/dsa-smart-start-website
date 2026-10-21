@@ -88,7 +88,7 @@
     "discountApplied": "Discount Applied",
     "total": "Total",
     "digitalNote": "📦 Digital product — instant access upon payment confirmation",
-    "currencyNotice": "All prices are shown in EUR. Card payments are processed in RSD (Serbian Dinars) at a fixed rate of 1 EUR = {{rate}} RSD. Your card will be charged approximately <strong>{{rsdAmount}}</strong> for this order.",
+    "currencyNotice": "All prices are shown in EUR. Card payments are processed in RSD (Serbian Dinars) at a fixed rate of 1 EUR = {{rate}} RSD. Your card will be charged approximately {{rsdAmount}} for this order.",
     "currencyNoticeLabel": "Currency notice:"
   },
 

@@ -367,7 +367,7 @@ Deno.serve(async (req) => {
     const courseIds = [...new Set(body.purchaseItems.map((i) => i.courseId))];
     const { data: courseRows, error: courseErr } = await supabase
       .from('courses')
-      .select('id, title, pricing, teaching_materials_price')
+      .select('id, title, pricing, teaching_materials_price, teaching_materials_included')
       .in('id', courseIds);
     if (courseErr) {
       console.error('Course price lookup failed:', courseErr);
@@ -391,7 +391,7 @@ Deno.serve(async (req) => {
       const c: any = courseById.get(it.courseId);
       const base = Number(c?.pricing?.price) || 0;
       const includeMaterials = !!it.teachingMaterialsIncluded;
-      const materials = includeMaterials ? (Number(c?.teaching_materials_price) || 0) : 0;
+      const materials = includeMaterials && !c?.teaching_materials_included ? (Number(c?.teaching_materials_price) || 0) : 0;
       return { courseId: it.courseId, base, materials, includeMaterials, gross: round2(base + materials) };
     });
     const subtotal = round2(computed.reduce((s, c) => s + c.gross, 0));

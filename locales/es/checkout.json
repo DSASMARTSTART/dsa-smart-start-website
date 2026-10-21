@@ -56,7 +56,7 @@
     "discountApplied": "Descuento Aplicado",
     "total": "Total",
     "digitalNote": "📦 Producto digital — acceso inmediato tras la confirmación del pago",
-    "currencyNotice": "Todos los precios se muestran en EUR. Los pagos con tarjeta se procesan en RSD (dinares serbios) a una tasa fija de 1 EUR = {{rate}} RSD. Se cargará aproximadamente <strong>{{rsdAmount}}</strong> en tu tarjeta por este pedido.",
+    "currencyNotice": "Todos los precios se muestran en EUR. Los pagos con tarjeta se procesan en RSD (dinares serbios) a una tasa fija de 1 EUR = {{rate}} RSD. Se cargará aproximadamente {{rsdAmount}} en tu tarjeta por este pedido.",
     "currencyNoticeLabel": "Aviso de moneda:"
   },
   "teachingMaterialsAddon": {

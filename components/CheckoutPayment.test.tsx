@@ -78,6 +78,31 @@ async function checkout() {
   await screen.findByTitle('RaiAccept Payment');
 }
 
+it('does not sell included materials again even when a stale selection and add-on price exist', async () => {
+  f.course.mockResolvedValue({
+    id: 'course-a', title: 'Language Lab Pro', level: 'language-lab-pro', isPublished: true,
+    pricing: { price: 599, currency: 'EUR' }, teachingMaterialsIncluded: true, teachingMaterialsPrice: 50,
+  });
+  render(<CheckoutPage {...props} initialTeachingMaterials={{ 'course-a': true }} />);
+  await screen.findByText('Language Lab Pro');
+  expect(screen.queryByRole('button', { name: /teachingMaterialsAddon.title/ })).toBeNull();
+  expect(screen.queryByText('€649.00')).toBeNull();
+  expect(screen.getAllByText('€599.00').length).toBeGreaterThan(0);
+});
+
+it('keeps optional materials available for packages that do not include them', async () => {
+  f.course.mockResolvedValue({
+    id: 'course-a', title: 'Language Lab', level: 'language-lab', isPublished: true,
+    pricing: { price: 160, currency: 'EUR' }, teachingMaterialsIncluded: false, teachingMaterialsPrice: 50,
+  });
+  render(<CheckoutPage {...props} />);
+  const addon = await screen.findByRole('button', { name: /teachingMaterialsAddon.title/ });
+  fireEvent.click(addon);
+  expect(screen.getAllByText('€210.00').length).toBeGreaterThan(0);
+  fireEvent.click(addon);
+  expect(screen.queryByText('€210.00')).toBeNull();
+});
+
 function success(origin = 'https://bank.example.invalid') {
   window.dispatchEvent(
     new MessageEvent('message', {
