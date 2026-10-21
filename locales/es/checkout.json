@@ -105,7 +105,7 @@
     "support": "Soporte prioritario de especialistas 24/7",
     "satisfaction": "Garantía de satisfacción"
   },
-  "emailConfirmation": "La confirmación del pedido se enviará a <strong>{{email}}</strong>",
+  "emailConfirmation": "La confirmación del pedido se enviará a {{email}}",
   "security": {
     "sslSecured": "Protegido con SSL",
     "3dSecure": "3D Secure",

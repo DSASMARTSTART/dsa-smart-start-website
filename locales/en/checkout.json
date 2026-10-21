@@ -143,7 +143,7 @@
     "satisfaction": "Satisfaction guarantee"
   },
 
-  "emailConfirmation": "Order confirmation will be sent to <strong>{{email}}</strong>",
+  "emailConfirmation": "Order confirmation will be sent to {{email}}",
 
   "security": {
     "sslSecured": "SSL Secured",

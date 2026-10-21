@@ -105,7 +105,7 @@
     "support": "Prioritetna specijalizovana podrška 24/7",
     "satisfaction": "Garancija zadovoljstva"
   },
-  "emailConfirmation": "Potvrda narudžbine biće poslata na <strong>{{email}}</strong>",
+  "emailConfirmation": "Potvrda narudžbine biće poslata na {{email}}",
   "security": {
     "sslSecured": "SSL zaštićeno",
     "3dSecure": "3D Secure",
