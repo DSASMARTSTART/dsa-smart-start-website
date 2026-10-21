@@ -64,7 +64,7 @@ const CartBubble: React.FC<CartBubbleProps> = ({ cart, onNavigateToCheckout }) =
   return (
     <button
       onClick={onNavigateToCheckout}
-      className="fixed top-20 sm:top-24 right-4 sm:right-8 z-[150] flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-2 sm:px-5 sm:py-3 rounded-full shadow-2xl shadow-purple-500/40 hover:scale-105 active:scale-95 transition-all duration-300 animate-pulse-subtle group"
+      className="fixed top-20 sm:top-24 right-4 sm:right-8 z-[90] flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-2 sm:px-5 sm:py-3 rounded-full shadow-2xl shadow-purple-500/40 hover:scale-105 active:scale-95 transition-all duration-300 animate-pulse-subtle group"
       aria-label={t('cart.goToCheckout')}
     >
       {/* Pulse ring animation */}
